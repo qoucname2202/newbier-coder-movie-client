@@ -5,18 +5,19 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import styles from '../../styles/MovieCategory.module.css';
 import Skeleton from '../UI/Skeleton';
+import { mockKoreanMovies, mockChineseMovies } from '../../mock/mockMovies';
 
 const Moviecountry = () => {
   const [countriesData, setCountriesData] = useState({
     korean: {
       title: 'Phim Hàn Quốc Mới',
-      movies: [],
-      loading: true
+      movies: mockKoreanMovies,
+      loading: false
     },
     chinese: {
       title: 'Phim Trung Quốc Mới',
-      movies: [],
-      loading: true
+      movies: mockChineseMovies,
+      loading: false
     }
   });
   const [loadedImages, setLoadedImages] = useState({});
@@ -105,20 +106,13 @@ const Moviecountry = () => {
     setPreviewMovie(null);
   };
   const fetchMoviesByCountry = async (countryKey, countryCode) => {
+    const fallbackList = countryKey === 'korean' ? mockKoreanMovies : mockChineseMovies;
     try {
-      setCountriesData(prev => ({
-        ...prev,
-        [countryKey]: {
-          ...prev[countryKey],
-          loading: true,
-          movies: []
-        }
-      }));
-
       const response = await fetch(`http://localhost:5000/api/movies?page=1&limit=100`);
+      if (!response.ok) throw new Error('Network error');
       const result = await response.json();
 
-      if (result.data?.movies) {
+      if (result.data?.movies && result.data.movies.length > 0) {
         const filteredMovies = result.data.movies.filter(movie => {
           return movie.country?.some?.(c => c.slug === countryCode);
         });
@@ -138,19 +132,28 @@ const Moviecountry = () => {
           ...prev,
           [countryKey]: {
             ...prev[countryKey],
-            movies: processedMovies,
+            movies: processedMovies.length > 0 ? processedMovies : fallbackList,
+            loading: false
+          }
+        }));
+      } else {
+        setCountriesData(prev => ({
+          ...prev,
+          [countryKey]: {
+            ...prev[countryKey],
+            movies: fallbackList,
             loading: false
           }
         }));
       }
     } catch (error) {
-      console.error(`Lỗi khi tải phim ${countryKey}:`, error);
       setCountriesData(prev => ({
         ...prev,
         [countryKey]: {
           ...prev[countryKey],
+          movies: fallbackList,
           loading: false,
-          error: error.message
+          error: null
         }
       }));
     }

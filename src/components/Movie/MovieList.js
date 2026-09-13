@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import MovieCategory from "./MovieCategory";
+import { mockMovies } from "../../mock/mockMovies";
 
 const MovieList = () => {
   const [categories, setCategories] = useState([
@@ -8,30 +9,37 @@ const MovieList = () => {
       id: 'new',
       title: "Phim mới cập nhật",
       endpoint: 'danh-sach/phim-moi-cap-nhat',
-      movies: []
+      movies: mockMovies
     },
-
   ]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const fetchMovieDetail = async (slug) => {
-    const response = await fetch(`http://localhost:5000/api/movies/${movie.slug}`);
-    const data = await response.json();
-    return data.movie;
+    try {
+      const response = await fetch(`http://localhost:5000/api/movies/${slug}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.movie || null;
+    } catch {
+      return null;
+    }
   };
 
   const fetchMoviesForCategory = async (endpoint, categoryId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/movies/${movie.slug}`);
+      const response = await fetch(`http://localhost:5000/api/movies`);
+      if (!response.ok) throw new Error('Network error');
       const data = await response.json();
 
-      if (data.items) {
-        const moviePromises = data.items.map(async (movie) => {
+      if (data.items || (data.data && data.data.movies)) {
+        const rawList = data.items || data.data.movies;
+        const moviePromises = rawList.map(async (movie) => {
+          if (!movie.slug) return movie;
           const movieDetail = await fetchMovieDetail(movie.slug);
-          return movieDetail;
+          return movieDetail || movie;
         });
 
         let movies = await Promise.all(moviePromises);
@@ -42,23 +50,23 @@ const MovieList = () => {
             movie.type === 'series' ||
             movie.episode_current !== 'Full' ||
             movie.category?.some(cat =>
-              cat.name.toLowerCase().includes('phim bộ'))
+              (cat.name || '').toLowerCase().includes('phim bộ'))
           );
         } else if (categoryId === 'single') {
           movies = movies.filter(movie =>
             movie.type === 'single' ||
             movie.episode_current === 'Full' ||
             movie.category?.some(cat =>
-              cat.name.toLowerCase().includes('phim lẻ'))
+              (cat.name || '').toLowerCase().includes('phim lẻ'))
           );
         }
 
-        return movies;
+        return movies.length > 0 ? movies : mockMovies;
       }
-      return [];
+      return mockMovies;
     } catch (error) {
-      console.error(`Lỗi khi fetch ${endpoint}:`, error);
-      return [];
+      // Backend offline -> Trả về mockMovies an toàn, không ném lỗi
+      return mockMovies;
     }
   };
 

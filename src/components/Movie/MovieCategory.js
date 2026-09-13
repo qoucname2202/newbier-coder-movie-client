@@ -8,6 +8,7 @@ import styles from '../MovieCategory.module.css';
 import Skeleton from '../UI/Skeleton';
 import Moviecountry from './Moviecountry';
 import upcomingMovieService from '../../API/services/upcomingMovieService';
+import { mockMovies } from '../../mock/mockMovies';
 
 const getCountdownText = (releaseDate) => {
   const now = new Date();
@@ -256,15 +257,24 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
     setPreviewMovie(null);
   };
 
+  const fallbackToMockMovies = () => {
+    setMovies(mockMovies);
+    setFeaturedMovies(mockMovies.slice(0, 5));
+    setTopMovies(mockMovies.slice(4, 10));
+    setMostViewedMovies(mockMovies.slice(0, 6));
+    setUpcomingMovies(mockMovies.slice(2, 6));
+  };
+
   const fetchMovies = async (pageNumber = 1, limit = 24) => {
     try {
       setLoading(true);
       const response = await fetch(
         `http://localhost:5000/api/movies?page=${pageNumber}&limit=${limit}`
       );
+      if (!response.ok) throw new Error('API server unavailable');
       const result = await response.json();
 
-      if (result.data && result.data.movies) {
+      if (result.data && result.data.movies && result.data.movies.length > 0) {
         const { movies, pagination } = result.data;
 
         const processedMovies = movies.map(movie => ({
@@ -289,10 +299,11 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
           setMovies(prevMovies => [...prevMovies, ...processedMovies]);
         }
       } else {
-        console.error('Error fetching movies:', result.message || 'Unknown error');
+        fallbackToMockMovies();
       }
     } catch (error) {
-      console.error('Lỗi khi tải danh sách phim:', error);
+      console.warn('API backend chưa bật hoặc lỗi mạng, tự động dùng mock data an toàn');
+      fallbackToMockMovies();
     } finally {
       setLoading(false);
     }
@@ -374,7 +385,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
           setMostViewedMovies(processedMovies);
         }
       } catch (fallbackError) {
-        console.error('Error fetching fallback movies:', fallbackError);
+        setMostViewedMovies(mockMovies.slice(0, 6));
       }
     }
   };
@@ -382,15 +393,13 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
     try {
       const result = await upcomingMovieService.getUpcomingMovies(1, 30);
 
-      if (result.success && result.upcomingMovies) {
+      if (result.success && result.upcomingMovies && result.upcomingMovies.length > 0) {
         setUpcomingMovies(result.upcomingMovies);
       } else {
-        console.error('Invalid data format from upcoming movies API:', result);
-        setUpcomingMovies([]);
+        setUpcomingMovies(mockMovies.slice(2, 7));
       }
     } catch (error) {
-      console.error('Error fetching upcoming movies:', error);
-      setUpcomingMovies([]);
+      setUpcomingMovies(mockMovies.slice(2, 7));
     }
   };
 
