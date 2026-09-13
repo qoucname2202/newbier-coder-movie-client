@@ -1,0 +1,41 @@
+/* confirmationStatus classes for payment modal */
+.confirmationStatusAlert {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 8px;
+  margin: 15px 0;
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  gap: 10px;
+  animation: fadeIn 0.5s ease;
+}
+
+.confirmationStatusSuccess {
+  background-color: rgba(76, 175, 80, 0.15);
+  border-left: 4px solid #4CAF50;
+  color: #4CAF50;
+}
+
+.confirmationStatusError {
+  background-color: rgba(231, 76, 60, 0.15);
+  border-left: 4px solid #e74c3c;
+  color: #e74c3c;
+}
+
+.confirmationStatusPending {
+  background-color: rgba(255, 193, 7, 0.15);
+  border-left: 4px solid #ffc107;
+  color: #ffc107;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

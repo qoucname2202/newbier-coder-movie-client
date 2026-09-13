@@ -1,0 +1,56 @@
+/* Add this to your global CSS file */
+@keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+}
+
+.blur-load {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+.blur-load::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: pulse 2.5s infinite;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: opacity 0.3s ease-in-out;
+    z-index: 1;
+}
+
+@keyframes pulse {
+    0% { opacity: 0; }
+    50% { opacity: 0.1; }
+    100% { opacity: 0; }
+}
+
+.blur-load.loaded::before {
+    animation: none;
+    opacity: 0;
+}
+
+.blur-load img {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    position: relative;
+    z-index: 2;
+}
+
+.blur-load.loaded img {
+    opacity: 1;
+}
+
+/* Add specific styles for skeleton component */
+.skeleton-loading {
+    background: linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #2a2a2a 100%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite ease-in-out;
+}

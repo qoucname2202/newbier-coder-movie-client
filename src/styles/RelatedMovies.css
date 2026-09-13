@@ -1,0 +1,100 @@
+.relatedMoviesContainer {
+    margin: 3rem 0;
+  }
+  
+  .sectionTitle {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+  
+  .moviesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .movieCard {
+    text-decoration: none;
+    color: white;
+    transition: transform 0.3s ease;
+  }
+  
+  .movieCard:hover {
+    transform: translateY(-8px);
+  }
+  
+  .posterWrapper {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 2/3;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .movieCard:hover .overlay {
+    opacity: 1;
+  }
+  
+  .playButton {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(220, 53, 69, 0.9);
+    border: 2px solid white;
+    color: white;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .playButton:hover {
+    transform: scale(1.1);
+    background: rgb(220, 53, 69);
+  }
+  
+  .movieTitle {
+    margin-top: 1rem;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 768px) {
+    .moviesGrid {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+    }
+    
+    .movieTitle {
+      font-size: 0.9rem;
+    }
+  }

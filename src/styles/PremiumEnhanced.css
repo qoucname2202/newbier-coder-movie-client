@@ -1,0 +1,487 @@
+/* Success Modal Styles */
+.successModal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+.successModalContent {
+  padding: 2.5rem;
+  text-align: center;
+}
+
+.successIcon {
+  font-size: 4rem;
+  color: #4CAF50;
+  margin-bottom: 1rem;
+}
+
+.successModal h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.successModal p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.closeSuccessButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.closeSuccessButton:hover {
+  background-color: #3e8e41;
+}
+
+/* Package Card Enhancements */
+.packageCard {
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.packageCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.popularBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ff9800, #ff5722);
+  color: white;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-bottom-left-radius: 8px;
+  box-shadow: 0 2px 8px rgba(255, 87, 34, 0.3);
+  z-index: 1;
+}
+
+.packageHeader {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.currentPackage .packageHeader {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+}
+
+.highlightPackage .packageHeader {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.currentBadge {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.checkBadgeIcon {
+  margin-right: 5px;
+}
+
+.packagePrice {
+  padding: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 1rem;
+  font-weight: normal;
+  margin-bottom: 0.5rem;
+}
+
+.discountPrice {
+  color: #e74c3c;
+  font-size: 1.8rem;
+}
+
+.normalPrice {
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.discountBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: #e74c3c;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+.packageDescription {
+  padding: 1rem 1.5rem;
+  color: #666;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.featuresList {
+  padding: 1.5rem;
+  list-style: none;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.featuresList li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  color: #555;
+}
+
+.checkIcon {
+  color: #4CAF50;
+  margin-right: 0.8rem;
+  flex-shrink: 0;
+}
+
+.subscribeButton, .cancelSubscriptionButton {
+  margin-top: auto;
+  padding: 1rem;
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.subscribeButton {
+  background-color: #3498db;
+  color: white;
+}
+
+.subscribeButton:hover {
+  background-color: #2980b9;
+}
+
+.highlightButton {
+  background-color: #f39c12;
+}
+
+.highlightButton:hover {
+  background-color: #e67e22;
+}
+
+.cancelSubscriptionButton {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.cancelSubscriptionButton:hover {
+  background-color: #c0392b;
+}
+
+.pendingButtonContainer {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.pendingText {
+  display: flex;
+  align-items: center;
+  color: #f39c12;
+  font-weight: bold;
+  margin-bottom: 0.8rem;
+}
+
+.pendingIcon {
+  margin-right: 0.5rem;
+}
+
+.cancelButton {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancelButton:hover {
+  background-color: #c0392b;
+}
+
+.buttonSpinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  margin-right: 5px;
+}
+
+.currentButtonContainer {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Payment Modal Enhancements */
+.paymentModal {
+  background-color: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  background: linear-gradient(90deg, #3498db, #2980b9);
+  color: white;
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.confirmButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.confirmButton:hover {
+  background-color: #3e8e41;
+}
+
+/* QR Code Container */
+.qrCodeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.qrCodeContainer h4 {
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.qrImageWrapper {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.bankDetails {
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.bankDetails p {
+  margin: 0.5rem 0;
+  line-height: 1.6;
+}
+
+.confirmPaymentActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Payment Confirmation Box */
+.paymentConfirmedBox {
+  background-color: #f1f8e9;
+  border: 1px solid #c5e1a5;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.confirmedIcon {
+  font-size: 3rem;
+  color: #4CAF50;
+  margin-bottom: 1rem;
+}
+
+.paymentConfirmedBox h4 {
+  margin-bottom: 0.8rem;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.paymentConfirmedBox p {
+  margin-bottom: 1.5rem;
+  color: #555;
+}
+
+/* Payment Methods */
+.methodsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.methodCard {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.methodCard:hover {
+  border-color: #3498db;
+  transform: translateY(-4px);
+}
+
+.methodCard.selected {
+  border-color: #4CAF50;
+  background-color: #f1f8e9;
+}
+
+.methodIcon {
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+.methodName {
+  font-weight: bold;
+  color: #555;
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .packagesGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .benefitsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .methodsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+}

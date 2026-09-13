@@ -1,0 +1,51 @@
+/* Movie thumbnail styles */
+.movieThumbnail {
+  width: 80px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.movieThumbnail:hover {
+  transform: scale(1.05);
+}
+
+.noThumbnail {
+  width: 80px;
+  height: 45px;
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+  margin-right: 8px;
+}
+
+.movieInfoHighlight {
+  display: flex;
+  flex-direction: column;
+}
+
+.movieName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.episodeTag {
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: #3498db;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 3px;
+  width: fit-content;
+}

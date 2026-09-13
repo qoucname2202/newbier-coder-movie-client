@@ -1,0 +1,1466 @@
+/* Premium Page Styles */
+.premiumContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  color: #f5f5f7;
+}
+
+/* Enhanced Premium Header */
+.premiumHeader {
+  text-align: center;
+  padding: 3rem 1rem;
+  margin-bottom: 3rem;
+  position: relative;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(24, 24, 27, 0.8), rgba(32, 32, 36, 0.9));
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.headerGlow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(239, 184, 56, 0.2) 0%,
+    rgba(239, 184, 56, 0.1) 20%,
+    rgba(239, 184, 56, 0) 60%
+  );
+  pointer-events: none;
+}
+
+.headerIcon {
+  font-size: 3.5rem;
+  color: #f39c12;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 8px rgba(243, 156, 18, 0.5));
+  animation: float 3s ease-in-out infinite;
+}
+
+.premiumHeader h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, #f39c12, #f1c40f, #e67e22);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 800;
+}
+
+.premiumHeader p {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+.headerSignupButton {
+  background: linear-gradient(to right, #f39c12, #e67e22);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+  margin-top: 1rem;
+}
+
+.headerSignupButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+}
+
+.memberBadge {
+  background: linear-gradient(to right, #4CAF50, #2E7D32);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 30px;
+  font-weight: bold;
+  display: inline-block;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+  margin-top: 1rem;
+}
+
+.memberBadgeIcon {
+  color: #FFD700;
+  margin-right: 0.5rem;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Current Subscription */
+.currentSubscription, .pendingSubscription {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.subscriptionHeader, .pendingHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.crownIcon, .pendingIcon {
+  font-size: 1.8rem;
+  color: #ffc107;
+  margin-right: 1rem;
+}
+
+.pendingIcon {
+  color: #ff9800;
+}
+
+.subscriptionHeader h3, .pendingHeader h3 {
+  margin: 0;
+  color: #fff;
+}
+
+.subscriptionDetails, .pendingDetails {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.packageName {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 10px;
+  color: #fff;
+}
+
+.expiryInfo {
+  margin: 1rem 0;
+}
+
+.daysLeft {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+.dateInfo {
+  color: #ccc;
+  margin-bottom: 0.5rem;
+}
+
+.pendingMessage {
+  display: flex;
+  align-items: flex-start;
+  background-color: rgba(255, 152, 0, 0.1);
+  border-left: 3px solid #ff9800;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.pendingMessage svg {
+  color: #ff9800;
+  margin-right: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.paymentInfo, .amountInfo {
+  margin-bottom: 0.5rem;
+  color: #ddd;
+}
+
+.cancelButton {
+  background-color: transparent;
+  border: 1px solid #aaa;
+  color: #eee;
+  border-radius: 30px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancelButton:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.cancelButton:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+/* Enhanced Current Subscription */
+.currentSubscription {
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.currentSubscriptionInner {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.subscriptionHeader {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.crownIcon {
+  font-size: 2rem;
+  color: #FFD700;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.5));
+}
+
+.subscriptionHeader h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.discountBadge {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ff9800;
+  color: white;
+  font-weight: bold;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.subscriptionDetails {
+  padding: 1.5rem;
+  color: white;
+}
+
+.subscriptionPlan {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.packageName {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+  color: #fff;
+  background: linear-gradient(to right, #4CAF50, #8BC34A);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.expiryInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.daysLeftContainer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.daysLeft {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.daysText {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.progressContainer {
+  width: 150px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(to right, #4CAF50, #8BC34A);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.expiredStatus {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.subscriptionDates {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dateInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dateLabel {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dateValue {
+  font-weight: 600;
+  color: white;
+}
+
+.packagePriceInfo {
+  margin-bottom: 1.5rem;
+  background: rgba(50, 50, 50, 0.3);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.priceDetails {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1rem;
+}
+
+.discountPrice {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.normalPrice {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.duration {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.packageDescription {
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  padding: 0.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.featuresSection {
+  margin: 1.5rem 0;
+}
+
+.featuresSection h4 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.featuresList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.8rem;
+}
+
+.featuresList li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.checkIcon {
+  color: #4CAF50;
+  font-size: 1rem;
+}
+
+/* Premium Benefits */
+.premiumBenefits {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.premiumBenefits h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Benefit Card Enhancements */
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.benefitCard {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.benefitCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.benefitIconWrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.benefitIconWrapper::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(67, 97, 238, 0.5), rgba(140, 82, 255, 0.5));
+  animation: pulse 2s infinite;
+}
+
+.benefitIcon {
+  font-size: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.benefitCard h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.benefitCard p {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(140, 82, 255, 0.5);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 15px rgba(140, 82, 255, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(140, 82, 255, 0);
+  }
+}
+
+/* Packages Section */
+.packagesSection {
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.packagesSection h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.packagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.packageCard {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.packageCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.currentPackage {
+  border: 2px solid #ffc107;
+}
+
+.packageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.currentPackage .packageHeader {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+}
+
+.highlightPackage .packageHeader {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.packageHeader h3 {
+  margin: 0;
+  font-size: 22px;
+  color: white;
+}
+
+.popularBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ff9800, #ff5722);
+  color: white;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border-bottom-left-radius: 8px;
+  box-shadow: 0 2px 8px rgba(255, 87, 34, 0.3);
+  z-index: 1;
+}
+
+.currentBadge {
+  background-color: #ffc107;
+  color: #000;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.packagePrice {
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #fff;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.confirmationAlert {
+  background-color: rgba(76, 175, 80, 0.15);
+  border-left: 3px solid #4CAF50;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #4CAF50;
+}
+
+.confirmationAlert svg {
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+.confirmedIcon {
+  font-size: 3rem;
+  color: #4CAF50;
+  margin-bottom: 1rem;
+  animation: confirmedIconPulse 2s infinite;
+}
+
+.confirmationStatus {
+  text-align: center;
+  font-weight: 600;
+  margin: 1rem 0;
+  min-height: 24px;
+  font-size: 1.1rem;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmationStatusSuccess {
+  background-color: rgba(76, 175, 80, 0.15);
+  border-left: 4px solid #4CAF50;
+  color: #4CAF50;
+  animation: fadeIn 0.5s ease;
+}
+
+.confirmationStatusError {
+  background-color: rgba(231, 76, 60, 0.15);
+  border-left: 4px solid #e74c3c;
+  color: #e74c3c;
+  animation: fadeIn 0.5s ease;
+}
+
+.confirmationStatusPending {
+  background-color: rgba(255, 193, 7, 0.15);
+  border-left: 4px solid #ffc107;
+  color: #ffc107;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Thêm hiệu ứng cho các trạng thái xác nhận */
+.confirmationStatusSuccess {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-left: 4px solid #4CAF50;
+}
+
+.confirmationStatusError {
+  background-color: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid #e74c3c;
+}
+
+.confirmationStatusPending {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-left: 4px solid #ffc107;
+}
+
+@keyframes confirmedIconPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  
+  70% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+.paymentSummary {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summaryItem:last-child {
+  border-bottom: none;
+}
+
+.summaryLabel {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.summaryValue {
+  color: #fff;
+  font-weight: 600;
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: #aaa;
+  font-size: 1rem;
+}
+
+.discountPrice {
+  color: #4caf50;
+}
+
+.discountBadge {
+  background-color: #f44336;
+  color: white;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+.duration {
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.packageDescription {
+  margin-bottom: 1.5rem;
+  color: #ccc;
+}
+
+.featuresList {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 2rem;
+  text-align: left;
+  flex-grow: 1;
+}
+
+.featuresList li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  color: #eee;
+}
+
+.checkIcon {
+  color: #4caf50;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.checkBadgeIcon {
+  margin-right: 5px;
+}
+
+.normalPrice {
+  color: #ffffff;
+  font-size: 1.8rem;
+}
+
+.subscribeButton {
+  background-color: #ffc107;
+  color: #000;
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.subscribeButton:hover {
+  background-color: #ffca28;
+}
+
+.subscribeButton:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.pendingText {
+  display: flex;
+  align-items: center;
+  color: #f39c12;
+  font-weight: bold;
+  margin-bottom: 0.8rem;
+}
+
+.pendingIcon {
+  margin-right: 0.5rem;
+}
+
+.cancelSubscriptionButton {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.cancelSubscriptionButton:hover {
+  background-color: #c0392b;
+}
+
+.buttonSpinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  margin-right: 5px;
+}
+
+.currentButtonContainer {
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.highlightButton {
+  background-color: #f39c12;
+}
+
+.highlightButton:hover {
+  background-color: #e67e22;
+}
+
+/* FAQ Section */
+.faqSection {
+  margin-bottom: 3rem;
+}
+
+.faqSection h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.faqItem {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.faqItem h3 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #ffc107;
+}
+
+.faqItem p {
+  margin: 0;
+  color: #ddd;
+  line-height: 1.5;
+}
+
+/* Enhanced FAQ Section */
+.faqSection {
+  margin: 4rem 0;
+}
+
+.faqSection h2 {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  font-size: 2rem;
+  background: linear-gradient(to right, #3498db, #2980b9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.faqList {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faqItem {
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.faqItem:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.faqQuestion {
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faqQuestion h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.faqToggle {
+  width: 24px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: white;
+  transition: all 0.3s;
+}
+
+.faqItem.expanded .faqToggle {
+  background-color: #3498db;
+  transform: rotate(180deg);
+}
+
+.faqAnswer {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 1.5rem;
+  transition: all 0.3s ease-out;
+  opacity: 0;
+}
+
+.faqItem.expanded .faqAnswer {
+  max-height: 200px;
+  padding: 0 1.5rem 1.2rem;
+  opacity: 1;
+}
+
+.faqAnswer p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+/* Loading Spinner */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #ffc107;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.spinnerSmall {
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top: 3px solid #fff;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.noPackages {
+  text-align: center;
+  padding: 3rem;
+  color: #aaa;
+}
+
+/* Payment Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.paymentModal {
+  background-color: #222;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modalHeader h3 {
+  margin: 0;
+  color: #fff;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.closeButton:hover {
+  color: #fff;
+}
+
+.closeButton:disabled {
+  color: #666;
+  cursor: not-allowed;
+}
+
+.modalBody {
+  padding: 2rem;
+}
+
+.packageSummary {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.packageSummary h4 {
+  margin-bottom: 1rem;
+  color: #ffc107;
+}
+
+.paymentMethods {
+  margin-bottom: 2rem;
+}
+
+.paymentMethods h4 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #ffc107;
+}
+
+.methodsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.methodCard {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.methodCard:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.methodCard.selected {
+  background-color: rgba(255, 193, 7, 0.2);
+  border: 2px solid #ffc107;
+}
+
+.methodIcon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.methodName {
+  font-size: 0.9rem;
+  color: #eee;
+}
+
+.approvalNote {
+  display: flex;
+  align-items: flex-start;
+  background-color: rgba(33, 150, 243, 0.1);
+  border-left: 3px solid #2196f3;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+}
+
+.approvalNote svg {
+  color: #2196f3;
+  margin-right: 0.8rem;
+  font-size: 1.2rem;
+  margin-top: 0.2rem;
+}
+
+.approvalNote p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.confirmButton {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+  animation: buttonPulse 1.5s infinite ease-in-out;
+}
+
+.confirmButton:hover {
+  background-color: #43a047;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+}
+
+.confirmButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: none;
+}
+
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.6);
+  }
+  100% {
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+  }
+}
+
+/* Success Modal Styles */
+.successModal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+.successModalContent {
+  padding: 2.5rem;
+  text-align: center;
+}
+
+.successIcon {
+  font-size: 4rem;
+  color: #4CAF50;
+  margin-bottom: 1rem;
+}
+
+.successModal h3 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.successModal p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.closeSuccessButton {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.closeSuccessButton:hover {
+  background-color: #3e8e41;
+}
+
+/* Subscription details in success modal */
+.subscriptionDetailsContainer {
+  margin: 1.5rem 0;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 10px;
+  padding: 1.2rem;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.subscriptionDetailsTitle {
+  color: #2e7d32;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.subscriptionDetailsCard {
+  display: flex;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  align-items: center;
+  text-align: left;
+}
+
+.packageIcon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.packageDetails {
+  flex: 1;
+}
+
+.packageDetails h5 {
+  color: #333;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.packageDetails .packagePrice {
+  color: #e67e22;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0.3rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.packageDetails .packageDuration {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+
+.packageFeatures {
+  margin-top: 0.8rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.featureIcon {
+  color: #4CAF50;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .premiumHeader h1 {
+    font-size: 32px;
+  }
+  
+  .premiumHeader p {
+    font-size: 16px;
+  }
+  
+  .packagesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .premiumHeader h1 {
+    font-size: 28px;
+  }
+  
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .packagesGrid {
+    grid-template-columns: 1fr;
+    max-width: 450px;
+    margin: 0 auto;
+  }
+  
+  .premiumContainer {
+    padding: 30px 15px;
+  }
+  
+  .methodsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .packagePrice {
+    flex-direction: column;
+  }
+  
+  .confirmPaymentActions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .premiumHeader h1 {
+    font-size: 24px;
+  }
+  
+  .premiumHeader p {
+    font-size: 14px;
+  }
+  
+  .packagePrice {
+    font-size: 20px;
+  }
+  
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  
+  .paymentModal {
+    width: 95%;
+  }
+}

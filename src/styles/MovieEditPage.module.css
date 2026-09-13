@@ -1,0 +1,454 @@
+.container {
+  padding: 1.5rem;
+  background-color: #141414;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.75rem;
+}
+
+.headerTitle {
+  font-size: 1.5rem;
+  color: #fff;
+  margin: 0;
+  font-weight: 500;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover {
+  background-color: #444;
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #e50914;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover {
+  background-color: #f40612;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #e5e5e5;
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+  transition: border-color 0.2s;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: #e50914;
+  outline: none;
+}
+
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Điều chỉnh kích thước và hiển thị ảnh */
+.movieBasicInfo {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: flex-start;
+}
+
+.thumbnailPreview {
+  width: 160px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnailPreview img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.movieDetails {
+  flex-grow: 1;
+}
+
+.movieDetails h2 {
+  margin: 0 0 0.25rem;
+  color: #fff;
+  font-size: 1.4rem;
+}
+
+.originalTitle {
+  color: #aaa;
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+.movieType {
+  color: #888;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Tabs */
+.tabsContainer {
+  display: flex;
+  border-bottom: 1px solid #333;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+
+.tabsContainer::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+.tabButton {
+  padding: 0.75rem 1rem;
+  background-color: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tabButton:hover {
+  color: #fff;
+  background-color: #222;
+}
+
+.activeTab {
+  color: #e50914;
+  border-bottom: 2px solid #e50914;
+}
+
+.tabIcon {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Tab Content */
+.tabContent {
+  padding: 1rem 0;
+}
+
+.sectionTitle {
+  margin-top: 0;
+  color: #e5e5e5;
+  font-size: 1.1rem;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Episode container */
+.episodeContainer {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #1f1f1f;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.episodeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.episodeForm {
+  padding: 0.75rem;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.serverTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.serverTab {
+  padding: 0.4rem 0.75rem;
+  background-color: #333;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.serverTabActive {
+  background-color: #e50914;
+}
+
+/* Server Add Section */
+.serverAddSection {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+.serverNameInput {
+  flex-grow: 1;
+  padding: 0.5rem;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.addServerButton {
+  background-color: #2a6b2a;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.addServerButton:hover {
+  background-color: #307a30;
+}
+
+/* Error & Loading */
+.errorContainer {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #e5e5e5;
+}
+
+.errorIcon {
+  color: #e50914;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+.loadingSpinner {
+  color: #e50914;
+  font-size: 1.1rem;
+}
+
+/* Message containers */
+.messageContainer {
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.successMessage {
+  background-color: rgba(35, 134, 54, 0.2);
+  border: 1px solid #238636;
+}
+
+.errorMessage {
+  background-color: rgba(229, 9, 20, 0.2);
+  border: 1px solid #e50914;
+}
+
+.messageIcon {
+  font-size: 1.2rem;
+}
+
+.messageText {
+  flex-grow: 1;
+}
+
+/* Back to Top Button - Enhanced Style */
+.backToTopButton {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(229, 9, 20, 0.85);
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+  z-index: 999;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: fadeIn 0.4s forwards;
+  font-size: 1.2rem;
+}
+
+.backToTopButton:hover {
+  background-color: rgba(229, 9, 20, 1);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(229, 9, 20, 0.5);
+}
+
+.backToTopButton:active {
+  transform: translateY(-2px);
+}
+
+.backToTopButton::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(229, 9, 20, 0.3);
+  transform: scale(0);
+  transition: transform 0.3s ease-out;
+}
+
+.backToTopButton:hover::before {
+  transform: scale(1.4);
+}
+
+.backToTopButton svg {
+  font-size: 1.2rem;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(229, 9, 20, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .movieBasicInfo {
+    flex-direction: column;
+  }
+  
+  .thumbnailPreview {
+    width: 120px;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .backToTopButton {
+    width: 40px;
+    height: 40px;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+/* Thêm CSS cho hình ảnh preview trong tab Liên kết & ID */
+.imagePreview {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.imagePreview img {
+  max-width: 100%;
+  max-height: 200px;
+  display: block;
+  object-fit: cover;
+}
+
+.imageLinksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}

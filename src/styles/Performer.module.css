@@ -1,0 +1,894 @@
+/* Performer.module.css */
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  color: white;
+  background-color: #0c0c0c;
+}
+
+.loadingContainer p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: #e5e5e5;
+}
+
+/* Banner and Header Styles */
+.performerBanner {
+  padding: 4rem 0 3rem;
+  color: white;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+  min-height: 500px;
+  background-color: #151515;
+  margin-bottom: 2rem;
+}
+
+.backdropOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, 
+    rgba(15, 15, 15, 0.85) 0%, 
+    rgba(15, 15, 15, 0.9) 70%, 
+    rgba(15, 15, 15, 1) 100%);
+  z-index: 1;
+}
+
+.containerRelative {
+  position: relative;
+  z-index: 2;
+}
+
+.performerHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  min-height: 450px;
+}
+
+.profileImageWrapper {
+  flex-shrink: 0;
+  width: 300px;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-self: center;
+}
+
+.performerDetails {
+  flex: 1;
+  padding-top: 0;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.profileImageContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  max-width: 300px;
+  height: 100%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s ease;
+  margin: auto;
+  display: flex;
+}
+
+.profileImageContainer:hover {
+  border-color: rgba(220, 53, 69, 0.3);
+  box-shadow: 0 15px 35px rgba(220, 53, 69, 0.25);
+}
+
+.profileImage {
+  width: 100%;
+  height: auto; 
+  min-height: 490px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.profileImage:hover {
+  transform: scale(1.05);
+}
+
+.departmentBadge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(220, 53, 69, 0.9);
+  color: white;
+  padding: 0.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+}
+
+/* Info Styles */
+.performerInfo {
+  padding: 1rem 0;
+}
+
+.performerName {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  background: linear-gradient(90deg, #ffffff 0%, #dc3545 70%, #ff8a00 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  position: relative;
+  padding-bottom: 0.3rem;
+}
+
+.performerName::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #dc3545, #ff8a00);
+  border-radius: 2px;
+}
+
+.alsoKnownAs {
+  margin: 0.5rem 0 1.2rem;
+  color: #e1e1e1;
+  font-style: italic;
+  font-size: 0.95rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.bioStats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 1rem;
+  border-radius: 12px;
+  border-left: 4px solid #dc3545;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.bioStats:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 25px rgba(220, 53, 69, 0.2);
+  transform: translateY(-3px);
+}
+
+.bioStat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  transition: transform 0.2s ease;
+  padding: 0.15rem 0;
+}
+
+.bioStat:hover {
+  transform: translateX(5px);
+}
+
+.bioStat i {
+  color: #dc3545;
+  font-size: 1.1rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-radius: 50%;
+}
+
+.infoLabel {
+  font-weight: 600;
+  color: #bebebe;
+  margin-right: 0.7rem;
+}
+
+.infoValue {
+  color: white;
+  font-weight: 500;
+}
+
+.sectionTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.3rem;
+  border-left: 4px solid #dc3545;
+  padding: 0.5rem 0 0.5rem 1rem;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: center;
+}
+
+.sectionTitle i {
+  margin-right: 10px;
+  color: #dc3545;
+}
+
+.biography {
+  margin-top: 1rem;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.biographyText {
+  color: #e0e0e0;
+  line-height: 1.7;
+  font-size: 1.05rem;
+  flex: 1;
+}
+
+.biographyContent {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
+  border-radius: 8px;
+  height: 165px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #dc3545 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border-left: 3px solid #dc3545;
+  transition: all 0.3s ease;
+}
+
+.biographyContent:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.biographyContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.biographyContent::-webkit-scrollbar-thumb {
+  background-color: #dc3545;
+  border-radius: 10px;
+}
+
+.biographyContent::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.noBiography {
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+}
+
+.noBiography i {
+  font-size: 1.5rem;
+  color: #dc3545;
+}
+
+/* Movies Section Styles */
+.sectionBackground {
+  background-color: #121212;
+  padding: 2rem 0 4rem;
+}
+
+.movieListContainer {
+  position: relative;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.filmographyTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+.countBadge {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.movieGrid {
+  margin: 0 -0.5rem; /* Giảm margin từ 0.75rem xuống 0.5rem */
+}
+
+.movieCol {
+  padding: 0.5rem; /* Giảm padding từ 0.75rem xuống 0.5rem */
+  transition: transform 0.3s ease;
+}
+
+.movieCol:hover {
+  transform: translateY(-5px);
+}
+
+.movieLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.movieCard {
+  background-color: #1a1a1a;
+  border: none;
+  border-radius: 10px; /* Giảm border-radius từ 12px xuống 10px */
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3); /* Giảm shadow */
+  height: 100%;
+  transition: all 0.3s ease;
+  transform-origin: center bottom;
+  backface-visibility: hidden;
+  max-width: 95%; /* Thêm max-width để giới hạn chiều rộng card */
+  margin: 0 auto; /* Căn giữa card */
+}
+
+.movieCard:hover {
+  box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
+  transform: translateY(-8px) scale(1.02);
+}
+
+.posterContainer {
+  position: relative;
+  aspect-ratio: 2/3;
+  overflow: hidden;
+}
+
+.posterImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.5s ease;
+}
+
+.movieCard:hover .posterImage {
+  transform: scale(1.05);
+}
+
+.movieOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2.5rem 0.75rem 0.75rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.5), transparent);
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.movieCard:hover .movieOverlay {
+  opacity: 1;
+}
+
+.characterBadge {
+  background: rgba(220, 53, 69, 0.8);
+  color: white;
+  padding: 0.2rem 0.4rem; /* Giảm padding */
+  border-radius: 4px;
+  font-size: 0.7rem; /* Giảm kích thước font */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playButton {
+  position: absolute;
+  top:-130px; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(185, 182, 182, 0.599);
+  font-size: 3.2rem; /* Tăng kích thước để dễ nhìn hơn */
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 10; 
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.7); /* Thêm đổ bóng để nút nổi bật hơn */
+}
+
+.movieCard:hover .playButton {
+  opacity: 0.9; /* Tăng độ hiển thị */
+}
+
+.playButton:hover {
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1.2); /* Tăng hiệu ứng phóng to khi hover */
+  color: #efefefa3; /* Chuyển sang màu đỏ khi hover để nổi bật */
+}
+
+.ratingBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #ffc107;
+  padding: 0.2rem 0.4rem; /* Giảm padding */
+  border-radius: 3px; /* Giảm border-radius */
+  font-size: 0.7rem; /* Giảm kích thước font */
+  font-weight: bold;
+}
+
+.mediaTypeBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(220, 53, 69, 0.8);
+  color: white;
+  padding: 0.2rem 0.4rem; /* Giảm padding */
+  border-radius: 3px; /* Giảm border-radius */
+  font-size: 0.65rem; /* Giảm kích thước font */
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Giảm shadow */
+}
+
+.tvBadge {
+  background-color: rgba(13, 110, 253, 0.8);
+}
+
+.yearBadge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.movieCard:hover .yearBadge {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.cardBody {
+  padding: 0.6rem; /* Giảm padding từ 0.75rem xuống 0.6rem */
+  background: linear-gradient(to bottom, rgba(26, 26, 26, 0.9), rgba(20, 20, 20, 1));
+  transition: all 0.3s ease;
+}
+
+.movieCard:hover .cardBody {
+  background: linear-gradient(to bottom, rgba(26, 26, 26, 1), rgba(34, 34, 34, 1));
+}
+
+.movieTitle {
+  font-size: 0.9rem; /* Giảm kích thước font */
+  font-weight: 600;
+  margin-bottom: 0.4rem; /* Giảm margin dưới */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #ffffff;
+  transition: color 0.3s ease;
+}
+
+.movieCard:hover .movieTitle {
+  color: #dc3545;
+}
+
+.movieMeta {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 0.85rem;
+  color: #b0b0b0;
+  margin-top: 0.3rem;
+  transition: color 0.3s ease;
+}
+
+.movieCard:hover .movieMeta {
+  color: #dc3545;
+}
+
+.characterName, .jobTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.characterName:hover, .jobTitle:hover {
+  background-color: rgba(220, 53, 69, 0.2);
+}
+
+/* Filter controls */
+.filterControls {
+  display: flex;
+  justify-content: flex-start;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  background-color: rgba(25, 25, 25, 0.7);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  color: #e5e5e5;
+  border-radius: 30px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filterBtn:hover {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: rgba(220, 53, 69, 0.4);
+}
+
+.filterBtn.active {
+  background-color: rgba(220, 53, 69, 0.8);
+  color: white;
+  font-weight: 500;
+  border-color: rgba(220, 53, 69, 0.9);
+}
+
+.noMoviesFound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  color: #a0a0a0;
+  text-align: center;
+}
+
+.noMoviesIcon {
+  position: relative;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  color: #505050;
+}
+
+.noMoviesIcon .overlay-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #dc3545;
+  opacity: 0.8;
+  transform: translate(25%, 25%);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3rem;
+  gap: 0.5rem;
+}
+
+.paginationButton {
+  background-color: rgba(25, 25, 25, 0.7);
+  color: white;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+}
+
+.paginationButton:hover {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-color: rgba(220, 53, 69, 0.4);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.paginationButton.activePage {
+  background-color: rgba(220, 53, 69, 0.8);
+  border-color: rgba(220, 53, 69, 0.9);
+  color: white;
+}
+
+.paginationEllipsis {
+  color: #a0a0a0;
+  padding: 0 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991px) {
+  .performerBanner {
+    min-height: auto;
+    padding: 3rem 0 2rem;
+  }
+  
+  .profileImageContainer {
+    max-width: 250px;
+  }
+  
+  .performerName {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .performerBanner {
+    padding: 3rem 0 2rem;
+  }
+  
+  .performerProfile {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+  
+  .profileImageContainer {
+    max-width: 250px;
+  }
+  
+  .performerName {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  .biography {
+    text-align: center;
+  }
+  
+  .bioStats {
+    align-items: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .performerProfile {
+    flex-direction: column;
+  }
+  
+  .profileImageCol {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .profileImageContainer {
+    max-width: 220px;
+  }
+  
+  .performerName {
+    font-size: 2.2rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.4rem;
+  }
+  
+  .biographyContent {
+    max-height: 200px;
+  }
+  
+  .movieCol {
+    padding: 0.5rem;
+  }
+  
+  .filterButtons {
+    justify-content: center;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .movieCol {
+    padding: 0 0.4rem;
+  }
+  
+  .posterContainer {
+    height: auto;
+  }
+  
+  .performerName {
+    font-size: 1.8rem;
+  }
+  
+  .filmographyTitle {
+    font-size: 1.6rem;
+  }
+  
+  .characterBadge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .movieTitle {
+    font-size: 0.95rem;
+  }
+  
+  .performerBanner {
+    padding: 2rem 0 1rem;
+  }
+  
+  .profileImageContainer {
+    max-width: 200px;
+  }
+  
+  .performerName {
+    font-size: 1.75rem;
+  }
+  
+  .movieCol {
+    width: 50%;
+  }
+  
+  .filterBtn {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+  }
+  
+  .paginationButton {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .performerHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.5s ease;
+    min-height: auto;
+  }
+  
+  .profileImageWrapper {
+    margin: 0 auto 2rem;
+    width: 250px;
+    transform: translateY(0);
+    transition: all 0.5s ease;
+  }
+  
+  .profileImageContainer {
+    margin: 0 auto;
+    height: auto;
+    transition: all 0.5s ease;
+  }
+  
+  .profileImage {
+    min-height: auto;
+    aspect-ratio: 3/4;
+  }
+  
+  .biographyContent {
+    height: auto;
+    max-height: 200px;
+  }
+  
+  .performerName {
+    font-size: 2.5rem;
+    text-align: center;
+  }
+  
+  .performerName::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .bioStat {
+    justify-content: center;
+  }
+  
+  .sectionTitle {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .performerBanner {
+    padding: 2rem 0;
+    min-height: auto;
+  }
+  
+  .biography {
+    text-align: left;
+  }
+  
+  .alsoKnownAs {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+}
+
+@media (max-width: 576px) {
+  .performerName {
+    font-size: 2rem;
+  }
+  
+  .profileImageWrapper {
+    width: 250px;
+  }
+  
+  .movieCol {
+    padding: 0.5rem;
+  }
+  
+  .filterButtons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .filterBtn {
+    margin-bottom: 0.5rem;
+  }
+}
+

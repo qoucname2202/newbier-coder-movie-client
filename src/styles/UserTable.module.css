@@ -1,0 +1,288 @@
+/* UserTable.module.css */
+.userTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.userTable th {
+  background: #f8fafc;
+  padding: 15px 20px;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.userTable td {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+.userTable tr:last-child td {
+  border-bottom: none;
+}
+
+.userTable tr:hover td {
+  background: #f9fafb;
+}
+
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.sortableHeader:hover {
+  color: #3b82f6;
+}
+
+.sortIcon {
+  margin-left: 5px;
+  font-size: 0.8rem;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #e2e8f0;
+  color: #64748b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+}
+
+.userName {
+  font-weight: 500;
+  color: #334155;
+}
+
+.userEmail {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  align-items: center;
+}
+
+.badgeAdmin {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+.badgeModerator {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badgeUser {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.badgeVip {
+  background: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.badgeActive {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badgeInactive {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editButton {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.editButton:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.banButton {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.banButton:hover {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.unbanButton {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+.unbanButton:hover {
+  background: rgba(34, 197, 94, 0.2);
+}
+
+.emptyState {
+  padding: 40px;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  font-size: 3rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+
+.emptyStateTitle {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateText {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.bannedUser {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* Filter section */
+.filterSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.filterControls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.searchInput {
+  position: relative;
+  flex: 1;
+}
+
+.searchInputField {
+  width: 250px;
+  padding: 8px 15px 8px 35px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.searchInputIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.filterDropdown {
+  padding: 8px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #334155;
+  background: white;
+}
+
+.userCount {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .filterSection {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .filterControls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .searchInputField {
+    width: 100%;
+  }
+}

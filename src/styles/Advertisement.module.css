@@ -1,0 +1,365 @@
+/* Advertisement.module.css */
+
+/* Banner Ad Styles */
+.bannerContainer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 1000; /* Increased z-index to overlay content */
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Add shadow for "floating" effect */
+}
+
+.top {
+  top: 70px; /* Position below navbar */
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.bottom {
+  bottom: 20px; /* Position above footer but floating */
+  border-top: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.bannerContent {
+  position: relative;
+  max-width: 1200px; /* Set a maximum width for the banner container */
+  width: 90%; /* Use most of the screen width */
+  height: 120px; /* Fixed height for banner container */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Space between multiple ads */
+  overflow: hidden; /* Hide overflow */
+}
+
+.multiAdContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  width: 100%;
+}
+
+.bannerImage {
+  cursor: pointer;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  border-radius: 8px; /* Slightly rounded corners */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* Add shadow for elevation effect */
+  animation: pulse 2s infinite alternate; /* Subtle pulsing animation */
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+@keyframes pulse {
+  from {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+  to {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  }
+}
+
+.bannerImage img {
+  height: 100%;
+  width: auto;
+  object-fit: contain; /* Ensure the image maintains its aspect ratio */
+  transition: transform 0.2s ease;
+}
+
+.bannerImage:hover img {
+  transform: scale(1.03);
+}
+
+/* Animation for banner appearance */
+.fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ad overlay for additional information */
+.adOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.bannerImage:hover .adOverlay {
+  opacity: 1;
+}
+
+.adLabel {
+  font-size: 12px;
+  padding: 2px 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  color: white;
+}
+
+.advertiserName {
+  font-size: 14px;
+  color: white;
+  font-weight: 500;
+}
+
+.closeButton {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.closeButton:hover {
+  background: rgba(255, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+/* Video Ad Styles */
+.videoAdContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.videoAd {
+  width: 100%;
+  max-height: 80vh;
+  display: block;
+}
+
+.adOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  padding: 20px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.adInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.adLabel {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.adTimer {
+  font-weight: bold;
+}
+
+.adDetails {
+  flex-grow: 1;
+  margin: 0 20px;
+}
+
+.adTitle {
+  font-weight: bold;
+  margin: 0;
+  font-size: 16px;
+}
+
+.adAdvertiser {
+  margin: 0;
+  opacity: 0.8;
+  font-size: 14px;
+}
+
+.skipButton {
+  background: rgba(0, 0, 0, 0.7);
+  color: #999;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+}
+
+.skipButton.canSkip {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+}
+
+.skipButton.canSkip:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.skipIcon {
+  font-size: 14px;
+}
+
+.loadingSpinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .bannerContent {
+    height: 100px;
+  }
+}
+
+@media (max-width: 992px) {
+  .bannerContent {
+    height: 90px;
+  }
+  
+  .multiAdContainer {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bannerContent {
+    height: 80px;
+    width: 95%;
+  }
+  
+  .adOverlay {
+    padding: 6px 10px;
+  }
+  
+  .adLabel {
+    font-size: 11px;
+    padding: 1px 5px;
+  }
+  
+  .advertiserName {
+    font-size: 12px;
+  }
+  
+  .top {
+    top: 60px;
+  }
+  
+  .bottom {
+    bottom: 15px;
+  }
+  
+  .closeButton {
+    width: 26px;
+    height: 26px;
+    top: -10px;
+    right: -10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .bannerContent {
+    height: 70px;
+  }
+  
+  .multiAdContainer {
+    gap: 5px;
+  }
+  
+  .adOverlay {
+    padding: 4px 8px;
+  }
+  
+  .adLabel {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  
+  .advertiserName {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bannerContent {
+    height: 60px;
+  }
+  
+  .adOverlay {
+    padding: 3px 6px;
+  }
+  
+  .top {
+    top: 55px;
+  }
+  
+  .bottom {
+    bottom: 10px;
+  }
+  
+  .closeButton {
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+  }
+}

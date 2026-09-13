@@ -1,0 +1,190 @@
+.posterWrapper {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 3px; /* Reduced from 8px to 3px */
+}
+
+.posterSkeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #1a1a1a;
+  z-index: 1;
+}
+
+.skeletonOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.skeletonBlur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px) brightness(0.6);
+  transform: scale(1.2);
+}
+
+.cardImgTop {
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.loaded {
+  opacity: 1;
+}
+
+/* Cập nhật class watchButton với thiết kế đẹp hơn cho nút play */
+.watchButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgb(190, 161, 161) !important;
+  border: none !important;
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important; /* Tạo nút tròn hoàn toàn */
+  z-index: 3;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important; /* Bỏ padding */
+  box-shadow: 0 0 20px rgba(36, 33, 33, 0.5); /* Hiệu ứng glow đỏ */
+  backdrop-filter: blur(5px); /* Thêm hiệu ứng blur nhẹ phía sau nút */
+}
+
+/* Icon play trong nút */
+.watchButton i {
+  font-size: 40px !important; /* Icon lớn hơn */
+  margin-left: 3px; /* Căn chỉnh icon play cho cân đối */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Thêm bóng cho icon */
+}
+
+/* Hiệu ứng khi hover vào nút */
+.watchButton:hover {
+  opacity: 0.8 !important; /* Khi hover vào nút, hiển thị đầy đủ không trong suốt */
+  box-shadow: 0 0 25px rgba(119, 89, 89, 0.7); /* Tăng độ sáng của glow */
+  transform: translate(-50%, -50%) scale(1.3) !important; /* Scale lớn hơn khi hover trực tiếp */
+}
+
+/* Hiệu ứng pulse nhẹ khi hover */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(89, 74, 74, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 49, 49, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 49, 49, 0); }
+}
+
+.moviePoster:hover .watchButton {
+  opacity: 1;
+  animation: pulse 1.5s infinite;
+}
+
+/* Thêm overlay tối hơn khi hover để nút nổi bật */
+.moviePoster:hover .overlay {
+  opacity: 1;
+}
+
+/* Điều chỉnh overlay để che phủ toàn bộ poster */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%);
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 3px; /* Reduced from 8px to 3px */
+}
+
+/* Styles cho các badges */
+.yearQualityBadges {
+  position: absolute;
+  top: 5px; /* Reduced from 10px */
+  right: 5px; /* Reduced from 10px */
+  z-index: 3;
+}
+
+.categoryBadge {
+  position: absolute;
+  top: 5px; /* Reduced from 10px */
+  left: 5px; /* Reduced from 10px */
+  z-index: 3;
+}
+
+/* Thêm style cho badge thông tin phát hành (số tập & ngôn ngữ) */
+.episodeInfoBadge {
+  position: absolute;
+  bottom: 5px; /* Reduced from 10px */
+  left: 5px; /* Reduced from 10px */
+  z-index: 3;
+  display: flex;
+  gap: 3px; /* Reduced from 5px */
+  flex-wrap: wrap;
+  max-width: 80%;
+}
+
+/* Loại bỏ badge số tập riêng lẻ */
+.episodesBadge {
+  display: none;
+}
+
+/* Hiệu ứng thu nhỏ cho hình ảnh khi hover */
+.moviePoster {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px; /* Reduced from 8px to 3px */
+  transition: transform 0.3s ease;
+}
+
+.movieImage {
+  transition: transform 0.3s ease;
+}
+
+.movieCard:hover .moviePoster {
+  transform: translateY(-5px);
+}
+
+.movieCard:hover .movieImage {
+  transform: scale(1.05);
+}
+.sliderContainer {
+  margin: 0 -15px;
+  position: relative;
+  overflow: visible; /* Cho phép hiển thị phần vượt ra ngoài container */
+}
+
+/* Tăng khoảng cách giữa các phim */
+.sliderItem {
+  padding: 0 20px; /* Tăng padding từ 15px lên 20px */
+}
+
+/* Style cho card trong slider để thêm khoảng cách */
+.sliderItem .movieCard {
+  margin: 10px; /* Tăng margin từ 5px lên 10px */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.sliderItem:hover .movieCard {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15);
+}

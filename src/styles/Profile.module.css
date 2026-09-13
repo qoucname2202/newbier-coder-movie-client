@@ -1,0 +1,1212 @@
+/* Nút bấm */
+.button {
+  background: linear-gradient(135deg, #e50914, #b00710);
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button:hover {
+  background: linear-gradient(135deg, #b00710, #e50914);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.5);
+}
+
+.button:disabled {
+  background: #555;
+  color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Nút màu trắng */
+.buttonLight {
+  background: #fff;
+  color: #e50914;
+  border: 1px solid #e50914;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonLight:hover {
+  background: #e50914;
+  color: #fff;
+  border-color: #b00710;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.buttonLight:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.5);
+}
+
+/* Trường nhập văn bản */
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.input:focus {
+  outline: none;
+  border-color: #e50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Placeholder */
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Textarea */
+.textarea {
+  resize: none;
+  min-height: 80px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #e50914;
+  box-shadow: 0 0 5px rgba(229, 9, 20, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Thẻ thể loại */
+.genreTag {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 5px;
+}
+
+.genreTag:hover {
+  background: rgba(229, 9, 20, 0.8);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.genreTagActive {
+  background: #e50914;
+  color: #fff;
+  border-color: #e50914;
+}
+
+.genreTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Cải thiện giao diện tiêu đề */
+.heading2, .heading3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.heading3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+/* Cải thiện giao diện các phần tử khác */
+.profileAvatar {
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.profileAvatar:hover {
+  border-color: #e50914;
+  transform: scale(1.05);
+}
+
+.navItem {
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.navItemActive {
+  background: linear-gradient(135deg, #e50914, #b00710);
+  color: #fff;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+/* Cài đặt chung cho các biểu tượng */
+.icon {
+  font-size: 18px;
+  color: #fff; /* Màu trắng */
+  transition: all 0.3s ease;
+}
+
+.icon:hover {
+  color: #e50914; /* Màu đỏ khi hover */
+}
+
+/* Biểu tượng trong sidebar */
+.navIcon {
+  font-size: 22px;
+  color: #bbb;
+  transition: all 0.3s ease;
+}
+
+.navItem:hover .navIcon,
+.navItemActive .navIcon {
+  color: #e50914;
+}
+
+/* Biểu tượng trong các phần khác */
+.sectionIcon {
+  font-size: 24px;
+  color: #e50914;
+  margin-right: 10px;
+}
+
+.statsIcon {
+  font-size: 24px;
+  color: #e50914;
+  transition: all 0.3s ease;
+}
+
+.statsIcon:hover {
+  transform: scale(1.1);
+  color: #fff;
+}
+
+/* Biểu tượng trong các nút hành động */
+.actionIcon {
+  font-size: 16px;
+  margin-right: 5px;
+  transition: all 0.3s ease;
+}
+
+/* Nút nâng cấp gói */
+.subscriptionAction {
+  background: linear-gradient(135deg, #ff9b00, #ff5e00);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 94, 0, 0.4);
+}
+
+.subscriptionAction:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 94, 0, 0.6);
+  background: linear-gradient(135deg, #ff5e00, #ff9b00);
+}
+
+.upgradeIcon {
+  font-size: 18px;
+  color: #fff;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Icon email */
+.emailIcon {
+  font-size: 22px;
+  color: #64a0ff;
+  margin-right: 12px;
+  transition: all 0.3s ease;
+}
+
+/* Icon người dùng */
+.userIcon {
+  font-size: 22px;
+  color: #e50914;
+  margin-right: 12px;
+  transition: all 0.3s ease;
+}
+
+/* Giá trị trong form */
+.formValue {
+  color: #fff;
+  margin: 0;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  line-height: 1.5;
+  padding: 6px 8px; /* Tăng padding giống như input */
+  min-height: 20px; /* Đảm bảo chiều cao tối thiểu */
+}
+
+/* Badge xác thực */
+.verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(25, 135, 84, 0.2);
+  color: #2ecc71;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.verifiedBadge svg {
+  margin-right: 4px;
+}
+
+/* Gmail Badge */
+.gmailBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background: linear-gradient(135deg, #DB4437 0%, #F4B400 50%, #0F9D58 75%, #4285F4 100%);
+  color: white;
+}
+
+/* Container elements */
+.profileContainer {
+  max-width: 2000px;
+  margin: 0 auto;
+}
+
+/* Căn chỉnh các trường thông tin */
+.formGroup {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px 15px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.formGroup:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.formIcon {
+  color: #e50914;
+  font-size: 18px;
+  margin-top: 2px;
+}
+
+.formField {
+  flex: 1;
+}
+
+.formLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #aaa;
+}
+
+.actionButton {
+  background: rgba(229, 9, 20, 0.8);
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.actionButton:hover {
+  background: #e50914;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.3);
+}
+
+.refreshButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refreshButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sectionHeaderWithEdit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+  margin-top: 40px; /* Thêm margin phía trên cho tiêu đề */
+}
+
+.profileFormSection {
+  margin-bottom: 40px;
+}
+
+.subscriptionInfo {
+  margin-bottom: 40px;
+}
+
+/* Phần Avatar */
+.avatarWrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 30px auto 25px; /* Tăng margin-top từ 0 lên 30px và margin-bottom từ 15px lên 25px */
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatarChangeButton {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: #e50914;
+  color: #fff;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.avatarChangeButton:hover {
+  transform: scale(1.1);
+  background: #b00710;
+}
+
+.confirmationModal {
+  background: #1e1e2d;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.confirmationButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Hai cột */
+  gap: 20px; /* Khoảng cách giữa các ô */
+}
+
+/* Phần Banner Premium */
+.premiumSection {
+  margin-top: 20px; /* Tăng khoảng cách phía trên từ 30px lên 50px */
+  margin-bottom: 20px;
+}
+
+.premiumBanner {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(229, 9, 20, 0.8) 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.3);
+  position: relative;
+}
+
+.premiumBanner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/img/premium-pattern.png');
+  background-size: cover;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.premiumActiveBanner {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(76, 175, 80, 0.8) 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+  position: relative;
+}
+
+.premiumActiveBanner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/img/premium-pattern.png');
+  background-size: cover;
+  opacity: 0.1;
+  z-index: 0;
+}
+
+.premiumContent {
+  display: flex;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.crownIconLarge {
+  font-size: 48px;
+  color: gold;
+  margin-right: 20px;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+}
+
+.premiumInfo {
+  flex: 1;
+}
+
+.premiumTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 8px 0;
+}
+
+.premiumDescription {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  max-width: 600px;
+}
+
+.premiumMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+}
+
+.premiumFeature {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: white;
+}
+
+.checkIcon {
+  color: #4CD964;
+  margin-right: 5px;
+}
+
+.daysRemaining {
+  font-weight: bold;
+  color: #fff;
+  margin-left: 4px;
+}
+
+.progressContainer {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progressBar {
+  height: 100%;
+  background: linear-gradient(to right, #FFD700, #FFA500);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.premiumExpiry {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 10px;
+  border-radius: 30px;
+}
+
+.clockIcon {
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.premiumAction {
+  margin-left: 20px;
+}
+
+.premiumButton {
+  background: gold;
+  color: #222;
+  font-weight: 600;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.memberBadge {
+  background: linear-gradient(to right, #4CAF50, #2E7D32);
+  color: white;
+  text-decoration: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 8px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+  transition: all 0.3s;
+}
+
+.memberBadge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+  color: white;
+}
+
+.memberBadgeIcon {
+  color: #FFD700;
+
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.premiumButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, gold, #FFDF00);
+}
+
+.upgradeIcon {
+  font-size: 16px;
+}
+
+/* Phần Đổi mật khẩu mới */
+.passwordSection {
+  margin-bottom: 24px;
+}
+
+.passwordContainer {
+  background: rgba(30, 30, 40, 0.5);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.passwordHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.passwordIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(229, 9, 20, 0.1);
+  color: #e50914;
+  font-size: 22px;
+  margin-right: 16px;
+}
+
+.passwordContent {
+  flex: 1;
+}
+
+.passwordTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 6px 0;
+}
+
+.passwordDescription {
+  color: #bbb;
+  margin: 0;
+  font-size: 14px;
+}
+
+.passwordForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideDown 0.3s ease forwards;
+}
+
+.passwordField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.passwordLabel {
+  font-size: 14px;
+  color: #bbb;
+}
+
+.passwordInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordInput {
+  width: 100%;
+  padding: 12px 40px 12px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.passwordInput:focus {
+  outline: none;
+  border-color: #e50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #bbb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.passwordToggle:hover {
+  color: white;
+}
+
+.passwordStrength {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.strengthLabel {
+  font-size: 12px;
+  color: #bbb;
+}
+
+.strengthBar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.strengthIndicator {
+  height: 100%;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.strengthText {
+  font-size: 12px;
+  color: #e5b809;
+}
+
+/* Nút đổi mật khẩu */
+.changePasswordButton {
+  background: #e50914;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 20px;
+}
+
+.changePasswordButton:hover {
+  background: #c8000d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.passwordActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Thêm style cho hàng có icon và label */
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.formIconTop {
+  color: #e50914;
+  font-size: 18px;
+}
+
+.formContent {
+  margin-top: 5px;
+}
+
+/* Thông báo không có dữ liệu */
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+  background: rgba(20, 20, 30, 0.5);
+  border-radius: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  margin: 15px 0;
+}
+
+.no-data-icon {
+  font-size: 40px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+  color: #aaa;
+}
+
+/* Tập hợp tất cả media queries cho thiết bị di động */
+@media (max-width: 992px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-sidebar {
+    position: relative;
+    height: auto;
+    overflow: visible;
+    padding: 20px 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  
+  .avatar-container {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    padding: 20px 20px 15px;
+  }
+  
+  .avatar-wrapper {
+    width: 90px;
+    height: 90px;
+    margin: 0;
+    margin-right: 15px;
+  }
+  
+  .avatar-change-button {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 15px;
+  }
+  
+  .nav-item {
+    flex-basis: calc(50% - 10px);
+    max-width: calc(50% - 10px);
+  }
+  
+  .sidebar-footer {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hợp nhất tất cả các quy tắc cho màn hình medium */
+  .profileContainer {
+    padding: 20px;
+  }
+  
+  .profile-main {
+    padding: 30px 15px 70px;
+  }
+  
+  .formGroup {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .formIcon {
+    margin-bottom: 10px;
+  }
+  
+  .mainProfileSection,
+  .premiumSection,
+  .passwordSection,
+  .featuredSection {
+    padding: -20px;
+    margin: 0;
+  }
+  
+  .heading2 {
+    font-size: 1rem;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .actionButton,
+  .button,
+  .buttonLight {
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .bioSection {
+    padding: 10px;
+  }
+  
+  .input, 
+  .textarea {
+    font-size: 14px;
+  }
+  
+  .genreTags {
+    flex-wrap: wrap;
+  }
+  
+  .genreTag {
+    margin-bottom: 5px;
+  }
+  
+  .premiumBanner {
+    padding: 15px;
+  }
+  
+  .premiumContent {
+    flex-direction: column;
+  }
+  
+  .premiumInfo {
+    margin: 10px 0;
+  }
+  
+  .premiumAction {
+    width: 100%;
+  }
+  
+  .featuredItems {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .section-header h2 {
+    font-size: 18px;
+  }
+  
+  .edit-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  
+  .stats-charts {
+    flex-direction: column;
+  }
+  
+  .nav-item {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  /* Hợp nhất tất cả các quy tắc cho màn hình điện thoại di động */
+  .mobile-header {
+    display: flex;
+    width: 100%;
+  }
+  
+  .profile-sidebar {
+    display: none; /* Ẩn sidebar nguyên bản */
+  }
+  
+  .profile-layout {
+    display: block;
+  }
+  
+  .profile-main {
+    order: 1;
+    padding: 15px 10px 80px !important; /* Bottom padding to accommodate tab bar */
+  }
+  
+  /* Các margin và padding để tối ưu trên mobile */
+  .section-header {
+    margin-bottom: 15px;
+  }
+  
+  .stats-section {
+    margin-top: 20px;
+    padding: 15px;
+  }
+  
+  .gridContainer {
+    display: block;
+  }
+  
+  .formGroup {
+    margin-bottom: 15px;
+    flex-direction: column;
+  }
+  
+  .formIcon {
+    margin-bottom: 5px;
+  }
+  
+  .passwordForm {
+    padding: 10px;
+  }
+  
+  .passwordActions {
+    flex-direction: column;
+  }
+  
+  .passwordActions button {
+    width: 100%;
+    margin-top: 5px;
+  }
+  
+  /* Mobile Profile Header */
+  .profile-header-mobile {
+    padding-top: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .mobile-avatar {
+    width: 60px;
+    height: 60px;
+  }
+  
+  /* Mobile Cards */
+  .stats-card, 
+  .featured-item, 
+  .movie-card {
+    width: 100%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .stats-icon {
+    font-size: 1.5rem;
+  }
+  
+  .stats-value {
+    font-size: 1.4rem;
+  }
+  
+  .stats-label {
+    font-size: 0.8rem;
+  }
+  
+  /* Mobile Premium Banner */
+  .premiumBanner {
+    flex-direction: column;
+    padding: 15px;
+  }
+  
+  .premiumContent {
+    flex-direction: column;
+  }
+  
+  .premiumInfo {
+    margin: 10px 0;
+  }
+  
+  .premiumAction {
+    width: 100%;
+  }
+  
+  /* Fix cho watchlater trong mobile */
+  .watchlater-content {
+    font-size: 14px;
+  }
+  
+  .watchlater-content h3 {
+    font-size: 16px;
+  }
+  
+  .watchlater-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .watchlater-actions button {
+    width: 100%;
+    margin-right: 0 !important;
+  }
+}
+
+/* Ẩn mobile-menu-drawer trên màn hình lớn hơn 576px */
+@media (min-width: 577px) {
+  .mobile-header,
+  .mobile-menu-drawer,
+  .mobile-menu-backdrop {
+    display: none;
+  }
+}

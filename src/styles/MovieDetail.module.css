@@ -1,0 +1,2944 @@
+/* General container and layout */
+.container {
+  min-height: 100vh;
+}
+
+/* Banner styles */
+.banner {
+  position: relative;
+  width: 100%;
+  min-height: 70vh;
+  display: flex;
+  align-items: flex-start;
+}
+
+.bannerBackground {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 70vh;
+  overflow: hidden;
+}
+
+.bannerImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.9);
+  z-index: 1;
+  transition: filter 0.8s ease;
+}
+
+.bannerGradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to right,
+    rgba(5, 5, 5, 0.5) 0%,
+    rgba(22, 22, 22, 0.4)30%,
+    rgba(57, 57, 57, 0.3) 60%,
+    rgba(73, 73, 73, 0)   100%
+  ), 
+  linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  z-index: 2;
+}
+
+.bannerBackground:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.2) 60%, 
+    rgba(0, 0, 0, 0.5) 100%
+  );
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Banner content styles */
+.movieTitle, .originalTitle {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.metaItem, .actorBadge, .genreBadge {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.bannerContent {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  padding: 6rem 2rem;
+  gap: 2rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.leftSection {
+  flex: 0 0 auto;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rightSection {
+  padding: 0px;
+  color: white;
+  width: 75%;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+  justify-content: space-between;
+}
+
+/* Movie poster styles */
+.moviePoster {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.posterImage {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+}
+
+/* Điều chỉnh vị trí các nút lưu và chia sẻ - căn giữa */
+.posterControls {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Căn giữa nút lưu và chia sẻ */
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0; /* Thay đổi để căn giữa */
+  z-index: 5;
+  width: 100%; /* Sử dụng toàn bộ chiều rộng */
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.moviePoster:hover .posterControls {
+  opacity: 1; /* Hiển thị khi hover vào poster */
+  transform: translateY(0); /* Trở về vị trí ban đầu */
+  pointer-events: auto; /* Cho phép tương tác khi hiển thị */
+}
+
+/* Nút lưu và chia sẻ - thêm hiệu ứng giống nút đánh giá */
+.posterControlButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(121, 120, 120, 0.8); /* Màu giống nút đánh giá */
+  color: white;
+  border: 1px solid rgba(162, 160, 160, 0.2);
+  border-radius: 30px; /* Bo tròn như nút đánh giá */
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  min-width: 90px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.posterControlButton:hover {
+  background: rgba(184, 183, 183, 0.8);
+  border-color: rgba(80, 74, 74, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.posterControlButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Thêm hiệu ứng ripple khi click */
+.posterControlButton::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.posterControlButton:focus:not(:active)::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Nút lưu - màu đặc biệt */
+.saveButton {
+  background: rgba(93, 94, 95, 0.7);
+  margin-right: 10px; /* Thêm khoảng cách giữa hai nút */
+}
+
+.saveButton:hover {
+  background: rgba(154, 154, 160, 0.9);
+}
+
+/* Nút chia sẻ - màu đặc biệt */
+.shareButton {
+  background: rgba(93, 94, 95, 0.7);
+}
+
+.shareButton:hover {
+  background: rgba(154, 154, 160, 0.9);
+}
+
+/* Dropdown hiển thị 2 nút ngang */
+.saveOptionsDropup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+/* Các nút Xem sau và Yêu thích - hiệu ứng giống nút chia sẻ */
+.saveOptionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(93, 94, 95, 0.7); /* Màu giống nút chia sẻ */
+  color: white;
+  border: 1px solid rgba(162, 160, 160, 0.2); /* Border giống nút chia sẻ */
+  border-radius: 30px; /* Bo tròn giống nút chia sẻ */
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  min-width: 90px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.saveOptionButton:hover {
+  background: rgba(154, 154, 160, 0.9); /* Màu hover giống nút chia sẻ */
+  border-color: rgba(80, 74, 74, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.saveOptionButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Thêm hiệu ứng ripple khi click - giống nút chia sẻ */
+.saveOptionButton::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.saveOptionButton:focus:not(:active)::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Trạng thái active */
+.saveOptionButton.active {
+  background: rgba(123, 109, 110, 0.8); /* Màu đặc biệt cho trạng thái active */
+}
+
+.saveOptionButton.active:hover {
+  background: rgb(92, 83, 84);
+}
+
+/* Loại bỏ nền đen */
+.saveOptionsRow {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  background: transparent; /* Không có nền */
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+/* Poster action buttons */
+.posterActionButtonsRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.posterActionButton {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: rgba(121, 120, 120, 0.8);
+  border: 1px solid rgba(162, 160, 160, 0.2);
+  border-radius: 30px;
+  color: white;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.posterActionButton:hover {
+  background: rgba(184, 183, 183, 0.8);
+  border-color: rgba(80, 74, 74, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.posterActionButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.posterActionButton::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.posterActionButton:focus:not(:active)::after {
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20, 20);
+    opacity: 0;
+  }
+}
+
+.buttonIcon {
+  font-size: 1.5rem;
+  margin-right: 10px;
+}
+
+.buttonText {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.buttonLabel {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.buttonDescription {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.headerButtons {
+  display: none;
+}
+
+/* Trailer Button styles */
+.trailerButtonContainer {
+  margin-top: 15px; /* Khoảng cách giữa nút Đánh giá và nút Xem Trailer */
+  display: flex;
+  justify-content: center; /* Căn giữa nút */
+}
+
+.trailerButton {
+  background-color: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  padding: 12px 24px;
+  font-weight: 300px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  min-width: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.trailerButton:hover {
+  background-color: rgba(255, 0, 0, 1);
+  box-shadow: 0 8px 20px rgba(255, 0, 0, 0.6), 0 0 30px rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+}
+
+.trailerButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.5);
+}
+
+.trailerButton::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+  z-index: 0;
+}
+
+.trailerButton:hover::before {
+  width: 300%;
+  height: 300%;
+}
+
+.trailerButton i {
+  font-size: 1.5rem;
+  margin-right: 8px;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.trailerButton:hover i {
+  transform: scale(1.2);
+}
+
+/* Bottom action container */
+.bottomActionContainer {
+  position: absolute;
+  bottom: 30px;
+  left: 100px;
+  z-index: 20;
+  display: flex;
+  gap: 15px;
+}
+@media (max-width: 768px) {
+  .bottomActionContainer {
+    bottom: 20px; /* Giảm khoảng cách từ dưới cùng */
+  }
+
+  .trailerButton {
+    min-width: 140px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .bottomActionContainer {
+    bottom: 15px  ;
+  }
+
+  .trailerButton {
+    min-width: 120px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+/* Mobile trailer button */
+.mobileTrailerButton {
+  width: 100%;
+  background-color: rgba(255, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 24px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  margin: 0 auto;
+}
+
+.mobileTrailerButton:hover, 
+.mobileTrailerButton:active {
+  background-color: rgba(255, 0, 0, 1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+.mobileTrailerButton i {
+  font-size: 1.5rem;
+  margin-right: 12px;
+}
+
+/* Movie actions */
+.movieActions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.7) 50%, transparent);
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  opacity: 0;
+  transition: all 0.3s ease;
+  transform: translateY(20px);
+  z-index: 5;
+}
+
+.moviePoster:hover .movieActions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Action buttons */
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  color: white;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+  min-width: 100px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.actionButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+.actionButton i {
+  font-size: 1.1rem;
+  margin-right: 8px;
+  transition: all 0.3s;
+}
+
+.actionButton span {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.actionButton:hover i {
+  transform: scale(1.2);
+}
+
+.actionButton.reportButton {
+  background: rgba(220, 53, 69, 0.7);
+  border-color: rgba(220, 53, 69, 0.4);
+}
+
+.actionButton.reportButton:hover {
+  background: rgba(220, 53, 69, 0.9);
+  border-color: rgba(220, 53, 69, 0.7);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.actionButton.shareButton {
+  background: rgba(13, 110, 253, 0.7);
+  border-color: rgba(13, 110, 253, 0.4);
+}
+
+.actionButton.shareButton:hover {
+  background: rgba(13, 110, 253, 0.9);
+  border-color: rgba(13, 110, 253, 0.7);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+}
+
+/* CSS cho nút báo cáo trong poster phim */
+.reportButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(220, 53, 69, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.moviePoster:hover .reportButton {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.reportButton:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.reportButton i {
+  font-size: 18px;
+}
+
+/* Hiển thị nút báo cáo trên thiết bị di động không cần hover */
+@media (hover: none) and (pointer: coarse) {
+  .reportButton {
+    opacity: 1;
+    transform: scale(1);
+    width: 30px;
+    height: 30px;
+    
+  }
+  
+  .reportButton i {
+    font-size: 10px;
+  }
+}
+
+/* Movie info styles */
+.movieInfo {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.movieTitle {
+  font-size: 2.2rem; 
+  font-weight: bold;
+  margin-bottom: 0.4rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+/* Rating styles */
+.ratingContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+}
+
+.ratingStars {
+  display: flex;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+}
+
+.starIcon {
+  color: #ffc107;
+  font-size: 0.95rem;
+}
+
+.starActive {
+  color: #ffc107;
+}
+
+.starInactive {
+  color: #6c757d;
+}
+
+.ratingValue {
+  font-size: 1.2rem;
+  color: #ffc107;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.ratingCount {
+  color: #aaa;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.noRating {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.noRatingBig {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.movieMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 1rem 0;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.metaItem i {
+  margin-right: 6px;
+  font-size: 1rem;
+}
+
+.qualityBadge {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #ff8a8a;
+}
+
+/* Actor and genre styles */
+.actorsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Actor card with image */
+.actorCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Make actor cards responsive */
+@media screen and (max-width: 576px) {
+  .actorsContainer {
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  
+  .actorCard {
+    width: 65px;
+  }
+  
+  .actorImageContainer {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.actorCard:hover {
+  transform: translateY(-5px);
+}
+
+.actorCard:active {
+  transform: translateY(0);
+}
+
+.actorImageContainer {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 5px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.actorCard:hover .actorImageContainer {
+  border-color: rgba(220, 53, 69, 0.7);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.actorImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.actorImageSkeleton {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    rgba(255, 255, 255, 0.05) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.actorName {
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+}
+
+/* Keep original actor badges for fallback */
+.actorBadge {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.actorBadge:hover {
+  background-color: rgba(220, 53, 69, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.actorBadge:active {
+  transform: translateY(0);
+}
+
+.genresContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.genreBadge {
+  background-color: rgba(220, 53, 69, 0.8);
+  color: white;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  border-radius: 20px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.genreBadge:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  background-color: rgba(220, 53, 69, 1);
+}
+
+/* Action buttons */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+}
+
+.playButton, .favoriteButton {
+  min-width: 140px;
+  transition: all 0.3s ease;
+}
+
+.playButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.favoriteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+.favoriteButton.active {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+/* Episode list styles */
+.episodeList {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.episodeTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.episodeBtn {
+  min-width: 100px;
+  margin: 5px;
+}
+
+.episodeBtnActive {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Description styles */
+.describe {
+  width: 100%;
+  margin: 2rem 0;
+  padding: 15px;
+  font-size: 1.4rem;
+  display: flex;    
+  flex-direction: column;
+  position: relative;
+  max-width: 100%;
+  background: rgba(155, 94, 94, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e1e1e1;
+  line-height: 2;
+  letter-spacing: 0.3px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s ease;
+}
+
+.describe:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.describe h5 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  background: linear-gradient(120deg, #ffffff, #a8a8a8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.5px;
+}
+
+.describe p {
+  font-size: 1.4rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  margin-bottom: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.descriptionCollapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+  margin-bottom: 1rem;
+  line-clamp: 3;
+}
+
+.showMoreBtn {
+  color: #dc3545;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  display: block;
+  position: absolute;
+  bottom: -0.2rem;
+  right: 0;
+}
+
+.showMoreBtn:hover {
+  color: #ff4f5e;
+  text-decoration: underline;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Play button overlay */
+.posterOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(167, 161, 161, 0.112);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.moviePoster:hover .posterOverlay {
+  opacity: 1;
+}
+
+.playButtonOverlay {
+  background: rgba(255, 255, 255, 0.085);
+  border: none;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.playButtonOverlay:hover {
+  transform: scale(1.1);
+  background: rgba(241, 241, 241, 0);
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.093);
+}
+
+.playButtonContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.playIcon {
+  width: 40px;
+  height: 40px;
+  margin-left: 5px;
+  filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+}
+
+/* Related movies styles */
+.relatedMoviesContainer {
+  position: relative;
+  width: 100%;
+  padding: 0 30px;
+  margin: 20px 0;
+}
+
+.slickSlider {
+  margin: 0 -10px;
+  width: calc(100% + 20px);
+}
+
+.slickSlide {
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+/* Custom arrow styling for slick slider */
+.slickArrow {
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.slickArrow:before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-top: 3px solid white;
+  border-left: 3px solid white;
+  transition: all 0.2s ease-in-out;
+  top: 13px;
+  left: 13px;
+}
+
+.slickArrow:hover {
+  background: rgba(51, 48, 48, 0.8);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.slickPrev {
+  left: -25px;
+  z-index: 11;
+}
+
+.slickPrev:before {
+  transform: rotate(-45deg);
+  margin-left: 3px;
+}
+
+.slickNext {
+  right: -25px;
+}
+
+.slickNext:before {
+  transform: rotate(135deg);
+  margin-right: 3px;
+}
+
+.slickPrev:hover:before {
+  transform: rotate(-45deg) scale(1.2);
+}
+
+.slickNext:hover:before {
+  transform: rotate(135deg) scale(1.2);
+}
+
+.relatedMovies.dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+
+.relatedMovieCard {
+  flex: 10px;
+  width: 220px;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+  position: relative;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.relatedMovieCard:hover {
+  transform: translateY(-8px);
+}
+
+.movieLink {
+  text-decoration: none;
+  color: white;
+  display: block;
+  height: 100%;
+  -webkit-user-drag: none;
+}
+
+.relatedMoviePoster {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  -webkit-user-drag: none;
+}
+
+.relatedMoviePoster {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.relatedMovieImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.relatedMovieCard:hover .relatedMovieImage {
+  transform: scale(1.05);
+}
+
+.relatedMovieOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0.2) 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.relatedMovieCard:hover .relatedMovieOverlay {
+  opacity: 1;
+}
+
+.relatedPlayButton {
+  display: none;
+}
+
+/* Watch button */
+.watchButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: none !important;
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  z-index: 3;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 !important;
+  backdrop-filter: blur(5px);
+}
+
+.watchButton i {
+  font-size: 40px !important;
+  color: rgb(167, 161, 161) !important;
+  text-shadow: 0 0 10px rgba(138, 137, 137, 0.8) !important;
+}
+
+.watchButton:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5), 0 0 50px rgba(255, 255, 255, 0.3) !important;
+  transform: translate(-50%, -50%) scale(1.15) !important;
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1); }
+  50% { box-shadow: 0 0 25px rgba(255, 255, 255, 0.5), 0 0 50px rgba(255, 255, 255, 0.3); }
+  100% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.1); }
+}
+
+.relatedMovieCard:hover .watchButton {
+  opacity: 0.9;
+  animation: glow-pulse 2s infinite;
+}
+
+.relatedMovieInfo {
+  padding: 10px 5px;
+}
+
+.relatedMovieTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+  color: #fff;
+  transition: color 0.3s ease;
+}
+
+.relatedMovieCard:hover .relatedMovieTitle {
+  color: #b0a0a1;
+}
+
+.relatedMovieSubtitle {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge styles */
+.relatedMovieBadges {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 3;
+}
+
+.relatedMovieBadge {
+  background: rgba(220, 53, 69, 0.8);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.relatedMovieBadge.quality {
+  background: rgba(13, 110, 253, 0.8);
+}
+
+.relatedEpisodeCount {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(40, 167, 69, 0.8);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 3;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Slick slider fixes */
+.slickSlider .slick-track {
+  display: flex;
+  align-items: stretch;
+}
+
+.slickSlider .slick-slide {
+  height: auto;
+  cursor: grab;
+}
+
+.slickSlider .slick-slide:active {
+  cursor: grabbing;
+}
+
+.slickSlider .slick-slide.slick-active {
+  pointer-events: auto;
+}
+
+.slickSlider .slick-slide.slick-active.slick-current.slick-cloned {
+  pointer-events: none;
+}
+
+.slickSlider:global(.dragging) a,
+.slickSlider:global(.dragging) .watchButton {
+  pointer-events: none;
+}
+
+/* Video Player */
+.videoPlayerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1050;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+
+.videoPlayerContainer {
+  width: 90%;
+  max-width: 1200px;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.1);
+}
+
+/* Video loading */
+.videoLoading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1051;
+}
+
+.videoLoadingSpinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  border-top-color: #dc3545;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+
+.videoLoadingText {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Comments section */
+.commentsSection {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  background-color: rgba(30, 30, 30, 0.6);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+.commentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.addCommentForm {
+  margin-top: 1rem;
+}
+
+.addCommentForm textarea {
+  background-color: rgba(50, 50, 50, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 30px !important;
+  color: #fff !important;
+  padding: 0.75rem 1rem !important;
+  resize: none;
+  height: 50px;
+}
+
+.addCommentForm textarea:focus {
+  box-shadow: none !important;
+  border-color: rgba(220, 53, 69, 0.5) !important;
+  background-color: rgba(60, 60, 60, 0.6) !important;
+}
+
+.addCommentForm button {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+.addCommentForm button i {
+  font-size: 1.2rem;
+}
+
+.addCommentForm .form-check-input {
+  background-color: rgba(50, 50, 50, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.addCommentForm .form-check-input:checked {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.commentItem {
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: rgba(40, 40, 40, 0.6);
+  position: relative;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.commentAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+  border: 2px solid rgba(220, 53, 69, 0.5);
+}
+
+.commentDetails {
+  flex: 1;
+}
+
+.commentUsername {
+  font-weight: 600;
+  color: #fff;
+  display: block;
+  font-size: 0.95rem;
+}
+
+.commentDate {
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+.commentContent {
+  margin-bottom: 10px;
+  word-break: break-word;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.commentActions {
+  display: flex;
+  gap: 15px;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 5px 0;
+  transition: color 0.2s ease;
+}
+
+.actionButton i {
+  margin-right: 5px;
+}
+
+.actionButton:hover {
+  color: #fff;
+}
+
+.actionButton.liked {
+  color: #3ea6ff;
+}
+
+.actionButton.disliked {
+  color: #ff3e3e;
+}
+
+/* Comment menu styling */
+.commentMenu {
+  position: relative;
+}
+
+.commentMenuButton {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 16px;
+  padding: 0 5px;
+  cursor: pointer;
+}
+
+.commentMenuButton:hover {
+  color: #fff;
+}
+
+.commentMenuDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #222;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  min-width: 100px;
+  overflow: hidden;
+}
+
+.commentMenuItem {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.commentMenuItem:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Reply styles */
+.repliesList {
+  margin-left: 30px;
+  margin-top: 10px;
+  border-left: 2px solid #444;
+  padding-left: 15px;
+}
+
+.replyItem {
+  margin-bottom: 15px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.replyItem .commentHeader {
+  gap: 8px;
+}
+
+.replyItem .commentAvatar {
+  margin-right: 5px;
+}
+
+.replyForm {
+  margin-top: 10px;
+  margin-left: 30px;
+}
+
+.loadMoreComments {
+  margin-top: 1rem;
+  align-self: center;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  backdrop-filter: blur(5px);
+}
+
+.modalContent {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+  color: #fff;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modalHeader h5 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modalBody {
+  padding: 1.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Social share buttons */
+.socialButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.socialButtons button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.socialButtons button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Rating UI */
+.ratingButtons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.ratingButton {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid #6c757d;
+  background-color: transparent;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.ratingButton:hover {
+  border-color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.2);
+  transform: scale(1.1);
+}
+
+.ratingActive {
+  border-color: #dc3545;
+  background-color: #dc3545;
+  color: white;
+}
+
+.ratingLabel {
+  text-align: center;
+  height: 1.5rem;
+  font-size: 1rem;
+  color: #dc3545;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+/* Trailer modal */
+.videoModalContent {
+  background-color: #141414;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 960px;
+  position: relative;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.trailerContainer {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.trailerModalContent {
+  background-color: rgba(15, 15, 15, 0.95);
+  border-radius: 8px;
+  max-width: 90vw;
+  width: 900px;
+  margin: 0 auto;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden; 
+  animation: modalFadeIn 0.3s ease;
+}
+
+.trailerLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background-color: #111;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Content Container */
+.contentContainer {
+  position: relative;
+  width: 100%;
+  padding-right: 3%;
+  margin-left: 3%;
+  max-width: 99%  ;
+}
+
+/* Loading spinner */
+.loadingSpinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loadingContainer {
+  filter: blur(8px);
+  opacity: 0.6;
+  transition: all 0.5s ease;
+  pointer-events: none;
+}
+
+.loadedContent {
+  filter: blur(0);
+  opacity: 1;
+  transition: all 0.5s ease;
+}
+
+/* Skeleton loading styles */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: 4px;
+}
+
+.posterSkeleton {
+  width: 300px;
+  aspect-ratio: 2/3;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.bannerSkeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70vh;
+  z-index: 1;
+}
+
+.titleSkeleton {
+  width: 70%;
+  height: 40px;
+  margin-bottom: 15px;
+}
+
+.subtitleSkeleton {
+  width: 50%;
+  height: 25px;
+  margin-bottom: 25px;
+}
+
+.metaSkeleton {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.metaItemSkeleton {
+  width: 80px;
+  height: 30px;
+  border-radius: 15px;
+}
+
+.ratingSkeleton {
+  width: 120px;
+  height: 30px;
+  margin-bottom: 20px;
+}
+
+.badgesSkeleton {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.badgeSkeleton {
+  width: 100px;
+  height: 30px;
+  border-radius: 15px;
+}
+
+.descriptionSkeleton {
+  width: 100%;
+  height: 200px;
+  border-radius: 15px;
+  margin: 20px 0;
+}
+
+.relatedMoviesSkeleton {
+  display: flex;
+  gap: 15px;
+  overflow-x: hidden;
+  margin: 20px 0;
+}
+
+.relatedMovieCardSkeleton {
+  flex: 0 0 auto;
+  width: 220px;
+}
+
+.relatedMoviePosterSkeleton {
+  width: 100%;
+  height: 300px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.relatedMovieTitleSkeleton {
+  width: 90%;
+  height: 20px;
+  margin-bottom: 8px;
+}
+
+.relatedMovieSubtitleSkeleton {
+  width: 70%;
+  height: 15px;
+}
+
+.hiddenContent {
+  visibility: hidden;
+  position: absolute;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .bannerContent {
+    flex-direction: column;
+  }
+  
+  .leftSection, .rightSection {
+    width: 100%;
+  }
+  
+  .rightSection {
+    min-height: auto;
+    padding: 20px 0;
+  }
+  
+  .actionButtons {
+    margin-top: 1.5rem;
+  }
+  
+  .bottomActionContainer {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 40px;
+  }
+  
+  .trailerButton {
+    min-width: 160px;
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+  
+  .posterSkeleton {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .movieTitle {
+    font-size: 1.8rem;
+  }
+  
+  .originalTitle {
+    font-size: 1rem;
+  }
+  
+  .describe {
+    font-size: 1.2rem;
+    padding: 15px;
+  }
+  
+  .describe h5 {
+    font-size: 1.3rem;
+  }
+  
+  .describe p {
+    font-size: 1.2rem;
+  }
+  
+  .posterActionButtonsRow {
+    flex-direction: column;
+  }
+  
+  .posterControlButton {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+  
+  .posterControlButton i {
+    font-size: 0.9rem;
+  }
+  
+  .trailerButton {
+    min-width: 140px;
+    padding: 8px 16px;
+    font-size: 0.95rem;
+  }
+  
+  .trailerButton i {
+    font-size: 1.2rem;
+    margin-right: 8px;
+  }
+  
+  .relatedMovieCard {
+    width: 180px;
+  }
+  
+  .relatedMoviePoster {
+    height: 250px;
+  }
+  
+  .relatedPlayButton {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .watchButton {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+  
+  .scrollButton {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .videoLoadingSpinner {
+    width: 50px;
+    height: 50px;
+    border-width: 4px;
+  }
+  
+  .videoLoadingText {
+    font-size: 1rem;
+  }
+  
+  .titleSkeleton {
+    height: 30px;
+  }
+  
+  .subtitleSkeleton {
+    height: 20px;
+  }
+  
+  .relatedMovieCardSkeleton {
+    width: 180px;
+  }
+  
+  .relatedMoviePosterSkeleton {
+    height: 250px;
+  }
+  
+  .trailerModalContent {
+    width: 95vw;
+    margin: 10vh auto;
+  }
+  
+  .trailerContainer {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 576px) {
+  .posterControls {
+    padding: 1rem;
+  }
+
+  .posterControlButton {
+    padding: 8px 16px;
+    min-width: 90px;
+    font-size: 0.85rem;
+  }
+  
+  .posterControlButton i {
+    font-size: 1rem;
+    margin-right: 5px;
+  }
+  
+  .movieActions {
+    padding: 1rem;
+  }
+  
+  .actionButton {
+    padding: 6px 12px;
+    min-width: 80px;
+    font-size: 0.85rem;
+  }
+  
+  .actionButton i {
+    font-size: 1rem;
+  }
+  
+  .bottomActionContainer {
+    width: 90%;
+    justify-content: center;
+    bottom: 20px;
+  }
+  
+  .trailerButton {
+    min-width: 120px;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .trailerButton i {
+    font-size: 1.1rem;
+    margin-right: 6px;
+  }
+  
+  .mobileTrailerButton {
+    padding: 16px 20px;
+    font-size: 1.2rem;
+  }
+  
+  .relatedMovieCard {
+    width: 150px;
+  }
+  
+  .relatedMoviePoster {
+    height: 220px;
+  }
+  
+  .relatedMovieTitle {
+    font-size: 0.9rem;
+  }
+  
+  .relatedMovieSubtitle {
+    font-size: 0.75rem;
+  }
+  
+  .relatedPlayButton {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .relatedPlayIcon {
+    font-size: 18px;
+  }
+  
+  .watchButton {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+  
+  .scrollButton {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .relatedMovieCard {
+    width: 140px;
+  }
+  
+  .relatedMoviePoster {
+    height: 210px;
+  }
+  
+  .relatedMovieTitle {
+    font-size: 0.8rem;
+  }
+  
+  .playButtonOverlay {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .playIcon {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .relatedMovieOverlay i {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+  
+  .videoLoadingSpinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+  
+  .videoLoadingText {
+    font-size: 0.9rem;
+  }
+  
+  .modalContent {
+    width: 95%;
+  }
+  
+  .socialButtons button {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .ratingButton {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .mobileTrailerButton {
+    font-size: 1.1rem;
+    padding: 14px 16px;
+  }
+  
+  .mobileTrailerButton i {
+    font-size: 1.3rem;
+    margin-right: 8px;
+  }
+}
+
+/* Thêm styles vào phần <style jsx global> */
+.saveButtonContainer {
+  position: relative;
+  margin-right: 12px;
+}
+
+.saveOptionsDropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 0;
+  width: 140px;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.2s ease-out;
+  transform-origin: top left;
+}
+
+.saveOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 14px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.saveOption:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.saveOption.active {
+  color: #e50914;
+}
+
+.saveOption i {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+/* CSS cho dropdown menu ngang */
+.saveOptionsDropup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 10px;
+  pointer-events: auto; /* Đảm bảo có thể tương tác với dropdown */
+}
+
+.saveOptionsRow {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+.saveOptionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(93, 94, 95, 0.7);
+  color: white;
+  border: 1px solid rgba(162, 160, 160, 0.2);
+  border-radius: 30px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  min-width: 90px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.saveOptionButton:hover {
+  background: rgba(154, 154, 160, 0.9);
+  border-color: rgba(80, 74, 74, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Thêm mũi tên chỉ từ dropdown đến nút lưu */
+.saveOptionsDropup::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid rgba(0, 0, 0, 0.8);
+}
+
+/* Share modal styles */
+.shareModalContent {
+  max-width: 500px;
+  width: 90%;
+}
+
+.movieSharePreview {
+  display: flex;
+  align-items: center;
+  background: rgba(40, 40, 40, 0.5);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.sharePreviewImage {
+  flex: 0 0 80px;
+  height: 120px;
+  margin-right: 15px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sharePreviewImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sharePreviewInfo {
+  flex: 1;
+}
+
+.sharePreviewInfo h6 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.shareOriginName {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+.shareMovieMeta {
+  font-size: 12px;
+  color: #ddd;
+}
+
+.shareDivider {
+  position: relative;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.shareDivider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
+  z-index: 1;
+}
+
+.shareDivider span {
+  position: relative;
+  background-color: #212529;
+  padding: 0 12px;
+  color: #aaa;
+  font-size: 13px;
+  z-index: 2;
+}
+
+.socialShareButtons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.socialShareBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 0;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.socialShareBtn i {
+  font-size: 24px;
+  margin-bottom: 8px;
+  transition: transform 0.3s ease;
+}
+
+.socialShareBtn:hover i {
+  transform: scale(1.2);
+}
+
+.socialShareBtn span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.socialShareBtn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+  z-index: 0;
+}
+
+.socialShareBtn:hover::before {
+  width: 300%;
+  height: 300%;
+}
+
+.socialShareBtn i, 
+.socialShareBtn span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Individual social media buttons with brand colors and custom styles */
+.facebookBtn {
+  background-color: #3b5998;
+  box-shadow: 0 4px 10px rgba(59, 89, 152, 0.3);
+}
+
+.facebookBtn:hover {
+  background-color: #4c70ba;
+  box-shadow: 0 6px 15px rgba(59, 89, 152, 0.5);
+}
+
+.twitterBtn {
+  background-color: #1da1f2;
+  box-shadow: 0 4px 10px rgba(29, 161, 242, 0.3);
+}
+
+.twitterBtn:hover {
+  background-color: #42b8ff;
+  box-shadow: 0 6px 15px rgba(29, 161, 242, 0.5);
+}
+
+.telegramBtn {
+  background-color: #0088cc;
+  box-shadow: 0 4px 10px rgba(0, 136, 204, 0.3);
+}
+
+.telegramBtn:hover {
+  background-color: #00a0e9;
+  box-shadow: 0 6px 15px rgba(0, 136, 204, 0.5);
+}
+
+.whatsappBtn {
+  background-color: #25d366;
+  box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3);
+}
+
+.whatsappBtn:hover {
+  background-color: #3ee677;
+  box-shadow: 0 6px 15px rgba(37, 211, 102, 0.5);
+}
+
+.pinterestBtn {
+  background-color: #bd081c;
+  box-shadow: 0 4px 10px rgba(189, 8, 28, 0.3);
+}
+
+.pinterestBtn:hover {
+  background-color: #de1b31;
+  box-shadow: 0 6px 15px rgba(189, 8, 28, 0.5);
+}
+
+.emailBtn {
+  background-color: #464646;
+  box-shadow: 0 4px 10px rgba(70, 70, 70, 0.3);
+}
+
+.emailBtn:hover {
+  background-color: #5e5e5e;
+  box-shadow: 0 6px 15px rgba(70, 70, 70, 0.5);
+}
+
+.linkedinBtn {
+  background-color: #0077b5;
+  box-shadow: 0 4px 10px rgba(0, 119, 181, 0.3);
+}
+
+.linkedinBtn:hover {
+  background-color: #0d8fd1;
+  box-shadow: 0 6px 15px rgba(0, 119, 181, 0.5);
+}
+
+.redditBtn {
+  background-color: #ff4500;
+  box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);
+}
+
+.redditBtn:hover {
+  background-color: #ff6a33;
+  box-shadow: 0 6px 15px rgba(255, 69, 0, 0.5);
+}
+
+.viberBtn {
+  background-color: #7360f2;
+  box-shadow: 0 4px 10px rgba(115, 96, 242, 0.3);
+}
+
+.viberBtn:hover {
+  background-color: #8b7ef4;
+  box-shadow: 0 6px 15px rgba(115, 96, 242, 0.5);
+}
+
+.zaloBtn {
+  background-color: #0068ff;
+  box-shadow: 0 4px 10px rgba(0, 104, 255, 0.3);
+}
+
+.zaloBtn:hover {
+  background-color: #1a7bff;
+  box-shadow: 0 6px 15px rgba(0, 104, 255, 0.5);
+}
+
+.shareLinkContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.copyLinkBtn {
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.copyLinkBtn:hover {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.shareQRCode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.qrCodeContainer {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.qrCodeContainer img {
+  max-width: 150px;
+  height: auto;
+}
+
+.zaloIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #fff;
+  color: #0068ff;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 8px;
+  margin: 0 auto 8px;
+  line-height: 24px;
+  font-family: Arial, sans-serif;
+}
+
+@media (max-width: 576px) {
+  .socialShareButtons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .sharePreviewImage {
+    flex: 0 0 60px;
+    height: 90px;
+  }
+  
+  .qrCodeContainer img {
+    max-width: 120px;
+  }
+}
+
+/* Styles cho lưới các nút chia sẻ */
+.shareButtonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.shareBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  text-align: center;
+  color: white;
+  padding: 15px 10px;
+  transition: all 0.3s ease;
+}
+
+.shareBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.shareBtnIcon {
+  font-size: 22px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+}
+
+.shareBtnText {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.zaloIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: white;
+  color: #0068ff;
+}
+
+/* Responsive styles */
+@media (max-width: 576px) {
+  .shareButtonGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .shareBtn {
+    padding: 12px 8px;
+  }
+}
+
+@media (max-width: 350px) {
+  .shareButtonGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Kiểu dáng mới cho lưới các icon chia sẻ */
+.shareIconGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 30px;  /* Tăng khoảng cách từ 15px lên 30px */
+  margin-bottom: 20px;
+  row-gap: 40px; /* Thêm row-gap riêng để tăng khoảng cách giữa các hàng */
+}
+
+.shareIconBtn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  margin: 0 auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.shareIconBtn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.shareIconTooltip {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.shareIconBtn:hover .shareIconTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.zaloIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: white;
+  color: #0068ff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
+@media (max-width: 576px) {
+  .shareIconGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .shareIconBtn {
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 380px) {
+  .shareIconGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Thêm CSS để hiển thị đúng kích thước logo mạng xã hội */
+.socialLogo {
+  width: 50px;
+  height:   50px;
+  object-fit: contain;
+  background-color: #ffffff;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+/* CSS cho nút báo lỗi ở góc trên */
+.reportButtonContainer {
+  position: fixed;
+  top: -390px;
+  right: 10px;
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.reportButtonTop {
+  display: flex;
+  align-items: center;
+  background-color: rgba(99, 96, 96, 0.4);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.reportButtonTop i {
+  margin-right: 6px;
+  font-size: 16px;
+}
+
+.reportButtonTop:hover {
+  background-color: rgba(247, 4, 65, 0.747);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(31, 30, 30, 0.327);
+}
+
+.reportButtonTop:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(165, 159, 160, 0.437);
+}
+
+/* Responsive styling cho mobile */
+@media (max-width: 768px) {
+  .reportButtonContainer {
+    top: 15px;
+    right: 15px;
+  }
+  
+  .reportButtonTop {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .reportButtonTop span {
+    display: none; /* Ẩn text trên mobile, chỉ giữ lại icon */
+  }
+  
+  .reportButtonTop i {
+    margin-right: 0;
+    font-size: 18px;
+  }
+}
+
+
+
+
+
+

@@ -1,0 +1,83 @@
+/* Subscription details in success modal */
+.subscriptionDetailsContainer {
+  margin: 1.5rem 0;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 10px;
+  padding: 1.2rem;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.subscriptionDetailsTitle {
+  color: #2e7d32;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.subscriptionDetailsCard {
+  display: flex;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  align-items: center;
+  text-align: left;
+}
+
+.packageIcon {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.packageDetails {
+  flex: 1;
+}
+
+.packageDetails h5 {
+  color: #333;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.subscriptionDetailsCard .packagePrice {
+  color: #e67e22;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0.3rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.packageDetails .packageDuration {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+
+.packageFeatures {
+  margin-top: 0.8rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: center;
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.featureIcon {
+  color: #4CAF50;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}

@@ -1,0 +1,46 @@
+/* Admin Upcoming Movies CSS */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn {
+  margin: 0 3px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
+}
+
+/* Hiệu ứng hover cho các hàng bảng */
+.movie-table tr {
+  transition: all 0.2s ease;
+}
+
+.movie-table tr:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Đảm bảo header bảng có màu nền đẹp hơn */
+.movie-table thead th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* ID column */
+.id-column {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-weight: 600;
+}

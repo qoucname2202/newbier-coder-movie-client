@@ -1,0 +1,60 @@
+.statusBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  z-index: 9998;
+  transition: all 0.3s ease;
+}
+
+.offline {
+  background-color: rgba(244, 67, 54, 0.9);
+  color: white;
+}
+
+.online {
+  background-color: rgba(76, 175, 80, 0.9);
+  color: white;
+}
+
+.statusIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+
+.statusBar {
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.statusBar.hiding {
+  animation: fadeOutUp 0.3s ease-in forwards;
+}

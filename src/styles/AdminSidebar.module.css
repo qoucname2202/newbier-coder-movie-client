@@ -1,0 +1,123 @@
+.sidebar {
+  background: #1a2433; /* Phù hợp với màu nền trong hình ảnh bạn chia sẻ */
+  min-height: 100vh;
+  width: 250px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); 
+}
+
+.brand {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  height: 70px;
+}
+
+.brandImageWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brandImage {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+}
+
+.brandText {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.nav {
+  padding: 16px 8px;
+}
+
+.navItem {
+  margin-bottom: 8px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  color: rgba(255,255,255,0.85); /* Tăng opacity lên 0.85 để dễ đọc hơn */
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  gap: 16px;
+}
+
+.navLink:hover {
+  background: rgba(255,255,255,0.15);
+  color: #ffffff;
+  transform: translateX(5px);
+}
+
+.navLink.active {
+  background: #3182ce; /* Màu xanh giống hình ảnh bạn chia sẻ */
+  color: #ffffff;
+  box-shadow: 0 4px 8px rgba(49, 130, 206, 0.3);
+  font-weight: 600;
+}
+
+.navIcon {
+  font-size: 1.2rem;
+  min-width: 22px;
+  display: flex;
+  justify-content: center;
+  color: #ffffff; /* Đảm bảo icon luôn có màu trắng */
+}
+
+.navText {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: #ffffff; /* Đảm bảo text luôn có màu trắng */
+  opacity: 1 !important; /* Đảm bảo text không bị mờ */
+  display: block !important; /* Đảm bảo text luôn hiển thị */
+  visibility: visible !important; /* Đảm bảo text không bị ẩn */
+}
+
+/* Đảm bảo text hiển thị rõ ngay cả khi hover và active */
+.navLink:hover .navText,
+.navLink.active .navText {
+  color: #ffffff;
+  opacity: 1;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+  
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+  }
+  
+  body.sidebar-open .overlay {
+    display: block;
+  }
+}
