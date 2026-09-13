@@ -33,7 +33,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
         e.preventDefault();
         setIsAnimating(true);
         const path = isSignup ? '/auth/login' : '/auth/signup';
-        
+
         setTimeout(() => {
             router.push(path);
         }, 300);
@@ -46,7 +46,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
     const handleHomeClick = () => {
         router.push('/');
     };
-    
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormFields({
@@ -65,11 +65,11 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
     const handleGoogleSignIn = async () => {
         try {
             setSocialLoading({ ...socialLoading, google: true });
-            const result = await signIn('google', { 
+            const result = await signIn('google', {
                 callbackUrl: '/',
-                redirect: false 
+                redirect: false
             });
-            
+
             if (result?.error) {
                 console.error("Google sign-in error:", result.error);
                 alert(`Đăng nhập Google thất bại: ${result.error}`);
@@ -85,31 +85,25 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
     const handleFacebookSignIn = async () => {
         try {
             setSocialLoading({ ...socialLoading, facebook: true });
-            
-            // Sử dụng Firebase để đăng nhập Facebook thay vì NextAuth
+
             const result = await signInWithFacebook();
-            
+
             if (result.success) {
-                // Gửi thông tin từ Firebase lên backend của bạn
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/facebook-login`, {
-                    email: result.user.email || `${result.user.uid}@facebook.com`, // Đảm bảo luôn có email
+                    email: result.user.email || `${result.user.uid}@facebook.com`,
                     name: result.user.displayName,
                     facebookId: result.user.uid,
                     picture: result.user.photoURL
                 });
-                
+
                 if (response.data && response.data.token) {
-                    // Lưu token và thông tin người dùng vào localStorage
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify(response.data.user));
-                    
-                    // Kích hoạt sự kiện storage để AuthProvider cập nhật trạng thái
+
                     window.dispatchEvent(new Event('storage'));
-                    
-                    // Đảm bảo token được thêm vào header của axios cho các request tiếp theo
+
                     axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-                    
-                    // Chuyển hướng người dùng sau khi đăng nhập thành công
+
                     router.push('/');
                 } else {
                     alert(`Đăng nhập Facebook thất bại: ${response.data?.error || 'Lỗi không xác định'}`);
@@ -136,31 +130,31 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     <div key={i} className={`particle particle-${i + 1}`}></div>
                 ))}
             </div>
-            
+
             <button className="home-button" onClick={handleHomeClick}>
                 <FaHome /> Home
             </button>
-            
+
             <div className={authBoxClass}>
                 <div className="form-container">
                     <div className="form-section">
                         <h2>{isSignup ? 'Sign up' : 'Login'}<span className="accent-dot">.</span></h2>
-                        
+
                         {error && <div className="error-message">{error}</div>}
                         {message && <div className="success-message">{message}</div>}
-                        
+
                         <form onSubmit={handleSubmit}>
                             {isSignup && (
                                 <div className={`input-group ${focusedField === 'fullname' || formFields.fullname ? 'active' : ''}`}>
                                     <div className="input-icon">
                                         <FaUser />
                                     </div>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         name="fullname"
                                         value={formFields.fullname}
                                         onChange={handleInputChange}
-                                        placeholder="Full Name" 
+                                        placeholder="Full Name"
                                         onFocus={() => setFocusedField('fullname')}
                                         onBlur={() => setFocusedField(null)}
                                         disabled={isLoading}
@@ -168,53 +162,53 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                     <div className="input-line"></div>
                                 </div>
                             )}
-                            
+
                             <div className={`input-group ${focusedField === 'email' || formFields.email ? 'active' : ''}`}>
                                 <div className="input-icon">
                                     <FaEnvelope />
                                 </div>
-                                <input 
-                                    type="email" 
+                                <input
+                                    type="email"
                                     name="email"
                                     value={formFields.email}
                                     onChange={handleInputChange}
-                                    placeholder="Email" 
+                                    placeholder="Email"
                                     onFocus={() => setFocusedField('email')}
                                     onBlur={() => setFocusedField(null)}
                                     disabled={isLoading}
                                 />
                                 <div className="input-line"></div>
                             </div>
-                            
+
                             <div className={`input-group ${focusedField === 'password' || formFields.password ? 'active' : ''}`}>
                                 <div className="input-icon">
                                     <FaLock />
                                 </div>
-                                <input 
-                                    type="password" 
+                                <input
+                                    type="password"
                                     name="password"
                                     value={formFields.password}
                                     onChange={handleInputChange}
-                                    placeholder="Password" 
+                                    placeholder="Password"
                                     onFocus={() => setFocusedField('password')}
                                     onBlur={() => setFocusedField(null)}
                                     disabled={isLoading}
                                 />
                                 <div className="input-line"></div>
                             </div>
-                            
+
                             {isSignup && (
                                 <>
                                     <div className={`input-group ${focusedField === 'retype_password' || formFields.retype_password ? 'active' : ''}`}>
                                         <div className="input-icon">
                                             <FaLock />
                                         </div>
-                                        <input 
-                                            type="password" 
+                                        <input
+                                            type="password"
                                             name="retype_password"
                                             value={formFields.retype_password}
                                             onChange={handleInputChange}
-                                            placeholder="Retype Password" 
+                                            placeholder="Retype Password"
                                             onFocus={() => setFocusedField('retype_password')}
                                             onBlur={() => setFocusedField(null)}
                                             disabled={isLoading}
@@ -225,12 +219,12 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                         <div className="input-icon">
                                             <FaMapMarkerAlt />
                                         </div>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             name="address"
                                             value={formFields.address}
                                             onChange={handleInputChange}
-                                            placeholder="Address" 
+                                            placeholder="Address"
                                             onFocus={() => setFocusedField('address')}
                                             onBlur={() => setFocusedField(null)}
                                             disabled={isLoading}
@@ -241,12 +235,12 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                         <div className="input-icon">
                                             <FaPhone />
                                         </div>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             name="phone"
                                             value={formFields.phone}
                                             onChange={handleInputChange}
-                                            placeholder="Phone" 
+                                            placeholder="Phone"
                                             onFocus={() => setFocusedField('phone')}
                                             onBlur={() => setFocusedField(null)}
                                             disabled={isLoading}
@@ -257,12 +251,12 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                         <div className="input-icon">
                                             <FaCalendarAlt />
                                         </div>
-                                        <input 
-                                            type="date" 
+                                        <input
+                                            type="date"
                                             name="date_of_birth"
                                             value={formFields.date_of_birth}
                                             onChange={handleInputChange}
-                                            placeholder="Date of Birth" 
+                                            placeholder="Date of Birth"
                                             onFocus={() => setFocusedField('date_of_birth')}
                                             onBlur={() => setFocusedField(null)}
                                             disabled={isLoading}
@@ -271,7 +265,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                     </div>
                                 </>
                             )}
-                            
+
                             <button className="auth-button" type="submit" disabled={isLoading}>
                                 {isLoading ? (
                                     <><FaSpinner className="spinner-icon" /> Processing...</>
@@ -280,12 +274,12 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                 )}
                                 <span className="button-effect"></span>
                             </button>
-                            
+
                             {mounted && (
                                 <div className="social-login">
-                                    <button 
-                                        className="social-button google" 
-                                        type="button" 
+                                    <button
+                                        className="social-button google"
+                                        type="button"
                                         onClick={handleGoogleSignIn}
                                         disabled={isLoading || socialLoading.google}
                                     >
@@ -295,9 +289,9 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                             <><FaGoogle /> Continue with Google</>
                                         )}
                                     </button>
-                                    <button 
-                                        className="social-button facebook" 
-                                        type="button" 
+                                    <button
+                                        className="social-button facebook"
+                                        type="button"
                                         onClick={handleFacebookSignIn}
                                         disabled={isLoading || socialLoading.facebook}
                                     >
@@ -315,9 +309,9 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                     </Link>
                                 </div>
                             )}
-                            
+
                             <div className="switch-auth">
-                                {isSignup ? "Already have an account?" : "Don't have an account?"} 
+                                {isSignup ? "Already have an account?" : "Don't have an account?"}
                                 <a href="#" onClick={handleSwitchAuth}>
                                     {isSignup ? ' Sign in' : ' Sign up'}
                                 </a>
@@ -325,12 +319,12 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                         </form>
                     </div>
                 </div>
-                
+
                 <div className="welcome-section">
                     <div className="welcome-content">
                         <h1>{isSignup ? 'Join Us Today' : 'Welcome Back'}</h1>
-                        <p>{isSignup 
-                            ? 'Create an account to start enjoying unlimited streaming.' 
+                        <p>{isSignup
+                            ? 'Create an account to start enjoying unlimited streaming.'
                             : 'Sign in to access your favorite movies and TV shows.'}</p>
                         <button className="switch-button" onClick={handleSwitchAuth}>
                             {isSignup ? 'Sign in' : 'Sign up'}
@@ -338,7 +332,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     </div>
                 </div>
             </div>
-            
+
             <style jsx>{`                .auth-container {
                     min-height: 100vh;
                     display: flex;
@@ -356,13 +350,11 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     width: 100%;
                     height: 100%;
                     background: url('/img/background/movies-wall.jpg') center/cover no-repeat;
-                    opacity: 0.75; /* Tăng độ rõ lên cao hơn */
-                    z-index: 0;
-                    filter: blur(1px); /* Giảm độ mờ hơn nữa */
-                    transform: scale(1.1);
+                    opacity: 0.75;                    z-index: 0;
+                    filter: blur(1px);                    transform: scale(1.1);
                     animation: dynamicPan 80s infinite alternate-reverse ease-in-out;
                 }
-                
+
                 @keyframes dynamicPan {
                     0% { transform: scale(1.1) translate(0, 0) rotate(0deg); }
                     20% { transform: scale(1.12) translate(-2%, -1%) rotate(0.5deg); }
@@ -377,12 +369,12 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     left: -50%;
                     width: 200%;
                     height: 200%;
-                    background: linear-gradient(45deg, 
-                        rgba(15, 18, 30, 0.7) 0%, 
-                        rgba(30, 33, 50, 0.8) 20%, 
-                        rgba(45, 50, 70, 0.8) 40%, 
-                        rgba(12, 15, 25, 0.9) 60%, 
-                        rgba(40, 45, 65, 0.8) 80%, 
+                    background: linear-gradient(45deg,
+                        rgba(15, 18, 30, 0.7) 0%,
+                        rgba(30, 33, 50, 0.8) 20%,
+                        rgba(45, 50, 70, 0.8) 40%,
+                        rgba(12, 15, 25, 0.9) 60%,
+                        rgba(40, 45, 65, 0.8) 80%,
                         rgba(10, 12, 22, 0.7) 100%);
                     animation: gradientShift 30s ease infinite;
                     z-index: 1;
@@ -393,13 +385,13 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    background: radial-gradient(circle at 30% 30%, 
-                        rgba(60, 65, 80, 0.4) 0%, 
-                        rgba(40, 45, 55, 0.35) 20%, 
+                    background: radial-gradient(circle at 30% 30%,
+                        rgba(60, 65, 80, 0.4) 0%,
+                        rgba(40, 45, 55, 0.35) 20%,
                         rgba(10, 10, 20, 0.7) 70%);
                     z-index: 2;
                 }
-                
+
                 .background-gradient::after {
                     content: "";
                     position: absolute;
@@ -411,7 +403,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     animation: lightMove 15s infinite linear;
                     z-index: 0;
                 }
-                
+
                 .floating-particles {
                     position: absolute;
                     top: 0;
@@ -422,7 +414,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     z-index: 3;
                     pointer-events: none;
                 }
-                
+
                 .particle {
                     position: absolute;
                     width: 6px;
@@ -433,7 +425,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     animation: float 20s infinite linear;
                     z-index: 3;
                 }
-                
+
                 .particle::after {
                     content: '';
                     position: absolute;
@@ -443,7 +435,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     background: radial-gradient(circle at center, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 100%);
                     filter: blur(1px);
                 }
-                
+
                 @keyframes float {
                     0% {
                         transform: translateY(0) translateX(0) scale(1);
@@ -460,7 +452,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                         opacity: 0;
                     }
                 }
-                
+
                 .particle-1 { left: 10%; animation-duration: 15s; animation-delay: 0s; }
                 .particle-2 { left: 20%; animation-duration: 25s; animation-delay: 2s; }
                 .particle-3 { left: 30%; animation-duration: 18s; animation-delay: 4s; }
@@ -476,7 +468,6 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                 .particle-13 { left: 45%; animation-duration: 19s; animation-delay: 2s; }
                 .particle-14 { left: 55%; animation-duration: 22s; animation-delay: 4s; }
                 .particle-15 { left: 65%; animation-duration: 18s; animation-delay: 6s; }
-                  /* Thêm một số ánh sáng từ góc màn hình */
                 .auth-container::before {
                     content: '';
                     position: absolute;
@@ -489,7 +480,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     animation: lightPulse 10s infinite alternate ease-in-out;
                     z-index: 2;
                 }
-                
+
                 .auth-container::after {
                     content: '';
                     position: absolute;
@@ -502,7 +493,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     animation: lightPulse 8s infinite alternate-reverse ease-in-out;
                     z-index: 2;
                 }
-                
+
                 @keyframes lightPulse {
                     0% { opacity: 0.5; transform: scale(1); }
                     50% { opacity: 0.7; transform: scale(1.1); }
@@ -523,17 +514,14 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     display: flex;
                     width: 900px;
                     height: ${mounted ? (isSignup ? '750px' : '600px') : 'auto'};
-                    background: rgba(26, 26, 26, 0.65); /* Giảm độ đậm của nền để mờ hơn */
-                    border-radius: 20px;
+                    background: rgba(26, 26, 26, 0.65);                    border-radius: 20px;
                     position: relative;
                     overflow: hidden;
                     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5),
                                 0 0 40px rgba(150, 150, 160, 0.1);
                     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
                     z-index: 10;
-                    backdrop-filter: blur(8px); /* Điều chỉnh độ mờ filter */
-                    border: 1px solid rgba(255, 255, 255, 0.08); /* Tăng độ sáng của viền */
-                    animation: glow 8s infinite alternate ease-in-out;
+                    backdrop-filter: blur(8px);                    border: 1px solid rgba(255, 255, 255, 0.08);                    animation: glow 8s infinite alternate ease-in-out;
                 }
                   @keyframes glow {
                     0% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 40px rgba(150, 150, 160, 0.1); }
@@ -560,7 +548,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     justify-content: center;
                     overflow: hidden;
                 }
-                
+
                 .welcome-section:before {
                     content: '';
                     position: absolute;
@@ -568,13 +556,13 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     left: -50%;
                     width: 200%;
                     height: 200%;
-                    background: radial-gradient(circle at center, 
-                        rgba(120, 120, 130, 0.15) 0%, 
-                        rgba(30, 30, 35, 0.05) 30%, 
+                    background: radial-gradient(circle at center,
+                        rgba(120, 120, 130, 0.15) 0%,
+                        rgba(30, 30, 35, 0.05) 30%,
                         rgba(30, 30, 30, 0) 70%);
                     animation: pulseLight 10s ease-in-out infinite;
                 }
-                
+
                 .welcome-section:after {
                     content: '';
                     position: absolute;
@@ -592,7 +580,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     opacity: 0.5;
                     animation: shiftPattern 20s linear infinite;
                 }
-                
+
                 @keyframes shiftPattern {
                     0% { background-position: 0 0; }
                     100% { background-position: 50px 50px; }
@@ -621,13 +609,13 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     -webkit-text-fill-color: transparent;
                     animation: shine 3s linear infinite;
                 }
-                
+
                 @keyframes shine {
                     to {
                         background-position: 200% center;
                     }
                 }
-                
+
                 @keyframes titlePulse {
                     0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
                     100% { text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
@@ -645,7 +633,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     padding: 50px;
                     opacity: 1;
                     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-                    background: linear-gradient(to bottom, 
+                    background: linear-gradient(to bottom,
                         rgba(40, 40, 40, 0.2),
                         rgba(20, 20, 20, 0.1)
                     );
@@ -708,7 +696,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     color: #b0b0b0;
                     animation: iconPulse 1s ease;
                 }
-                
+
                 @keyframes iconPulse {
                     0% { transform: scale(1); }
                     50% { transform: scale(1.2); }
@@ -730,7 +718,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                 input:focus {
                     background: rgba(255, 255, 255, 0.05);
                     border-color: rgba(123, 136, 201, 0.4);
-                    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1), 
+                    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1),
                                 inset 0 1px 3px rgba(0, 0, 0, 0.1);
                     outline: none;
                 }
@@ -755,7 +743,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     width: 100%;
                     animation: lineGrow 0.5s ease-out;
                 }
-                
+
                 @keyframes lineGrow {
                     0% { width: 0; opacity: 0.3; }
                     100% { width: 100%; opacity: 1; }
@@ -778,7 +766,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     position: relative;
                     overflow: hidden;
                     letter-spacing: 0.5px;
-                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2),
                                0 0 15px rgba(74, 83, 128, 0.15);
                     display: flex;
                     align-items: center;
@@ -786,7 +774,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     background-size: 200% 100%;
                     animation: gradientMove 3s ease infinite;
                 }
-                
+
                 @keyframes gradientMove {
                     0% { background-position: 0% 50%; }
                     50% { background-position: 100% 50%; }
@@ -823,7 +811,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
 
                 .auth-button:hover:not(:disabled) {
                     background: linear-gradient(135deg, #536094, #3a4475);
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3),
                                 0 0 10px rgba(99, 123, 213, 0.2);
                     transform: translateY(-2px);
                 }
@@ -963,7 +951,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     position: relative;
                     overflow: hidden;
                 }
-                
+
                 .switch-button:before {
                     content: "";
                     position: absolute;
@@ -983,12 +971,12 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                                 0 0 15px rgba(99, 123, 213, 0.2);
                     transform: translateY(-2px);
                 }
-                
+
                 .switch-button:hover:before {
                     opacity: 1;
                     animation: rotateGradient 4s linear infinite;
                 }
-                
+
                 @keyframes rotateGradient {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
@@ -1042,7 +1030,7 @@ export default function AuthForm({ onSubmit, isLoading, error, message, isSignup
                     border-left: 3px solid #ff5555;
                     font-size: 14px;
                 }
-                
+
                 .success-message {
                     color: #4CD964;
                     text-align: center;

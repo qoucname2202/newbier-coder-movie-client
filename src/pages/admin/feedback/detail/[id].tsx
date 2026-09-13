@@ -5,14 +5,13 @@ import { useRouter } from 'next/router';
 import AdminLayout from '@/components/Layout/AdminLayout';
 import axios from 'axios';
 import {
-  FaEnvelope, FaArrowLeft, 
+  FaEnvelope, FaArrowLeft,
   FaClock, FaReply, FaTrash, FaCheckCircle,
   FaEdit, FaCalendarAlt, FaExclamationTriangle,
   FaEye, FaHistory
 } from 'react-icons/fa';
 import styles from '@/styles/AdminDashboard.module.css';
 
-// Định nghĩa kiểu dữ liệu cho feedback chi tiết
 interface FeedbackDetail {
   _id: string;
   name: string;
@@ -58,22 +57,22 @@ const FeedbackDetailPage = () => {
   useEffect(() => {
     const fetchFeedbackDetail = async () => {
       if (!id) return;
-      
+
       try {
         setLoading(true);
         setError(null);
-        
+
         const token = localStorage.getItem('auth_token');
         if (!token) {
           router.push('/auth/login');
           return;
         }
-        
+
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
         const response = await axios.get(`${baseUrl}/feedback/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         if (response.data.success) {
           setFeedback(response.data.data);
           // Set initial response status from the feedback
@@ -92,21 +91,21 @@ const FeedbackDetailPage = () => {
     fetchFeedbackDetail();
   }, [id, router]);
 
-  // Đánh dấu là đã đọc khi xem
+  // Mark as read when viewing
   useEffect(() => {
     const markAsRead = async () => {
       if (!id || !feedback || feedback.isRead) return;
-      
+
       try {
         const token = localStorage.getItem('auth_token');
         if (!token) return;
-        
+
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
         await axios.patch(`${baseUrl}/feedback/${id}/read`, {}, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
-        // Cập nhật trạng thái local
+
+        // Update local state
         setFeedback(prev => prev ? { ...prev, isRead: true } : null);
       } catch (err) {
         console.error('Error marking feedback as read:', err);
@@ -116,7 +115,7 @@ const FeedbackDetailPage = () => {
     markAsRead();
   }, [id, feedback]);
 
-  // Định dạng ngày tháng
+  // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN', {
@@ -128,7 +127,7 @@ const FeedbackDetailPage = () => {
     });
   };
 
-  // Lấy text trạng thái
+  // Get status text
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending':
@@ -142,7 +141,7 @@ const FeedbackDetailPage = () => {
     }
   };
 
-  // Lấy class badge trạng thái
+  // Get status badge class
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'pending':
@@ -156,7 +155,7 @@ const FeedbackDetailPage = () => {
     }
   };
 
-  // Lấy icon trạng thái
+  // Get status icon
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
@@ -170,10 +169,10 @@ const FeedbackDetailPage = () => {
     }
   };
 
-  // Xử lý gửi phản hồi
+  // Handle response submission
   const handleSubmitResponse = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!response.trim()) {
       setError('Vui lòng nhập nội dung phản hồi');
       return;
@@ -182,7 +181,7 @@ const FeedbackDetailPage = () => {
     try {
       setSubmitting(true);
       setError(null);
-      
+
       const token = localStorage.getItem('auth_token');
       if (!token) {
         router.push('/auth/login');
@@ -195,7 +194,7 @@ const FeedbackDetailPage = () => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       if (res.data.success) {
         setSuccess('Đã gửi phản hồi thành công');
         setResponse(''); // Clear response field
@@ -207,18 +206,18 @@ const FeedbackDetailPage = () => {
           responseHistory: [
             ...(prev.responseHistory || []),
             {
-              _id: new Date().toISOString(),              message: response 
-                ? `Cập nhật trạng thái thành "${getStatusText(responseStatus)}". Ghi chú: ${response}` 
+              _id: new Date().toISOString(),              message: response
+                ? `Cập nhật trạng thái thành "${getStatusText(responseStatus)}". Ghi chú: ${response}`
                 : `Cập nhật trạng thái thành "${getStatusText(responseStatus)}"`,
               respondedBy: 'Admin',
               respondedAt: new Date().toISOString()
             }
           ]
         } : null);
-        
+
         // Show success message with status
         setSuccess(`Đã cập nhật trạng thái thành công thành "${getStatusText(responseStatus)}"`);
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => {
           setSuccess(null);
@@ -234,23 +233,22 @@ const FeedbackDetailPage = () => {
     }
   };
 
-  // Xử lý xóa góp ý
   const handleDeleteFeedback = async () => {
     try {
       setDeleting(true);
       setError(null);
-      
+
       const token = localStorage.getItem('auth_token');
       if (!token) {
         router.push('/auth/login');
         return;
       }
-      
+
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const res = await axios.delete(`${baseUrl}/feedback/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       if (res.data.success) {
         router.push('/admin/feedback');
       } else {
@@ -346,7 +344,7 @@ const FeedbackDetailPage = () => {
                           </div>
                           <div className="mt-2">
                             <span className="badge badge-light text-dark">
-                              <FaCalendarAlt size={10} className="me-1" /> 
+                              <FaCalendarAlt size={10} className="me-1" />
                               Tham gia: {formatDate(feedback.createdAt).split(' ')[0]}
                             </span>
                           </div>
@@ -385,7 +383,7 @@ const FeedbackDetailPage = () => {
                             <div className="form-group mb-4">
                               <label className="form-label fw-bold fs-5 mb-3">Cập nhật trạng thái</label>
                               <div className="status-selection-cards">
-                                <div 
+                                <div
                                   className={`status-card ${responseStatus === 'pending' ? 'active' : ''}`}
                                   onClick={() => setResponseStatus('pending')}
                                 >
@@ -397,16 +395,16 @@ const FeedbackDetailPage = () => {
                                     <p>Góp ý đang chờ xử lý</p>
                                   </div>
                                   <div className="status-radio">
-                                    <input 
-                                      type="radio" 
-                                      name="responseStatus" 
+                                    <input
+                                      type="radio"
+                                      name="responseStatus"
                                       checked={responseStatus === 'pending'}
                                       onChange={() => {}}
                                     />
                                   </div>
                                 </div>
-                                
-                                <div 
+
+                                <div
                                   className={`status-card ${responseStatus === 'processed' ? 'active' : ''}`}
                                   onClick={() => setResponseStatus('processed')}
                                 >
@@ -418,16 +416,16 @@ const FeedbackDetailPage = () => {
                                     <p>Đang trong quá trình xử lý</p>
                                   </div>
                                   <div className="status-radio">
-                                    <input 
-                                      type="radio" 
-                                      name="responseStatus" 
+                                    <input
+                                      type="radio"
+                                      name="responseStatus"
                                       checked={responseStatus === 'processed'}
                                       onChange={() => {}}
                                     />
                                   </div>
                                 </div>
-                                
-                                <div 
+
+                                <div
                                   className={`status-card ${responseStatus === 'resolved' ? 'active' : ''}`}
                                   onClick={() => setResponseStatus('resolved')}
                                 >
@@ -439,9 +437,9 @@ const FeedbackDetailPage = () => {
                                     <p>Góp ý đã được giải quyết hoàn tất</p>
                                   </div>
                                   <div className="status-radio">
-                                    <input 
-                                      type="radio" 
-                                      name="responseStatus" 
+                                    <input
+                                      type="radio"
+                                      name="responseStatus"
                                       checked={responseStatus === 'resolved'}
                                       onChange={() => {}}
                                     />
@@ -449,7 +447,7 @@ const FeedbackDetailPage = () => {
                                 </div>
                               </div>
                             </div>
-                            
+
                             <div className="form-group mb-3">
                               <label htmlFor="response" className="form-label fw-bold">Ghi chú nội bộ</label>
                               <textarea
@@ -464,7 +462,7 @@ const FeedbackDetailPage = () => {
                                 Ghi chú này chỉ hiển thị cho nội bộ quản trị, không gửi đến người dùng.
                               </div>
                             </div>
-                            
+
                             <div className="d-flex justify-content-between mt-4 action-buttons">
                               <div>
                                 <button
@@ -476,8 +474,8 @@ const FeedbackDetailPage = () => {
                                 </button>
                               </div>
                               <div>
-                                <button 
-                                  type="button" 
+                                <button
+                                  type="button"
                                   className="btn btn-light me-2"
                                   onClick={() => router.push('/admin/feedback')}
                                 >
@@ -507,7 +505,7 @@ const FeedbackDetailPage = () => {
                 </div>
 
                 {/* Sidebar - Response History */}
-                <div className="col-lg-4">                  {/* Lịch sử hoạt động admin */}                  <div className="card">
+                <div className="col-lg-4">                                    <div className="card">
                     <div className="card-header bg-white">
                       <h3 className="card-title d-flex align-items-center">
                         <FaHistory className="me-2" /> Lịch sử hoạt động
@@ -541,9 +539,9 @@ const FeedbackDetailPage = () => {
                                 </div>
                               </div>
                             </li>
-                            
+
                             {/* History Items */}
-                            {feedback.responseHistory && feedback.responseHistory.length > 0 && 
+                            {feedback.responseHistory && feedback.responseHistory.length > 0 &&
                               feedback.responseHistory.map((item, index) => (
                                 <li key={item._id} className="timeline-item">
                                   <div className="timeline-badge">

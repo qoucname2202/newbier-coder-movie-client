@@ -8,22 +8,17 @@ interface BackToTopButtonProps {
   onClick?: () => void;
 }
 
-/**
- * Nút cuộn trở lại đầu trang
- */
 const BackToTopButton: React.FC<BackToTopButtonProps> = ({
   className = '',
   variant = 'primary',
   onClick
 }) => {
   const handleClick = () => {
-    // Cuộn lên đầu trang
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-    
-    // Gọi trình xử lý onClick bổ sung nếu được cung cấp
+
     if (onClick) {
       onClick();
     }

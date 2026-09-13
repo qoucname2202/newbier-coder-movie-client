@@ -4,8 +4,8 @@ import Link from 'next/link';
 import Navbar from '../components/Layout/Navbar';
 import { useAuth } from '../utils/auth';
 import searchHistoryService from '../API/services/searchHistoryService';
-import { 
-  FaSearch, FaTimes, FaTrash, FaHistory, FaTimesCircle 
+import {
+  FaSearch, FaTimes, FaTrash, FaHistory, FaTimesCircle
 } from 'react-icons/fa';
 
 export function SearchHistoryContent({ inProfilePage = false }) {
@@ -20,21 +20,18 @@ export function SearchHistoryContent({ inProfilePage = false }) {
   const [filterQuery, setFilterQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  // Chuyển hướng nếu chưa đăng nhập
   useEffect(() => {
     if (!isAuthenticated && !inProfilePage) {
       router.push('/auth/login');
       return;
     }
-    
+
     fetchSearchHistory();
   }, [isAuthenticated, router, page, inProfilePage]);
 
-  // Lấy lịch sử tìm kiếm
   const fetchSearchHistory = async () => {
     try {
       setLoading(true);
-      // Verifica se o usuário está autenticado
       if (!isAuthenticated) {
         if (!inProfilePage) {
           router.push('/auth/login');
@@ -44,11 +41,10 @@ export function SearchHistoryContent({ inProfilePage = false }) {
         setLoading(false);
         return;
       }
-      
-      // Limit mặc định là 20 nếu ở trang riêng, 8 nếu ở trong profile
+
       const limit = inProfilePage ? 8 : 20;
       const response = await searchHistoryService.getSearchHistory(limit);
-      
+
       if (response.success && Array.isArray(response.searchHistory)) {
         setSearchHistory(response.searchHistory);
         setTotalPages(Math.ceil(response.searchHistory.length / limit) || 1);
@@ -66,15 +62,14 @@ export function SearchHistoryContent({ inProfilePage = false }) {
     }
   };
 
-  // Xóa một mục trong lịch sử tìm kiếm
   const deleteSearchHistoryItem = async (id) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa mục này khỏi lịch sử tìm kiếm?')) {
       try {
         setIsDeleting(true);
         const response = await searchHistoryService.deleteSearchHistoryItem(id);
-        
+
         if (response && (response.success || response.statusCode === 200)) {
-          setSearchHistory(prevHistory => 
+          setSearchHistory(prevHistory =>
             prevHistory.filter(item => item._id !== id)
           );
         }
@@ -87,13 +82,12 @@ export function SearchHistoryContent({ inProfilePage = false }) {
     }
   };
 
-  // Xóa toàn bộ lịch sử tìm kiếm
   const clearAllSearchHistory = async () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử tìm kiếm?')) {
       try {
         setIsDeleting(true);
         const response = await searchHistoryService.clearSearchHistory();
-        
+
         if (response && (response.success || response.statusCode === 200)) {
           setSearchHistory([]);
         }
@@ -106,70 +100,60 @@ export function SearchHistoryContent({ inProfilePage = false }) {
     }
   };
 
-  // Xử lý khi click vào một mục trong lịch sử tìm kiếm
   const handleSearchHistoryItemClick = (query, filters = {}) => {
-    // Tạo URL với cả query và filters
     const queryParams = { q: query };
     if (filters.category) queryParams.category = filters.category;
     if (filters.country) queryParams.country = filters.country;
     if (filters.year) queryParams.year = filters.year;
-    
-    // Cập nhật lịch sử tìm kiếm với mục vừa click
+
     if (isAuthenticated) {
       const currentTime = new Date().toISOString();
-      const existingIndex = searchHistory.findIndex(item => 
+      const existingIndex = searchHistory.findIndex(item =>
         item.query.toLowerCase() === query.toLowerCase()
       );
-      
-      // Cập nhật state searchHistory
+
       if (existingIndex !== -1) {
-        // Nếu mục đã tồn tại, di chuyển lên đầu danh sách
         const updatedHistory = [...searchHistory];
         const existingItem = updatedHistory.splice(existingIndex, 1)[0];
-        existingItem.createdAt = currentTime; // Cập nhật thời gian
+        existingItem.createdAt = currentTime;
         setSearchHistory([existingItem, ...updatedHistory]);
-        
-        // Cập nhật lên server
+
         searchHistoryService.saveSearchHistory(query, filters);
       }
     }
-    
-    // Chuyển hướng đến trang tìm kiếm với các tham số
+
     router.push({
       pathname: '/search',
       query: queryParams
     });
   };
 
-  // Format thời gian tương đối
   const formatTimeAgo = (timestamp) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffMs = now - date;
     const diffMins = Math.round(diffMs / 60000);
-    
+
     if (diffMins < 1) return 'Vừa xong';
     if (diffMins < 60) return `${diffMins} phút trước`;
-    
+
     const diffHours = Math.floor(diffMins / 60);
     if (diffHours < 24) return `${diffHours} giờ trước`;
-    
+
     const diffDays = Math.floor(diffHours / 24);
     if (diffDays < 30) return `${diffDays} ngày trước`;
-    
+
     const diffMonths = Math.floor(diffDays / 30);
     return `${diffMonths} tháng trước`;
   };
 
-  // Xử lý phân trang
   const handlePageChange = (newPage) => {
     setPage(newPage);
     window.scrollTo(0, 0);
   };
 
-  // Lọc lịch sử tìm kiếm theo query
-  const filteredHistory = filterQuery 
-    ? searchHistory.filter(item => 
+  const filteredHistory = filterQuery
+    ? searchHistory.filter(item =>
         item.query.toLowerCase().includes(filterQuery.toLowerCase())
       )
     : searchHistory;
@@ -177,31 +161,31 @@ export function SearchHistoryContent({ inProfilePage = false }) {
   return (
     <div className={inProfilePage ? "search-history-content" : "search-history-page"}>
       {!inProfilePage && <Navbar />}
-      
+
       <div className={inProfilePage ? "" : "container mt-5 pt-5"}>
         <div className="history-header">
           <div className="d-flex justify-content-between align-items-center flex-wrap">
             <h2 className="history-title">
-              <FaSearch className="me-2" /> 
+              <FaSearch className="me-2" />
               Lịch sử tìm kiếm
             </h2>
-            
+
             <div className="history-actions">
               {inProfilePage ? (
                 <div className="profile-history-actions">
-                  <button 
+                  <button
                     className="refresh-button"
                     onClick={fetchSearchHistory}
                   >
                     <FaHistory /> Làm mới
                   </button>
-                  <button 
+                  <button
                     className="filter-button"
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     <FaSearch /> Lọc
                   </button>
-                  <button 
+                  <button
                     className="delete-button"
                     onClick={clearAllSearchHistory}
                     disabled={loading || isDeleting || searchHistory.length === 0}
@@ -211,14 +195,14 @@ export function SearchHistoryContent({ inProfilePage = false }) {
                 </div>
               ) : (
                 <>
-                  <button 
+                  <button
                     className="btn btn-outline-light me-2 d-flex align-items-center"
                     onClick={() => setShowFilters(!showFilters)}
                   >
                     <FaSearch className="me-2" /> Lọc
                   </button>
-                  
-                  <button 
+
+                  <button
                     className="btn btn-danger d-flex align-items-center"
                     onClick={clearAllSearchHistory}
                     disabled={loading || isDeleting || searchHistory.length === 0}
@@ -229,7 +213,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
               )}
             </div>
           </div>
-          
+
           {showFilters && (
             <div className={inProfilePage ? "history-filters-profile" : "history-filters mt-3 p-3 rounded"}>
               <div className={inProfilePage ? "filters-row" : "row g-3"}>
@@ -251,7 +235,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
             </div>
           )}
         </div>
-        
+
         {loading ? (
           <div className="text-center my-5">
             <div className={inProfilePage ? "loading-spinner" : "spinner-border text-danger"} role="status">
@@ -288,9 +272,9 @@ export function SearchHistoryContent({ inProfilePage = false }) {
                         <div className="search-query-text">
                           {item.query}
                         </div>
-                        
+
                         <div className="delete-button-wrapper">
-                          <button 
+                          <button
                             className="remove-btn"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -303,7 +287,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
                           </button>
                         </div>
                       </div>
-                      
+
                       {(item.filters?.category || item.filters?.country || item.filters?.year) && (
                         <div className="search-filters">
                           {item.filters.category && (
@@ -323,7 +307,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
                           )}
                         </div>
                       )}
-                      
+
                       <div className="search-time">
                         {formatTimeAgo(item.createdAt)}
                       </div>
@@ -332,36 +316,35 @@ export function SearchHistoryContent({ inProfilePage = false }) {
                 </div>
               ))}
             </div>
-            
-            {/* Phân trang */}
+
             {totalPages > 1 && (
               <div className={inProfilePage ? "pagination-profile" : "pagination-container mt-4"}>
                 <nav aria-label="Page navigation">
                   <ul className={inProfilePage ? "pagination-list" : "pagination justify-content-center"}>
-                    <li className={inProfilePage 
-                      ? `pagination-item ${page === 1 ? 'disabled' : ''}` 
+                    <li className={inProfilePage
+                      ? `pagination-item ${page === 1 ? 'disabled' : ''}`
                       : `page-item ${page === 1 ? 'disabled' : ''}`
                     }>
-                      <button 
-                        className={inProfilePage ? "pagination-button prev" : "page-link bg-dark text-light border-secondary"} 
+                      <button
+                        className={inProfilePage ? "pagination-button prev" : "page-link bg-dark text-light border-secondary"}
                         onClick={() => handlePageChange(page - 1)}
                         disabled={page === 1}
                       >
                         Trước
                       </button>
                     </li>
-                    
+
                     {[...Array(totalPages)].map((_, index) => (
-                      <li 
-                        key={index} 
-                        className={inProfilePage 
-                          ? `pagination-item ${page === index + 1 ? 'active' : ''}` 
+                      <li
+                        key={index}
+                        className={inProfilePage
+                          ? `pagination-item ${page === index + 1 ? 'active' : ''}`
                           : `page-item ${page === index + 1 ? 'active' : ''}`
                         }
                       >
-                        <button 
-                          className={inProfilePage 
-                            ? `pagination-button ${page === index + 1 ? 'active' : ''}` 
+                        <button
+                          className={inProfilePage
+                            ? `pagination-button ${page === index + 1 ? 'active' : ''}`
                             : `page-link ${page === index + 1 ? 'bg-danger' : 'bg-dark'} text-light border-secondary`
                           }
                           onClick={() => handlePageChange(index + 1)}
@@ -370,13 +353,13 @@ export function SearchHistoryContent({ inProfilePage = false }) {
                         </button>
                       </li>
                     ))}
-                    
-                    <li className={inProfilePage 
-                      ? `pagination-item ${page === totalPages ? 'disabled' : ''}` 
+
+                    <li className={inProfilePage
+                      ? `pagination-item ${page === totalPages ? 'disabled' : ''}`
                       : `page-item ${page === totalPages ? 'disabled' : ''}`
                     }>
-                      <button 
-                        className={inProfilePage ? "pagination-button next" : "page-link bg-dark text-light border-secondary"} 
+                      <button
+                        className={inProfilePage ? "pagination-button next" : "page-link bg-dark text-light border-secondary"}
                         onClick={() => handlePageChange(page + 1)}
                         disabled={page === totalPages}
                       >
@@ -390,7 +373,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           </>
         )}
       </div>
-      
+
       <style jsx>{`
         /* Shared styles */
         .search-history-page {
@@ -398,17 +381,17 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           background: #141414;
           color: #fff;
         }
-        
+
         .search-history-content {
           color: #fff;
           width: 100%;
         }
-        
+
         /* Headers */
         .history-header {
           margin-bottom: 2rem;
         }
-        
+
         .history-title {
           font-size: ${inProfilePage ? '1.5rem' : '2rem'};
           font-weight: bold;
@@ -416,13 +399,13 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           align-items: center;
           margin-bottom: 1rem;
         }
-        
+
         /* Profile-specific controls */
         .profile-history-actions {
           display: flex;
           gap: 10px;
         }
-        
+
         .filter-button, .delete-button, .refresh-button {
           background: rgba(255, 255, 255, 0.1);
           border: none;
@@ -436,19 +419,19 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           align-items: center;
           gap: 6px;
         }
-        
+
         .filter-button:hover {
           background: rgba(255, 255, 255, 0.2);
         }
-        
+
         .delete-button {
           background: rgba(229, 9, 20, 0.2);
         }
-        
+
         .delete-button:hover {
           background: rgba(229, 9, 20, 0.4);
         }
-        
+
         /* Filters */
         .history-filters-profile {
           background: rgba(0, 0, 0, 0.3);
@@ -456,13 +439,13 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           padding: 15px;
           margin-bottom: 20px;
         }
-        
+
         .filters-row {
           display: flex;
           flex-wrap: wrap;
           gap: 10px;
         }
-        
+
         .search-container {
           display: flex;
           align-items: center;
@@ -471,12 +454,12 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           padding: 0 10px;
           flex: 2;
         }
-        
+
         .search-icon {
           color: #aaa;
           margin-right: 8px;
         }
-        
+
         .search-input-field {
           background: transparent;
           border: none;
@@ -486,7 +469,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           outline: none;
           width: 100%;
         }
-        
+
         /* Search history list */
         .search-history-list {
           margin-bottom: 2rem;
@@ -496,13 +479,13 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           white-space: nowrap;
           padding-right: 5px;
         }
-        
+
         .search-history-item-wrapper {
           margin-bottom: 12px;
           min-width: 100%;
           display: inline-block;
         }
-        
+
         .search-history-item {
           display: flex;
           justify-content: space-between;
@@ -512,23 +495,23 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           border-radius: 8px;
           transition: all 0.3s ease;
         }
-        
+
         .search-history-item:hover {
           background: rgba(40, 40, 40, 0.7);
           transform: translateY(-3px);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
-        
+
         .search-history-content {
           flex: 1;
         }
-        
+
         .content-row {
           display: flex;
           align-items: center;
           width: 100%;
         }
-        
+
         .search-query-text {
           font-size: 16px;
         .search-query-text {
@@ -540,20 +523,20 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        
+
         .delete-button-wrapper {
           flex-shrink: 0;
           margin-left: 12px;
           width: 30px;
         }
-        
+
         .search-filters {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
           margin-top: 8px;
         }
-        
+
         .filter-badge {
           background: rgba(229, 9, 20, 0.8);
           color: white;
@@ -561,13 +544,13 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           border-radius: 4px;
           font-size: 12px;
         }
-        
+
         .search-time {
           color: #aaa;
           font-size: 13px;
           margin-top: 6px;
         }
-        
+
         .remove-btn {
           background: none;
           border: none;
@@ -577,22 +560,22 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           transition: all 0.2s ease;
           padding: 5px;
         }
-        
+
         .remove-btn:hover {
           color: #e50914;
         }
-        
+
         /* Empty state */
         .empty-history {
           padding: 60px 20px;
           text-align: center;
         }
-        
+
         .empty-icon {
           font-size: 4rem;
           color: rgba(255, 255, 255, 0.2);
         }
-        
+
         /* Loading */
         .loading-spinner {
           width: 40px;
@@ -603,17 +586,17 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           animation: spin 1s linear infinite;
           margin: 0 auto;
         }
-        
+
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        
+
         /* Pagination */
         .pagination-profile {
           margin: 20px 0;
         }
-        
+
         .pagination-list {
           display: flex;
           justify-content: center;
@@ -621,7 +604,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           list-style: none;
           padding: 0;
         }
-        
+
         .pagination-button {
           background: rgba(255, 255, 255, 0.1);
           color: white;
@@ -631,247 +614,240 @@ export function SearchHistoryContent({ inProfilePage = false }) {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        
+
         .pagination-button:hover {
           background: rgba(255, 255, 255, 0.2);
         }
-        
+
         .pagination-button.active {
           background: #e50914;
         }
-        
+
         .pagination-item.disabled .pagination-button {
           opacity: 0.5;
           cursor: not-allowed;
         }
-        
+
         .history-filters {
           background: rgba(30, 30, 30, 0.7);
           border-radius: 8px;
         }
-        
-        /* Custom scrollbar styles như trong hình ảnh */
+
         .search-history-list::-webkit-scrollbar {
           width: 4px;
           height: 4px;
         }
-        
+
         .search-history-list::-webkit-scrollbar-track {
           background: transparent;
         }
-        
+
         .search-history-list::-webkit-scrollbar-thumb {
           background: rgba(70, 70, 90, 0.5);
           border-radius: 2px;
         }
-        
+
         .search-history-list::-webkit-scrollbar-thumb:hover {
           background: rgba(90, 90, 115, 0.8);
         }
-        
+
         /* Firefox scrollbar styles */
         .search-history-list {
           scrollbar-width: thin;
           scrollbar-color: rgba(70, 70, 90, 0.5) transparent;
         }
-        
+
         /* Responsive styles */
         @media (max-width: 768px) {
           .search-history-item-wrapper {
             margin-bottom: 8px;
           }
-          
+
           .search-history-item {
             padding: 12px;
           }
-          
+
           .search-query-text {
             font-size: 14px;
           }
-          
+
           .search-icon {
             width: 32px;
             height: 32px;
             font-size: 14px;
           }
-          
+
           .search-filters {
             gap: 6px;
           }
-          
+
           .filter-badge {
             font-size: 11px;
             padding: 2px 6px;
           }
-          
+
           .search-time {
             font-size: 12px;
           }
-          
+
           .history-title {
             font-size: ${inProfilePage ? '1.3rem' : '1.5rem'};
           }
-          
+
           .profile-history-actions {
             flex-wrap: wrap;
             margin-top: 10px;
           }
-          
+
           .container {
             padding-left: 10px;
             padding-right: 10px;
           }
-          
+
           .action-button, .btn {
             font-size: 0.85rem;
             padding: 0.4rem 0.75rem;
           }
-          
+
           .filter-button, .delete-button, .refresh-button {
             padding: 6px 10px;
             font-size: 12px;
           }
-          
+
           .history-header .d-flex {
             flex-direction: column;
             align-items: flex-start !important;
           }
-          
+
           .history-actions {
             margin-top: 10px;
             width: 100%;
             display: flex;
             justify-content: space-between;
           }
-          
+
           .empty-icon {
             font-size: 3rem;
           }
-          
+
           .empty-history h3 {
             font-size: 1.3rem;
           }
-          
+
           .empty-history p {
             font-size: 0.9rem;
           }
         }
-        
+
         @media (max-width: 480px) {
           .search-history-item {
             padding: 10px;
           }
-          
+
           .search-icon {
             width: 28px;
             height: 28px;
             font-size: 12px;
             margin-right: 8px;
           }
-          
+
           .search-query-text {
             font-size: 13px;
             line-height: 1.3;
           }
-          
+
           .search-filters {
             gap: 5px;
             margin-top: 5px;
           }
-          
+
           .filter-badge {
             font-size: 10px;
             padding: 2px 6px;
           }
-          
+
           .search-time {
             font-size: 11px;
             margin-top: 4px;
           }
-          
+
           .remove-btn {
             font-size: 16px;
             padding: 3px;
           }
-          
+
           .pagination-button {
             padding: 3px 8px;
             font-size: 12px;
           }
-          
+
           .history-filters-profile, .history-filters {
             padding: 10px;
           }
-          
+
           .search-input-field {
             padding: 6px 5px;
             font-size: 14px;
           }
-          
-          /* Giảm khoảng cách padding */
+
           .mt-5 {
             margin-top: 2rem !important;
           }
-          
+
           .pt-5 {
             padding-top: 2rem !important;
           }
-          
-          /* Cải thiện khoảng cách giữa các mục */
+
           .search-history-item-wrapper {
             margin-bottom: 6px;
           }
-          
-          /* Đảm bảo phần pagination gọn gàng */
+
           .pagination-list {
             gap: 3px;
           }
         }
-        
+
         @media (max-width: 375px) {
-          /* Điều chỉnh kích thước cho màn hình siêu nhỏ */
           .search-icon {
             width: 24px;
             height: 24px;
             margin-right: 6px;
           }
-          
+
           .search-query-text {
             font-size: 12px;
           }
-          
+
           .search-filters {
             gap: 4px;
           }
-          
+
           .filter-badge {
             font-size: 9px;
             padding: 2px 5px;
           }
-          
+
           .search-time {
             font-size: 10px;
           }
-          
+
           .history-title {
             font-size: ${inProfilePage ? '1.1rem' : '1.3rem'};
           }
-          
+
           .filter-button, .delete-button, .refresh-button {
             padding: 5px 8px;
             font-size: 11px;
           }
-          
-          /* Độ cao tối đa của danh sách */
+
           .search-history-list {
             max-height: 60vh;
           }
-          
-          /* Cải thiện hiển thị của search filters */
+
           .search-container {
             padding: 0 6px;
           }
-          
+
           .search-input-field {
             padding: 5px;
             font-size: 13px;

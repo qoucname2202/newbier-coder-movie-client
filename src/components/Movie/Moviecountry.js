@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import styles from '../../styles/MovieCategory.module.css'; 
+import styles from '../../styles/MovieCategory.module.css';
 import Skeleton from '../UI/Skeleton';
 
 const Moviecountry = () => {
@@ -82,7 +82,7 @@ const Moviecountry = () => {
     if (previewTimeoutRef.current) {
       clearTimeout(previewTimeoutRef.current);
     }
-    
+
     previewTimeoutRef.current = setTimeout(() => {
       setPreviewMovie(movie);
     }, 3000);
@@ -93,7 +93,7 @@ const Moviecountry = () => {
       clearTimeout(previewTimeoutRef.current);
       previewTimeoutRef.current = null;
     }
-    
+
     setTimeout(() => {
       if (!document.querySelector(':hover > .video-preview-overlay')) {
         setPreviewMovie(null);
@@ -114,30 +114,26 @@ const Moviecountry = () => {
           movies: []
         }
       }));
-  
-      // Gọi API để lấy tất cả phim (hoặc có thể thêm filter phía server nếu hỗ trợ)
+
       const response = await fetch(`http://localhost:5000/api/movies?page=1&limit=100`);
       const result = await response.json();
-  
+
       if (result.data?.movies) {
-        // Lọc phim theo country.slug
         const filteredMovies = result.data.movies.filter(movie => {
-          // Kiểm tra nếu movie.country là mảng và có phần tử khớp slug
           return movie.country?.some?.(c => c.slug === countryCode);
         });
-  
-        // Xử lý URL hình ảnh
+
         const processedMovies = filteredMovies.map(movie => ({
           ...movie,
-          thumb_url: movie.thumb_url?.startsWith('http') 
-            ? movie.thumb_url 
+          thumb_url: movie.thumb_url?.startsWith('http')
+            ? movie.thumb_url
             : `${movie.thumb_url}`,
           poster_url: movie.poster_url?.startsWith('http')
             ? movie.poster_url
             : `${movie.poster_url}`,
           lang: movie.lang || 'Vietsub'
         }));
-  
+
         setCountriesData(prev => ({
           ...prev,
           [countryKey]: {
@@ -159,38 +155,36 @@ const Moviecountry = () => {
       }));
     }
   };
-  
-  // Sử dụng useEffect để fetch dữ liệu khi component mount
+
   useEffect(() => {
     const abortController = new AbortController();
-  
-    // Fetch phim Hàn Quốc và Trung Quốc
+
     const fetchInitialData = async () => {
       await Promise.all([
         fetchMoviesByCountry('korean', 'han-quoc'),
         fetchMoviesByCountry('chinese', 'trung-quoc')
       ]);
     };
-  
+
     fetchInitialData();
-  
+
     return () => {
       abortController.abort();
       if (previewTimeoutRef.current) {
         clearTimeout(previewTimeoutRef.current);
       }
     };
-  }, []); // Chỉ chạy một lần khi component mount
+  }, []);
 
   return (
     <div className="movie-countries-section mt-5">
       {previewMovie && previewMovie.episodes && previewMovie.episodes[0] && previewMovie.episodes[0].server_data && previewMovie.episodes[0].server_data[0] && (
-        <div 
+        <div
           className="video-preview-overlay position-fixed"
-          style={{ 
-            top: '50%', 
-            left: '50%', 
-            transform: 'translate(-50%, -50%)', 
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             zIndex: 1050,
             width: '450px',
             maxWidth: '90vw',
@@ -205,8 +199,8 @@ const Moviecountry = () => {
             <h6 className="text-white m-0 text-truncate" style={{ width: '90%' }}>
               {previewMovie.name}
             </h6>
-            <button 
-              className="btn-close btn-close-white p-0" 
+            <button
+              className="btn-close btn-close-white p-0"
               style={{ fontSize: '0.8rem' }}
               onClick={closePreview}
             ></button>
@@ -246,8 +240,8 @@ const Moviecountry = () => {
               {countriesData.korean.movies.map((movie) => {
                 const imageId = `han-quoc-${movie.slug}`;
                 return (
-                  <div 
-                    key={imageId} 
+                  <div
+                    key={imageId}
                     className="px-2"
                     onMouseEnter={() => handleMouseEnter(movie)}
                     onMouseLeave={handleMouseLeave}
@@ -259,31 +253,31 @@ const Moviecountry = () => {
                           className="card-img-top"
                           alt={movie.name}
                           loading="lazy"
-                          style={{ 
-                            height: '220px', 
-                            objectFit: 'cover', 
+                          style={{
+                            height: '220px',
+                            objectFit: 'cover',
                             borderRadius: '8px'
                           }}
                           onError={(e) => {
                             e.target.src = "/placeholder.jpg";
                           }}
-                        />  
-                        
-                        <div 
-                          className="position-absolute top-0 start-0 w-100 h-100" 
-                          style={{ 
+                        />
+
+                        <div
+                          className="position-absolute top-0 start-0 w-100 h-100"
+                          style={{
                             background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
                             borderRadius: '8px'
                           }}
                         ></div>
-                        
-                        <Link 
+
+                        <Link
                           href={`/movie/${movie.slug}`}
                           className="btn btn-danger position-absolute top-50 start-50 translate-middle"
                         >
                           <i className="bi bi-play-fill"></i>
                         </Link>
-                        
+
                         <div className="position-absolute bottom-0 start-0 p-2 w-100">
                           <h6 className="text-white mb-1 text-truncate">{movie.name}</h6>
                           <div className="d-flex flex-wrap gap-1 mb-1">
@@ -341,8 +335,8 @@ const Moviecountry = () => {
               {countriesData.chinese.movies.map((movie) => {
                 const imageId = `trung-quoc-${movie.slug}`;
                 return (
-                  <div 
-                    key={imageId} 
+                  <div
+                    key={imageId}
                     className="px-2"
                     onMouseEnter={() => handleMouseEnter(movie)}
                     onMouseLeave={handleMouseLeave}
@@ -354,31 +348,31 @@ const Moviecountry = () => {
                           className="card-img-top"
                           alt={movie.name}
                           loading="lazy"
-                          style={{ 
-                            height: '220px', 
-                            objectFit: 'cover', 
+                          style={{
+                            height: '220px',
+                            objectFit: 'cover',
                             borderRadius: '8px'
                           }}
                           onError={(e) => {
                             e.target.src = "/placeholder.jpg";
                           }}
                         />
-                        
-                        <div 
-                          className="position-absolute top-0 start-0 w-100 h-100" 
-                          style={{ 
+
+                        <div
+                          className="position-absolute top-0 start-0 w-100 h-100"
+                          style={{
                             background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
                             borderRadius: '8px'
                           }}
                         ></div>
-                        
-                        <Link 
+
+                        <Link
                           href={`/movie/${movie.slug}`}
                           className="btn btn-danger position-absolute top-50 start-50 translate-middle"
                         >
                           <i className="bi bi-play-fill"></i>
                         </Link>
-                        
+
                         <div className="position-absolute bottom-0 start-0 p-2 w-100">
                           <h6 className="text-white mb-1 text-truncate">{movie.name}</h6>
                           <div className="d-flex flex-wrap gap-1 mb-1">
@@ -420,7 +414,7 @@ const Moviecountry = () => {
         .video-preview-overlay {
           animation: fadeIn 0.3s ease-in-out;
         }
-        
+
         .card .btn-danger {
           opacity: 0;
           transform: translate(-50%, -50%) scale(0.8);
@@ -455,29 +449,29 @@ const Moviecountry = () => {
         .card:hover .btn-danger i {
           transform: scale(1.2);
         }
-        
+
         .slick-track {
           margin-left: 0;
         }
-        
+
         .slick-prev,
         .slick-next {
           z-index: 10;
         }
-        
+
         .slick-prev {
           left: 10px;
         }
-        
+
         .slick-next {
           right: 10px;
         }
-        
+
         .slick-prev:before,
         .slick-next:before {
           font-size: 24px;
         }
-          
+
       `}</style>
     </div>
   );

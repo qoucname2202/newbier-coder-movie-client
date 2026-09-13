@@ -15,7 +15,6 @@ const MovieRating = ({ movieId }) => {
           comment
         })
       });
-      // Hiển thị thông báo thành công
     } catch (error) {
       console.error('Lỗi khi đánh giá:', error);
     }
@@ -26,7 +25,7 @@ const MovieRating = ({ movieId }) => {
       <h4>Đánh giá phim</h4>
       <div className="rating mb-3">
         {[1,2,3,4,5].map(star => (
-          <span 
+          <span
             key={star}
             className={`star ${rating >= star ? 'active' : ''}`}
             onClick={() => setRating(star)}
@@ -41,7 +40,7 @@ const MovieRating = ({ movieId }) => {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
       />
-      <button 
+      <button
         className="btn btn-danger"
         onClick={handleSubmit}
       >

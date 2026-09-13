@@ -50,8 +50,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   const handleMarkAsRead = async (id: string) => {
     try {
       await markNotificationAsRead(id);
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => 
+      setNotifications(prevNotifications =>
+        prevNotifications.map(notification =>
           notification._id === id ? { ...notification, isRead: true } : notification
         )
       );
@@ -63,7 +63,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   const handleDelete = async (id: string) => {
     try {
       await deleteNotification(id);
-      setNotifications(prevNotifications => 
+      setNotifications(prevNotifications =>
         prevNotifications.filter(notification => notification._id !== id)
       );
     } catch (err) {
@@ -88,9 +88,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
     if (!notification.isRead) {
       handleMarkAsRead(notification._id);
     }
-    
+
     if (notification.entity) {
-      // Điều hướng đến trang chi tiết tương ứng
       switch(notification.entity.type) {
         case 'movie':
           window.location.href = `/admin/movies/edit/${notification.entity.id}`;
@@ -102,7 +101,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
           break;
       }
     }
-    
+
     onClose();
   };
 
@@ -111,13 +110,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
       const unreadIds = notifications
         .filter(notification => !notification.isRead)
         .map(notification => notification._id);
-      
+
       if (unreadIds.length === 0) return;
-      
-      // Thực hiện đánh dấu tất cả đã đọc thông qua API
+
       await Promise.all(unreadIds.map(id => markNotificationAsRead(id)));
-      
-      setNotifications(prevNotifications => 
+
+      setNotifications(prevNotifications =>
         prevNotifications.map(notification => ({ ...notification, isRead: true }))
       );
     } catch (err) {
@@ -126,13 +124,13 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
   };
 
   if (!isOpen) return null;
-  
+
   return (
     <div className={styles.dropdownContainer}>
       <div className={styles.dropdownHeader}>
         <h3 className={styles.dropdownTitle}>Notifications</h3>
         {notifications.some(notification => !notification.isRead) && (
-          <button 
+          <button
             className={styles.markAllReadBtn}
             onClick={handleMarkAllAsRead}
           >
@@ -155,8 +153,8 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen, onC
           </div>
         ) : (
           notifications.map(notification => (
-            <div 
-              key={notification._id} 
+            <div
+              key={notification._id}
               className={`${styles.notificationItem} ${notification.isRead ? '' : styles.unread}`}
               onClick={() => handleViewDetails(notification)}
             >

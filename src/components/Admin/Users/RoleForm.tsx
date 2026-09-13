@@ -3,7 +3,6 @@ import { FaSave, FaTimes, FaPlus, FaTrash } from 'react-icons/fa';
 import axiosInstance from '@/API/config/axiosConfig';
 import { API_URL } from '@/config/API';
 
-// Mở rộng interface RoleForAdmin để bao gồm các quyền
 interface RoleForAdmin {
   _id: string;
   name: string;
@@ -11,7 +10,6 @@ interface RoleForAdmin {
   permissions: string[];
 }
 
-// Các hàm để tạo và cập nhật vai trò
 const createRoleByAdmin = async (roleData: { name: string; description: string; permissions: string[] }) => {
   try {
     const response = await axiosInstance.post(`${API_URL}/admin/roles`, roleData);
@@ -40,7 +38,6 @@ interface RoleFormProps {
   onSave: () => void;
 }
 
-// Danh sách các quyền có sẵn được xác định trước
 const AVAILABLE_PERMISSIONS = [
   'users:read',
   'users:write',
@@ -91,8 +88,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Xóa lỗi khi trường được thay đổi
+
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -106,13 +102,13 @@ const RoleForm: React.FC<RoleFormProps> = ({
     setFormData(prev => {
       const permissions = [...prev.permissions];
       const index = permissions.indexOf(permission);
-      
+
       if (index === -1) {
         permissions.push(permission);
       } else {
         permissions.splice(index, 1);
       }
-      
+
       return {
         ...prev,
         permissions,
@@ -122,7 +118,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
 
   const handleAddCustomPermission = () => {
     if (!customPermission.trim()) return;
-    
+
     setFormData(prev => ({
       ...prev,
       permissions: [...prev.permissions, customPermission.trim()]
@@ -139,20 +135,20 @@ const RoleForm: React.FC<RoleFormProps> = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Tên vai trò là bắt buộc';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     try {
       if (mode === 'create') {
@@ -168,7 +164,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
           permissions: formData.permissions,
         });
       }
-      
+
       onSave();
     } catch (err: any) {
       setErrors({ submit: err.message || 'Có lỗi xảy ra khi lưu vai trò' });
@@ -191,7 +187,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="modal-body">
               {errors.submit && (
@@ -199,7 +195,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
                   {errors.submit}
                 </div>
               )}
-              
+
               <div className="form-group row">
                 <label htmlFor="name" className="col-sm-3 col-form-label">Tên vai trò *</label>
                 <div className="col-sm-9">
@@ -218,7 +214,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
                   )}
                 </div>
               </div>
-              
+
               <div className="form-group row">
                 <label htmlFor="description" className="col-sm-3 col-form-label">Mô tả</label>
                 <div className="col-sm-9">
@@ -234,7 +230,7 @@ const RoleForm: React.FC<RoleFormProps> = ({
                   ></textarea>
                 </div>
               </div>
-              
+
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label">Quyền hạn</label>
                 <div className="col-sm-9">
@@ -306,18 +302,18 @@ const RoleForm: React.FC<RoleFormProps> = ({
                 </div>
               </div>
             </div>
-            
+
             <div className="modal-footer">
-              <button 
-                type="button" 
-                className="btn btn-secondary" 
+              <button
+                type="button"
+                className="btn btn-secondary"
                 onClick={onClose}
                 disabled={isSubmitting}
               >
                 <FaTimes className="mr-1" /> Hủy
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary"
                 disabled={isSubmitting}
               >

@@ -1,12 +1,11 @@
 import { API_URL } from '../../config/API';
 
 const ratingService = {
-  // Lấy danh sách đánh giá của người dùng hiện tại
   getUserRatings: async () => {
     try {
       const token = localStorage.getItem('auth_token');
       const userId = localStorage.getItem('userId');
-      
+
       if (!token || !userId) {
         return { success: false, message: 'Không tìm thấy thông tin xác thực', data: [] };
       }
@@ -31,12 +30,11 @@ const ratingService = {
     }
   },
 
-  // Lấy đánh giá của người dùng cho một phim cụ thể
   getUserMovieRating: async (movieSlug) => {
     try {
       const token = localStorage.getItem('auth_token');
       const userId = localStorage.getItem('userId');
-      
+
       if (!token || !userId) {
         return { success: false, message: 'Không tìm thấy thông tin xác thực' };
       }
@@ -64,7 +62,6 @@ const ratingService = {
     }
   },
 
-  // Tạo hoặc cập nhật đánh giá cho một phim
   createOrUpdateRating: async (movieSlug, rating) => {
     try {
       const token = localStorage.getItem('auth_token');
@@ -96,7 +93,6 @@ const ratingService = {
     }
   },
 
-  // Xóa đánh giá cho một phim
   deleteRating: async (ratingId) => {
     try {
       const token = localStorage.getItem('auth_token');
@@ -124,7 +120,6 @@ const ratingService = {
     }
   },
 
-  // Lấy thống kê đánh giá cho một phim
   getMovieRatingStats: async (movieSlug) => {
     try {
       const response = await fetch(`${API_URL}/ratings/stats/${movieSlug}`, {
@@ -146,7 +141,6 @@ const ratingService = {
     }
   },
 
-  // Lấy tất cả đánh giá cho một phim
   getMovieRatings: async (movieId) => {
     try {
       const response = await fetch(`${API_URL}/ratings/movie/${movieId}`, {

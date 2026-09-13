@@ -14,7 +14,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   let startPage = Math.max(1, currentPage - 2);
   let endPage = Math.min(totalPages, currentPage + 2);
 
-  // Luôn hiển thị ít nhất 5 trang nếu có
   if (endPage - startPage + 1 < 5) {
     if (startPage === 1) {
       endPage = Math.min(5, totalPages);
@@ -23,7 +22,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     }
   }
 
-  // Tạo mảng các số trang để hiển thị
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
   }
@@ -31,7 +29,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   return (
     <nav aria-label="Page navigation">
       <ul className="pagination justify-content-center">
-        {/* Nút Previous */}
         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
           <button
             className="page-link"
@@ -43,7 +40,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </button>
         </li>
 
-        {/* Trang đầu tiên nếu không có trong view */}
         {startPage > 1 && (
           <>
             <li className="page-item">
@@ -57,7 +53,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </>
         )}
 
-        {/* Số trang */}
         {pageNumbers.map(number => (
           <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
             <button
@@ -69,7 +64,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </li>
         ))}
 
-        {/* Trang cuối nếu không có trong view */}
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && (
@@ -88,7 +82,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </>
         )}
 
-        {/* Nút Next */}
         <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
           <button
             className="page-link"

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { FaPlus, FaTrash, FaChevronDown } from 'react-icons/fa';
 import styles from '@/styles/AdminMoviesEnhanced.module.css';
 
-// Interface cho dữ liệu tập phim
 interface Episode {
   name: string;
   slug: string;
@@ -11,7 +10,6 @@ interface Episode {
   link_m3u8: string;
 }
 
-// Interface cho dữ liệu server
 interface ServerData {
   server_name: string;
   server_data: Episode[];
@@ -102,7 +100,7 @@ const EpisodeManager: React.FC<EpisodeManagerProps> = ({
                     </button>
                   </div>
                 </div>
-                
+
                 {expandedServer === serverIndex && (
                   <div className={styles.serverContent}>
                     <table className={styles.episodeTable}>
@@ -173,7 +171,7 @@ const EpisodeManager: React.FC<EpisodeManagerProps> = ({
                         ))}
                       </tbody>
                     </table>
-                    
+
                     <div className={styles.episodeActions}>                      <button
                         type="button"
                         className={styles.addButton}

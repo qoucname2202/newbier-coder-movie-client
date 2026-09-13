@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   // Hook to access NextAuth session
   const { data: session, status: sessionStatus } = useSession();
 
-  // Lắng nghe sự kiện storage để cập nhật trạng thái đăng nhập khi localStorage thay đổi
+  // Listen to storage events to update user state when localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
       const storedUser = localStorage.getItem('user');
@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    // Lắng nghe sự kiện storage thay đổi
     window.addEventListener('storage', handleStorageChange);
     
     // Cleanup
@@ -52,14 +51,10 @@ export const AuthProvider = ({ children }) => {
         if (typeof window !== 'undefined') {
           // First check NextAuth session
           if (session?.user) {
-            console.log('Found NextAuth session:', session);
-            // Nếu đăng nhập bằng NextAuth (Google/Facebook)
             if (session.backendToken) {
-              // Lưu token backend từ NextAuth vào localStorage và sessionStorage
               localStorage.setItem('auth_token', session.backendToken);
               sessionStorage.setItem('backendToken', session.backendToken);
               
-              // Lưu thông tin người dùng với token để dễ truy cập
               const userWithToken = {
                 ...session.user,
                 backendToken: session.backendToken
@@ -101,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkLoggedIn();
-  }, [session, sessionStatus, router.pathname]); // Thêm router.pathname để kiểm tra lại khi đổi trang
+  }, [session, sessionStatus, router.pathname]);
 
   // Modified checkAccountStatus function to prevent refresh loops
   const checkAccountStatus = useCallback(async () => {
@@ -117,8 +112,6 @@ export const AuthProvider = ({ children }) => {
 
       // Check localStorage first for persisted locked state
       if (localStorage.getItem('isAccountLocked') === 'true') {
-        console.log('Account locked state found in localStorage');
-        
         // Only redirect if we're not already on the account-locked page
         if (typeof window !== 'undefined' && window.location.pathname !== '/account-locked') {
           // Use window.location for a clean redirect without state issues
@@ -152,8 +145,6 @@ export const AuthProvider = ({ children }) => {
       if (!response.ok) {
         const data = await response.json();
         if (response.status === 403 && data.isAccountLocked) {
-          console.log('Account is locked according to backend check:', data);
-          
           // Mark account as locked in localStorage for persistence
           localStorage.setItem('isAccountLocked', 'true');
           
@@ -185,14 +176,11 @@ export const AuthProvider = ({ children }) => {
       const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
       const wsUrl = `${wsProtocol}://${apiUrl.replace(/^https?:\/\//, '')}`;
       
-      console.log('Setting up WebSocket connection to:', wsUrl);
-      
       // Create WebSocket connection
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
       
       ws.onopen = () => {
-        console.log('WebSocket connection established');
         // Authenticate the connection
         const token = localStorage.getItem('token') || localStorage.getItem('auth_token');
         if (token) {
@@ -206,12 +194,9 @@ export const AuthProvider = ({ children }) => {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('WebSocket message received:', data);
           
           // Handle account status changes
           if (data.type === 'account_status_changed' && data.userId === user._id) {
-            console.log(`Account status changed: isActive=${data.isActive}`);
-            
             if (data.isActive === false) {
               // Account has been locked
               setIsAccountLocked(true);
@@ -235,11 +220,9 @@ export const AuthProvider = ({ children }) => {
       };
       
       ws.onclose = () => {
-        console.log('WebSocket connection closed');
         // Attempt reconnection after delay if user is still logged in
         setTimeout(() => {
           if (user && document.visibilityState !== 'hidden') {
-            console.log('Attempting to reconnect WebSocket...');
             setupWebSocket();
           }
         }, 5000);
@@ -251,7 +234,6 @@ export const AuthProvider = ({ children }) => {
     // Cleanup function
     return () => {
       if (wsRef.current) {
-        console.log('Closing WebSocket connection');
         wsRef.current.close();
       }
     };
@@ -262,7 +244,6 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       setIsAccountLocked(false);
-      console.log('Auth context: logging in with', credentials);
       const data = await authService.login(credentials);
       
       if (data.success && data.user) {
@@ -274,7 +255,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Login error in auth context:', error);
       
-      // Kiểm tra nếu tài khoản bị khóa
       if (error.response?.data?.isAccountLocked) {
         setIsAccountLocked(true);
         setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
@@ -294,7 +274,6 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setError(null);
-      console.log('Auth context: registering with', userData);
       
       // Make sure userData has fullname field
       if (!userData.fullname) {
@@ -302,7 +281,6 @@ export const AuthProvider = ({ children }) => {
       }
       
       const data = await authService.register(userData);
-      console.log('Registration result:', data);
       return { success: true, data };
     } catch (error) {
       console.error('Registration error in auth context:', error);
@@ -343,7 +321,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Profile update error:', error);
       
-      // Kiểm tra nếu tài khoản bị khóa
       if (error.response?.data?.isAccountLocked) {
         setIsAccountLocked(true);
         setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
@@ -369,7 +346,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Avatar upload error:', error);
       
-      // Kiểm tra nếu tài khoản bị khóa
       if (error.response?.data?.isAccountLocked) {
         setIsAccountLocked(true);
         return { 
@@ -395,7 +371,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Error refreshing user data:', error);
       
-      // Kiểm tra nếu tài khoản bị khóa
       if (error.response?.status === 403 && error.response?.data?.isAccountLocked) {
         setIsAccountLocked(true);
         setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.');
@@ -406,29 +381,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Cập nhật phương thức để xử lý đường dẫn avatar đúng cách và ngăn cache
   const updateAvatarInUI = (user) => {
     if (user && user.avatar) {
-      // Avatar URL với timestamp để ngăn cache
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       let avatarUrl = user.avatar;
       
-      // Nếu avatar là đường dẫn tương đối (bắt đầu bằng /), thêm baseUrl
       if (avatarUrl && avatarUrl.startsWith('/')) {
         avatarUrl = `${baseUrl}${avatarUrl}`;
       }
       
-      // Thêm timestamp để tránh cache
       avatarUrl = `${avatarUrl}?t=${new Date().getTime()}`;
       
-      // Cập nhật avatar trong localStorage
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       localStorage.setItem('user', JSON.stringify({
         ...currentUser,
         avatar: avatarUrl
       }));
       
-      // Return URL để sử dụng trong UI
       return avatarUrl;
     }
     return null;
@@ -507,7 +476,6 @@ export const withAccountStatus = (Component) => {
     useEffect(() => {
       // Check if user is authenticated but account is locked
       if (!loading && user && isAccountLocked) {
-        console.log('Account is locked, showing banner and redirecting');
         setShowBanner(true);
         
         // Wait a moment to show the banner then redirect

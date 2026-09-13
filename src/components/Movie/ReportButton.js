@@ -24,27 +24,26 @@ const ReportButton = ({ movieId }) => {
 
   return (
     <>
-      <button 
+      <button
         className="btn btn-outline-danger"
         onClick={() => setShowModal(true)}
       >
         Báo lỗi phim
       </button>
 
-      {/* Modal báo lỗi */}
       {showModal && (
         <div className="modal show d-block">
           <div className="modal-dialog">
             <div className="modal-content bg-dark text-white">
               <div className="modal-header">
                 <h5>Báo lỗi phim</h5>
-                <button 
+                <button
                   className="btn-close"
                   onClick={() => setShowModal(false)}
                 />
               </div>
               <div className="modal-body">
-                <select 
+                <select
                   className="form-select mb-3"
                   value={reportType}
                   onChange={(e) => setReportType(e.target.value)}
@@ -62,7 +61,7 @@ const ReportButton = ({ movieId }) => {
                 />
               </div>
               <div className="modal-footer">
-                <button 
+                <button
                   className="btn btn-danger"
                   onClick={handleSubmit}
                 >

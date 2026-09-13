@@ -4,31 +4,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '@/API/services/admin/notificationService';
 
-// Định nghĩa interface Thông báo
-/**
- * @typedef {Object} Notification
- * @property {string} _id - ID thông báo
- * @property {string} title - Tiêu đề thông báo
- * @property {string} message - Nội dung thông báo
- * @property {string} type - Loại thông báo
- * @property {boolean} isRead - Thông báo đã được đọc hay chưa
- * @property {string} createdAt - Dấu thời gian tạo
- * @property {Object} [entity] - Thực thể liên quan
- * @property {string} [entity.id] - ID thực thể
- * @property {string} [entity.type] - Loại thực thể
- */
-
-/**
- * @typedef {Object} AdminNotificationsContextType
- * @property {Array<Notification>} notifications - Mảng các thông báo
- * @property {number} unreadCount - Số lượng thông báo chưa đọc
- * @property {boolean} loading - Trạng thái tải
- * @property {Function} updateNotifications - Hàm để làm mới thông báo
- * @property {Function} markAsRead - Hàm để đánh dấu thông báo là đã đọc
- * @property {Function} markAllAsRead - Hàm để đánh dấu tất cả thông báo là đã đọc
- */
-
-// Tạo context
 const AdminNotificationsContext = createContext({
   notifications: [],
   unreadCount: 0,
@@ -38,7 +13,6 @@ const AdminNotificationsContext = createContext({
   markAllAsRead: async () => {}
 });
 
-// Thành phần Provider
 export const AdminNotificationsProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -46,7 +20,6 @@ export const AdminNotificationsProvider = ({ children }) => {
   const { lastMessage } = useWebSocket();
   const [isInitialRender, setIsInitialRender] = useState(true);
 
-  // Hàm để lấy thông báo
   const updateNotifications = async () => {
     try {
       setLoading(true);
@@ -60,11 +33,10 @@ export const AdminNotificationsProvider = ({ children }) => {
     }
   };
 
-  // Hàm để đánh dấu một thông báo là đã đọc
   const markAsRead = async (id) => {
     try {
       await markNotificationAsRead(id);
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => n._id === id ? { ...n, isRead: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
@@ -73,7 +45,6 @@ export const AdminNotificationsProvider = ({ children }) => {
     }
   };
 
-  // Hàm để đánh dấu tất cả thông báo là đã đọc
   const markAllAsRead = async () => {
     try {
       await markAllNotificationsAsRead();
@@ -84,41 +55,35 @@ export const AdminNotificationsProvider = ({ children }) => {
     }
   };
 
-  // Lấy thông báo ban đầu
   useEffect(() => {
     updateNotifications();
-    
-    // Thiết lập khoảng thời gian để kiểm tra thông báo mới mỗi phút
+
     const intervalId = setInterval(() => {
       updateNotifications();
     }, 60000);
-    
+
     return () => clearInterval(intervalId);
   }, []);
 
-  // Xử lý thông báo websocket đến
   useEffect(() => {
-    // Bỏ qua việc hiển thị toast cho lần render đầu tiên
     if (isInitialRender) {
       setIsInitialRender(false);
       return;
     }
 
     if (lastMessage) {
-      // Làm mới thông báo khi nhận được thông báo mới
       updateNotifications();
-      
+
       const { type, action, data } = lastMessage;
-      
+
       let message = '';
       let title = '';
       let toastType = toast.TYPE.INFO;
-      
-      // Xác định loại thông báo dựa trên dữ liệu nhận được
+
       if (type === 'movie') {
         const movieTitle = data?.title || 'Một phim';
         title = 'Thông báo phim';
-        
+
         switch (action) {
           case 'created':
             message = `${movieTitle} đã được thêm mới`;
@@ -138,7 +103,7 @@ export const AdminNotificationsProvider = ({ children }) => {
       } else if (type === 'user') {
         const userName = data?.name || data?.email || 'Một người dùng';
         title = 'Thông báo người dùng';
-        
+
         switch (action) {
           case 'created':
             message = `${userName} đã đăng ký mới`;
@@ -152,21 +117,19 @@ export const AdminNotificationsProvider = ({ children }) => {
             message = `Có thay đổi với ${userName}`;
         }
       } else if (lastMessage.type === 'notification') {
-        // Xử lý thông báo từ hệ thống mới của chúng ta
         title = lastMessage.data?.title || 'Thông báo mới';
         message = lastMessage.data?.message || 'Có thông báo mới';
       } else {
         title = 'Thông báo mới';
         message = lastMessage.message || 'Có thông báo mới';
       }
-      
-      // Hiển thị thông báo toast
+
       toast(
         <div>
           <strong>{title}</strong>
           <p>{message}</p>
-        </div>, 
-        { 
+        </div>,
+        {
           type: toastType,
           position: "top-right",
           autoClose: 5000,
@@ -193,11 +156,11 @@ export const AdminNotificationsProvider = ({ children }) => {
       {children}
       <ToastContainer />
       {!useWebSocket().isConnected && (
-        <div className="connection-status" style={{ 
-          position: 'fixed', 
-          bottom: '10px', 
-          right: '10px', 
-          background: '#ff5555', 
+        <div className="connection-status" style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          background: '#ff5555',
           color: 'white',
           padding: '5px 10px',
           borderRadius: '4px',
@@ -211,12 +174,9 @@ export const AdminNotificationsProvider = ({ children }) => {
   );
 };
 
-// Hook tùy chỉnh để sử dụng context thông báo
 export const useAdminNotifications = () => useContext(AdminNotificationsContext);
 
-// Thành phần AdminNotifications chính
 const AdminNotifications = () => {
-  // Thành phần này không hiển thị bất cứ thứ gì vì Provider xử lý mọi thứ
   return null;
 };
 

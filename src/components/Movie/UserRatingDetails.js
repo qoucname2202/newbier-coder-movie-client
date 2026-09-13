@@ -9,47 +9,42 @@ const UserRatingDetails = ({ movieSlug }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
-  const [selectedStarFilter, setSelectedStarFilter] = useState(0); // 0 nghĩa là tất cả đánh giá
+  const [selectedStarFilter, setSelectedStarFilter] = useState(0);
   const [sortOrder, setSortOrder] = useState('newest'); // 'newest', 'highest', 'lowest'
 
   useEffect(() => {
     const fetchUserRatings = async () => {
-      // Chỉ lấy dữ liệu khi dropdown được hiển thị và có movieSlug
       if (!movieSlug || !showDetails) return;
 
       try {
         setLoading(true);
         setError(null);
-        
-        // Định nghĩa URL API cơ bản một lần để đảm bảo tính nhất quán
+
         const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
-        // Bước 1: Lấy movie ID từ slug
+
         const movieResponse = await fetch(`${baseApiUrl}/movies/${movieSlug}`);
         if (!movieResponse.ok) {
           throw new Error(`Failed to fetch movie info: ${movieResponse.status}`);
         }
-        
+
         const movieData = await movieResponse.json();
         if (!movieData.data || !movieData.data._id) {
           throw new Error('Movie ID not found');
         }
-        
+
         const movieId = movieData.data._id;
-        
-        // Bước 2: Lấy đánh giá với dữ liệu người dùng đã được populate
+
         const ratingsResponse = await fetch(`${baseApiUrl}/ratings/movie/${movieId}`);
         if (!ratingsResponse.ok) {
           throw new Error(`Failed to fetch ratings: ${ratingsResponse.status}`);
         }
         const ratingsData = await ratingsResponse.json();
-        
-        // Bước 3: Xử lý dữ liệu đánh giá - thông tin người dùng đã được backend cung cấp
+
         let formattedRatings = [];
-        
+
         if (ratingsData && ratingsData.data && ratingsData.data.ratings) {
           const ratings = ratingsData.data.ratings;
-          
+
           formattedRatings = ratings.map(rating => ({
             id: rating._id,
             rating: rating.rating,
@@ -59,8 +54,8 @@ const UserRatingDetails = ({ movieSlug }) => {
               year: 'numeric',
               hour: '2-digit',
               minute: '2-digit'
-            }),            
-            rawDate: new Date(rating.createdAt),            
+            }),
+            rawDate: new Date(rating.createdAt),
             user: {
               id: rating.userId?._id || 'unknown',
               username: rating.userId?.fullname || rating.userId?.username || 'Người dùng ẩn danh',
@@ -68,11 +63,10 @@ const UserRatingDetails = ({ movieSlug }) => {
               avatar: getAvatarUrl(rating.userId?.avatar || '')
             }
           }));
-          
-          // Sắp xếp đánh giá theo ngày (mới nhất trước)
+
           formattedRatings.sort((a, b) => b.rawDate - a.rawDate);
         }
-        
+
         setUserRatings(formattedRatings);
         setFilteredRatings(formattedRatings);
       } catch (err) {
@@ -82,24 +76,20 @@ const UserRatingDetails = ({ movieSlug }) => {
         setLoading(false);
       }
     };
-    
+
     fetchUserRatings();
-  }, [movieSlug, showDetails]);  // Lắng nghe thay đổi của showStats từ thành phần RatingStats
+  }, [movieSlug, showDetails]);
   useEffect(() => {
-    // Nếu thống kê được hiển thị và chi tiết cũng được hiển thị, ẩn chi tiết
     if (showStats && showDetails) {
       setShowDetails(false);
     }
   }, [showStats]);
 
-  // Áp dụng bộ lọc và sắp xếp khi selectedStarFilter hoặc sortOrder thay đổi
   useEffect(() => {
-    // Đầu tiên, lọc các đánh giá
     let result = selectedStarFilter === 0
-      ? [...userRatings] // Sao chép tất cả đánh giá
+      ? [...userRatings]
       : userRatings.filter(rating => rating.rating === selectedStarFilter);
-      
-    // Sau đó, sắp xếp các đánh giá đã lọc
+
     switch (sortOrder) {
       case 'highest':
         result.sort((a, b) => b.rating - a.rating);
@@ -112,41 +102,35 @@ const UserRatingDetails = ({ movieSlug }) => {
         result.sort((a, b) => b.rawDate - a.rawDate);
         break;
     }
-    
+
     setFilteredRatings(result);
   }, [selectedStarFilter, userRatings, sortOrder]);
-  // Định dạng URL avatar một cách nhất quán
   const getAvatarUrl = (avatar) => {
     if (!avatar) return "/img/avatar.png";
-    
+
     let avatarUrl = avatar;
-    
-    // Chuyển đổi đường dẫn tương đối thành URL tuyệt đối
+
     if (avatarUrl && avatarUrl.startsWith('/')) {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      // Loại bỏ phần /api nếu có trong baseUrl
-      const baseWithoutApi = baseUrl.endsWith('/api') 
-        ? baseUrl.substring(0, baseUrl.length - 4) 
+      const baseWithoutApi = baseUrl.endsWith('/api')
+        ? baseUrl.substring(0, baseUrl.length - 4)
         : baseUrl;
-      
-      // Tạo URL đầy đủ
+
       avatarUrl = `${baseWithoutApi}${avatarUrl}`;
     }
-    
-    // Chỉ thêm cache-busting cho URL không phải bên ngoài (loại trừ Google, Cloudinary, v.v.)
-    if (!avatarUrl.includes('?') && 
-        !avatarUrl.includes('googleusercontent.com') && 
+
+    if (!avatarUrl.includes('?') &&
+        !avatarUrl.includes('googleusercontent.com') &&
         !avatarUrl.includes('cloudinary.com')) {
       avatarUrl = `${avatarUrl}?t=${Date.now()}`;
     }
-    
+
     return avatarUrl;
   };
   const handleToggleDetails = () => {
     const newDetailsState = !showDetails;
     setShowDetails(newDetailsState);
-    
-    // Cập nhật trạng thái chia sẻ trong context
+
     if (setShowUserRatingDetails) {
       setShowUserRatingDetails(newDetailsState);
     }
@@ -158,10 +142,9 @@ const UserRatingDetails = ({ movieSlug }) => {
 
   const handleSortChange = (order) => {
     setSortOrder(order);
-    
-    // Áp dụng sắp xếp cho các đánh giá đã lọc
+
     let sortedRatings = [...filteredRatings];
-    
+
     switch (order) {
       case 'highest':
         sortedRatings.sort((a, b) => b.rating - a.rating);
@@ -174,12 +157,12 @@ const UserRatingDetails = ({ movieSlug }) => {
         sortedRatings.sort((a, b) => b.rawDate - a.rawDate);
         break;
     }
-    
+
     setFilteredRatings(sortedRatings);
   };
 
   return (
-    <div className={styles.userRatingDetailsContainer}>      <button 
+    <div className={styles.userRatingDetailsContainer}>      <button
         className={styles.detailsToggle}
         onClick={handleToggleDetails}
         title={`Xem chi tiết ${userRatings.length} đánh giá từ người dùng`}
@@ -192,7 +175,7 @@ const UserRatingDetails = ({ movieSlug }) => {
         )}
         <i className={`bi ${showDetails ? 'bi-chevron-up' : 'bi-chevron-down'} ms-1`}></i>
       </button>
-      
+
       {showDetails && (
         <div className={styles.detailsDropdown}>
           <h6 className={styles.detailsHeader}>
@@ -221,7 +204,7 @@ const UserRatingDetails = ({ movieSlug }) => {
               </div>
             )}
           </h6>
-            {/* Bộ lọc sao */}          <div className={styles.starFilter}>            <button 
+                      <div className={styles.starFilter}>            <button
               className={`${styles.starFilterButton} ${selectedStarFilter === 0 ? styles.active : ''}`}
               onClick={() => handleFilterChange(0)}
               title="Tất cả đánh giá"
@@ -247,14 +230,13 @@ const UserRatingDetails = ({ movieSlug }) => {
               );
             })}
           </div>
-          
-          {/* Hiển thị thống kê về số lượng đánh giá */}
+
           {userRatings.length > 0 && selectedStarFilter !== 0 && (
             <div className={styles.filterStats}>
               Đang hiển thị {filteredRatings.length} trên tổng số {userRatings.length} đánh giá
             </div>
           )}
-          
+
           {loading ? (
             <div className={styles.loadingContainer}>
               <div className={styles.spinner}></div>
@@ -268,13 +250,13 @@ const UserRatingDetails = ({ movieSlug }) => {
             <div className={styles.noRatingsMessage}>
               <i className={`bi ${selectedStarFilter === 0 ? 'bi-star' : 'bi-funnel'} text-muted`}></i>
               <p>
-                {selectedStarFilter === 0 
-                  ? "Chưa có đánh giá từ người dùng" 
+                {selectedStarFilter === 0
+                  ? "Chưa có đánh giá từ người dùng"
                   : `Không có đánh giá ${selectedStarFilter} sao nào`}
               </p>
               {selectedStarFilter !== 0 && userRatings.length > 0 && (
-                <button 
-                  className={styles.resetFilterButton} 
+                <button
+                  className={styles.resetFilterButton}
                   onClick={() => handleFilterChange(0)}
                 >
                   <i className="bi bi-arrow-repeat me-1"></i>
@@ -284,11 +266,11 @@ const UserRatingDetails = ({ movieSlug }) => {
             </div>
           ) : (
             <div className={styles.ratingsList}>
-              {filteredRatings.map(rating => (                <div 
-                  key={rating.id} 
+              {filteredRatings.map(rating => (                <div
+                  key={rating.id}
                   className={`${styles.ratingItem} ${selectedStarFilter > 0 ? styles.highlighted : ''}`}
                 >
-                  <div className={styles.userInfo}>                    <img 
+                  <div className={styles.userInfo}>                    <img
                       src={rating.user.avatar}
                       alt={rating.user.username}
                       className={styles.userAvatar}

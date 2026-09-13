@@ -57,19 +57,17 @@ const SubscriptionItem: React.FC<{
   const formattedDate = dayjs(subscription.createdAt).format('DD/MM/YYYY HH:mm');
   const formattedStartDate = dayjs(subscription.startDate).format('DD/MM/YYYY');
   const formattedEndDate = dayjs(subscription.endDate).format('DD/MM/YYYY');
-  
+
   // Calculate discount price if applicable
-  const finalPrice = subscription.packageId.discount 
-    ? subscription.packageId.price * (1 - subscription.packageId.discount / 100) 
+  const finalPrice = subscription.packageId.discount
+    ? subscription.packageId.price * (1 - subscription.packageId.discount / 100)
     : subscription.packageId.price;
 
-  // Xác định trạng thái đăng ký
   const isPending = subscription.paymentStatus === 'pending';
   const isApproved = subscription.paymentStatus === 'approved' || subscription.paymentStatus === 'active';
   const isRejected = subscription.paymentStatus === 'rejected';
   const isCancelled = subscription.paymentStatus === 'cancelled';
 
-  // Hiển thị trạng thái phù hợp
   const getStatusBadge = () => {
     if (isApproved) return <span className="badge bg-success">Đã duyệt</span>;
     if (isRejected) return <span className="badge bg-danger">Đã từ chối</span>;
@@ -81,8 +79,8 @@ const SubscriptionItem: React.FC<{
     <div className="card mb-3">
       <div className="card-header">
         <div className="d-flex align-items-center">
-          <img 
-            src={subscription.user.avatar || 'http://localhost:3000/img/user-avatar.png'} 
+          <img
+            src={subscription.user.avatar || 'http://localhost:3000/img/user-avatar.png'}
             alt={subscription.user.name}
             className="rounded-circle mr-2"
             style={{ width: '40px', height: '40px', objectFit: 'cover' }}
@@ -103,7 +101,7 @@ const SubscriptionItem: React.FC<{
           </div>
         </div>
       </div>
-      
+
       <div className="card-body">
         <div className="d-flex mb-3">
           <div className="package-icon mr-3">
@@ -130,14 +128,14 @@ const SubscriptionItem: React.FC<{
               </p>
               <p className="mb-0">
                 <FaMoneyBillWave className="mr-1" style={{ color: '#28a745' }} />
-                <strong>Số tiền:</strong> 
+                <strong>Số tiền:</strong>
                 <span className="amount-display ml-1">
                   {new Intl.NumberFormat('vi-VN', {
                     style: 'currency',
                     currency: 'VND'
                   }).format(subscription.amount || finalPrice)}
                 </span>
-                
+
                 {subscription.packageId.discount && subscription.packageId.discount > 0 && (
                   <span className="original-price ml-2">
                     <del>
@@ -151,7 +149,7 @@ const SubscriptionItem: React.FC<{
                 )}
               </p>
             </div>
-            <button 
+            <button
               className="btn btn-sm btn-info mt-2"
               onClick={() => onViewUserDetails(subscription.user.id)}
             >
@@ -159,18 +157,17 @@ const SubscriptionItem: React.FC<{
             </button>
           </div>
         </div>
-        
+
         <div className="d-flex justify-content-end">
-          {/* Chỉ hiển thị các nút duyệt/từ chối khi đăng ký đang ở trạng thái chờ duyệt */}
           {isPending ? (
             <>
-              <button 
+              <button
                 className="btn btn-success mr-2"
                 onClick={() => onApprove(subscription.id)}
               >
                 <FaCheck className="mr-1" /> Duyệt
               </button>
-              <button 
+              <button
                 className="btn btn-danger"
                 onClick={() => onReject(subscription.id)}
               >
@@ -178,12 +175,11 @@ const SubscriptionItem: React.FC<{
               </button>
             </>
           ) : (
-            // Hiển thị trạng thái đã duyệt/từ chối
             <div className="d-flex align-items-center">
               {isApproved && (
                 <>
                   <span className="text-success mr-3"><FaCheckCircle /> Đã duyệt</span>
-                  <button 
+                  <button
                     className="btn btn-warning btn-sm"
                     onClick={() => onCancel(subscription.id)}
                     title="Hủy gói Premium cho người dùng này"
@@ -197,7 +193,7 @@ const SubscriptionItem: React.FC<{
           )}
         </div>
       </div>
-      
+
       <style jsx>{`
         .package-icon {
           display: flex;
@@ -208,24 +204,24 @@ const SubscriptionItem: React.FC<{
           background: rgba(255, 193, 7, 0.1);
           border-radius: 8px;
         }
-        
+
         .subscription-details {
           background: rgba(0, 0, 0, 0.05);
           padding: 10px;
           border-radius: 8px;
           margin-top: 5px;
         }
-        
+
         .amount-display {
           color: #28a745;
           font-weight: bold;
         }
-        
+
         .original-price {
           font-size: 90%;
           color: #6c757d;
         }
-        
+
         .discount-badge {
           background: #dc3545;
           color: white;
@@ -233,24 +229,24 @@ const SubscriptionItem: React.FC<{
           border-radius: 4px;
           font-size: 75%;
         }
-        
+
         .badge {
           font-size: 80%;
           padding: 0.25em 0.6em;
           border-radius: 50rem;
           margin-left: 0.5rem;
         }
-        
+
         .bg-success {
           background-color: #28a745;
           color: white;
         }
-        
+
         .bg-danger {
           background-color: #dc3545;
           color: white;
         }
-        
+
         .bg-warning {
           background-color: #ffc107;
           color: #212529;
@@ -278,37 +274,30 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
   const [userDetailModal, setUserDetailModal] = useState<{ show: boolean; user: any }>({ show: false, user: null });
   const router = useRouter();
   const { theme } = useTheme();
-  
+
   // Function to handle relogin when token expires
   const handleReLogin = useCallback(() => {
     // Clear old tokens
     localStorage.removeItem('authToken');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('token');
-    
+
     // Redirect to login page
     router.push('/auth/login?redirect=/admin/premium');
   }, [router]);
-  
+
   // Debug function to check token
   useEffect(() => {
     // Check for token in localStorage
     const authToken = localStorage.getItem('authToken');
     const token = localStorage.getItem('token');
     const auth_token = localStorage.getItem('auth_token');
-    
+
     // Auto copy token from authToken to auth_token to ensure Axios can use it
     if (authToken && !auth_token) {
       localStorage.setItem('auth_token', authToken);
-      console.log('Copied token from authToken to auth_token');
     }
-    
-    console.log('Debug Token Info:', {
-      authToken: authToken ? 'Exists' : 'Not found',
-      token: token ? 'Exists' : 'Not found',
-      auth_token: auth_token ? 'Exists' : 'Not found'
-    });
-    
+
     // Create test request
     const testAPI = async () => {
       try {
@@ -320,21 +309,16 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
             token: testToken.substring(0, 20) + '...',
             exists: true,
           });
-          
+
           // Try to send test request with token
           const testResponse = await fetch('http://localhost:5000/api/subscription/admin/pending-subscriptions', {
             headers: {
               'Authorization': `Bearer ${testToken}`
             }
           });
-          
+
           const data = await testResponse.text();
-          console.log('Test API Response:', {
-            status: testResponse.status,
-            ok: testResponse.ok,
-            data: data.substring(0, 100) + '...'
-          });
-          
+
           // Check if token is expired
           if (testResponse.status === 401) {
             setTokenInfo((prev: any) => prev ? {...prev, expired: true} : {expired: true});
@@ -349,10 +333,10 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         console.error('Test API Error:', err);
       }
     };
-    
+
     testAPI();
   }, []);
-  
+
   // Function to fetch subscriptions based on the active tab
   const fetchSubscriptions = async (tab: string) => {
     setLoading(true);
@@ -360,102 +344,82 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
     try {
       let endpoint = '';
       let statusFilter = '';
-      
+
       // Map tab to the correct endpoint
       if (tab === 'pending') {
         endpoint = '/api/subscription/admin/pending-subscriptions';
       } else {
         // For approved and rejected, we'll use the main subscription endpoint with status filter
         endpoint = '/api/subscription/admin/subscriptions';
-        
+
         // Add filter for the right status
         if (tab === 'approved') {
-          statusFilter = '?status=active,approved'; // Bao gồm cả 'active' và 'approved'
+          statusFilter = '?status=active,approved';
         } else if (tab === 'rejected') {
           statusFilter = '?status=rejected';
         }
       }
-      
-      console.log(`Fetching subscriptions from endpoint: ${endpoint}${statusFilter}`);
-      
+
       // Direct fetch for debugging
       const testToken = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
       if (!testToken) {
         throw new Error('No authentication token found');
       }
-      
-      // Hiển thị thông báo đang tải
+
       const toastId = toast.loading('Đang tải dữ liệu...', {
         autoClose: false,
         closeOnClick: false,
         closeButton: false,
         draggable: false
       });
-      
+
       // Use direct fetch for debugging purposes
       const response = await fetch(`http://localhost:5000${endpoint}${statusFilter}`, {
         headers: {
           'Authorization': `Bearer ${testToken}`
         }
       });
-      
-      // Ẩn toast loading
+
       toast.dismiss(toastId);
-      
+
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
       }
-      
+
       // Convert response to JSON directly
       const responseData = await response.json();
-      
-      console.log('API Response:', responseData);
-      
-      // Hiển thị dữ liệu chi tiết để debug
-      console.log('Cấu trúc dữ liệu:', JSON.stringify(responseData.data, null, 2));
-      
-      // Kiểm tra success hoặc statusCode thành công (200) 
+
       const isSuccess = responseData.success || responseData.statusCode === 200;
-      
+
       if (isSuccess) {
         let subscriptionList = [];
-        
-        // Xử lý các cấu trúc response khác nhau
+
         if (responseData.data?.subscriptions) {
           subscriptionList = responseData.data.subscriptions;
-          console.log('Found subscriptions in data.subscriptions:', subscriptionList.length);
         } else if (Array.isArray(responseData.data)) {
           subscriptionList = responseData.data;
-          console.log('Found subscriptions in data array:', subscriptionList.length);
         } else if (responseData.data?.docs) {
           subscriptionList = responseData.data.docs;
-          console.log('Found subscriptions in data.docs:', subscriptionList.length);
         } else {
           console.error('Cannot find subscriptions array in response:', responseData);
           subscriptionList = [];
         }
-        
-        console.log(`Found ${subscriptionList.length} subscriptions`);
-        
-        // Ánh xạ trạng thái backend sang trạng thái hiển thị cho frontend
+
         const mapStatus = (status: string): 'pending' | 'approved' | 'rejected' | 'active' | 'cancelled' => {
-          // Chuẩn hóa status
           const normalizedStatus = status?.toLowerCase();
-          
+
           if (normalizedStatus === 'pending') return 'pending';
           if (normalizedStatus === 'active' || normalizedStatus === 'approved') return 'approved';
           if (normalizedStatus === 'rejected') return 'rejected';
           if (normalizedStatus === 'cancelled') return 'cancelled';
-          
-          // Mặc định trả về pending nếu không khớp
+
           console.warn(`Unknown status: ${status}, defaulting to 'pending'`);
           return 'pending';
         };
-        
-        // Lọc gói theo trạng thái đúng với tab hiện tại
+
         const filteredSubscriptions = subscriptionList.filter((sub: any) => {
           const status = sub.status || sub.paymentStatus || 'pending';
-          
+
           if (tab === 'pending') {
             return status === 'pending';
           } else if (tab === 'approved') {
@@ -463,28 +427,22 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
           } else if (tab === 'rejected') {
             return status === 'rejected';
           }
-          
-          return true; // Hiển thị tất cả nếu không thuộc tab nào ở trên
+
+          return true;
         });
-        
-        console.log(`After filtering: ${filteredSubscriptions.length} subscriptions match the tab criteria`);
-        
+
         if (filteredSubscriptions.length > 0) {
-          console.log('First subscription data:', filteredSubscriptions[0]._id);
         }
-        
+
         // Map subscriptions to the expected format - using the exact structure from the API response
         const mappedSubscriptions = filteredSubscriptions.map((sub: any) => {
-          console.log(`Processing subscription ID: ${sub._id}, Status: ${sub.status}`);
-          
-          // Lấy dữ liệu user
+
           const userId = sub.userId || {};
           const user = typeof userId === 'object' ? userId : { _id: userId };
-          
-          // Lấy dữ liệu package
+
           const packageId = sub.packageId || {};
           const packageData = typeof packageId === 'object' ? packageId : { _id: packageId };
-          
+
           return {
             id: sub._id || '',
             user: {
@@ -508,14 +466,12 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
             createdAt: sub.createdAt || new Date().toISOString()
           };
         });
-        
-        console.log('Final mapped subscriptions:', mappedSubscriptions);
+
         setSubscriptions(mappedSubscriptions);
-        
-        // Hiển thị toast thông báo thành công nếu có dữ liệu
+
         if (mappedSubscriptions.length > 0) {
           toast.success(`Đã tải ${mappedSubscriptions.length} đăng ký ${
-            tab === 'pending' ? 'đang chờ duyệt' : 
+            tab === 'pending' ? 'đang chờ duyệt' :
             tab === 'approved' ? 'đã được duyệt' : 'đã bị từ chối'
           }`, {
             autoClose: 2000,
@@ -523,7 +479,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
           });
         } else {
           toast.info(`Không có đăng ký nào ${
-            tab === 'pending' ? 'đang chờ duyệt' : 
+            tab === 'pending' ? 'đang chờ duyệt' :
             tab === 'approved' ? 'đã được duyệt' : 'đã bị từ chối'
           }`, {
             autoClose: 2000,
@@ -552,49 +508,40 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
     fetchSubscriptions(activeTab);
   }, [activeTab]);
 
-  // Thêm hàm để tự động làm mới dữ liệu theo chu kỳ
   useEffect(() => {
     let refreshInterval: NodeJS.Timeout;
-    
-    // Chỉ thiết lập interval khi trang đã tải xong
+
     if (!loading) {
-      console.log('Setting up auto-refresh interval');
-      // Tự động làm mới dữ liệu mỗi 30 giây
       refreshInterval = setInterval(() => {
-        console.log('Auto-refreshing data...');
         fetchSubscriptions(activeTab);
-      }, 10000); // 30 giây
+      }, 10000);
     }
-    
+
     // Cleanup interval khi component unmount
     return () => {
       if (refreshInterval) {
-        console.log('Clearing auto-refresh interval');
         clearInterval(refreshInterval);
       }
     };
   }, [activeTab, loading, fetchSubscriptions]);
-  
-  
+
   // Handle approving a subscription
   const handleApproveSubscription = async (subscriptionId: string) => {
     try {
-      // Hiển thị dialog xác nhận trước khi duyệt
       if (!window.confirm('Bạn có chắc chắn muốn duyệt đăng ký này không?')) {
         return;
       }
 
       setActionInProgress(true);
       setProcessingId(subscriptionId);
-      
-      // Hiển thị thông báo đang xử lý
-      const toastId = toast.loading('Đang xử lý...', { 
+
+      const toastId = toast.loading('Đang xử lý...', {
         closeButton: false,
         closeOnClick: false,
         draggable: false,
         autoClose: false
       });
-      
+
       // Direct fetch for debugging
       const testToken = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
       if (!testToken) {
@@ -602,50 +549,39 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         toast.error('Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
         throw new Error('No authentication token found');
       }
-      
-      console.log(`Attempting to approve subscription: ${subscriptionId}`);
-      
-      // Sửa đường dẫn API endpoint để phù hợp với backend
+
       const response = await fetch(`http://localhost:5000/api/subscription/admin/approve/${subscriptionId}`, {
-        method: 'POST', // Đảm bảo phương thức là POST
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${testToken}`,
           'Content-Type': 'application/json'
         },
-        // Thêm body trống để đảm bảo request hợp lệ
         body: JSON.stringify({
           notes: "Phê duyệt bởi Admin từ trang quản trị"
         })
       });
-      
-      // Kiểm tra chi tiết về response để debug
-      console.log('Approval response status:', response.status);
-      
+
       if (!response.ok) {
-        // Xử lý khi response không thành công
         const errorText = await response.text();
         console.error(`Error response (${response.status}):`, errorText);
         toast.dismiss(toastId);
         toast.error(`Lỗi khi duyệt đăng ký: ${response.status} - ${errorText || 'Không có thông tin lỗi'}`);
         throw new Error(`API request failed with status ${response.status}: ${errorText}`);
       }
-      
+
       const responseData = await response.json();
-      console.log('Approval response data:', responseData);
-      
+
       toast.dismiss(toastId);
-      
+
       if (responseData.success) {
         toast.success('Đã duyệt đăng ký thành công!', {
           icon: "🎉" as any,
           autoClose: 3000,
           hideProgressBar: false
         });
-        
-        // Chuyển tab sang "Đã duyệt" để người dùng có thể thấy kết quả
+
         setActiveTab('approved');
-        
-        // Tải lại danh sách đăng ký đã duyệt
+
         await fetchSubscriptions('approved');
       } else {
         toast.error('Không thể duyệt đăng ký: ' + (responseData.message || 'Lỗi không xác định'));
@@ -664,34 +600,30 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
     try {
       setActionInProgress(true);
       setProcessingId(subscriptionId);
-      
-      // Hiển thị hộp thoại nhập lý do từ chối
+
       const rejectReason = window.prompt('Nhập lý do từ chối đăng ký:');
-      
-      // Nếu người dùng hủy hoặc không nhập gì, không thực hiện
+
       if (rejectReason === null) {
         toast.info('Đã hủy thao tác từ chối');
         setActionInProgress(false);
         setProcessingId('');
         return;
       }
-      
-      // Kiểm tra xem người dùng có nhập lý do không
+
       if (rejectReason.trim() === '') {
         toast.warning('Vui lòng nhập lý do từ chối để người dùng hiểu rõ lý do.');
         setActionInProgress(false);
         setProcessingId('');
         return;
       }
-      
-      // Hiển thị thông báo đang xử lý
-      const toastId = toast.loading('Đang xử lý từ chối đăng ký...', { 
+
+      const toastId = toast.loading('Đang xử lý từ chối đăng ký...', {
         closeButton: false,
         closeOnClick: false,
         draggable: false,
         autoClose: false
       });
-      
+
       // Direct fetch for debugging
       const testToken = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
       if (!testToken) {
@@ -699,7 +631,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         toast.error('Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
         throw new Error('No authentication token found');
       }
-      
+
       const response = await fetch(`http://localhost:5000/api/subscription/admin/reject/${subscriptionId}`, {
         method: 'POST',
         headers: {
@@ -708,28 +640,26 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         },
         body: JSON.stringify({ reason: rejectReason })
       });
-      
+
       toast.dismiss(toastId);
-      
+
       if (!response.ok) {
         const errorData = await response.text();
         console.error('Error rejection response:', errorData);
         toast.error(`Lỗi khi từ chối: ${response.status} - ${errorData || 'Không có thông tin lỗi'}`);
         throw new Error(`API request failed with status ${response.status}`);
       }
-      
+
       const responseData = await response.json();
-      
+
       if (responseData.success) {
         toast.success('Đã từ chối đăng ký thành công', {
           autoClose: 3000,
           hideProgressBar: false
         });
-        
-        // Chuyển tab sang "Đã từ chối" để người dùng có thể thấy kết quả
+
         setActiveTab('rejected');
-        
-        // Tải lại danh sách đăng ký đã từ chối
+
         await fetchSubscriptions('rejected');
       } else {
         toast.error('Không thể từ chối đăng ký: ' + (responseData.message || 'Lỗi không xác định'));
@@ -749,7 +679,6 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
       setActionInProgress(true);
       setProcessingId(subscriptionId);
 
-      // Hiển thị hộp thoại xác nhận hủy gói
       const confirmCancel = window.confirm('Bạn có chắc chắn muốn hủy gói Premium này? Thao tác này sẽ hạ cấp quyền của người dùng xuống tài khoản tiêu chuẩn.');
 
       if (!confirmCancel) {
@@ -758,19 +687,17 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         setProcessingId('');
         return;
       }
-      
-      // Hỏi lý do hủy gói
+
       const cancelReason = window.prompt('Vui lòng nhập lý do hủy gói Premium:');
-      
+
       if (cancelReason === null) {
         toast.info('Đã hủy thao tác hủy gói');
         setActionInProgress(false);
         setProcessingId('');
         return;
       }
-      
-      // Hiển thị thông báo đang xử lý
-      const toastId = toast.loading('Đang xử lý hủy gói Premium...', { 
+
+      const toastId = toast.loading('Đang xử lý hủy gói Premium...', {
         closeButton: false,
         closeOnClick: false,
         draggable: false,
@@ -784,10 +711,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         toast.error('Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
         throw new Error('No authentication token found');
       }
-      
-      console.log(`Attempting to cancel subscription with ID: ${subscriptionId}`);
-      
-      // Đường dẫn API cần có dấu slash ở đầu để đảm bảo đường dẫn hoàn chỉnh
+
       const response = await fetch(`http://localhost:5000/api/subscription/admin/cancel/${subscriptionId}`, {
         method: 'POST',
         headers: {
@@ -798,14 +722,10 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
           reason: cancelReason || "Cancelled by admin from admin panel"
         })
       });
-      
+
       toast.dismiss(toastId);
-      
-      // Log chi tiết response để debug
-      console.log('Cancel response status:', response.status);
-      
+
       if (!response.ok) {
-        // Đọc và hiển thị chi tiết lỗi từ response
         let errorMessage = '';
         try {
           const errorData = await response.text();
@@ -814,21 +734,19 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         } catch (err) {
           console.error('Error parsing error response:', err);
         }
-        
+
         toast.error(`Lỗi khi hủy gói: ${response.status} - ${errorMessage || 'Không có thông tin lỗi'}`);
         throw new Error(`API request failed with status ${response.status}: ${errorMessage}`);
       }
-      
+
       const responseData = await response.json();
-      console.log('Cancel response data:', responseData);
 
       if (responseData.success) {
         toast.success('Đã hủy gói Premium thành công', {
           autoClose: 3000,
           hideProgressBar: false
         });
-        
-        // Làm mới dữ liệu trong tab hiện tại
+
         fetchSubscriptions(activeTab);
       } else {
         toast.error('Không thể hủy gói Premium: ' + (responseData.message || 'Lỗi không xác định'));
@@ -845,33 +763,29 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
   // Handle viewing user details
   const handleViewUserDetails = async (userId: string) => {
     try {
-      // Lấy token xác thực
       const token = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
       if (!token) {
         toast.error('Không tìm thấy token xác thực!');
         return;
       }
-      
-      // Hiển thị thông báo đang tải
+
       const toastId = toast.loading('Đang tải thông tin người dùng...');
-      
-      // Gọi API để lấy thông tin chi tiết của người dùng
+
       const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       toast.dismiss(toastId);
-      
+
       if (!response.ok) {
         throw new Error(`Không thể lấy thông tin người dùng (${response.status})`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.success || data.statusCode === 200) {
-        // Tạo một modal hiển thị thông tin người dùng thay vì alert
         const userData = data.data;
         const userDetailHTML = `
           <div style="padding: 10px;">
@@ -886,9 +800,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
             ${userData?.isPremium ? '<p><strong>Trạng thái Premium:</strong> <span style="color: gold; font-weight: bold;">Premium</span></p>' : ''}
           </div>
         `;
-        
-        // Sử dụng thư viện sweetalert2 hoặc modal của bootstrap thay vì alert native
-        // Ở đây vẫn sử dụng alert tạm thời, nhưng đã format nội dung tốt hơn
+
         alert(userData?.fullName || userData?.fullname || 'Thông tin người dùng');
         const modalDiv = document.createElement('div');
         modalDiv.innerHTML = userDetailHTML;
@@ -909,7 +821,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
     setActiveTab(tab);
     fetchSubscriptions(tab);
   };
-  
+
   return (
     <>
       <Head>
@@ -931,7 +843,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
             </div>
           </div>
         </section>
-      
+
         {/* Token debug info */}
         {tokenInfo && (
           <div className="container-fluid mb-3">
@@ -943,7 +855,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                 {tokenInfo.expired ? (
                   <div>
                     <p className="text-danger">Token has expired!</p>
-                    <button 
+                    <button
                       className="btn btn-danger"
                       onClick={handleReLogin}
                     >
@@ -955,16 +867,16 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                 ) : (
                   <p className="text-danger">{tokenInfo.message}</p>
                 )}
-                <button 
-                  className="btn btn-sm btn-primary ml-2" 
+                <button
+                  className="btn btn-sm btn-primary ml-2"
                   onClick={() => {
                     // Copy token between authToken and auth_token
                     const authToken = localStorage.getItem('authToken');
                     const auth_token = localStorage.getItem('auth_token');
-                    
+
                     if (authToken) localStorage.setItem('auth_token', authToken);
                     if (auth_token) localStorage.setItem('authToken', auth_token);
-                    
+
                     window.location.reload();
                   }}
                 >
@@ -974,19 +886,18 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
             </div>
           </div>
         )}
-      
+
         <section className="content">
           <div className="container-fluid">
             <div className="card">
               <div className="card-header p-0 d-flex justify-content-between align-items-center">
                 <ul className="nav nav-tabs">
                   <li className="nav-item">
-                    <button 
-                      className={`nav-link ${activeTab === 'pending' ? 'active' : ''}`} 
+                    <button
+                      className={`nav-link ${activeTab === 'pending' ? 'active' : ''}`}
                       onClick={() => handleTabChange('pending')}
                     >
                       Chờ duyệt
-                      {/* Hiển thị badge số lượng nếu có đăng ký chờ duyệt */}
                       {activeTab !== 'pending' && subscriptions.some(sub => sub.paymentStatus === 'pending') && (
                         <span className="badge badge-pill badge-danger ml-1">
                           {subscriptions.filter(sub => sub.paymentStatus === 'pending').length}
@@ -995,15 +906,15 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                     </button>
                   </li>
                   <li className="nav-item">
-                    <button 
-                      className={`nav-link ${activeTab === 'approved' ? 'active' : ''}`} 
+                    <button
+                      className={`nav-link ${activeTab === 'approved' ? 'active' : ''}`}
                       onClick={() => handleTabChange('approved')}
                     >
                       Đã duyệt
                     </button>
                   </li>
                   <li className="nav-item">
-                    <button 
+                    <button
                       className={`nav-link ${activeTab === 'rejected' ? 'active' : ''}`}
                       onClick={() => handleTabChange('rejected')}
                     >
@@ -1012,13 +923,12 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                   </li>
                 </ul>
                 <div className="d-flex align-items-center">
-                  {/* Nếu đang có thao tác xử lý, hiển thị loading spinner nhỏ */}
                   {actionInProgress && (
                     <div className="spinner-border spinner-border-sm text-primary mr-2" role="status">
                       <span className="sr-only">Loading...</span>
                     </div>
                   )}
-                  <button 
+                  <button
                     className="btn btn-outline-primary mr-2"
                     onClick={() => fetchSubscriptions(activeTab)}
                     disabled={loading || actionInProgress}
@@ -1027,7 +937,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                   </button>
                 </div>
               </div>
-            
+
               <div className="card-body">
                 {loading ? (
                   <div className="d-flex flex-column align-items-center justify-content-center py-5">
@@ -1046,7 +956,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                       </svg>
                       <p className="mb-0">{error}</p>
                     </div>
-                    <button 
+                    <button
                       className="btn btn-outline-primary mt-2"
                       onClick={() => fetchSubscriptions(activeTab)}
                     >
@@ -1065,7 +975,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                       {activeTab === 'approved' && 'Không có đăng ký Premium nào đã được duyệt'}
                       {activeTab === 'rejected' && 'Không có đăng ký Premium nào đã bị từ chối'}
                     </p>
-                    <button 
+                    <button
                       className="btn btn-outline-primary mt-2"
                       onClick={() => fetchSubscriptions(activeTab)}
                       disabled={loading}
@@ -1081,13 +991,13 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                         {activeTab === 'approved' && <FaCheckCircle className="mr-2" color="#28a745" />}
                         {activeTab === 'rejected' && <FaTimesCircle className="mr-2" color="#dc3545" />}
                         Đang hiển thị {subscriptions.length} đăng ký {
-                          activeTab === 'pending' ? 'đang chờ duyệt' : 
+                          activeTab === 'pending' ? 'đang chờ duyệt' :
                           activeTab === 'approved' ? 'đã được duyệt' : 'đã bị từ chối'
                         }
                       </div>
                     </div>
                     {subscriptions.map(subscription => (
-                      <SubscriptionItem 
+                      <SubscriptionItem
                         key={subscription.id}
                         subscription={subscription}
                         onApprove={handleApproveSubscription}

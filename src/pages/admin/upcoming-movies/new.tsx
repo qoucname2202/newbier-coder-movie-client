@@ -14,16 +14,14 @@ const AddUpcomingMoviePage: React.FC = () => {
   const handleCreateUpcomingMovie = async (formData: Partial<UpcomingMovie>) => {
     setIsSubmitting(true);
     setError(null);
-    console.log("Form Data to Submit:", formData);
-    
+
     try {
       const response = await createUpcomingMovie(formData);
-      console.log("New upcoming movie created:", response.data);
       alert('Phim sắp ra mắt đã được tạo thành công!');
       router.push('/admin/upcoming-movies');
     } catch (error: any) {
       console.error("Error creating upcoming movie:", error);
-      
+
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else {
@@ -42,7 +40,7 @@ const AddUpcomingMoviePage: React.FC = () => {
             <h1>Thêm Phim Sắp Ra Mắt</h1>
           </div>
         </section>
-        
+
         <section className="content">
           <div className="container-fluid">
             {error && (
@@ -50,14 +48,14 @@ const AddUpcomingMoviePage: React.FC = () => {
                 {error}
               </Alert>
             )}
-            
+
             <div className="card card-primary">
               <div className="card-header">
                 <h3 className="card-title">Nhập thông tin phim sắp ra mắt</h3>
               </div>
-              <UpcomingMovieForm 
-                onSubmit={handleCreateUpcomingMovie} 
-                isSubmitting={isSubmitting} 
+              <UpcomingMovieForm
+                onSubmit={handleCreateUpcomingMovie}
+                isSubmitting={isSubmitting}
                 onCancel={() => router.push('/admin/upcoming-movies')}
               />
             </div>

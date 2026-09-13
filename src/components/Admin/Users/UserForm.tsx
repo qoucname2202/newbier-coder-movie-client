@@ -6,7 +6,6 @@ import { FaSave, FaTimes, FaUser, FaEnvelope, FaLock, FaIdCard, FaUserTag, FaUse
 // Default avatar path
 const DEFAULT_AVATAR = '/img/avatar.png';
 
-// Mở rộng interface UserForAdmin để hỗ trợ avatar
 interface ExtendedUserForAdmin extends Omit<UserForAdmin, 'role' | 'accountType'> {
   avatar?: string;
   role: string | { _id: string; name: string };
@@ -35,14 +34,14 @@ interface FormData {
   avatarPreview: string | null;
 }
 
-const UserForm: React.FC<UserFormProps> = ({ 
-  show, 
-  user, 
-  mode, 
-  roles, 
+const UserForm: React.FC<UserFormProps> = ({
+  show,
+  user,
+  mode,
+  roles,
   accountTypes,
-  onClose, 
-  onSave 
+  onClose,
+  onSave
 }) => {
   const initialFormData: FormData = {
     fullname: '',
@@ -64,7 +63,7 @@ const UserForm: React.FC<UserFormProps> = ({
     password: false,
     confirmPassword: false
   });
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -72,7 +71,7 @@ const UserForm: React.FC<UserFormProps> = ({
       // When editing an existing user, prefill the form
       const roleId = typeof user.role === 'string' ? user.role : user.role?._id || '';
       const accountTypeId = typeof user.accountType === 'string' ? user.accountType : user.accountType?._id || '';
-      
+
       setFormData({
         fullname: user.fullname || '',
         email: user.email || '',
@@ -93,7 +92,7 @@ const UserForm: React.FC<UserFormProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear error when field is changed
     if (errors[name]) {
       setErrors(prev => {
@@ -121,8 +120,7 @@ const UserForm: React.FC<UserFormProps> = ({
     if (!file) {
       return;
     }
-    
-    // Kiểm tra kích thước file (giới hạn 5MB)
+
     if (file.size > 5 * 1024 * 1024) {
       setErrors(prev => ({
         ...prev,
@@ -130,8 +128,7 @@ const UserForm: React.FC<UserFormProps> = ({
       }));
       return;
     }
-    
-    // Kiểm tra định dạng file
+
     if (!file.type.startsWith('image/')) {
       setErrors(prev => ({
         ...prev,
@@ -139,17 +136,15 @@ const UserForm: React.FC<UserFormProps> = ({
       }));
       return;
     }
-    
-    // Tạo URL xem trước
+
     const previewUrl = URL.createObjectURL(file);
-    
+
     setFormData(prev => ({
       ...prev,
       avatarFile: file,
       avatarPreview: previewUrl
     }));
-    
-    // Xóa lỗi avatar nếu có
+
     if (errors.avatar) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -175,18 +170,18 @@ const UserForm: React.FC<UserFormProps> = ({
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     // Validate required fields
     if (!formData.fullname.trim()) {
       newErrors.fullname = 'Họ tên là bắt buộc';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email là bắt buộc';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email không hợp lệ';
     }
-    
+
     // Password only required for new users
     if (mode === 'create') {
       if (!formData.password) {
@@ -194,7 +189,7 @@ const UserForm: React.FC<UserFormProps> = ({
       } else if (formData.password.length < 6) {
         newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
       }
-      
+
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
       }
@@ -203,40 +198,35 @@ const UserForm: React.FC<UserFormProps> = ({
     } else if (formData.password && formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp';
     }
-    
+
     if (!formData.role) {
       newErrors.role = 'Vai trò là bắt buộc';
     }
-    
+
     if (!formData.accountType) {
       newErrors.accountType = 'Loại tài khoản là bắt buộc';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     try {
       let avatarUrl: string | undefined = undefined;
-      
-      // Upload avatar nếu có file mới
+
       if (formData.avatarFile && mode === 'edit' && user) {
         setIsUploading(true);
         try {
-          console.log('Uploading avatar for user:', user._id);
-          // Nếu đang chỉnh sửa người dùng, gọi API admin để upload avatar
           const response = await uploadUserAvatar(user._id, formData.avatarFile);
-          
-          console.log('Upload avatar response:', response);
+
           if (response.success) {
             avatarUrl = response.avatarUrl;
-            console.log('Avatar uploaded successfully, URL:', avatarUrl);
           }
         } catch (error) {
           console.error('Upload avatar error:', error);
@@ -261,7 +251,7 @@ const UserForm: React.FC<UserFormProps> = ({
           accountType: string;
           isActive: boolean;
         }
-        
+
         const userData: UserCreateData = {
           fullname: formData.fullname,
           email: formData.email,
@@ -282,25 +272,25 @@ const UserForm: React.FC<UserFormProps> = ({
           accountType: formData.accountType,
           isActive: formData.isActive
         };
-        
+
         // Only include password if provided
         if (formData.password) {
           updateData.password = formData.password;
         }
-        
+
         // Only include avatar if it was uploaded successfully
         if (avatarUrl) {
           updateData.avatar = avatarUrl;
         }
-        
+
         // If using default avatar
         if (formData.avatarPreview === DEFAULT_AVATAR && !avatarUrl) {
           updateData.avatar = DEFAULT_AVATAR;
         }
-        
+
         await updateUserByAdmin(user._id, updateData);
       }
-      
+
       onSave();
     } catch (error: any) {
       setErrors({ submit: error.message || 'Có lỗi xảy ra khi lưu người dùng' });
@@ -323,15 +313,15 @@ const UserForm: React.FC<UserFormProps> = ({
                 <><FaUserCog className="me-2" /> Chỉnh sửa người dùng</>
               )}
             </h5>
-            <button 
-              type="button" 
-              className="btn-close btn-close-white" 
-              onClick={onClose} 
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              onClick={onClose}
               disabled={isSubmitting}
               aria-label="Close"
             ></button>
           </div>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="modal-body">
               {errors.submit && (
@@ -339,19 +329,19 @@ const UserForm: React.FC<UserFormProps> = ({
                   {errors.submit}
                 </div>
               )}
-              
+
               {/* Avatar upload section */}
               <div className="row mb-4 justify-content-center">
                 <div className="col-12 text-center">
                   <div className="avatar-upload-container">
                     <div className="avatar-preview">
-                      <img 
-                        src={formData.avatarPreview || DEFAULT_AVATAR} 
-                        alt="User Avatar" 
+                      <img
+                        src={formData.avatarPreview || DEFAULT_AVATAR}
+                        alt="User Avatar"
                         className="avatar-image"
-                        onError={(e) => { 
+                        onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = DEFAULT_AVATAR; 
+                          target.src = DEFAULT_AVATAR;
                         }}
                       />
                       {isUploading && (
@@ -362,10 +352,10 @@ const UserForm: React.FC<UserFormProps> = ({
                         </div>
                       )}
                     </div>
-                    
+
                     <div className="avatar-actions mt-2">
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className="btn btn-sm btn-outline-primary me-2"
                         onClick={triggerFileInput}
                         disabled={isSubmitting || isUploading}
@@ -380,10 +370,10 @@ const UserForm: React.FC<UserFormProps> = ({
                       >
                         <FaImage className="me-1" /> Mặc định
                       </button>
-                      
-                      <input 
-                        type="file" 
-                        id="avatar" 
+
+                      <input
+                        type="file"
+                        id="avatar"
                         name="avatar"
                         ref={fileInputRef}
                         accept="image/*"
@@ -393,7 +383,7 @@ const UserForm: React.FC<UserFormProps> = ({
                         className="d-none"
                       />
                     </div>
-                    
+
                     {errors.avatar && (
                       <div className="text-danger mt-1 small">
                         {errors.avatar}
@@ -401,7 +391,7 @@ const UserForm: React.FC<UserFormProps> = ({
                     )}
                   </div>
                 </div>
-              </div>              
+              </div>
               {/* User Information Fields */}
               <div className="row mb-3">
                 <div className="col-md-6 mb-3 mb-md-0">
@@ -424,7 +414,7 @@ const UserForm: React.FC<UserFormProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 <div className="col-md-6">
                   <div className="form-group">
                     <label htmlFor="email" className="form-label">
@@ -446,13 +436,13 @@ const UserForm: React.FC<UserFormProps> = ({
                   </div>
                 </div>
               </div>
-              
+
               <div className="row mb-3">
                 <div className="col-md-6 mb-3 mb-md-0">
                   <div className="form-group">
                     <label htmlFor="password" className="form-label">
                       <FaLock className="icon-form me-2" />
-                      {mode === 'create' ? 'Mật khẩu' : 'Mật khẩu (để trống nếu không đổi)'} 
+                      {mode === 'create' ? 'Mật khẩu' : 'Mật khẩu (để trống nếu không đổi)'}
                       {mode === 'create' && <span className="text-danger">*</span>}
                     </label>
                     <div className="input-group">
@@ -466,8 +456,8 @@ const UserForm: React.FC<UserFormProps> = ({
                         onChange={handleInputChange}
                         disabled={isSubmitting}
                       />
-                      <button 
-                        className="btn btn-outline-secondary" 
+                      <button
+                        className="btn btn-outline-secondary"
                         type="button"
                         onClick={() => togglePasswordVisibility('password')}
                       >
@@ -482,7 +472,7 @@ const UserForm: React.FC<UserFormProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 <div className="col-md-6">
                   <div className="form-group">
                     <label htmlFor="confirmPassword" className="form-label">
@@ -500,8 +490,8 @@ const UserForm: React.FC<UserFormProps> = ({
                         onChange={handleInputChange}
                         disabled={isSubmitting}
                       />
-                      <button 
-                        className="btn btn-outline-secondary" 
+                      <button
+                        className="btn btn-outline-secondary"
                         type="button"
                         onClick={() => togglePasswordVisibility('confirmPassword')}
                       >
@@ -514,7 +504,7 @@ const UserForm: React.FC<UserFormProps> = ({
                   </div>
                 </div>
               </div>
-              
+
               <div className="row mb-3">
                 <div className="col-md-6 mb-3 mb-md-0">
                   <div className="form-group">
@@ -539,7 +529,7 @@ const UserForm: React.FC<UserFormProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 <div className="col-md-6">
                   <div className="form-group">
                     <label htmlFor="accountType" className="form-label">
@@ -564,7 +554,7 @@ const UserForm: React.FC<UserFormProps> = ({
                   </div>
                 </div>
               </div>
-              
+
               <div className="row mb-3">
                 <div className="col-12">
                   <div className="form-check form-switch">
@@ -588,7 +578,7 @@ const UserForm: React.FC<UserFormProps> = ({
                 </div>
               </div>
             </div>
-            
+
             <div className="modal-footer">
               <button
                 type="button"
@@ -623,13 +613,13 @@ const UserForm: React.FC<UserFormProps> = ({
           overflow-x: hidden;
           overflow-y: auto;
         }
-        
+
         .modal-dialog {
           width: 100%;
           max-width: 600px;
           margin: 1.75rem auto;
         }
-        
+
         .modal-content {
           position: relative;
           display: flex;
@@ -639,7 +629,7 @@ const UserForm: React.FC<UserFormProps> = ({
           border-radius: 0.3rem;
           box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
         }
-        
+
         .modal-header {
           display: flex;
           align-items: center;
@@ -650,14 +640,14 @@ const UserForm: React.FC<UserFormProps> = ({
           border-top-right-radius: 0.3rem;
           color: white;
         }
-        
+
         .modal-title {
           margin: 0;
           line-height: 1.5;
           font-size: 1.25rem;
           font-weight: 500;
         }
-        
+
         .modal-body {
           position: relative;
           flex: 1 1 auto;
@@ -665,21 +655,21 @@ const UserForm: React.FC<UserFormProps> = ({
           max-height: 70vh;
           overflow-y: auto;
         }
-        
+
         /* Add styles for labels */
         .form-label {
           color: #212529;
           font-weight: 500;
         }
-        
+
         .icon-form {
           color: #0d6efd;
         }
-        
+
         .form-check-label {
           color: #212529;
         }
-        
+
         .modal-footer {
           display: flex;
           align-items: center;
@@ -689,13 +679,13 @@ const UserForm: React.FC<UserFormProps> = ({
           border-bottom-right-radius: 0.3rem;
           border-bottom-left-radius: 0.3rem;
         }
-        
+
         .avatar-upload-container {
           display: flex;
           flex-direction: column;
           align-items: center;
         }
-        
+
         .avatar-preview {
           position: relative;
           width: 120px;
@@ -706,14 +696,14 @@ const UserForm: React.FC<UserFormProps> = ({
           border: 3px solid #fff;
           box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
         }
-        
+
         .avatar-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
           object-position: center;
         }
-        
+
         .avatar-uploading {
           position: absolute;
           top: 0;
@@ -725,7 +715,7 @@ const UserForm: React.FC<UserFormProps> = ({
           justify-content: center;
           align-items: center;
         }
-        
+
         .icon-form {
           opacity: 0.7;
         }

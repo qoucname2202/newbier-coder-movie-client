@@ -22,11 +22,9 @@ export function WatchLaterContent({ inProfilePage = true }) {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching watch later list...');
-      
+
       const data = await watchLaterService.getWatchLaterList();
-      console.log('Watch later data:', data);
-      
+
       setWatchLaterList(data || []);
     } catch (error) {
       console.error('Error in fetchWatchLaterList:', error);
@@ -53,30 +51,26 @@ export function WatchLaterContent({ inProfilePage = true }) {
   const handleRemoveWatchLater = async (movieId) => {
     try {
       setIsDeleting(true);
-      console.log('[WATCH_LATER] Removing movie:', movieId);
-      
-      // Xóa phim khỏi state ngay lập tức để tạo UX mượt mà
+
       setWatchLaterList(prevList => prevList.filter(m => m.id !== movieId));
-      
+
       const result = await watchLaterService.removeFromWatchLater(movieId);
-      
+
       if (result.success) {
         toast.success('Đã xóa phim khỏi danh sách xem sau!');
       } else {
-        // Nếu lỗi, hiện thông báo và thêm lại phim vào danh sách
         toast.error(result.message || 'Không thể xóa phim khỏi danh sách xem sau');
-        fetchWatchLaterList(); // Tải lại danh sách để phục hồi trạng thái
+        fetchWatchLaterList();
       }
     } catch (error) {
       console.error('[WATCH_LATER] Error removing movie:', error);
       toast.error('Có lỗi xảy ra khi xóa phim khỏi danh sách xem sau');
-      fetchWatchLaterList(); // Tải lại danh sách để phục hồi trạng thái
+      fetchWatchLaterList();
     } finally {
       setIsDeleting(false);
     }
   };
 
-  // Lọc phim theo loại (tất cả, phim lẻ, phim bộ)
   const filteredWatchLater = watchLaterList.filter(movie => {
     if (activeFilter === 'all') return true;
     if (activeFilter === 'movie') return movie.type === 'movie' || movie.type === 'single';
@@ -92,7 +86,7 @@ export function WatchLaterContent({ inProfilePage = true }) {
           <h2>Xem sau</h2>
         </div>
         <div className="action-buttons">
-          <button 
+          <button
             className="action-btn refresh-btn"
             onClick={handleRefresh}
             disabled={refreshing}
@@ -103,19 +97,19 @@ export function WatchLaterContent({ inProfilePage = true }) {
       </div>
 
       <div className="filter-buttons">
-        <button 
+        <button
           className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
           onClick={() => setActiveFilter('all')}
         >
           Tất cả
         </button>
-        <button 
+        <button
           className={`filter-btn ${activeFilter === 'movie' ? 'active' : ''}`}
           onClick={() => setActiveFilter('movie')}
         >
           Phim lẻ
         </button>
-        <button 
+        <button
           className={`filter-btn ${activeFilter === 'series' ? 'active' : ''}`}
           onClick={() => setActiveFilter('series')}
         >
@@ -155,8 +149,8 @@ export function WatchLaterContent({ inProfilePage = true }) {
           {filteredWatchLater.map((movie) => (
             <div key={movie.id} className="movie-card">
               <div className="movie-poster">
-                <img 
-                  src={movie.thumbnail} 
+                <img
+                  src={movie.thumbnail}
                   alt={movie.title}
                   onError={(e) => {
                     e.target.onerror = null;
@@ -170,7 +164,7 @@ export function WatchLaterContent({ inProfilePage = true }) {
                         <FaPlay className="play-icon" />
                       </div>
                     </Link>
-                    <button 
+                    <button
                       className="movie-button remove"
                       onClick={() => handleRemoveWatchLater(movie.id)}
                       disabled={isDeleting}
@@ -205,37 +199,37 @@ export function WatchLaterContent({ inProfilePage = true }) {
           width: 100%;
           padding: 10px 0;
         }
-        
+
         .watch-later-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
         }
-        
+
         .watch-later-title {
           display: flex;
           align-items: center;
           gap: 10px;
         }
-        
+
         .watch-later-icon {
           color: #e50914;
           font-size: 24px;
         }
-        
+
         .watch-later-title h2 {
           font-size: 24px;
           font-weight: 600;
           margin: 0;
           color: #fff;
         }
-        
+
         .action-buttons {
           display: flex;
           gap: 10px;
         }
-        
+
         .action-btn {
           padding: 10px 15px;
           border: none;
@@ -247,22 +241,22 @@ export function WatchLaterContent({ inProfilePage = true }) {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        
+
         .refresh-btn {
           background-color: rgba(255, 255, 255, 0.1);
           color: #fff;
         }
-        
+
         .refresh-btn:hover {
           background-color: rgba(255, 255, 255, 0.2);
         }
-        
+
         .filter-buttons {
           display: flex;
           gap: 10px;
           margin-bottom: 20px;
         }
-        
+
         .filter-btn {
           padding: 8px 16px;
           border: 1px solid rgba(255, 255, 255, 0.2);
@@ -272,16 +266,16 @@ export function WatchLaterContent({ inProfilePage = true }) {
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        
+
         .filter-btn:hover {
           background: rgba(255, 255, 255, 0.1);
         }
-        
+
         .filter-btn.active {
           background: #e50914;
           border-color: #e50914;
         }
-        
+
         .loading-state {
           display: flex;
           flex-direction: column;
@@ -289,7 +283,7 @@ export function WatchLaterContent({ inProfilePage = true }) {
           justify-content: center;
           padding: 60px 20px;
         }
-        
+
         .loading-spinner {
           width: 40px;
           height: 40px;
@@ -299,32 +293,32 @@ export function WatchLaterContent({ inProfilePage = true }) {
           animation: spin 1s linear infinite;
           margin-bottom: 15px;
         }
-        
+
         .error-state, .empty-state {
           text-align: center;
           padding: 50px 20px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 12px;
         }
-        
+
         .error-icon, .empty-icon {
           font-size: 60px;
           color: rgba(255, 255, 255, 0.2);
           margin-bottom: 20px;
         }
-        
+
         .empty-state h3 {
           font-size: 24px;
           margin-bottom: 10px;
           color: #fff;
         }
-        
+
         .empty-state p {
           font-size: 16px;
           color: #aaa;
           margin-bottom: 20px;
         }
-        
+
         .action-button {
           background: #e50914;
           color: #fff;
@@ -339,35 +333,35 @@ export function WatchLaterContent({ inProfilePage = true }) {
           gap: 8px;
           text-decoration: none;
         }
-        
+
         .action-button:hover {
           background: #b80710;
         }
-        
+
         .watch-later-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
           gap: 20px;
         }
-        
+
         .movie-card {
           background: rgba(255, 255, 255, 0.05);
           border-radius: 10px;
           overflow: hidden;
           transition: all 0.3s ease;
         }
-        
+
         .movie-card:hover {
           transform: translateY(-5px);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
-        
+
         .movie-poster {
           position: relative;
           padding-top: 150%; /* Aspect ratio 2:3 */
           overflow: hidden;
         }
-        
+
         .movie-poster img {
           position: absolute;
           top: 0;
@@ -377,11 +371,11 @@ export function WatchLaterContent({ inProfilePage = true }) {
           object-fit: cover;
           transition: transform 0.3s ease;
         }
-        
+
         .movie-card:hover .movie-poster img {
           transform: scale(1.05);
         }
-        
+
         .movie-overlay {
           position: absolute;
           top: 0;
@@ -395,11 +389,11 @@ export function WatchLaterContent({ inProfilePage = true }) {
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        
+
         .movie-card:hover .movie-overlay {
           opacity: 1;
         }
-        
+
         .movie-actions {
           display: flex;
           flex-direction: column;
@@ -407,7 +401,7 @@ export function WatchLaterContent({ inProfilePage = true }) {
           align-items: center;
           gap: 15px;
         }
-        
+
         .movie-button {
           width: 45px;
           height: 45px;
@@ -424,19 +418,19 @@ export function WatchLaterContent({ inProfilePage = true }) {
           background-color: rgba(255, 255, 255, 0.9);
           color: #000;
         }
-        
+
         .movie-card:hover .movie-button {
           opacity: 1;
           transform: scale(1);
           transition: all 0.3s ease;
         }
-        
+
         .movie-button.play {
           text-decoration: none;
           background-color: rgba(255, 255, 255, 0.9);
           color: #FFFFFF;
         }
-        
+
         .play-circle {
           display: flex;
           align-items: center;
@@ -450,33 +444,33 @@ export function WatchLaterContent({ inProfilePage = true }) {
           background-color: rgba(255, 255, 255, 0.9);
             transform: scale(1.1);
         }
-        
+
         .play-icon {
           font-size: 16px;
           background-color: rgba(255, 255, 255, 0.9);
-          margin-left: 2px; 
+          margin-left: 2px;
           color:rgb(63, 52, 52);
         }
-        
+
         .movie-button.play:hover {
           transform: scale(1.1);
           background-color: #FFFFFF;
         }
-        
+
         .movie-button.remove {
           background-color: rgba(255, 255, 255, 0.41);
         }
-        
+
         .remove-icon {
           font-size: 16px;
           color: #000;
         }
-        
+
         .movie-button.remove:hover {
           transform: scale(1.1);
           background-color: #fff;
         }
-        
+
         .movie-rating {
           position: absolute;
           top: 10px;
@@ -490,7 +484,7 @@ export function WatchLaterContent({ inProfilePage = true }) {
           align-items: center;
           gap: 4px;
         }
-        
+
         .movie-quality {
           position: absolute;
           top: 10px;
@@ -501,7 +495,7 @@ export function WatchLaterContent({ inProfilePage = true }) {
           border-radius: 4px;
           font-size: 12px;
         }
-        
+
         .movie-title {
           padding: 12px 12px 5px;
           margin: 0;
@@ -511,7 +505,7 @@ export function WatchLaterContent({ inProfilePage = true }) {
           text-overflow: ellipsis;
           color: #fff;
         }
-        
+
         .movie-meta {
           padding: 0 12px 15px;
           display: flex;
@@ -519,47 +513,47 @@ export function WatchLaterContent({ inProfilePage = true }) {
           color: #aaa;
           font-size: 13px;
         }
-        
+
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        
+
         .spin {
           animation: spin 1s linear infinite;
         }
-        
+
         @media (max-width: 768px) {
           .watch-later-grid {
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
           }
-          
+
           .filter-buttons {
             flex-wrap: wrap;
           }
         }
-        
+
         @media (max-width: 576px) {
           .watch-later-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
           }
-          
+
           .movie-title {
             font-size: 14px;
           }
-          
+
           .movie-meta {
             font-size: 12px;
           }
-          
+
           .watch-later-header {
             flex-direction: column;
             align-items: flex-start;
             gap: 15px;
           }
-          
+
           .action-buttons {
             width: 100%;
             justify-content: space-between;

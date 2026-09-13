@@ -14,7 +14,6 @@ import {
 } from 'react-icons/fa';
 import styles from '@/styles/AdminDashboard.module.css';
 
-// Định nghĩa kiểu dữ liệu cho feedback
 interface Feedback {
   _id: string;
   name: string;
@@ -44,22 +43,19 @@ interface FeedbackStats {
 
 const FeedbackPage = () => {
   const router = useRouter();
-  
-  // State cho dữ liệu và phân trang
+
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalFeedback, setTotalFeedback] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<string>('all');
-  
-  // State cho bộ lọc và sắp xếp
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [sortField, setSortField] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<string>('desc');
-  
-  // State cho thống kê
+
   const [stats, setStats] = useState<FeedbackStats>({
     pending: 0,
     processed: 0,
@@ -68,14 +64,12 @@ const FeedbackPage = () => {
     total: 0
   });
 
-  // State cho xóa feedback
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [feedbackToDelete, setFeedbackToDelete] = useState<string | null>(null);
   const [deleteInProgress, setDeleteInProgress] = useState<boolean>(false);
 
-  // State cho cập nhật trạng thái
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-  
+
   // State cho toast notification
   const [toast, setToast] = useState<{
     show: boolean;
@@ -85,66 +79,56 @@ const FeedbackPage = () => {
     show: false,
     message: '',
     type: 'info'
-  });  // Hàm để lấy URL ảnh đại diện người dùng
+  });
   const getAvatarUrl = (user: any) => {
-    // Luôn trả về một URL avatar hợp lệ
     const defaultAvatar = '/img/avatar.png';
-    
-    // Nếu không có user hoặc không có avatar, trả về avatar mặc định
+
     if (!user || !user.avatar) return defaultAvatar;
-    
-    // Nếu avatar là đường dẫn mặc định, trả về đường dẫn mặc định
+
     if (user.avatar === '/img/avatar.png') {
       return defaultAvatar;
     }
-    
-    // Khi avatar là URL đầy đủ (http hoặc https)
+
     if (user.avatar.startsWith('http')) {
       return user.avatar;
     }
-    
-    // Xử lý URL tương đối - thêm tiền tố domain API
+
     const baseApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     const cleanBaseUrl = baseApiUrl.replace(/\/api$/, '');
-    
-    // Đảm bảo có đủ dấu / giữa baseUrl và đường dẫn avatar
+
     const avatarPath = user.avatar.startsWith('/') ? user.avatar : `/${user.avatar}`;
     return `${cleanBaseUrl}${avatarPath}`;
   };
 
   const ITEMS_PER_PAGE = 10;
-  // Fetch dữ liệu feedback
   const fetchFeedback = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('auth_token'); // hoặc 'token' tùy theo cách bạn lưu token
+      const token = localStorage.getItem('auth_token');
       if (!token) {
         router.push('/auth/login');
         return;
       }
-      
-      // Xây dựng tham số query
+
       const params: any = {
         page: currentPage,
         limit: ITEMS_PER_PAGE
       };
-      
+
       if (searchQuery) {
         params.search = searchQuery;
       }
-      
-      // Xử lý trạng thái dựa trên tab được chọn
+
       if (activeTab !== 'all') {
         params.status = activeTab;
       } else if (statusFilter) {
         params.status = statusFilter;
       }
-      
+
       if (sortField) {
         params.sortField = sortField;
         params.sortOrder = sortOrder;
       }
-        // Gọi API lấy danh sách feedback
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const response = await axios.get(`${baseUrl}/feedback`, {
         params,
@@ -164,17 +148,16 @@ const FeedbackPage = () => {
     }
   };
 
-  // Fetch thống kê feedback
   const fetchFeedbackStats = async () => {
     try {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
-      
+
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const response = await axios.get(`${baseUrl}/feedback/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       if (response.data.success) {
         setStats(response.data.data);
       }
@@ -183,15 +166,13 @@ const FeedbackPage = () => {
     }
   };
 
-  // Xử lý thay đổi trang
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Xử lý thay đổi bộ lọc
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     if (name === 'status') {
       setStatusFilter(value);
     } else if (name === 'search') {
@@ -199,7 +180,6 @@ const FeedbackPage = () => {
     }
   };
 
-  // Xử lý thay đổi sắp xếp
   const handleSortChange = (field: string) => {
     if (field === sortField) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -208,49 +188,41 @@ const FeedbackPage = () => {
       setSortOrder('desc');
     }
   };
-  // Xử lý áp dụng bộ lọc
   const applyFilters = () => {
     setCurrentPage(1);
     fetchFeedback();
   };
 
-  // Xử lý reset bộ lọc
   const resetFilters = () => {
     setSearchQuery('');
     setStatusFilter('');
     setCurrentPage(1);
   };
 
-  // Xử lý thay đổi tab
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     setCurrentPage(1);
     setStatusFilter('');
   };
 
-  // Xử lý xóa feedback
   const handleDeleteFeedback = async () => {
     if (!feedbackToDelete) return;
-    
+
     try {
       setDeleteInProgress(true);
       const token = localStorage.getItem('auth_token');
       if (!token) return;
-      
+
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const response = await axios.delete(`${baseUrl}/feedback/${feedbackToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
+
       if (response.data.success) {
-        // Cập nhật danh sách feedback sau khi xóa
         setFeedback(feedback.filter(item => item._id !== feedbackToDelete));
-        // Cập nhật thống kê
         fetchFeedbackStats();
-        // Đóng modal
         setShowDeleteModal(false);
         setFeedbackToDelete(null);
-        // Hiển thị thông báo thành công
         setToast({
           show: true,
           message: 'Xóa góp ý thành công',
@@ -270,40 +242,34 @@ const FeedbackPage = () => {
     }
   };
 
-  // Xử lý cập nhật trạng thái feedback
   const updateFeedbackStatus = async (id: string, newStatus: string) => {
     try {
       setUpdatingStatus(id);
       const token = localStorage.getItem('auth_token');
       if (!token) return;
-      
+
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const response = await axios.patch(`${baseUrl}/feedback/${id}`, 
+      const response = await axios.patch(`${baseUrl}/feedback/${id}`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       if (response.data.success) {
-        // Lấy thông tin feedback được cập nhật
         const updatedItem = feedback.find(item => item._id === id);
         const userName = updatedItem?.user?.fullName || updatedItem?.user?.name || updatedItem?.name || 'Người dùng';
-        
-        // Cập nhật dữ liệu feedback trong state
-        setFeedback(feedback.map(item => 
+
+        setFeedback(feedback.map(item =>
           item._id === id ? { ...item, status: newStatus as 'pending' | 'processed' | 'resolved' } : item
         ));
-        
-        // Cập nhật thống kê
+
         fetchFeedbackStats();
-        
-        // Hiển thị thông báo thành công
+
         setToast({
           show: true,
           message: `Góp ý của "${userName}" đã được cập nhật thành "${getStatusText(newStatus)}"`,
           type: 'success'
         });
-        
-        // Ẩn toast sau 3 giây
+
         setTimeout(() => {
           setToast({ show: false, message: '', type: 'info' });
         }, 3000);
@@ -315,8 +281,7 @@ const FeedbackPage = () => {
         message: 'Có lỗi xảy ra khi cập nhật trạng thái góp ý',
         type: 'error'
       });
-      
-      // Ẩn toast sau 3 giây
+
       setTimeout(() => {
         setToast({ show: false, message: '', type: 'info' });
       }, 3000);
@@ -325,7 +290,6 @@ const FeedbackPage = () => {
     }
   };
 
-  // Format thời gian hiển thị
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN', {
@@ -337,7 +301,6 @@ const FeedbackPage = () => {
     });
   };
 
-  // Hiển thị icon tương ứng với trạng thái
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
@@ -351,7 +314,6 @@ const FeedbackPage = () => {
     }
   };
 
-  // Hiển thị tên trạng thái
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending':
@@ -364,7 +326,6 @@ const FeedbackPage = () => {
         return 'Không xác định';
     }
   };
-  // Fetch dữ liệu khi component mount hoặc khi các dependencies thay đổi
   useEffect(() => {
     fetchFeedback();
     fetchFeedbackStats();
@@ -408,9 +369,9 @@ const FeedbackPage = () => {
             {/* Tab Navigation */}
             <ul className="tab-navigation">
               <li>
-                <a 
-                  href="#" 
-                  className={activeTab === 'all' ? 'active' : ''} 
+                <a
+                  href="#"
+                  className={activeTab === 'all' ? 'active' : ''}
                   onClick={(e) => {
                     e.preventDefault();
                     handleTabChange('all');
@@ -421,9 +382,9 @@ const FeedbackPage = () => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
-                  className={activeTab === 'pending' ? 'active' : ''} 
+                <a
+                  href="#"
+                  className={activeTab === 'pending' ? 'active' : ''}
                   onClick={(e) => {
                     e.preventDefault();
                     handleTabChange('pending');
@@ -434,9 +395,9 @@ const FeedbackPage = () => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
-                  className={activeTab === 'processed' ? 'active' : ''} 
+                <a
+                  href="#"
+                  className={activeTab === 'processed' ? 'active' : ''}
                   onClick={(e) => {
                     e.preventDefault();
                     handleTabChange('processed');
@@ -447,9 +408,9 @@ const FeedbackPage = () => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
-                  className={activeTab === 'resolved' ? 'active' : ''} 
+                <a
+                  href="#"
+                  className={activeTab === 'resolved' ? 'active' : ''}
                   onClick={(e) => {
                     e.preventDefault();
                     handleTabChange('resolved');
@@ -475,20 +436,20 @@ const FeedbackPage = () => {
                   <FaSearch />
                 </button>
               </div>
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={applyFilters}
               >
                 <FaFilter className="me-2" /> Lọc
               </button>
-              <button 
+              <button
                 className="btn btn-outline-secondary"
                 onClick={resetFilters}
               >
                 <FaTimes className="me-2" /> Đặt lại
               </button>
             </div>
-            
+
             {/* Feedback List */}
             <div className="card">
               <div className="card-header bg-gradient-light">
@@ -502,7 +463,7 @@ const FeedbackPage = () => {
                   <span className="badge badge-dark">{feedback.length} / {totalFeedback} góp ý</span>
                 </div>
               </div>
-              
+
               {/* Card view for mobile and grid view */}
               <div className="card-body d-block d-md-none">
                 {loading ? (
@@ -513,17 +474,17 @@ const FeedbackPage = () => {
                   </div>
                 ) : feedback.length > 0 ? (
                   <div className="feedback-cards">
-                    {feedback.map((item) => (                      <div 
-                        key={item._id} 
+                    {feedback.map((item) => (                      <div
+                        key={item._id}
                         className={`feedback-card mb-4 ${!item.isRead ? 'border-left-danger' : ''}`}
                       >                        <div className="card-header d-flex justify-content-between align-items-center">
                           <h5 className="m-0 text-truncate movie-subject">Góp ý từ người dùng</h5>
                           {!item.isRead && <span className="badge badge-danger">Mới</span>}
                         </div>
-                        <div className="card-body">                          
+                        <div className="card-body">
                           <div className="user-info-container">
-                            <img 
-                              src={getAvatarUrl(item.user)} 
+                            <img
+                              src={getAvatarUrl(item.user)}
                               alt={`Avatar của ${item.name}`}
                               title={`${item.user?.fullName || item.user?.name || item.name}`}
                               className="avatar-image"
@@ -540,19 +501,19 @@ const FeedbackPage = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="message-preview mb-3">
                             <p className="text-muted mb-1">
-                              {item.message.length > 120 
-                                ? `${item.message.substring(0, 120)}...` 
+                              {item.message.length > 120
+                                ? `${item.message.substring(0, 120)}...`
                                 : item.message}
                             </p>
                           </div>
-                          
-                          <div className="card-meta">                            
+
+                          <div className="card-meta">
                             <span className={`badge ${
-                              item.status === 'pending' ? 'badge-warning' : 
-                              item.status === 'processed' ? 'badge-primary' : 
+                              item.status === 'pending' ? 'badge-warning' :
+                              item.status === 'processed' ? 'badge-primary' :
                               'badge-success'
                             }`}>
                               {getStatusText(item.status)}
@@ -562,7 +523,7 @@ const FeedbackPage = () => {
                             </div>
                           </div>                          <div className="status-actions mt-2 mb-3">
                             <Link href={`/admin/feedback/detail/${item._id}`} legacyBehavior>
-                              <a 
+                              <a
                                 className="btn btn-sm btn-secondary"
                                 onClick={(e) => e.stopPropagation()}
                               >
@@ -597,15 +558,15 @@ const FeedbackPage = () => {
                   </div>
                 )}
               </div>
-              
+
               {/* Table view for desktop */}              <div className="card-body p-0 d-none d-md-block">
                 <div className="table-responsive">
-                  <table className="table table-hover">                    
-                    <thead>                      
+                  <table className="table table-hover">
+                    <thead>
                       <tr>
                         <th className="cell-w-xs text-center" style={{width: "40px"}}>
                           <input type="checkbox" className="form-check-input table-check" />
-                        </th>                          
+                        </th>
                         <th className="cursor-pointer cell-w-md" onClick={() => handleSortChange('name')}>
                           <div className="d-flex align-items-center">
                             Người báo cáo
@@ -645,8 +606,8 @@ const FeedbackPage = () => {
                           </td>
                         </tr>
                       ) : feedback.length > 0 ? (
-                        feedback.map((item) => (                        <tr 
-                            key={item._id} 
+                        feedback.map((item) => (                        <tr
+                            key={item._id}
                             className={!item.isRead ? 'font-weight-bold' : ''}
                             style={{
                               boxShadow: !item.isRead ? 'inset 3px 0 0 #dc3545' : 'none',
@@ -654,10 +615,10 @@ const FeedbackPage = () => {
                             }}
                           >                            <td className="text-center">
                               <input type="checkbox" className="form-check-input table-check" />
-                            </td>                            
+                            </td>
                             <td className="cell-w-md">                              <div className="reporter-info-compact">
-                                <img 
-                                  src={getAvatarUrl(item.user)} 
+                                <img
+                                  src={getAvatarUrl(item.user)}
                                   alt={`Avatar của ${item.user?.fullName || item.user?.name || item.name}`}
                                   title={`${item.user?.fullName || item.user?.name || item.name}`}
                                   className="avatar-image-xs"
@@ -676,16 +637,16 @@ const FeedbackPage = () => {
                                   </span>
                                 </div>
                               </div>
-                            </td>                            
+                            </td>
                             <td className="text-truncate cell-w-lg">
                               <span className="message-preview-table">
                                 {item.message.substring(0, 200)}
                               </span>
-                            </td>                           
+                            </td>
                             <td>
                               <span className={`badge ${
-                                item.status === 'pending' ? 'badge-warning' : 
-                                item.status === 'processed' ? 'badge-primary' : 
+                                item.status === 'pending' ? 'badge-warning' :
+                                item.status === 'processed' ? 'badge-primary' :
                                 'badge-success'
                               }`}>
                                 {getStatusText(item.status)}
@@ -752,9 +713,9 @@ const FeedbackPage = () => {
                   {totalPages > 1 && (
                     <ul className="pagination pagination-sm m-0">
                       <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <a 
-                          className="page-link" 
-                          href="#" 
+                        <a
+                          className="page-link"
+                          href="#"
                           onClick={(e) => {
                             e.preventDefault();
                             if (currentPage > 1) handlePageChange(currentPage - 1);
@@ -765,9 +726,9 @@ const FeedbackPage = () => {
                       </li>
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                         <li key={page} className={`page-item ${currentPage === page ? 'active' : ''}`}>
-                          <a 
-                            className="page-link" 
-                            href="#" 
+                          <a
+                            className="page-link"
+                            href="#"
                             onClick={(e) => {
                               e.preventDefault();
                               handlePageChange(page);
@@ -778,9 +739,9 @@ const FeedbackPage = () => {
                         </li>
                       ))}
                       <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                        <a 
-                          className="page-link" 
-                          href="#" 
+                        <a
+                          className="page-link"
+                          href="#"
                           onClick={(e) => {
                             e.preventDefault();
                             if (currentPage < totalPages) handlePageChange(currentPage + 1);
@@ -845,25 +806,25 @@ const FeedbackPage = () => {
               </div>
             </div>
           </div>
-          <div 
-            className="modal-backdrop fade show" 
-            style={{ zIndex: 1049 }} 
+          <div
+            className="modal-backdrop fade show"
+            style={{ zIndex: 1049 }}
             onClick={() => setShowDeleteModal(false)}
           ></div>
         </>
       )}
-      
+
       {/* Toast Notification */}
       {toast.show && (
-        <div 
-          className={`toast-notification ${toast.type}`} 
+        <div
+          className={`toast-notification ${toast.type}`}
           style={{
             position: 'fixed',
             bottom: '20px',
             right: '20px',
             zIndex: 1060,
             minWidth: '300px',
-            backgroundColor: toast.type === 'success' ? '#28a745' : 
+            backgroundColor: toast.type === 'success' ? '#28a745' :
                             toast.type === 'error' ? '#dc3545' : '#17a2b8',
             color: '#fff',
             padding: '12px 20px',
@@ -881,13 +842,13 @@ const FeedbackPage = () => {
             {toast.type === 'info' && <FaBell className="me-2" />}
             <span>{toast.message}</span>
           </div>
-          <button 
+          <button
             type="button"
-            className="btn-close btn-close-white" 
+            className="btn-close btn-close-white"
             onClick={() => setToast({ ...toast, show: false })}
-            style={{ 
-              background: 'transparent', 
-              border: 'none', 
+            style={{
+              background: 'transparent',
+              border: 'none',
               color: '#fff',
               fontSize: '20px',
               cursor: 'pointer',
@@ -899,13 +860,12 @@ const FeedbackPage = () => {
           </button>
         </div>
       )}
-      
+
       {/* Custom CSS now moved to external file */}
     </>
   );
 };
 
-// Thêm getLayout để sử dụng AdminLayout với bảo vệ admin
 FeedbackPage.getLayout = (page: React.ReactNode) => {
   return (
     <AdminRoute>

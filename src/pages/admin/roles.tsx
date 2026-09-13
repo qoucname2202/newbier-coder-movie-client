@@ -82,7 +82,7 @@ const AdminRolesPage: NextPageWithLayout = () => {
 
   const handleDeleteRole = async () => {
     if (!selectedRole) return;
-    
+
     try {
       await deleteRoleByAdmin(selectedRole._id);
       await fetchRoles();
@@ -124,8 +124,8 @@ const AdminRolesPage: NextPageWithLayout = () => {
             <div className="card-header">
               <h3 className="card-title">Danh sách vai trò</h3>
               <div className="card-tools">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn btn-primary btn-sm"
                   onClick={handleAddRole}
                 >
@@ -136,13 +136,13 @@ const AdminRolesPage: NextPageWithLayout = () => {
 
             <div className="card-body">
               {loading && <p>Đang tải danh sách vai trò...</p>}
-              
+
               {error && (
                 <div className="alert alert-danger" role="alert">
                   {error}
                 </div>
               )}
-              
+
               {!loading && !error && (
                 <div className="table-responsive">
                   <table className="table table-bordered table-striped">
@@ -235,7 +235,6 @@ const AdminRolesPage: NextPageWithLayout = () => {
     </>  );
 };
 
-// Thêm getLayout để sử dụng AdminLayout với bảo vệ admin
 AdminRolesPage.getLayout = (page: React.ReactElement) => {
   return (
     <AdminRoute>

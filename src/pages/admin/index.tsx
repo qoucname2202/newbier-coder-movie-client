@@ -7,7 +7,7 @@ import Image from 'next/image';
 import styles from '@/styles/AdminDashboard.module.css';
 import { FaFilm, FaChartLine, FaUserPlus, FaChartPie, FaArrowRight, FaEye, FaEdit, FaClock, FaEnvelope, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { getDashboardStats, getAnalyticsData, getFeedbackStats } from '@/API/services/admin/dashboardService';
-import { getReportStats } from '@/API/services/admin/reportService'; 
+import { getReportStats } from '@/API/services/admin/reportService';
 import AdminLayout from '@/components/Layout/AdminLayout';
 import AdminRoute from '@/components/ProtectedRoute/AdminRoute';
 import dynamic from 'next/dynamic';
@@ -45,7 +45,6 @@ const AdminDashboardPage: NextPageWithLayout = () => {
     },
     recentMovies: []
   });
-  // Định nghĩa các interface cho cấu trúc dữ liệu phản hồi
 interface FeedbackTypeItem {
   _id: string;
   count: number;
@@ -85,7 +84,7 @@ const [feedbackData, setFeedbackData] = useState({
       data: [] as number[]
     }
   });
-  
+
   const [reportData, setReportData] = useState({
     total: 0,
     new: 0,
@@ -385,12 +384,12 @@ const [feedbackData, setFeedbackData] = useState({
                       <div className={styles.loadingPlaceholder}></div>
                     ) : (
                       <h3 className={styles.statsTitle}>{statistics.engagementRate}<span style={{ fontSize: '1.4rem', opacity: 0.9}}>👁/User</span></h3>
-                      
+
                     )}
                     <p className={styles.statsSubtitle}>Interaction rate in 1 week</p>
                   </div>
                   <FaChartLine className={styles.statsIcon} />
-                  
+
                 </div>
               </div>
 
@@ -447,7 +446,7 @@ const [feedbackData, setFeedbackData] = useState({
                   </Link>
                 </div>
               </div>
-              
+
               <div className="col-lg-6 col-md-6 col-12 mb-4">
                 <div className={styles.feedbackCard}>
                   <div className={styles.feedbackCardTop}>
@@ -457,7 +456,7 @@ const [feedbackData, setFeedbackData] = useState({
                       <div className={styles.feedbackStatItem}>
                         <span className={styles.feedbackNumber}>{statistics.feedback?.unread || 0}</span>
                         <span className={styles.feedbackTitle}>UNREAD FEEDBACKS</span>
-                        {statistics.feedback?.unread > 0 && 
+                        {statistics.feedback?.unread > 0 &&
                           <span className={styles.badgeUnread}>New</span>
                         }
                       </div>
@@ -485,7 +484,7 @@ const [feedbackData, setFeedbackData] = useState({
                   </div>
                 </div>
               </div>            </div>
-            
+
             {/* Add Reports Card */}
             <div className="row mt-3">
               <div className="col-lg-6 col-md-6 col-12 mb-4">
@@ -504,7 +503,7 @@ const [feedbackData, setFeedbackData] = useState({
                   </Link>
                 </div>
               </div>
-              
+
               <div className="col-lg-6 col-md-6 col-12 mb-4">
                 <div className={styles.feedbackCard}>
                   <div className={styles.feedbackCardTop}>
@@ -514,7 +513,7 @@ const [feedbackData, setFeedbackData] = useState({
                       <div className={styles.feedbackStatItem}>
                         <span className={styles.feedbackNumber}>{reportData.byStatus.pending || 0}</span>
                         <span className={styles.feedbackTitle}>PENDING REPORTS</span>
-                        {(reportData.byStatus.pending > 0) && 
+                        {(reportData.byStatus.pending > 0) &&
                           <span className={styles.badgeUnread}>Action Needed</span>
                         }
                       </div>
@@ -543,7 +542,7 @@ const [feedbackData, setFeedbackData] = useState({
                 </div>
               </div>
             </div>
-            
+
             <div className="row">
               {/* Views Chart */}
               <div className="col-lg-8 mb-4">
@@ -661,7 +660,7 @@ const [feedbackData, setFeedbackData] = useState({
                       View All <FaArrowRight />
                     </Link>
                   </div>
-                  
+
                   {loading ? (
                     <>
                       <div className={styles.loadingPlaceholder} style={{ marginBottom: '15px' }}></div>
@@ -673,10 +672,10 @@ const [feedbackData, setFeedbackData] = useState({
                           <div className={styles.recentItem} key={index}>
                             <div className={styles.recentItemImage}>
                               {movie.poster && (
-                                <Image 
-                                  src={movie.poster} 
-                                  alt={movie.title} 
-                                  width={50} 
+                                <Image
+                                  src={movie.poster}
+                                  alt={movie.title}
+                                  width={50}
                                   height={50}
                                   style={{ objectFit: 'cover' }}
                                 />
@@ -716,7 +715,7 @@ const [feedbackData, setFeedbackData] = useState({
                       View All <FaArrowRight />
                     </Link>
                   </div>
-                  
+
                   {loading ? (
                     <>
                       <div className={styles.loadingPlaceholder} style={{ marginBottom: '15px' }}></div>
@@ -781,7 +780,6 @@ const [feedbackData, setFeedbackData] = useState({
   );
 };
 
-// Thêm getLayout để sử dụng AdminLayout với bảo vệ admin
 AdminDashboardPage.getLayout = (page: React.ReactElement) => {
   return (
     <AdminRoute>

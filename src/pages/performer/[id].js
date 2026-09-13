@@ -32,54 +32,49 @@ const PerformerDetail = () => {
         const baseUrl = process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://api.themoviedb.org/3';
         const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
         const authToken = process.env.NEXT_PUBLIC_TMDB_AUTH_TOKEN;
-        
-        // Lưu debug info
-        const debugInfo = { 
+
+        const debugInfo = {
           id,
           baseUrl,
           hasApiKey: !!apiKey,
           hasAuthToken: !!authToken
         };
-        
+
         // Get performer details
         const personResponse = await axios.get(`${baseUrl}/person/${id}`, {
           params: {
             api_key: apiKey,
-            language: 'vi-VN,en-US',  // Thử lấy tiếng Việt trước, nếu không có thì lấy tiếng Anh
-            append_to_response: 'images,external_ids'  // Lấy thêm thông tin hình ảnh và ID khác
+            language: 'vi-VN,en-US',
+            append_to_response: 'images,external_ids'
           },
           headers: {
             'Authorization': `Bearer ${authToken}`,
             'accept': 'application/json'
           }
         });
-        
+
         setPerformer(personResponse.data);
         debugInfo.performerData = personResponse.data;
-        
+
         // Get performer's movie credits
         const creditsResponse = await axios.get(`${baseUrl}/person/${id}/combined_credits`, {
           params: {
             api_key: apiKey,
-            language: 'vi-VN,en-US'  // Thử tiếng Việt trước, nếu không có thì lấy tiếng Anh
+            language: 'vi-VN,en-US'
           },
           headers: {
             'Authorization': `Bearer ${authToken}`,
             'accept': 'application/json'
           }
         });
-        
+
         debugInfo.rawCredits = creditsResponse.data;
-        
-        // Lọc và sắp xếp các bộ phim theo độ phổ biến
+
         let allMovies = [];
-        
-      // Lọc phim từ phần cast (diễn viên)
+
         let castCredits = [];
         if (creditsResponse.data.cast && Array.isArray(creditsResponse.data.cast)) {
-          // Lấy tất cả các dự án (phim và TV) mà diễn viên tham gia
           castCredits = creditsResponse.data.cast
-            // Bao gồm cả phim không có poster để hiển thị với ảnh mặc định
             .filter(item => (item.media_type === 'movie' || item.media_type === 'tv'))
             .map(item => ({
               ...item,
@@ -90,8 +85,7 @@ const PerformerDetail = () => {
             }))
             .sort((a, b) => b.popularity - a.popularity || b.vote_count - a.vote_count);
         }
-        
-        // Lấy phim từ phần crew (đoàn làm phim)
+
         let crewCredits = [];
         if (creditsResponse.data.crew && Array.isArray(creditsResponse.data.crew)) {
           crewCredits = creditsResponse.data.crew
@@ -105,11 +99,9 @@ const PerformerDetail = () => {
             }))
             .sort((a, b) => b.popularity - a.popularity || b.vote_count - a.vote_count);
         }
-        
-        // Kết hợp cả hai danh sách, ưu tiên phim có vai diễn
+
         allMovies = [...castCredits, ...crewCredits];
-        
-        // Loại bỏ các dự án trùng lặp (người đó có thể vừa đóng vai vừa làm đạo diễn)
+
         const uniqueIds = new Set();
         allMovies = allMovies.filter(movie => {
           const key = `${movie.id}-${movie.media_type}`;
@@ -119,13 +111,12 @@ const PerformerDetail = () => {
           }
           return false;
         });
-        
-        // Thêm field `role` để phân biệt vai trò trong phim
+
         allMovies = allMovies.map(movie => ({
           ...movie,
           role: movie.character ? movie.character : (movie.job ? movie.job : 'Không xác định')
         }));
-        
+
         setMovies(allMovies);
         debugInfo.processedMovies = allMovies;
         setDebug(debugInfo);
@@ -144,7 +135,7 @@ const PerformerDetail = () => {
   // Format date to display in Vietnamese format
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Không có thông tin';
-    
+
     const date = new Date(dateStr);
     return date.toLocaleDateString('vi-VN', {
       day: '2-digit',
@@ -152,21 +143,21 @@ const PerformerDetail = () => {
       year: 'numeric'
     });
   };
-  
+
   // Calculate age from birthday
   const calculateAge = (birthday) => {
     if (!birthday) return null;
-    
+
     const birthDate = new Date(birthday);
     const today = new Date();
-    
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return age;
   };
 
@@ -184,13 +175,13 @@ const PerformerDetail = () => {
       <Container className="py-5">
         <Alert variant="danger">{error}</Alert>
         <div className="text-center mt-4">
-          <button 
+          <button
             className="btn btn-primary me-3"
             onClick={() => router.back()}
           >
             Quay lại
           </button>
-          <button 
+          <button
             className="btn btn-outline-light"
             onClick={() => router.reload()}
           >
@@ -203,11 +194,11 @@ const PerformerDetail = () => {
   if (!performer) {
     return null; // Wait for data to load before rendering
   }
-  
+
   // Handle pagination
   const indexOfLastMovie = currentPage * moviesPerPage;
   const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
-  
+
   // Filter movies based on the active filter
   const filteredMovies = movies.filter(movie => {
     if (activeFilter === 'all') return true;
@@ -217,10 +208,10 @@ const PerformerDetail = () => {
     if (activeFilter === 'crew') return movie.credit_type === 'crew';
     return true;
   });
-  
+
   const currentMovies = filteredMovies.slice(indexOfFirstMovie, indexOfLastMovie);
   const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
-  
+
   // Create an array of page numbers
   const pageNumbers = [];
   for (let i = 1; i <= totalPages; i++) {
@@ -229,14 +220,14 @@ const PerformerDetail = () => {
 
   // Handle page change
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  
+
   // Go to previous page
   const goToPreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
-  
+
   // Go to next page
   const goToNextPage = () => {
     if (currentPage < totalPages) {
@@ -249,7 +240,7 @@ const PerformerDetail = () => {
       <Head>
         <title>{performer.name} - Thông tin diễn viên | MovieStreaming</title>
         <meta name="description" content={`Thông tin chi tiết về diễn viên ${performer.name} và các bộ phim đã tham gia`} />
-      </Head>      <div 
+      </Head>      <div
         className={styles.performerBanner}
         style={{
           backgroundImage: `url(${performer.profile_path ? `${imageBaseUrl}/original${performer.profile_path}` : profilePlaceholder})`,
@@ -259,12 +250,12 @@ const PerformerDetail = () => {
           position: 'relative'
         }}
       >
-        <div className={styles.backdropOverlay}></div>        
+        <div className={styles.backdropOverlay}></div>
         <Container className={styles.containerRelative}>
           <div className={styles.performerHeader}>
             <div className={styles.profileImageWrapper}>
               <div className={styles.profileImageContainer}>
-                <img 
+                <img
                   src={performer.profile_path ? `${imageBaseUrl}${performer.profile_path}` : profilePlaceholder}
                   alt={performer.name}
                   className={styles.profileImage}
@@ -280,17 +271,17 @@ const PerformerDetail = () => {
                 )}
               </div>
             </div>
-            
+
             <div className={styles.performerDetails}>
               <h1 className={styles.performerName}>{performer.name}</h1>
-              
+
               {performer.also_known_as?.length > 0 && (
                 <div className={styles.alsoKnownAs}>
                   <span className={styles.infoLabel}>Tên khác:</span>
                   <span className={styles.infoValue}>{performer.also_known_as.join(', ')}</span>
                 </div>
               )}
-              
+
               <div className={styles.bioStats}>
                 {performer.birthday && (
                   <div className={styles.bioStat}>
@@ -302,7 +293,7 @@ const PerformerDetail = () => {
                     </span>
                   </div>
                 )}
-                
+
                 {performer.place_of_birth && (
                   <div className={styles.bioStat}>
                     <i className="bi bi-geo-alt"></i>
@@ -310,7 +301,7 @@ const PerformerDetail = () => {
                     <span className={styles.infoValue}>{performer.place_of_birth}</span>
                   </div>
                 )}
-                
+
                 {performer.known_for_department && (
                   <div className={styles.bioStat}>
                     <i className="bi bi-film"></i>
@@ -320,13 +311,13 @@ const PerformerDetail = () => {
                     </span>
                   </div>
                 )}
-                
+
                 <div className={styles.bioStat}>
                   <i className="bi bi-camera-reels"></i>
                   <span className={styles.infoLabel}>Số phim đã tham gia:</span>
                   <span className={styles.infoValue}>{movies.length}</span>
                 </div>
-                
+
                 {performer.popularity && (
                   <div className={styles.bioStat}>
                     <i className="bi bi-graph-up"></i>
@@ -375,40 +366,40 @@ const PerformerDetail = () => {
               </div>
             )}
           </div>
-          
+
           {/* Filter buttons */}
           {movies.length > 0 && (
             <div className={styles.filterControls}>            <div className={styles.filterButtons}>
-                <button 
-                  onClick={() => {setActiveFilter('all'); setCurrentPage(1);}} 
+                <button
+                  onClick={() => {setActiveFilter('all'); setCurrentPage(1);}}
                   className={`${styles.filterBtn} ${activeFilter === 'all' ? styles.active : ''}`}
                 >
                   <i className="bi bi-grid me-2"></i>
                   Tất cả ({movies.length})
                 </button>
-                <button 
-                  onClick={() => {setActiveFilter('movies'); setCurrentPage(1);}} 
+                <button
+                  onClick={() => {setActiveFilter('movies'); setCurrentPage(1);}}
                   className={`${styles.filterBtn} ${activeFilter === 'movies' ? styles.active : ''}`}
                 >
                   <i className="bi bi-film me-2"></i>
                   Phim ({movies.filter(m => m.media_type === 'movie').length})
                 </button>
-                <button 
-                  onClick={() => {setActiveFilter('tv'); setCurrentPage(1);}} 
+                <button
+                  onClick={() => {setActiveFilter('tv'); setCurrentPage(1);}}
                   className={`${styles.filterBtn} ${activeFilter === 'tv' ? styles.active : ''}`}
                 >
                   <i className="bi bi-tv me-2"></i>
                   TV ({movies.filter(m => m.media_type === 'tv').length})
                 </button>
-                <button 
+                <button
                   onClick={() => {setActiveFilter('cast'); setCurrentPage(1);}}
                   className={`${styles.filterBtn} ${activeFilter === 'cast' ? styles.active : ''}`}
                 >
                   <i className="bi bi-person-badge me-2"></i>
                   Diễn viên ({movies.filter(m => m.credit_type === 'cast').length})
                 </button>
-                <button 
-                  onClick={() => {setActiveFilter('crew'); setCurrentPage(1);}} 
+                <button
+                  onClick={() => {setActiveFilter('crew'); setCurrentPage(1);}}
                   className={`${styles.filterBtn} ${activeFilter === 'crew' ? styles.active : ''}`}
                 >
                   <i className="bi bi-camera-reels me-2"></i>
@@ -417,14 +408,13 @@ const PerformerDetail = () => {
               </div>
             </div>
           )}
-          
+
           {filteredMovies.length > 0 ? (
             <>
-              <Row className={styles.movieGrid}>                  {currentMovies.map(movie => {                  // Tạo slug từ title hoặc name của phim
+              <Row className={styles.movieGrid}>                  {currentMovies.map(movie => {
                   const createSlug = (text) => {
                     if (!text) return `movie-${movie.id}`;
-                    
-                    // Hàm chuyển đổi tiếng Việt sang không dấu
+
                     const removeVietnameseTones = (str) => {
                       str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
                       str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
@@ -442,29 +432,28 @@ const PerformerDetail = () => {
                       str = str.replace(/Đ/g, "D");
                       return str;
                     }
-                    
-                    // Chuyển đổi tên phim thành slug
+
                     return removeVietnameseTones(text)
                       .toLowerCase()
-                      .replace(/[^\w\s-]/g, '') // Xóa ký tự đặc biệt
-                      .replace(/\s+/g, '-')     // Thay thế khoảng trắng bằng dấu gạch ngang
-                      .replace(/--+/g, '-')     // Thay thế nhiều dấu gạch ngang bằng một dấu
-                      .trim();                  // Xóa khoảng trắng đầu/cuối
+                      .replace(/[^\w\s-]/g, '')
+                      .replace(/\s+/g, '-')
+                      .replace(/--+/g, '-')
+                      .trim();
                   };
-                  
+
                   const movieTitle = movie.title || movie.name || `Movie-${movie.id}`;                  const movieSlug = createSlug(movieTitle);
-                  
+
                   return (
                     <Col key={`${movie.id}-${movie.credit_id || Math.random()}`} xs={6} sm={6} md={4} lg={3} xl={3} className={styles.movieCol}>
                       <Link href={`/movie/${movieSlug}`} className={styles.movieLink}>
                         <Card className={styles.movieCard}>
                           <div className={styles.posterContainer}>
-                            <Card.Img 
-                              variant="top" 
+                            <Card.Img
+                              variant="top"
                               src={movie.poster_path ? `${imageBaseUrl}${movie.poster_path}` : placeholderImage}
                               alt={movieTitle}
                               className={styles.posterImage}
-                              onError={(e) => { 
+                              onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = placeholderImage;
                               }}
@@ -477,13 +466,13 @@ const PerformerDetail = () => {
                                 <i className="bi bi-play-circle-fill"></i>
                               </div>
                             </div>
-                            
+
                             <div className={styles.ratingBadge}>
                               <i className="bi bi-star-fill me-1"></i>
                               {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
                             </div>
-                            
-                            <Badge 
+
+                            <Badge
                               className={`${styles.mediaTypeBadge} ${movie.media_type === 'tv' ? styles.tvBadge : ''}`}
                             >
                               {movie.display_media_type}
@@ -515,25 +504,25 @@ const PerformerDetail = () => {
                   );
                 })}
               </Row>
-              
+
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className={styles.pagination}>
-                  <button 
-                    onClick={goToPreviousPage} 
-                    disabled={currentPage === 1} 
+                  <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
                     className={styles.paginationButton}
                   >
                     <i className="bi bi-chevron-left"></i>
                   </button>
-                  
+
                   {currentPage > 3 && (
                     <>
                       <button onClick={() => paginate(1)} className={styles.paginationButton}>1</button>
                       {currentPage > 4 && <span className={styles.paginationEllipsis}>...</span>}
                     </>
                   )}
-                  
+
                   {pageNumbers
                     .filter(number => Math.abs(number - currentPage) <= 2)
                     .map(number => (
@@ -546,17 +535,17 @@ const PerformerDetail = () => {
                       </button>
                     ))
                   }
-                  
+
                   {currentPage < totalPages - 2 && (
                     <>
                       {currentPage < totalPages - 3 && <span className={styles.paginationEllipsis}>...</span>}
                       <button onClick={() => paginate(totalPages)} className={styles.paginationButton}>{totalPages}</button>
                     </>
                   )}
-                  
-                  <button 
-                    onClick={goToNextPage} 
-                    disabled={currentPage === totalPages} 
+
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
                     className={styles.paginationButton}
                   >
                     <i className="bi bi-chevron-right"></i>
@@ -571,8 +560,8 @@ const PerformerDetail = () => {
                 <i className="bi bi-slash-circle overlay-icon"></i>
               </div>
               <h5>Không tìm thấy phim</h5>
-              <p>Không có {activeFilter !== 'all' ? `${activeFilter === 'movies' ? 'phim điện ảnh' : 
-                (activeFilter === 'tv' ? 'phim truyền hình' : 
+              <p>Không có {activeFilter !== 'all' ? `${activeFilter === 'movies' ? 'phim điện ảnh' :
+                (activeFilter === 'tv' ? 'phim truyền hình' :
                   (activeFilter === 'cast' ? 'vai diễn' : 'công việc đoàn phim'))} của` : ''} diễn viên này trong cơ sở dữ liệu.</p>
             </div>
           )}

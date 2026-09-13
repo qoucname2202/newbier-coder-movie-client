@@ -45,8 +45,6 @@ export default function Signup() {
                 return;
             }
 
-            console.log("Attempting registration with credentials:", credentials);
-
             // Format the user data for the backend
             const userData = {
                 fullname: credentials.fullname,
@@ -58,13 +56,9 @@ export default function Signup() {
                 date_of_birth: credentials.date_of_birth || ''
             };
 
-            console.log("Formatted user data:", userData);
-
             try {
                 // Call the registration function from auth context
                 const result = await register(userData);
-
-                console.log("Registration result:", result);
 
                 if (result.success) {
                     setMessage('Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...');
@@ -76,9 +70,8 @@ export default function Signup() {
                     setError(result.error || 'Đăng ký thất bại. Vui lòng thử lại.');
                 }
             } catch (apiError) {
-                // Xử lý lỗi khi gọi API
                 console.error("API call error:", apiError);
-                
+
                 if (apiError.message.includes('Failed to fetch')) {
                     setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và cài đặt API.');
                 } else if (apiError.message.includes('<!DOCTYPE') || apiError.message.includes('Unexpected token')) {
@@ -104,9 +97,9 @@ export default function Signup() {
             <Head>
                 <title>Đăng ký - Movie Streaming</title>
             </Head>
-            <AuthForm 
-                onSubmit={handleSignup} 
-                isLoading={isLoading} 
+            <AuthForm
+                onSubmit={handleSignup}
+                isLoading={isLoading}
                 error={error}
                 message={message}
                 isSignup={true}

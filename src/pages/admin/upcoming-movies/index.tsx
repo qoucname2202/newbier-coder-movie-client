@@ -33,8 +33,7 @@ const UpcomingMoviesPage: React.FC = () => {
     setError(null);
     try {
       const response = await getUpcomingMovies(page, limit, searchTerm);
-      console.log('Upcoming movies data:', response.data);
-      
+
       if (response.data && response.data.upcomingMovies) {
         setUpcomingMovies(response.data.upcomingMovies);
         setTotalMovies(response.data.totalCount || 0);
@@ -72,7 +71,7 @@ const UpcomingMoviesPage: React.FC = () => {
 
   const confirmDelete = async () => {
     if (!selectedMovie?._id) return;
-    
+
     try {
       await deleteUpcomingMovie(selectedMovie._id);
       setShowDeleteModal(false);
@@ -85,11 +84,11 @@ const UpcomingMoviesPage: React.FC = () => {
   };
   const confirmRelease = async () => {
     if (!selectedMovie?._id) return;
-    
+
     try {
       const response = await releaseUpcomingMovie(selectedMovie._id);
       setShowReleaseModal(false);
-      
+
       if (response.data?.movie?._id) {
         // If we get back the new movie ID, show it in the alert
         const newMovieId = response.data.movie._id;
@@ -187,8 +186,8 @@ const UpcomingMoviesPage: React.FC = () => {
                   </div>
                 ) : upcomingMovies.length > 0 ? (
                   <>
-                    <div className="table-responsive">                      
-                      <Table striped bordered hover className={styles['movie-table']}>                        
+                    <div className="table-responsive">
+                      <Table striped bordered hover className={styles['movie-table']}>
                         <thead>                          <tr>
                             <th className="text-center" style={{ width: "5%" }}>ID</th>
                             <th style={{ width: "35%" }}>Tên phim</th>
@@ -244,7 +243,7 @@ const UpcomingMoviesPage: React.FC = () => {
                                     <Button variant="outline-warning" size="sm" title="Sửa" className={styles['action-btn']}>
                                       <FaEdit />
                                     </Button>
-                                  </Link>                                  
+                                  </Link>
                                   <Button
                                     variant="outline-danger"
                                     size="sm"
@@ -253,7 +252,7 @@ const UpcomingMoviesPage: React.FC = () => {
                                     onClick={() => handleDeleteClick(movie)}
                                   >
                                     <FaTrash />
-                                  </Button>                                  
+                                  </Button>
                                   {!movie.is_released && (
                                     <Button
                                       variant="outline-success"
@@ -300,7 +299,6 @@ const UpcomingMoviesPage: React.FC = () => {
         </section>
       </div>
 
-      {/* Modal Xác nhận xoá phim */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận xoá phim</Modal.Title>
@@ -324,7 +322,6 @@ const UpcomingMoviesPage: React.FC = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Xác nhận chuyển trạng thái phát hành */}
       <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận phát hành phim</Modal.Title>

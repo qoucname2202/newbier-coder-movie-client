@@ -12,20 +12,17 @@ import FormField from '@/components/Admin/Movies/FormField';
 import ImageUrlInput from '@/components/Admin/Movies/ImageUrlInput';
 import FormSkeleton from '@/components/Admin/Movies/FormSkeleton';
 
-// Interface cho danh mục phim
 interface Category {
   id: string;
   name: string;
   slug: string;
 }
 
-// Interface cho đạo diễn và diễn viên
 interface Person {
   id: string;
   name: string;
 }
 
-// Interface cho server_data
 interface Episode {
   name: string;
   slug: string;
@@ -36,7 +33,7 @@ interface Episode {
 
 const AddMovie = () => {
   const router = useRouter();
-  const [showBackToTop, setShowBackToTop] = useState(false);  
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [movie, setMovie] = useState({
     name: '',
@@ -44,11 +41,10 @@ const AddMovie = () => {
     slug: '',    year: new Date().getFullYear(),
     thumb_url: '',
     poster_url: '',
-    // Đã loại bỏ backdrop_url
     trailer_url: '',
     category: [] as string[],
-    type: 'movie', // Phù hợp với backend
-    status: 'completed', // Phù hợp với backend
+    type: 'movie',
+    status: 'completed',
     quality: 'HD',
     lang: 'Vietsub',
     director: [] as string[],
@@ -90,18 +86,18 @@ const AddMovie = () => {
       id: ''
     }
   });  const [categories, setCategories] = useState<Category[]>([]);
-  const [directors, setDirectors] = useState<Person[]>([]);  // State cho danh sách đạo diễn
-  const [actors, setActors] = useState<Person[]>([]);  // State cho danh sách diễn viên
-  const [loading, setLoading] = useState(false);  const [preview, setPreview] = useState('');  const [newCategory, setNewCategory] = useState('');  // State cho input thể loại mới
-  const [newCountry, setNewCountry] = useState('');  // State cho input quốc gia mới
-  const [newDirector, setNewDirector] = useState('');  // State cho input đạo diễn mới
-  const [newActor, setNewActor] = useState('');  // State cho input diễn viên mới
+  const [directors, setDirectors] = useState<Person[]>([]);
+  const [actors, setActors] = useState<Person[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState('');
+  const [newCategory, setNewCategory] = useState('');
+  const [newCountry, setNewCountry] = useState('');
+  const [newDirector, setNewDirector] = useState('');
+  const [newActor, setNewActor] = useState('');
   const [countries, setCountries] = useState<{ id: string; name: string; }[]>([]);
 
-  // State để theo dõi tab đang active
   const [activeTab, setActiveTab] = useState('basic-info');
-  
-  // Các bước của form
+
   const formSteps = [
     { id: 'basic-info', title: 'Thông tin cơ bản', icon: <FaInfoCircle className="mr-2" /> },
     { id: 'movie-details', title: 'Chi tiết phim', icon: <FaFilm className="mr-2" /> },
@@ -109,7 +105,6 @@ const AddMovie = () => {
     { id: 'preview', title: 'Xem trước', icon: <FaEye className="mr-2" /> },
   ];
 
-  // Hàm chuyển đến tab tiếp theo
   const goToNextTab = () => {
     const currentIndex = formSteps.findIndex(step => step.id === activeTab);
     if (currentIndex < formSteps.length - 1) {
@@ -117,7 +112,6 @@ const AddMovie = () => {
     }
   };
 
-  // Hàm quay lại tab trước
   const goToPrevTab = () => {
     const currentIndex = formSteps.findIndex(step => step.id === activeTab);
     if (currentIndex > 0) {
@@ -125,28 +119,23 @@ const AddMovie = () => {
     }
   };
 
-  // Thêm hàm xử lý nhập mảng (categories và countries) ngăn cách bởi dấu phẩy
   // const handleArrayTextInput = (field: string, value: string) => {
-  //   // Chuyển đổi chuỗi thành mảng bằng cách tách theo dấu phẩy
   //   const arrayValue = value.split(',').map(item => item.trim()).filter(item => item);
   //   setMovie(prev => ({
   //     ...prev,
   //     [field]: arrayValue
   //   }));
-  //     // Xóa lỗi nếu đã nhập dữ liệu
   //   if (arrayValue.length > 0 && validationErrors[field]) {
   //     const newErrors = { ...validationErrors };
   //     delete newErrors[field];
   //     setValidationErrors(newErrors);
   //   }
   // };
-  // Hàm định dạng mảng thành chuỗi
   // const getArrayAsString = (array: string[] | string): string => {
   //   if (Array.isArray(array)) {
   //     return array.join(', ');
-  //   } 
+  //   }
   //   return array || '';
-  // };  // Lấy danh sách danh mục
   // useEffect(() => {
   //   const fetchCategories = async () => {
   //     try {
@@ -156,15 +145,13 @@ const AddMovie = () => {
   //       }
   //     } catch (error) {
   //       console.error('Error fetching categories:', error);
-  //       toast.error('Không thể tải danh sách thể loại phim');
   //     }
   //   };
 
   //   fetchCategories();
-    
-  //   // Khởi tạo dữ liệu cho đạo diễn và diễn viên phổ biến
+
   // }, []);
-  
+
   // Handle scroll event to show/hide back to top button
   useEffect(() => {
     const handleScroll = () => {
@@ -174,12 +161,11 @@ const AddMovie = () => {
         setShowBackToTop(false);
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Xử lý tạo slug tự động từ tên phim
   const generateSlug = (name: string) => {
     const slug = name
       .toLowerCase()
@@ -191,14 +177,13 @@ const AddMovie = () => {
     return slug;
   };
 
-  // Xử lý thay đổi tên phim và tạo slug tự động
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
-    setMovie(prev => ({ 
-      ...prev, 
+    setMovie(prev => ({
+      ...prev,
       name: name,
       slug: generateSlug(name)
-    }));    // Xóa lỗi nếu trường đã được điền
+    }));
     if (name) {
       const newErrors = { ...validationErrors };
       delete newErrors.name;
@@ -206,24 +191,19 @@ const AddMovie = () => {
     }
   };
 
-  // Xử lý thay đổi giá trị form
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setMovie(prev => ({ ...prev, [name]: value }));
-      // Xóa lỗi nếu trường đã được điền
     if (value && validationErrors[name]) {
       const newErrors = { ...validationErrors };
       delete newErrors[name];
       setValidationErrors(newErrors);
     }
   };
-  // No longer needed - using direct image URLs now
 
-  // Kiểm tra tính hợp lệ của form
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    
-    // Danh sách trường bắt buộc theo controller backend
+
     const requiredFields = [
       { field: 'name', label: 'Tên phim' },
       { field: 'origin_name', label: 'Tên gốc' },
@@ -231,38 +211,33 @@ const AddMovie = () => {
       { field: 'content', label: 'Nội dung phim' },
       { field: 'year', label: 'Năm sản xuất' }
     ];
-    
-    // Kiểm tra các trường bắt buộc
+
     requiredFields.forEach(({ field, label }) => {
       if (!movie[field as keyof typeof movie]) {
         errors[field] = `${label} là trường bắt buộc`;
       }
     });
-    
-    // Kiểm tra thể loại
+
     if (!movie.category.length) {
       errors.category = 'Vui lòng chọn ít nhất một thể loại';
     }
-    
-    // Kiểm tra quốc gia
+
     if (!movie.country.length) {
       errors.country = 'Vui lòng chọn ít nhất một quốc gia';
     }
-    
-    // Kiểm tra năm sản xuất
+
     const year = parseInt(String(movie.year));
     if (isNaN(year) || year < 1900 || year > 2100) {
       errors.year = 'Năm sản xuất không hợp lệ (1900-2100)';
     }
-    
+
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
-  // Xử lý submit form
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Kiểm tra tính hợp lệ của form
+
     if (!validateForm()) {
       toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
       return;
@@ -270,21 +245,18 @@ const AddMovie = () => {
 
     try {
       setLoading(true);
-          // Chuẩn bị dữ liệu gửi đi
       const directorValue = movie.director.map(id => {
         const directorInfo = directors.find(d => d.id === id);
         return directorInfo ? directorInfo.name : id;
       });
-        
+
       const actorValue = movie.actor.map(id => {
         const actorInfo = actors.find(a => a.id === id);
         return actorInfo ? actorInfo.name : id;
       });
-      
-      // Định dạng category cho đúng với schema - mỗi phần tử phải là object có id, name và slug
-      const categoryValue = Array.isArray(movie.category) 
+
+      const categoryValue = Array.isArray(movie.category)
         ? movie.category.map(categoryId => {
-            // Tìm thông tin category từ danh sách có sẵn
             const categoryInfo = categories.find(c => c.id === categoryId);
             if (categoryInfo) {
               return {
@@ -293,7 +265,6 @@ const AddMovie = () => {
                 slug: categoryInfo.slug
               };
             }
-            // Fallback nếu không tìm thấy
             return {
               id: categoryId,
               name: categoryId,
@@ -301,11 +272,9 @@ const AddMovie = () => {
             };
           })
         : [];
-      
-      // Định dạng country cho đúng với schema - mỗi phần tử phải là object có id, name và slug
-      const countryValue = Array.isArray(movie.country) 
+
+      const countryValue = Array.isArray(movie.country)
         ? movie.country.map(countryId => {
-            // Tìm thông tin country từ danh sách có sẵn
             const countryInfo = countries.find(c => c.id === countryId);
             if (countryInfo) {
               return {
@@ -314,50 +283,40 @@ const AddMovie = () => {
                 slug: generateSlug(countryInfo.name)
               };
             }
-            // Fallback nếu không tìm thấy
             return {
               id: countryId,
               name: countryId,
               slug: generateSlug(countryId)
             };
           })
-        : [];        // Đảm bảo các trường dữ liệu đúng định dạng
+        : [];
       const formattedMovie = {
         ...movie,
         director: directorValue,
         actor: actorValue,
         year: Number(movie.year),
-        category: categoryValue, // Sử dụng category đã định dạng đúng
-        country: countryValue, // Sử dụng country đã định dạng đúng
+        category: categoryValue,
+        country: countryValue,
         thumb_url: movie.thumb_url,
         poster_url: movie.poster_url
-        // Đã loại bỏ backdrop_url khỏi dữ liệu gửi đi
       };
-
-      // Chỉ thêm episodes nếu có dữ liệu hợp lệ
-      const validEpisodes = movie.episodes.filter(episode => 
+      const validEpisodes = movie.episodes.filter(episode =>
         episode.server_data.some(ep => ep.link_embed && ep.link_m3u8)
       );
       if (validEpisodes.length > 0) {
         formattedMovie.episodes = validEpisodes;
       }
-      // Nếu không có episodes hợp lệ, không gửi trường episodes
-
-      // Ghi log dữ liệu gửi đi để debug
-      console.log('Sending movie data:', formattedMovie);      // Gửi request đến API backend
       const response = await axios.post('/admin/movies', formattedMovie);
       if (response.data) {
         toast.success('Thêm phim mới thành công');
-        console.log('Movie added successfully:', response.data);
-        // Type-safe router navigation
         void router.push('/admin/movies');
       }
     } catch (error) {
       console.error('Error adding movie:', error);
-      
+
       // Handle error with type safety
       let errorMessage = 'Unknown error occurred';
-      
+
       // Type safety - check for properties we expect, one by one
       if (error && typeof error === 'object') {
         // Check for error message
@@ -367,12 +326,12 @@ const AddMovie = () => {
         // Check for axios response object
         if ('response' in error) {
           const response = error.response;
-          
+
           if (response && typeof response === 'object') {
             // Process response data if available
             if ('data' in response && response.data) {
               const data = response.data;
-              
+
               if (typeof data === 'object') {
                 if ('message' in data && typeof data.message === 'string') {
                   errorMessage = data.message;
@@ -381,7 +340,7 @@ const AddMovie = () => {
                 }
               }
             }
-            
+
             // Include status code if available
             if ('status' in response && typeof response.status === 'number') {
               errorMessage = `Error ${response.status}: ${errorMessage}`;
@@ -391,39 +350,34 @@ const AddMovie = () => {
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       toast.error(`Lỗi: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
   };
-  // Xử lý thêm thể loại mới
   const handleAddCustomCategory = () => {
     if (!newCategory.trim()) {
       toast.error('Vui lòng nhập tên thể loại');
       return;
     }
-    
-    // Tạo ID tạm thời cho thể loại mới
+
     const tempId = `custom-${Date.now()}`;
-    
-    // Thêm vào danh sách category đã chọn
+
     setMovie(prev => ({
       ...prev,
       category: [...prev.category, tempId]
     }));
-    
-    // Thêm vào danh sách categories để hiển thị trong UI
+
     setCategories(prev => [
       ...prev,
       { id: tempId, name: newCategory.trim(), slug: generateSlug(newCategory) }
     ]);
-    
+
     // Reset input
     setNewCategory('');
     toast.success(`Đã thêm thể loại "${newCategory.trim()}"`);
-    
-    // Xóa lỗi thể loại nếu có
+
     if (validationErrors.category) {
       const newErrors = { ...validationErrors };
       delete newErrors.category;
@@ -431,86 +385,73 @@ const AddMovie = () => {
     }
   };
 
-  // Xử lý thêm đạo diễn mới
   const handleAddCustomDirector = () => {
     if (!newDirector.trim()) {
       toast.error('Vui lòng nhập tên đạo diễn');
       return;
     }
-    
-    // Tạo ID tạm thời cho đạo diễn mới
+
     const tempId = `director-${Date.now()}`;
-    
-    // Thêm vào danh sách director đã chọn
+
     setMovie(prev => ({
       ...prev,
       director: [...prev.director, tempId]
     }));
-    
-    // Thêm vào danh sách directors để hiển thị trong UI
+
     setDirectors(prev => [
       ...prev,
       { id: tempId, name: newDirector.trim() }
     ]);
-    
+
     // Reset input
     setNewDirector('');
     toast.success(`Đã thêm đạo diễn "${newDirector.trim()}"`);
   };
-  // Xử lý thêm diễn viên mới
   const handleAddCustomActor = () => {
     if (!newActor.trim()) {
       toast.error('Vui lòng nhập tên diễn viên');
       return;
     }
-    
-    // Tạo ID tạm thời cho diễn viên mới
+
     const tempId = `actor-${Date.now()}`;
-    
-    // Thêm vào danh sách actor đã chọn
+
     setMovie(prev => ({
       ...prev,
       actor: [...prev.actor, tempId]
     }));
-    
-    // Thêm vào danh sách actors để hiển thị trong UI
+
     setActors(prev => [
       ...prev,
       { id: tempId, name: newActor.trim() }
     ]);
-    
+
     // Reset input
     setNewActor('');
     toast.success(`Đã thêm diễn viên "${newActor.trim()}"`);
   };
-  
-  // Xử lý thêm quốc gia mới
+
   const handleAddCustomCountry = () => {
     if (!newCountry.trim()) {
       toast.error('Vui lòng nhập tên quốc gia');
       return;
     }
-    
-    // Tạo ID tạm thời cho quốc gia mới
+
     const tempId = `country-${Date.now()}`;
-    
-    // Thêm vào danh sách country đã chọn
+
     setMovie(prev => ({
       ...prev,
       country: [...prev.country, tempId]
     }));
-    
-    // Thêm vào danh sách countries để hiển thị trong UI
+
     setCountries(prev => [
       ...prev,
       { id: tempId, name: newCountry.trim() }
     ]);
-    
+
     // Reset input
     setNewCountry('');
     toast.success(`Đã thêm quốc gia "${newCountry.trim()}"`);
-    
-    // Xóa lỗi quốc gia nếu có
+
     if (validationErrors.country) {
       const newErrors = { ...validationErrors };
       delete newErrors.country;
@@ -518,7 +459,6 @@ const AddMovie = () => {
     }
   };
 
-  // Xử lý thêm server mới
   const handleAddServer = () => {
     setMovie(prev => ({
       ...prev,
@@ -540,7 +480,6 @@ const AddMovie = () => {
     }));
   };
 
-  // Xử lý xóa server
   const handleRemoveServer = (serverIndex: number) => {
     setMovie(prev => ({
       ...prev,
@@ -548,22 +487,20 @@ const AddMovie = () => {
     }));
   };
 
-  // Xử lý thay đổi tên server
   const handleServerNameChange = (serverIndex: number, newName: string) => {
     const updatedEpisodes = [...movie.episodes];
     updatedEpisodes[serverIndex].server_name = newName;
-    
+
     setMovie(prev => ({
       ...prev,
       episodes: updatedEpisodes
     }));
   };
 
-  // Xử lý thêm tập mới vào server
   const handleAddEpisode = (serverIndex: number) => {
     const updatedEpisodes = [...movie.episodes];
     const episodeCount = updatedEpisodes[serverIndex].server_data.length + 1;
-    
+
     updatedEpisodes[serverIndex].server_data.push({
       name: `Tập ${episodeCount}`,
       slug: `tap-${episodeCount}`,
@@ -571,31 +508,29 @@ const AddMovie = () => {
       link_embed: "",
       link_m3u8: ""
     });
-    
+
     setMovie(prev => ({
       ...prev,
       episodes: updatedEpisodes
     }));
   };
 
-  // Xử lý xóa tập khỏi server
   const handleRemoveEpisode = (serverIndex: number, episodeIndex: number) => {
     const updatedEpisodes = [...movie.episodes];
     updatedEpisodes[serverIndex].server_data = updatedEpisodes[serverIndex].server_data.filter(
       (_, index) => index !== episodeIndex
     );
-    
+
     setMovie(prev => ({
       ...prev,
       episodes: updatedEpisodes
     }));
   };
 
-  // Xử lý cập nhật thông tin tập phim
   const handleUpdateEpisode = (serverIndex: number, episodeIndex: number, field: keyof Episode, value: string) => {
     const updatedEpisodes = [...movie.episodes];
     updatedEpisodes[serverIndex].server_data[episodeIndex][field] = value;
-    
+
     setMovie(prev => ({
       ...prev,
       episodes: updatedEpisodes
@@ -631,7 +566,7 @@ const AddMovie = () => {
         </header>
 
         {/* Back to Top Button */}
-        <button 
+        <button
           className={`${styles.backToTop} ${showBackToTop ? styles.visible : ''}`}
           onClick={scrollToTop}
           aria-label="Back to top"
@@ -662,17 +597,17 @@ const AddMovie = () => {
               <div className={styles.formSection}>
                 <div className={styles.formTitle}>
                   <span>
-                    <FaInfoCircle className="mr-2" /> 
+                    <FaInfoCircle className="mr-2" />
                     Thông tin cơ bản
                   </span>
                 </div>
                 <div className={styles.formContent}>
                   <div className={styles.formRow}>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Tên phim (Tiếng Việt)" 
-                        id="name" 
-                        required 
+                      <FormField
+                        label="Tên phim (Tiếng Việt)"
+                        id="name"
+                        required
                         error={validationErrors.name}
                       >
                         <input
@@ -687,10 +622,10 @@ const AddMovie = () => {
                       </FormField>
                     </div>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Tên gốc" 
-                        id="origin_name" 
-                        required 
+                      <FormField
+                        label="Tên gốc"
+                        id="origin_name"
+                        required
                         error={validationErrors.origin_name}
                       >
                         <input
@@ -708,10 +643,10 @@ const AddMovie = () => {
 
                   <div className={styles.formRow}>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Slug URL" 
-                        id="slug" 
-                        required 
+                      <FormField
+                        label="Slug URL"
+                        id="slug"
+                        required
                         error={validationErrors.slug}
                         hint="Slug sẽ được tự động tạo từ tên phim"
                       >
@@ -725,8 +660,8 @@ const AddMovie = () => {
                             className={styles.formInput}
                             placeholder="slug-tu-dong"
                           />
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             onClick={() => movie.name && setMovie(prev => ({ ...prev, slug: generateSlug(movie.name) }))
                             }
                             className={styles.addonButton}
@@ -737,10 +672,10 @@ const AddMovie = () => {
                       </FormField>
                     </div>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Năm sản xuất" 
-                        id="year" 
-                        required 
+                      <FormField
+                        label="Năm sản xuất"
+                        id="year"
+                        required
                         error={validationErrors.year}
                       >
                         <input
@@ -760,10 +695,10 @@ const AddMovie = () => {
 
                   <div className={styles.formRow}>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Thể loại" 
-                        id="category" 
-                        required 
+                      <FormField
+                        label="Thể loại"
+                        id="category"
+                        required
                         error={validationErrors.category}
                       >
                         <div className={styles.categorySelection}>
@@ -784,8 +719,7 @@ const AddMovie = () => {
                                           ? [...prev.category, value]
                                           : prev.category.filter(id => id !== value)
                                       }));
-                                      
-                                      // Xóa lỗi nếu đã chọn ít nhất một thể loại
+
                                       if (e.target.checked && validationErrors.category) {
                                         const newErrors = { ...validationErrors };
                                         delete newErrors.category;
@@ -825,10 +759,10 @@ const AddMovie = () => {
                   </div>
 
                   <div className={styles.formRow}>
-                    <div className={styles.formCol}>                      <FormField 
-                        label="Quốc gia" 
-                        id="country" 
-                        required 
+                    <div className={styles.formCol}>                      <FormField
+                        label="Quốc gia"
+                        id="country"
+                        required
                         error={validationErrors.country}
                       >
                         <div className={styles.categorySelection}>
@@ -849,8 +783,7 @@ const AddMovie = () => {
                                           ? [...prev.country, value]
                                           : prev.country.filter(id => id !== value)
                                       }));
-                                      
-                                      // Xóa lỗi nếu đã chọn ít nhất một quốc gia
+
                                       if (e.target.checked && validationErrors.country) {
                                         const newErrors = { ...validationErrors };
                                         delete newErrors.country;
@@ -897,17 +830,17 @@ const AddMovie = () => {
               <div className={styles.formSection}>
                 <div className={styles.formTitle}>
                   <span>
-                    <FaFilm className="mr-2" /> 
+                    <FaFilm className="mr-2" />
                     Chi tiết phim
                   </span>
                 </div>
                 <div className={styles.formContent}>
                   <div className={styles.formRow}>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Nội dung phim" 
-                        id="content" 
-                        required 
+                      <FormField
+                        label="Nội dung phim"
+                        id="content"
+                        required
                         error={validationErrors.content}
                       >
                         <textarea
@@ -923,8 +856,8 @@ const AddMovie = () => {
                     </div>
                   </div>                  <div className={styles.formRow}>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Đạo diễn" 
+                      <FormField
+                        label="Đạo diễn"
                         id="director"
                       >
                         <div className={styles.categorySelection}>
@@ -977,8 +910,8 @@ const AddMovie = () => {
                       </FormField>
                     </div>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Diễn viên" 
+                      <FormField
+                        label="Diễn viên"
                         id="actor"
                       >
                         <div className={styles.categorySelection}>
@@ -1034,8 +967,8 @@ const AddMovie = () => {
 
                   <div className={styles.formRow}>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Loại phim" 
+                      <FormField
+                        label="Loại phim"
                         id="type"
                       >
                         <select
@@ -1054,8 +987,8 @@ const AddMovie = () => {
                       </FormField>
                     </div>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Trạng thái" 
+                      <FormField
+                        label="Trạng thái"
                         id="status"
                       >
                         <select
@@ -1076,8 +1009,8 @@ const AddMovie = () => {
 
                   <div className={styles.formRow}>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Chất lượng" 
+                      <FormField
+                        label="Chất lượng"
                         id="quality"
                       >
                         <select
@@ -1097,8 +1030,8 @@ const AddMovie = () => {
                       </FormField>
                     </div>
                     <div className={styles.formCol}>
-                      <FormField 
-                        label="Ngôn ngữ" 
+                      <FormField
+                        label="Ngôn ngữ"
                         id="lang"
                       >
                         <select
@@ -1124,8 +1057,8 @@ const AddMovie = () => {
                     <div className={styles.formCardBody}>
                       <div className={styles.formRow}>
                         <div className={styles.formCol}>
-                          <FormField 
-                            label="Thời lượng" 
+                          <FormField
+                            label="Thời lượng"
                             id="time"
                           >
                             <input
@@ -1140,8 +1073,8 @@ const AddMovie = () => {
                           </FormField>
                         </div>
                         <div className={styles.formCol}>
-                          <FormField 
-                            label="Tổng số tập" 
+                          <FormField
+                            label="Tổng số tập"
                             id="episode_total"
                           >
                             <input
@@ -1158,8 +1091,8 @@ const AddMovie = () => {
                       </div>
                       <div className={styles.formRow}>
                         <div className={styles.formCol}>
-                          <FormField 
-                            label="Tập hiện tại" 
+                          <FormField
+                            label="Tập hiện tại"
                             id="episode_current"
                           >
                             <input
@@ -1174,8 +1107,8 @@ const AddMovie = () => {
                           </FormField>
                         </div>
                         <div className={styles.formCol}>
-                          <FormField 
-                            label="Lịch chiếu (nếu có)" 
+                          <FormField
+                            label="Lịch chiếu (nếu có)"
                             id="showtimes"
                           >
                             <input
@@ -1192,8 +1125,8 @@ const AddMovie = () => {
                       </div>
                       <div className={styles.formRow}>
                         <div className={styles.formCol}>
-                          <FormField 
-                            label="Trailer URL" 
+                          <FormField
+                            label="Trailer URL"
                             id="trailer_url"
                             hint="URL Youtube hoặc URL nhúng khác"
                           >                            <input
@@ -1273,8 +1206,8 @@ const AddMovie = () => {
                     <div className={styles.formCardBody}>
                       <div className={styles.formRow}>
                         <div className={styles.formCol}>
-                          <FormField 
-                            label="IMDB ID" 
+                          <FormField
+                            label="IMDB ID"
                             id="imdb_id"
                           >
                             <input
@@ -1290,8 +1223,8 @@ const AddMovie = () => {
                           </FormField>
                         </div>
                         <div className={styles.formCol}>
-                          <FormField 
-                            label="TMDB ID" 
+                          <FormField
+                            label="TMDB ID"
                             id="tmdb_id"
                           >
                             <input
@@ -1318,7 +1251,7 @@ const AddMovie = () => {
               <div className={styles.formSection}>
                 <div className={styles.formTitle}>
                   <span>
-                    <FaCamera className="mr-2" /> 
+                    <FaCamera className="mr-2" />
                     Hình ảnh & Media
                   </span>
                 </div>
@@ -1349,7 +1282,7 @@ const AddMovie = () => {
                         placeholder="Nhập đường dẫn hình poster"
                       />
                     </div>
-                  </div>                  {/* Đã loại bỏ trường URL hình nền backdrop */}
+                  </div>
 
                   <EpisodeManager
                     episodes={movie.episodes}
@@ -1369,7 +1302,7 @@ const AddMovie = () => {
               <div className={styles.formSection}>
                 <div className={styles.formTitle}>
                   <span>
-                    <FaEye className="mr-2" /> 
+                    <FaEye className="mr-2" />
                     Xem trước thông tin
                   </span>
                 </div>
@@ -1396,9 +1329,9 @@ const AddMovie = () => {
                       </div>
                       <div className={styles.formCol}>                        {preview && (
                           <div className={styles.imagePreviewContainer}>
-                            <Image 
-                              src={preview} 
-                              alt="Preview" 
+                            <Image
+                              src={preview}
+                              alt="Preview"
                               className={styles.thumbnailPreview}
                               width={300}
                               height={450}
@@ -1406,7 +1339,7 @@ const AddMovie = () => {
                             />
                           </div>
                         )}
-                        
+
                         {!preview && movie.thumb_url && (
                           <div className={styles.imagePreviewContainer}>
                             <Image
@@ -1419,7 +1352,7 @@ const AddMovie = () => {
                             />
                           </div>
                         )}
-                        
+
                         {!preview && !movie.thumb_url && (
                           <div className={`${styles.imagePreviewContainer} ${styles.noImage}`}>
                             <div className={styles.noImagePlaceholder}>
@@ -1466,7 +1399,7 @@ const AddMovie = () => {
                         ) : '(Chưa chọn)'}
                       </div>
                     </div>
-                    
+
                     <h3 className={styles.previewTitle}>Thông tin chi tiết</h3>
                     <div className={styles.previewItem}>
                       <div className={styles.previewLabel}>Nội dung:</div>
@@ -1498,7 +1431,7 @@ const AddMovie = () => {
                         {movie.status === 'completed' ? 'Hoàn tất' : movie.status === 'ongoing' ? 'Đang chiếu' : 'Sắp chiếu'}
                       </div>
                     </div>
-                    
+
                     <h3 className={styles.previewTitle}>Thông tin tập phim</h3>
                     <div className={styles.previewItem}>
                       <div className={styles.previewLabel}>Số tập:</div>
@@ -1520,18 +1453,18 @@ const AddMovie = () => {
             {/* Form Navigation */}
             <div className={styles.formNavigation}>
               {activeTab !== formSteps[0].id && (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={goToPrevTab}
                   className={styles.navButtonPrev}
                 >
-                  <FaArrowLeft className={styles.navButtonIcon} /> 
+                  <FaArrowLeft className={styles.navButtonIcon} />
                   Quay lại
                 </button>
               )}
-              
+
               {activeTab !== formSteps[formSteps.length - 1].id ? (
-                <button 
+                <button
                   type="button"
                   onClick={goToNextTab}
                   className={styles.navButtonNext}
@@ -1539,7 +1472,7 @@ const AddMovie = () => {
                   Tiếp theo
                 </button>
               ) : (
-                <button 
+                <button
                   type="submit"
                   className={styles.saveButton}
                   disabled={loading}

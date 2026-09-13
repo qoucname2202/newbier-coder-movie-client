@@ -4,20 +4,17 @@ import AuthForm from '../../components/Auth/AuthForm';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../utils/auth';
 
-// Thêm log chi tiết để debug
 const logDetailedError = (error) => {
     console.group('=== DETAILED LOGIN ERROR ===');
     console.error('Error object:', error);
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
-    
-    // Kiểm tra nếu đây là lỗi từ fetch API
+
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
         console.error('Network error detected. API server might be down or URL is incorrect.');
         console.error('API_URL being used:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
     }
-    
-    // Kiểm tra nếu đây là lỗi từ JSON parsing
+
     if (error.message.includes('JSON')) {
         console.error('JSON parsing error. Server might be returning non-JSON response.');
     }
@@ -61,17 +58,12 @@ export default function Login() {
                 return;
             }
 
-            console.log("Attempting login with:", credentials);
-
-            // Thử gọi API login
             try {
                 // Call the login function from auth context
                 const result = await login({
                     email: credentials.email,
                     password: credentials.password
                 });
-
-                console.log("Login result:", result);
 
                 if (result.success) {
                     setMessage('Đăng nhập thành công! Đang chuyển hướng...');
@@ -84,10 +76,9 @@ export default function Login() {
                     setDebugInfo(result.debugInfo || '');
                 }
             } catch (apiError) {
-                // Xử lý lỗi khi gọi API
                 console.error("API call error:", apiError);
                 logDetailedError(apiError);
-                
+
                 if (apiError.message.includes('Failed to fetch')) {
                     setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và cài đặt API.');
                     setDebugInfo(`Backend server có thể chưa khởi động. Hãy đảm bảo server đang chạy ở ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}`);

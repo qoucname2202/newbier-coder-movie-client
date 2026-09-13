@@ -40,23 +40,13 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
 
   const handleBanClick = (user: User) => {
     setSelectedUser(user);
-    
-    // Xác định chính xác hành động dựa trên trạng thái HIỆN TẠI của tài khoản
-    const currentUserActive = user.isActive !== false; // True nếu đang hoạt động, false nếu đã bị khóa
-    
-    // Action là ban/unban (khóa/mở khóa)
+
+    const currentUserActive = user.isActive !== false;
+
     setAction(currentUserActive ? 'ban' : 'unban');
-    
-    // isActive đại diện cho trạng thái MỚI sau khi thực hiện hành động
-    // Nếu hiện tại là active, thì bạn muốn khóa (setIsActive=false)
-    // Nếu hiện tại là inactive, thì bạn muốn mở khóa (setIsActive=true)
+
     const newActiveState = !currentUserActive;
-    
-    console.log(`Chuẩn bị ${currentUserActive ? 'khóa' : 'mở khóa'} tài khoản: ${user.fullname}`);
-    console.log(`Trạng thái hiện tại: ${currentUserActive ? 'Đang hoạt động' : 'Đã bị khóa'}`);
-    console.log(`Trạng thái mới sẽ là: ${newActiveState ? 'Hoạt động' : 'Bị khóa'}`);
-    
-    // Khi hiển thị modal xác nhận, trạng thái mới được lưu
+
     setNewActiveState(newActiveState);
     setShowBanModal(true);
   };
@@ -69,7 +59,6 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
   };
   const handleBanConfirm = () => {
     if (selectedUser && selectedUser._id) {
-      // Truyền newActiveState (đã được lưu trong state) cho hàm onBanUser
       onBanUser(selectedUser._id, newActiveState as boolean);
       setShowBanModal(false);
     }
@@ -100,21 +89,18 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
   const getAccountTypeName = (accountType: string | { name: string; _id: string } | undefined): string => {
     if (!accountType) return 'Normal';
     if (typeof accountType === 'string') {
-      // Nếu accountType là string, trả về giá trị của nó
-      // Cần xử lý đúng trường hợp "VIP" hoặc "premium"
-      return accountType === 'VIP' || accountType === 'vip' ? 'VIP' : 
-             accountType === 'premium' || accountType === 'Premium' ? 'Premium' : 
+      return accountType === 'VIP' || accountType === 'vip' ? 'VIP' :
+             accountType === 'premium' || accountType === 'Premium' ? 'Premium' :
              'Normal';
     }
-    // Nếu accountType là object với thuộc tính name, trả về tên
     return accountType?.name || 'Normal';
   };
 
   const getRoleStyle = (role: string | { name: string; _id: string } | undefined) => {
     if (!role) return 'badge bg-secondary';
-    
+
     const roleName = typeof role === 'string' ? role : role?.name;
-    
+
     switch (roleName?.toLowerCase()) {
       case 'admin':
         return 'badge bg-danger';
@@ -127,11 +113,11 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
 
   const getAccountTypeStyle = (accountType: string | { name: string; _id: string } | undefined) => {
     if (!accountType) return 'badge bg-secondary';
-    
-    const typeName = typeof accountType === 'string' 
-      ? accountType 
+
+    const typeName = typeof accountType === 'string'
+      ? accountType
       : accountType?.name || '';
-    
+
     switch (typeName.toLowerCase()) {
       case 'vip':
         return 'badge bg-success';
@@ -159,33 +145,32 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
     setFilterRole(e.target.value === 'all' ? null : e.target.value);
   };
 
-  // Đảm bảo users là một mảng
   const safeUsers = Array.isArray(users) ? users : [];
 
   // Apply filtering
   const filteredUsers = safeUsers.filter(user => {
     if (!user) return false;
-    
+
     const fullname = user.fullname || '';
     const email = user.email || '';
     const role = getRoleName(user.role).toLowerCase();
-    
-    const matchesSearch = searchQuery === '' || 
+
+    const matchesSearch = searchQuery === '' ||
       fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
       email.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesRoleFilter = !filterRole || role === filterRole.toLowerCase();
-    
+
     return matchesSearch && matchesRoleFilter;
   });
 
   // Apply sorting
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (!sortField) return 0;
-    
+
     let compareA: any;
     let compareB: any;
-    
+
     switch (sortField) {
       case 'fullname':
         compareA = a.fullname || '';
@@ -210,7 +195,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
       default:
         return 0;
     }
-    
+
     if (compareA < compareB) return sortDirection === 'asc' ? -1 : 1;
     if (compareA > compareB) return sortDirection === 'asc' ? 1 : -1;
     return 0;
@@ -335,16 +320,16 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
                 sortedUsers.map((user) => {
                   if (!user || !user._id) return null;
                   const isUserInactive = user.isActive === false;
-                  
+
                   return (
                     <tr key={user._id} className={isUserInactive ? 'banned-user' : ''}>
                       <td>
                         <div className="d-flex align-items-center">
-                          <div className="user-avatar mr-3">                            
+                          <div className="user-avatar mr-3">
                             {getAvatarUrl(user) ? (
-                              <img 
-                                src={getAvatarUrl(user) || '/img/avatar.png'} 
-                                alt={user.fullname || 'User'} 
+                              <img
+                                src={getAvatarUrl(user) || '/img/avatar.png'}
+                                alt={user.fullname || 'User'}
                                 className="avatar-img"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = '/img/avatar.png';
@@ -390,8 +375,8 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
                       </td>
                       <td>
                         <div className="btn-group">
-                          <button 
-                            className="btn btn-sm btn-outline-info" 
+                          <button
+                            className="btn btn-sm btn-outline-info"
                             onClick={() => onEdit(user)}
                             title="Chỉnh sửa"
                           >
@@ -399,7 +384,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
                           </button>
                           {getRoleName(user.role).toLowerCase() !== 'admin' && (
                             <>
-                              <button 
+                              <button
                                 className={`btn btn-sm ${isUserInactive ? 'btn-outline-success' : 'btn-outline-warning'}`}
                                 onClick={() => handleBanClick(user)}
                                 title={isUserInactive ? "Mở khóa tài khoản này" : "Khóa tài khoản này"}
@@ -408,8 +393,8 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
                               >
                                 {isUserInactive ? <FaUnlock /> : <FaBan />}
                               </button>
-                              <button 
-                                className="btn btn-sm btn-outline-danger" 
+                              <button
+                                className="btn btn-sm btn-outline-danger"
                                 onClick={() => handleDeleteClick(user)}
                                 title="Xóa"
                               >
@@ -442,7 +427,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
         show={showBanModal}
         title={action === 'ban' ? "Xác nhận khóa tài khoản" : "Xác nhận mở khóa tài khoản"}
         message={
-          action === 'ban' 
+          action === 'ban'
             ? `Bạn có chắc chắn muốn khóa tài khoản người dùng "${selectedUser?.fullname || ''}"? Người dùng sẽ không thể đăng nhập vào hệ thống cho đến khi được mở khóa.`
             : `Bạn có chắc chắn muốn mở khóa tài khoản người dùng "${selectedUser?.fullname || ''}"? Người dùng sẽ có thể đăng nhập và sử dụng hệ thống bình thường.`
         }
@@ -457,7 +442,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           border-collapse: separate;
           border-spacing: 0;
         }
-        
+
         .user-table thead th {
           background-color: #f8f9fa;
           border-top: none;
@@ -466,38 +451,38 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           color: #495057;
           padding: 0.85rem;
         }
-        
+
         .sortable-header {
           cursor: pointer;
           user-select: none;
           position: relative;
         }
-        
+
         .sortable-header:hover {
           background-color: #f1f1f1;
         }
-        
+
         .user-table tbody tr {
           transition: all 0.2s;
           position: relative;
         }
-        
+
         .user-table tbody tr:hover {
           background-color: rgba(0, 123, 255, 0.03);
         }
-        
+
         .banned-user {
           background-color: rgba(253, 237, 237, 0.4);
         }
-        
+
         .banned-user:hover {
           background-color: rgba(253, 237, 237, 0.6) !important;
         }
-        
+
         .banned-user td {
           color: #6c757d;
         }
-        
+
         .banned-user::after {
           content: "";
           position: absolute;
@@ -508,7 +493,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           background-color: #dc3545;
           opacity: 0.7;
         }
-        
+
         .user-avatar {
           position: relative;
           width: 40px;
@@ -517,13 +502,13 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           overflow: hidden;
           flex-shrink: 0;
         }
-        
+
         .avatar-img {
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
-        
+
         .avatar-placeholder {
           width: 100%;
           height: 100%;
@@ -535,7 +520,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           font-weight: bold;
           font-size: 16px;
         }
-        
+
         .banned-badge {
           position: absolute;
           bottom: -2px;
@@ -551,7 +536,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           border-radius: 50%;
           border: 2px solid white;
         }
-        
+
         .empty-state {
           padding: 2rem;
           display: flex;
@@ -559,16 +544,16 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           align-items: center;
           justify-content: center;
         }
-        
+
         .search-group {
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
           border-radius: 4px;
         }
-        
+
         .search-group input, .search-group .input-group-text {
           border-color: #eaeaea;
         }
-        
+
         .btn-group .btn {
           margin-right: 5px;
           display: inline-flex;
@@ -578,7 +563,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           height: 32px;
           padding: 0;
         }
-        
+
         .user-filters {
           background-color: white;
           border-radius: 0.5rem;

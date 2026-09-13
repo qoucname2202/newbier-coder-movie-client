@@ -15,11 +15,11 @@ interface UpcomingMovieFormProps {
   onCancel?: () => void;
 }
 
-const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({ 
-  movie, 
-  onSubmit, 
+const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
+  movie,
+  onSubmit,
   isSubmitting,
-  onCancel 
+  onCancel
 }) => {
   const [formData, setFormData] = useState<Partial<UpcomingMovie>>(movie || {
     name: '',
@@ -39,19 +39,17 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
     chieurap: true,
     isHidden: false
   });
-  
-  // State cho danh sách và input mới
+
   const [categories, setCategories] = useState<{id: string; name: string; slug: string;}[]>([]);
   const [directors, setDirectors] = useState<{id: string; name: string;}[]>([]);
   const [actors, setActors] = useState<{id: string; name: string;}[]>([]);
   const [countries, setCountries] = useState<{id: string; name: string; slug: string;}[]>([]);
-  
-  // State cho input mới
+
   const [newCategory, setNewCategory] = useState('');
   const [newDirector, setNewDirector] = useState('');
   const [newActor, setNewActor] = useState('');
   const [newCountry, setNewCountry] = useState('');
-  
+
   const [thumbnailPreview, setThumbnailPreview] = useState<string>(formData.thumb_url || '');
   const [posterPreview, setPosterPreview] = useState<string>(formData.poster_url || '');
   const [activeTab, setActiveTab] = useState('basic');
@@ -68,17 +66,15 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
       if (movie.release_date) {
         setReleaseDate(new Date(movie.release_date));
       }
-      
-      // Khởi tạo dữ liệu cho danh sách
+
       if (movie.category && Array.isArray(movie.category)) {
         setCategories(movie.category);
       }
-      
+
       if (movie.country && Array.isArray(movie.country)) {
         setCountries(movie.country);
       }
-      
-      // Khởi tạo danh sách đạo diễn và diễn viên
+
       if (movie.director && Array.isArray(movie.director)) {
         const directorList = movie.director.map((name, index) => ({
           id: `director-${index}`,
@@ -86,7 +82,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
         }));
         setDirectors(directorList);
       }
-      
+
       if (movie.actor && Array.isArray(movie.actor)) {
         const actorList = movie.actor.map((name, index) => ({
           id: `actor-${index}`,
@@ -95,7 +91,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
         setActors(actorList);
       }
     }
-    
+
     // Check for authentication token
     const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
     if (!token) {
@@ -120,109 +116,92 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
       setFormData(prev => ({ ...prev, release_date: date }));
     }
   };  // Using CSS modules instead of inline styles
-  
-  // Hàm xử lý thêm thể loại mới
+
   const handleAddCustomCategory = () => {
     if (!newCategory.trim()) {
       setErrorMessage('Vui lòng nhập tên thể loại');
       return;
     }
-    
-    // Tạo ID tạm thời cho thể loại mới
+
     const tempId = `custom-${Date.now()}`;
-    
-    // Thêm vào danh sách category
-    const newCategoryObj = { 
-      id: tempId, 
-      name: newCategory.trim(), 
+
+    const newCategoryObj = {
+      id: tempId,
+      name: newCategory.trim(),
       slug: newCategory.trim().toLowerCase().replace(/ /g, '-')
     };
-    
-    // Thêm vào danh sách categories để hiển thị trong UI
+
     setCategories(prev => [...prev, newCategoryObj]);
-    
-    // Thêm vào formData
+
     setFormData(prev => ({
       ...prev,
       category: [...(prev.category || []), newCategoryObj]
     }));
-    
+
     // Reset input
     setNewCategory('');
   };
-  
-  // Hàm xử lý thêm đạo diễn mới
+
   const handleAddCustomDirector = () => {
     if (!newDirector.trim()) {
       setErrorMessage('Vui lòng nhập tên đạo diễn');
       return;
     }
-    
-    // Tạo ID tạm thời cho đạo diễn mới
+
     const tempId = `director-${Date.now()}`;
-    
-    // Thêm vào danh sách directors để hiển thị trong UI
+
     const directorObj = { id: tempId, name: newDirector.trim() };
     setDirectors(prev => [...prev, directorObj]);
-    
-    // Thêm vào formData
+
     setFormData(prev => ({
       ...prev,
       director: [...(prev.director || []), newDirector.trim()]
     }));
-    
+
     // Reset input
     setNewDirector('');
   };
-  
-  // Hàm xử lý thêm diễn viên mới
+
   const handleAddCustomActor = () => {
     if (!newActor.trim()) {
       setErrorMessage('Vui lòng nhập tên diễn viên');
       return;
     }
-    
-    // Tạo ID tạm thời cho diễn viên mới
+
     const tempId = `actor-${Date.now()}`;
-    
-    // Thêm vào danh sách actors để hiển thị trong UI
+
     const actorObj = { id: tempId, name: newActor.trim() };
     setActors(prev => [...prev, actorObj]);
-    
-    // Thêm vào formData
+
     setFormData(prev => ({
       ...prev,
       actor: [...(prev.actor || []), newActor.trim()]
     }));
-    
+
     // Reset input
     setNewActor('');
   };
-  
-  // Hàm xử lý thêm quốc gia mới
+
   const handleAddCustomCountry = () => {
     if (!newCountry.trim()) {
       setErrorMessage('Vui lòng nhập tên quốc gia');
       return;
     }
-    
-    // Tạo ID tạm thời cho quốc gia mới
+
     const tempId = `country-${Date.now()}`;
-    
-    // Thêm vào danh sách countries để hiển thị trong UI
-    const countryObj = { 
-      id: tempId, 
+
+    const countryObj = {
+      id: tempId,
       name: newCountry.trim(),
       slug: newCountry.trim().toLowerCase().replace(/ /g, '-')
     };
     setCountries(prev => [...prev, countryObj]);
-    
-    // Thêm vào formData
+
     setFormData(prev => ({
       ...prev,
       country: [...(prev.country || []), countryObj]
     }));
-    
+
     // Reset input
     setNewCountry('');
   };
@@ -230,7 +209,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const fileUrl = URL.createObjectURL(file);
-      
+
       // Here we would normally upload the file to a server,
       // but for now we'll just use the local URL for preview
       if (field === 'thumb_url') {
@@ -245,23 +224,23 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!formData.name) {
       setErrorMessage('Vui lòng nhập tên phim');
       return;
     }
-    
+
     if (!formData.origin_name) {
       setErrorMessage('Vui lòng nhập tên gốc phim');
       return;
     }
-    
+
     if (!formData.content) {
       setErrorMessage('Vui lòng nhập nội dung phim');
       return;
     }
-    
+
     if (!formData.release_date) {
       setErrorMessage('Vui lòng chọn ngày phát hành');
       return;
@@ -311,9 +290,9 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                     <Card.Header className={styles.formSection}>Xem nhanh</Card.Header>
                     <Card.Body className="text-center">
                       {thumbnailPreview && (
-                        <Image 
-                          src={thumbnailPreview} 
-                          alt="Thumbnail preview" 
+                        <Image
+                          src={thumbnailPreview}
+                          alt="Thumbnail preview"
                           className={styles.mediaPreview}
                         />
                       )}
@@ -321,7 +300,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                   </Card>
                 )}
               </Col>
-              
+
               <Col md={9}>
                 <Form onSubmit={handleSubmit}>
                   <Tab.Content>
@@ -372,7 +351,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                             <Col md={6}>
                               <Form.Group className="mb-3">                                <Form.Label>Ngày phát hành <span className="text-danger">*</span></Form.Label>
                                 <div className={styles.datepickerWrapper}>
-                                  <DatePicker 
+                                  <DatePicker
                                     selected={releaseDate}
                                     onChange={handleReleaseDateChange}
                                     className={styles.datepickerInput}
@@ -470,7 +449,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                       value={newCategory}
                                       onChange={(e) => setNewCategory(e.target.value)}
                                       className={styles.addInput}
-                                    />                                    <Button 
+                                    />                                    <Button
                                       variant="primary"
                                       onClick={handleAddCustomCategory}
                                       className={styles.addButton}
@@ -491,8 +470,8 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                           type="checkbox"
                                           id={`country-${country.id}`}
                                           className="form-check-input"
-                                          checked={formData.country?.some(c => c.id === country.id) || false}                                          
-                                          onChange={(e) => {                                            
+                                          checked={formData.country?.some(c => c.id === country.id) || false}
+                                          onChange={(e) => {
                                             if (e.target.checked) {
                                               setFormData(prev => ({
                                                 ...prev,
@@ -518,7 +497,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                       value={newCountry}
                                       onChange={(e) => setNewCountry(e.target.value)}
                                       className={styles.addInput}
-                                    />                                      <Button 
+                                    />                                      <Button
                                       variant="primary"
                                       onClick={handleAddCustomCountry}
                                       className={styles.addButton}
@@ -570,7 +549,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                       value={newDirector}
                                       onChange={(e) => setNewDirector(e.target.value)}
                                       className={styles.addInput}
-                                    />                                    <Button 
+                                    />                                    <Button
                                       variant="primary"
                                       onClick={handleAddCustomDirector}
                                       className={styles.addButton}
@@ -619,7 +598,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                       value={newActor}
                                       onChange={(e) => setNewActor(e.target.value)}
                                       className={styles.addInput}
-                                    />                                    <Button 
+                                    />                                    <Button
                                       variant="primary"
                                       onClick={handleAddCustomActor}
                                       className={styles.addButton}
@@ -679,7 +658,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                     className={styles.fileInput}
                                     title="Chọn file hình thu nhỏ"
                                   />
-                                  <Button 
+                                  <Button
                                     variant="primary"
                                     onClick={() => fileInputRefThumb.current?.click()}
                                     className={styles.fileButton}
@@ -689,8 +668,8 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                 </div>
                                 {thumbnailPreview && (
                                   <div className="mt-3 text-center">
-                                    <Image 
-                                      src={thumbnailPreview} 
+                                    <Image
+                                      src={thumbnailPreview}
                                       alt="Thumbnail preview"
                                       className={styles.imagePreview}
                                     />
@@ -720,7 +699,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                     className={styles.fileInput}
                                     title="Chọn file poster"
                                   />
-                                  <Button 
+                                  <Button
                                     variant="primary"
                                     onClick={() => fileInputRefPoster.current?.click()}
                                     className={styles.fileButton}
@@ -729,8 +708,8 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                   </Button>
                                 </div>                                {posterPreview && (
                                   <div className="mt-3 text-center">
-                                    <Image 
-                                      src={posterPreview} 
+                                    <Image
+                                      src={posterPreview}
                                       alt="Poster preview"
                                       className={styles.imagePreview}
                                     />
@@ -777,13 +756,13 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                           <div className="preview-container p-3 bg-light rounded">
                             <h4>{formData.name || 'Tên phim'}</h4>
                             <p className="text-muted">{formData.origin_name || 'Tên gốc'}</p>
-                            
+
                             <Row className="my-3">
                               <Col md={6}>                                <div className={thumbnailPreview ? styles.previewImageContainer : styles.noImage}>
                                   {thumbnailPreview ? (
-                                    <Image 
-                                      src={thumbnailPreview} 
-                                      alt="Movie thumbnail" 
+                                    <Image
+                                      src={thumbnailPreview}
+                                      alt="Movie thumbnail"
                                       className={styles.imagePreview}
                                     />                                  ) : (
                                     <div className={styles.noImage}>
@@ -806,7 +785,7 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                                 </div>
                               </Col>
                             </Row>
-                            
+
                             <div className="movie-synopsis mt-3">
                               <h5>Nội dung:</h5>
                               <p>{formData.content || 'Chưa có nội dung'}</p>
@@ -816,8 +795,8 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                       </Card>
                     </Tab.Pane>
                   </Tab.Content>                  <div className={styles.formActions}>
-                    <Button 
-                      variant="light" 
+                    <Button
+                      variant="light"
                       onClick={onCancel || (() => window.history.back())}
                       className={styles.cancelButton}
                     >
@@ -825,26 +804,26 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                     </Button>
                     <div>
                       {activeTab !== 'basic' && (
-                        <Button 
-                          variant="outline-primary" 
-                          className="me-2" 
+                        <Button
+                          variant="outline-primary"
+                          className="me-2"
                           onClick={() => setActiveTab(tabs[tabs.indexOf(activeTab) - 1])}
                         >
                           <i className="bi bi-arrow-left me-1"></i> Quay lại
                         </Button>
                       )}
                       {activeTab !== 'preview' && (
-                        <Button 
-                          variant="outline-primary" 
-                          className="me-2" 
+                        <Button
+                          variant="outline-primary"
+                          className="me-2"
                           onClick={() => setActiveTab(tabs[tabs.indexOf(activeTab) + 1])}
                         >
                           Tiếp theo <i className="bi bi-arrow-right ms-1"></i>
                         </Button>
                       )}
-                      <Button 
-                        variant="primary" 
-                        type="submit" 
+                      <Button
+                        variant="primary"
+                        type="submit"
                         disabled={isSubmitting}
                         className={styles.submitButton}
                       >

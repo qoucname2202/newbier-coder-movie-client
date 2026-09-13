@@ -1,16 +1,16 @@
 // src/pages/admin/users.tsx
-'use client'; // Cần cho hooks
+'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Head from 'next/head';
 import UserTable from '@/components/Admin/Users/UserTable';
 import UserForm from '@/components/Admin/Users/UserForm';
 import PaginationComponent from '@/components/Admin/Common/Pagination';
-import { 
-  getUsersForAdmin, 
-  deleteUserByAdmin, 
-  toggleUserActiveStatus, 
-  getRolesForAdmin, 
+import {
+  getUsersForAdmin,
+  deleteUserByAdmin,
+  toggleUserActiveStatus,
+  getRolesForAdmin,
   getAccountTypesForAdmin
 } from '@/API/services/admin/userAdminService';
 import { FaUserPlus, FaUsers, FaUserShield, FaUserAlt, FaUserCog } from 'react-icons/fa';
@@ -117,7 +117,7 @@ const AdminUsersPage = () => {
     totalUsers: 0,
     limit: 10,
   });
-  
+
   // Add state for user statistics
   const [userStats, setUserStats] = useState<UserStats>({
     totalUsers: 0,
@@ -135,20 +135,14 @@ const AdminUsersPage = () => {
     setLoading(true);
     setError(null);
     try {
-      console.log("Đang tải lại danh sách người dùng...");
-      
-      // Thêm timestamp để tránh cache
-      const params = { 
-        page, 
-        limit, 
-        _t: Date.now() 
+      const params = {
+        page,
+        limit,
+        _t: Date.now()
       };
-        // Gọi API để lấy danh sách người dùng mới nhất
       const responseData = await getUsersForAdmin(params) as any;
-      
-      console.log("Nhận được dữ liệu người dùng mới:", responseData);
-        if (responseData && Array.isArray(responseData.users)) {
-        // Cập nhật state với dữ liệu mới
+
+      if (responseData && Array.isArray(responseData.users)) {
         setUsers(responseData.users);
         setPagination({
           currentPage: responseData.page || page,
@@ -157,7 +151,6 @@ const AdminUsersPage = () => {
           limit: responseData.limit || limit,
         });
       } else {
-        // Fallback nếu API không trả về dữ liệu đúng định dạng
         setUsers([]);
         console.error('Invalid data format from API:', responseData);
       }
@@ -178,7 +171,7 @@ const AdminUsersPage = () => {
     try {
       // Fetch all users without pagination to get accurate stats
       const allUsersData = await getUsersForAdmin({ page: 1, limit: 1000 }) as any; // Get a large number to cover all users
-      
+
       if (allUsersData && Array.isArray(allUsersData.users)) {
         const allUsers = allUsersData.users;
           const stats = {
@@ -197,7 +190,7 @@ const AdminUsersPage = () => {
           }).length,
           bannedCount: allUsers.filter((user: any) => user && user.isActive === false).length,
         };
-        
+
         setUserStats(stats);
       }
     } catch (err) {
@@ -210,14 +203,14 @@ const AdminUsersPage = () => {
         getRolesForAdmin(),
         getAccountTypesForAdmin()
       ]);
-      
+
       if (Array.isArray(rolesData)) {
         setRoles(rolesData);
       } else {
         setRoles([]);
         console.error('Invalid roles data format:', rolesData);
       }
-      
+
       if (Array.isArray(accountTypesData)) {
         setAccountTypes(accountTypesData);
       } else {
@@ -236,13 +229,11 @@ const AdminUsersPage = () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
-      
+
       const ws = new WebSocket('ws://localhost:5000');
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
-        // Authenticate WebSocket connection
         const token = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
         if (token) {
           ws.send(JSON.stringify({
@@ -255,11 +246,8 @@ const AdminUsersPage = () => {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('WebSocket message received:', data);
-          
-          // Handle user_updated notifications - for Premium subscription approvals
+
           if (data.type === 'user_updated' && data.userId && data.changes) {
-            console.log('Cập nhật thông tin người dùng:', data.userId, data.changes);
               // Update the specific user in the local state
             setUsers(prevUsers => {
               return prevUsers.map(user => {
@@ -280,7 +268,7 @@ const AdminUsersPage = () => {
                       updatedUser.role = data.changes.role || 'VIP';
                     }
                   }
-                  
+
                   return updatedUser;
                 }
                 return user;
@@ -293,8 +281,6 @@ const AdminUsersPage = () => {
       };
 
       ws.onclose = () => {
-        console.log('WebSocket disconnected');
-        // Try to reconnect after a delay
         setTimeout(() => {
           if (document.visibilityState !== 'hidden') {
             setupWebSocket();
@@ -333,8 +319,8 @@ const AdminUsersPage = () => {
       email: user.email,
       role: user.role as string | { name: string; _id: string },
       accountType: user.accountType as string | { name: string; _id: string } | undefined,
-      createdAt: user.createdAt instanceof Date 
-        ? user.createdAt.toISOString() 
+      createdAt: user.createdAt instanceof Date
+        ? user.createdAt.toISOString()
         : (user.createdAt as string || new Date().toISOString()),
       isActive: user.isActive,
       avatar: (user as any).avatar
@@ -382,22 +368,15 @@ const AdminUsersPage = () => {
     }
 
     try {
-      console.log(`Đang ${isActive ? 'mở khóa' : 'khóa'} tài khoản người dùng ${userId}`);
-      
-      // Gọi API để thay đổi trạng thái người dùng
       const result = await toggleUserActiveStatus(userId, isActive);
-      console.log('Kết quả cập nhật:', result);
-      
-      // Force update UI bất kể kết quả từ API như thế nào
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
+
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
           user._id === userId ? { ...user, isActive: isActive } : user
         )
       );
-      
-      // Hiển thị thông báo thành công
+
       alert(`Đã ${isActive ? 'mở khóa' : 'khóa'} tài khoản người dùng thành công!`);
-        // Để đồng bộ hóa dữ liệu, tải lại danh sách người dùng và stats
       setTimeout(() => {
         fetchUsers(pagination.currentPage, pagination.limit);
         fetchUserStats(); // Refresh stats after ban/unban
@@ -461,8 +440,8 @@ const AdminUsersPage = () => {
                 <p className="text-muted">Quản lý tài khoản người dùng, phân quyền và trạng thái</p>
               </div>
               <div className="col-sm-6 d-flex justify-content-end align-items-center">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn btn-primary d-flex align-items-center"
                   onClick={handleAddNewUser}
                 >
@@ -532,13 +511,13 @@ const AdminUsersPage = () => {
                     <p className="mt-3 text-muted">Đang tải danh sách người dùng...</p>
                   </div>
                 )}
-                
+
                 {error && (
                   <div className="alert alert-danger m-3 rounded-3" role="alert">
                     <strong>Lỗi!</strong> {error}
                   </div>
                 )}
-                
+
                 {!loading && !error && (
                   <>
                     {Array.isArray(users) && users.length > 0 ? (
@@ -576,7 +555,7 @@ const AdminUsersPage = () => {
 
       {/* User Form Modal */}
       {showUserForm && (
-        <UserForm 
+        <UserForm
           show={showUserForm}
           user={selectedUser}
           mode={formMode}
@@ -592,18 +571,18 @@ const AdminUsersPage = () => {
           background-color: #f9fafb;
           min-height: calc(100vh - 60px);
         }
-        
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .content-header {
           position: relative;
           margin-bottom: 1.5rem;
           padding-top: 1.5rem;
         }
-        
+
         .page-title {
           font-size: 2rem;
           font-weight: 800;
@@ -628,12 +607,12 @@ const AdminUsersPage = () => {
           border-radius: 10px;
           animation: expandWidth 0.8s ease-out forwards;
         }
-        
+
         @keyframes expandWidth {
           from { width: 0; }
           to { width: 60px; }
         }
-        
+
         .text-muted {
           color: #64748b !important;
           font-size: 1rem;
@@ -641,7 +620,7 @@ const AdminUsersPage = () => {
           line-height: 1.6;
           opacity: 0.9;
         }
-        
+
         .info-box {
           border-radius: 1.25rem;
           min-height: 120px;
@@ -655,7 +634,7 @@ const AdminUsersPage = () => {
           backdrop-filter: blur(10px);
           isolation: isolate;
         }
-        
+
         .info-box::before {
           content: '';
           position: absolute;
@@ -664,13 +643,13 @@ const AdminUsersPage = () => {
           background: rgba(255, 255, 255, 0.7);
           border-radius: inherit;
         }
-        
+
         .info-box:hover {
           transform: translateY(-7px);
           box-shadow: 0 20px 30px rgba(0, 0, 0, 0.08), 0 15px 20px rgba(0, 0, 0, 0.04) !important;
           border-color: rgba(255, 255, 255, 0.9);
         }
-        
+
         .info-box-icon {
           height: 80px;
           width: 80px;
@@ -685,7 +664,7 @@ const AdminUsersPage = () => {
           position: relative;
           overflow: hidden;
         }
-        
+
         .info-box-icon::after {
           content: '';
           position: absolute;
@@ -697,30 +676,30 @@ const AdminUsersPage = () => {
           mask: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
           -webkit-mask: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
         }
-        
+
         .bg-info {
           background: linear-gradient(135deg, #0284c7, #38bdf8);
         }
-        
+
         .bg-danger {
           background: linear-gradient(135deg, #dc2626, #f87171);
         }
-        
+
         .bg-warning {
           background: linear-gradient(135deg, #d97706, #fbbf24);
         }
-        
+
         .bg-secondary {
           background: linear-gradient(135deg, #4b5563, #9ca3af);
         }
-        
+
         .info-box-content {
           padding: 18px 18px 18px 0;
           display: flex;
           flex-direction: column;
           justify-content: center;
         }
-        
+
         .info-box-text {
           display: block;
           font-size: 0.85rem;
@@ -734,7 +713,7 @@ const AdminUsersPage = () => {
           margin-bottom: 8px;
           opacity: 0.9;
         }
-        
+
         .info-box-number {
           display: block;
           font-weight: 800;
@@ -746,7 +725,7 @@ const AdminUsersPage = () => {
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
-        
+
         .card {
           margin-bottom: 2rem;
           border: none;
@@ -758,18 +737,18 @@ const AdminUsersPage = () => {
           position: relative;
           backdrop-filter: blur(10px);
         }
-        
+
         .card:hover {
           box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06), 0 10px 25px rgba(0, 0, 0, 0.05);
         }
-        
+
         .card-header {
           background-color: #fff;
           border-bottom: 1px solid rgba(0, 0, 0, 0.06);
           padding: 1.5rem 1.75rem;
           position: relative;
         }
-        
+
         .card-header::after {
           content: '';
           position: absolute;
@@ -779,18 +758,18 @@ const AdminUsersPage = () => {
           width: 100%;
           background: linear-gradient(90deg, #e5e7eb 0%, rgba(229, 231, 235, 0.3) 100%);
         }
-        
+
         .card-header h5 {
           font-size: 1.35rem;
           color: #111827;
           font-weight: 700;
           letter-spacing: -0.5px;
         }
-        
+
         .card-body {
           padding: 0;
         }
-        
+
         .card-footer {
           padding: 1.25rem 1.75rem;
           border-top: 1px solid rgba(0, 0, 0, 0.06);
@@ -799,7 +778,7 @@ const AdminUsersPage = () => {
           justify-content: space-between;
           align-items: center;
         }
-        
+
         .spinner-border {
           width: 3.5rem;
           height: 3.5rem;
@@ -808,7 +787,7 @@ const AdminUsersPage = () => {
           border-right-color: #0ea5e9;
           animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
@@ -827,7 +806,7 @@ const AdminUsersPage = () => {
           overflow: hidden;
           z-index: 1;
         }
-        
+
         .btn::before {
           content: '';
           position: absolute;
@@ -838,38 +817,38 @@ const AdminUsersPage = () => {
           background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
           z-index: -1;
         }
-        
+
         .btn-primary {
           background: linear-gradient(135deg, #0ea5e9, #0284c7);
           border: none;
           color: white;
         }
-        
+
         .btn-primary:hover {
           background: linear-gradient(135deg, #0284c7, #0369a1);
           transform: translateY(-3px);
           box-shadow: 0 8px 15px rgba(13, 110, 253, 0.25);
         }
-        
+
         .btn-primary:active {
           transform: translateY(-1px);
           box-shadow: 0 5px 10px rgba(13, 110, 253, 0.2);
         }
-        
+
         /* Table styling improvements */
         .table-responsive {
           border-radius: 0.75rem;
           overflow: hidden;
           box-shadow: 0 0 0 1px rgba(0,0,0,0.03);
         }
-        
+
         table {
           border-collapse: separate;
           border-spacing: 0;
           width: 100%;
           margin-bottom: 0;
         }
-        
+
         th {
           font-weight: 600;
           color: #4b5563;
@@ -883,7 +862,7 @@ const AdminUsersPage = () => {
           top: 0;
           z-index: 10;
         }
-        
+
         td {
           padding: 18px 24px;
           border-bottom: 1px solid #f1f5f9;
@@ -892,15 +871,15 @@ const AdminUsersPage = () => {
           font-size: 0.925rem;
           transition: background 0.15s ease;
         }
-        
+
         tr:last-child td {
           border-bottom: none;
         }
-        
+
         tr:hover td {
           background-color: rgba(241, 245, 249, 0.7);
         }
-        
+
         /* Status badge styling */
         .badge {
           padding: 0.4em 0.85em;
@@ -915,19 +894,19 @@ const AdminUsersPage = () => {
           line-height: 1.2;
           box-shadow: 0 2px 5px rgba(0,0,0,0.06);
         }
-        
+
         .badge-success {
           background-color: rgba(16, 185, 129, 0.12);
           color: #059669;
           border: 1px solid rgba(16, 185, 129, 0.25);
         }
-        
+
         .badge-danger {
           background-color: rgba(239, 68, 68, 0.12);
           color: #dc2626;
           border: 1px solid rgba(239, 68, 68, 0.25);
         }
-        
+
         /* Empty state styling */
         .empty-state {
           padding: 5rem 2rem;
@@ -935,14 +914,14 @@ const AdminUsersPage = () => {
           background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
           border-radius: 1rem;
         }
-        
+
         .empty-state-icon {
           font-size: 4rem;
           color: #cbd5e1;
           margin-bottom: 1.5rem;
           opacity: 0.8;
         }
-        
+
         /* Loading state styling */
         .loading-container {
           display: flex;
@@ -982,80 +961,80 @@ const AdminUsersPage = () => {
         .alert-danger strong {
           font-weight: 600;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 991px) {
           .info-box {
             margin-bottom: 1.5rem;
           }
-          
+
           .info-box-number {
             font-size: 1.75rem;
           }
-          
+
           .page-title {
             font-size: 1.75rem;
           }
         }
-        
+
         @media (max-width: 768px) {
           .card-header {
             padding: 1.25rem;
           }
-          
+
           th, td {
             padding: 14px 16px;
             font-size: 0.875rem;
           }
-          
+
           .info-box-icon {
             height: 65px;
             width: 65px;
             font-size: 1.5rem;
           }
         }
-        
+
         @media (max-width: 576px) {
           .user-admin-dashboard {
             padding: 0 1rem;
           }
-          
+
           .card-footer {
             flex-direction: column;
             align-items: flex-start;
             gap: 1rem;
           }
-          
+
           .card-footer > :last-child {
             width: 100%;
             display: flex;
             justify-content: center;
           }
-          
+
           .page-title {
             font-size: 1.5rem;
           }
-          
+
           .btn {
             padding: 0.6rem 1.25rem;
             font-size: 0.9rem;
           }
-          
+
           .info-box {
             min-height: 100px;
           }
-          
+
           .info-box-icon {
             height: 55px;
             width: 55px;
             font-size: 1.25rem;
             margin: 10px;
           }
-          
+
           .info-box-text {
             font-size: 0.75rem;
           }
-          
+
           .info-box-number {
             font-size: 1.5rem;
           }
@@ -1065,7 +1044,6 @@ const AdminUsersPage = () => {
   );
 };
 
-// Thêm getLayout để sử dụng AdminLayout với bảo vệ admin
 AdminUsersPage.getLayout = (page: React.ReactNode) => {
   return (
     <AdminRoute>

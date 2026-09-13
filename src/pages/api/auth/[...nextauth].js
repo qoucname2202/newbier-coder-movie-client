@@ -27,13 +27,7 @@ export const authOptions = {
     async signIn({ user, account, profile }) {
       if (account.provider === 'google') {
         try {
-          console.log('Google login attempt with profile:', { 
-            email: profile.email,
-            name: profile.name,
-            googleId: profile.sub,
-            picture: profile.picture // Đảm bảo picture được log
-          });
-          
+
           // Send the Google profile data to your backend
           const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/google-login`, {
             email: profile.email,
@@ -41,18 +35,17 @@ export const authOptions = {
             googleId: profile.sub,
             picture: profile.picture
           });
-          
+
           // Store the token from your backend
           if (response.data && response.data.token) {
             // We'll access this in the jwt callback below
             account.backendToken = response.data.token;
             account.backendUser = response.data.user;
-            
-            // Đảm bảo avatar được gán từ Google nếu backend không trả về
+
             if (!account.backendUser.avatar && profile.picture) {
               account.backendUser.avatar = profile.picture;
             }
-            
+
             return true;
           }
           console.error("Backend response invalid:", response.data);
@@ -63,12 +56,7 @@ export const authOptions = {
         }
       } else if (account.provider === 'facebook') {
         try {
-          console.log('Facebook login attempt with profile:', { 
-            email: profile.email,
-            name: profile.name,
-            facebookId: profile.id 
-          });
-          
+
           // Send the Facebook profile data to your backend
           const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/facebook-login`, {
             email: profile.email,
@@ -76,7 +64,7 @@ export const authOptions = {
             facebookId: profile.id,
             picture: profile.picture?.data?.url
           });
-          
+
           // Store the token from your backend
           if (response.data && response.data.token) {
             account.backendToken = response.data.token;
@@ -96,15 +84,12 @@ export const authOptions = {
       // Initial sign in
       if (account && (account.provider === 'google' || account.provider === 'facebook')) {
         if (account.backendToken) {
-          console.log("Setting backend token in JWT:", account.backendToken);
           token.backendToken = account.backendToken;
           token.backendUser = account.backendUser;
-          
-          // Đảm bảo avatar được lưu trong token
+
           if (account.provider === 'google' && profile?.picture && (!token.backendUser.avatar || token.backendUser.avatar === "")) {
-            console.log("Setting Google avatar in JWT token");
             token.backendUser.avatar = profile.picture;
-            token.picture = profile.picture; // Cũng lưu trong token.picture để đảm bảo
+            token.picture = profile.picture;
           }
         }
       }
@@ -113,31 +98,24 @@ export const authOptions = {
     async session({ session, token }) {
       // Send properties to the client
       if (token.backendToken) {
-        console.log("Setting backend token in session for client");
         session.backendToken = token.backendToken;
         if (token.backendUser) {
           // Merge NextAuth user with backend user
-          session.user = { 
-            ...session.user, 
+          session.user = {
+            ...session.user,
             ...token.backendUser,
             // Make sure these fields are available
             id: token.backendUser._id || token.backendUser.id,
             _id: token.backendUser._id || token.backendUser.id,
             role: token.backendUser.role || "user",
           };
-          
-          // Đảm bảo avatar luôn có giá trị
+
           if (!session.user.avatar && session.user.image) {
             session.user.avatar = session.user.image;
           } else if (!session.user.avatar && token.picture) {
             session.user.avatar = token.picture;
           }
-          
-          // Log để debug avatar
-          console.log("Final session user with avatar:", {
-            avatar: session.user.avatar,
-            image: session.user.image
-          });
+
         }
       }
       return session;
@@ -145,7 +123,7 @@ export const authOptions = {
   },
   pages: {
     signIn: '/auth/login',
-    error: '/auth/error', 
+    error: '/auth/error',
   }
 };
 

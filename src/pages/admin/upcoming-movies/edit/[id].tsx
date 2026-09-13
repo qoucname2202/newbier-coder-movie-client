@@ -24,10 +24,10 @@ const EditUpcomingMoviePage: React.FC = () => {
   const fetchUpcomingMovieDetails = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await getUpcomingMovieById(id as string);
-      
+
       if (response.data && response.data.upcomingMovie) {
         setMovie(response.data.upcomingMovie);
       } else {
@@ -42,17 +42,16 @@ const EditUpcomingMoviePage: React.FC = () => {
   };
   const handleUpdateUpcomingMovie = async (formData: Partial<UpcomingMovie>) => {
     if (!id) return;
-    
+
     setIsSubmitting(true);
     setError(null);
       try {
       const response = await updateUpcomingMovie(id as string, formData);
-      console.log('Updated upcoming movie:', response.data);
       alert('Cập nhật phim sắp ra mắt thành công!');
       router.push(`/admin/upcoming-movies/${id as string}`);
     } catch (err: any) {
       console.error('Error updating upcoming movie:', err);
-      
+
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
@@ -71,7 +70,7 @@ const EditUpcomingMoviePage: React.FC = () => {
             <h1>Chỉnh sửa Phim Sắp Ra Mắt</h1>
           </div>
         </section>
-        
+
         <section className="content">
           <div className="container-fluid">
             {error && (
@@ -79,7 +78,7 @@ const EditUpcomingMoviePage: React.FC = () => {
                 {error}
               </Alert>
             )}
-            
+
             {loading ? (
               <div className="text-center p-5">
                 <Spinner animation="border" role="status">
@@ -92,9 +91,9 @@ const EditUpcomingMoviePage: React.FC = () => {
                 <div className="card-header">
                   <h3 className="card-title">Chỉnh sửa thông tin phim sắp ra mắt</h3>
                 </div>
-                <UpcomingMovieForm 
+                <UpcomingMovieForm
                   movie={movie}
-                  onSubmit={handleUpdateUpcomingMovie} 
+                  onSubmit={handleUpdateUpcomingMovie}
                   isSubmitting={isSubmitting}
                   onCancel={() => router.push('/admin/upcoming-movies')}
                 />

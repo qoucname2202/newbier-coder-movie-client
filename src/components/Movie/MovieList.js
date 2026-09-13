@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import MovieCategory from "./MovieCategory";
 
-
 const MovieList = () => {
   const [categories, setCategories] = useState([
     {
@@ -13,7 +12,7 @@ const MovieList = () => {
     },
 
   ]);
-  
+
   const [loading, setLoading] = useState(true);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -28,7 +27,7 @@ const MovieList = () => {
     try {
       const response = await fetch(`http://localhost:5000/api/movies/${movie.slug}`);
       const data = await response.json();
-      
+
       if (data.items) {
         const moviePromises = data.items.map(async (movie) => {
           const movieDetail = await fetchMovieDetail(movie.slug);
@@ -38,19 +37,18 @@ const MovieList = () => {
         let movies = await Promise.all(moviePromises);
         movies = movies.filter(movie => movie !== null);
 
-        // Lọc theo category
         if (categoryId === 'series') {
-          movies = movies.filter(movie => 
-            movie.type === 'series' || 
+          movies = movies.filter(movie =>
+            movie.type === 'series' ||
             movie.episode_current !== 'Full' ||
-            movie.category?.some(cat => 
+            movie.category?.some(cat =>
               cat.name.toLowerCase().includes('phim bộ'))
           );
         } else if (categoryId === 'single') {
-          movies = movies.filter(movie => 
-            movie.type === 'single' || 
+          movies = movies.filter(movie =>
+            movie.type === 'single' ||
             movie.episode_current === 'Full' ||
-            movie.category?.some(cat => 
+            movie.category?.some(cat =>
               cat.name.toLowerCase().includes('phim lẻ'))
           );
         }
@@ -69,19 +67,19 @@ const MovieList = () => {
       try {
         setLoading(true);
         const updatedCategories = [...categories];
-        
+
         for (let i = 0; i < categories.length; i++) {
           const movies = await fetchMoviesForCategory(
             categories[i].endpoint,
             categories[i].id
           );
-          
+
           updatedCategories[i] = {
             ...categories[i],
             movies: movies
           };
         }
-        
+
         setCategories(updatedCategories);
       } catch (error) {
         console.error("Lỗi khi fetch dữ liệu phim:", error);
@@ -122,8 +120,6 @@ const MovieList = () => {
     }
   };
 
-
-
   return (
     <div className="container-fluid">
       {categories.map((category) => (
@@ -143,9 +139,9 @@ const MovieList = () => {
                   {selectedMovie.name}
                   <small className="text-muted ms-2">({selectedMovie.year})</small>
                 </h5>
-                <button 
-                  type="button" 
-                  className="btn-close btn-close-white" 
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
                   onClick={() => setShowModal(false)}
                 ></button>
               </div>
@@ -162,17 +158,17 @@ const MovieList = () => {
                           e.target.src = "";
                         }}
                       />
-                      <div className="position-absolute bottom-0 start-0 end-0 p-2 text-center" 
+                      <div className="position-absolute bottom-0 start-0 end-0 p-2 text-center"
                         style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.8))' }}>
                         <div className="d-flex gap-2 justify-content-center">
-                          <button 
+                          <button
                             className="btn btn-danger"
                             onClick={() => setShowTrailer(true)} // Show trailer
                           >
                             <i className="fas fa-play me-2"></i>
                             Xem trailer
                           </button>
-                          <button 
+                          <button
                             className="btn btn-danger"
                             onClick={() => setShowPlayer(true)} // Play the movie
                           >
@@ -214,14 +210,14 @@ const MovieList = () => {
                 )}
               </div>
               <div className="modal-footer border-secondary">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={() => setShowModal(false)}
                 >
                   Đóng
                 </button>
-                <Link 
+                <Link
                   href={`/movie/${selectedMovie.slug}`}
                   className="btn btn-danger"
                 >
@@ -234,108 +230,96 @@ const MovieList = () => {
       )}
 
       <style jsx global>{`
-        /* Loại bỏ tất cả margin và padding mặc định */
         html, body {
           margin: 0;
           padding: 0;
           overflow-x: hidden;
-          background: #0d1117; /* hoặc màu nền tối khác bạn muốn sử dụng */
-        }
-        
-        /* Tùy chỉnh thanh cuộn cho WebKit browsers (Chrome, Safari, Edge mới) */
+          background: #0d1117;        }
+
         ::-webkit-scrollbar {
-          width: 5px; /* Chiều rộng thanh cuộn mỏng hơn */
-          height: 5px; /* Dành cho thanh cuộn ngang */
-        }
+          width: 5px;          height: 5px;        }
 
         ::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.1); /* Nền thanh cuộn tối */
-          border-radius: 3px;
+          background: rgba(0, 0, 0, 0.1);          border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb {
-          background: rgba(70, 70, 90, 0.5); /* Màu xám xanh phù hợp */
-          border-radius: 3px;
+          background: rgba(70, 70, 90, 0.5);          border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-          background: rgba(90, 90, 115, 0.7); /* Màu đậm hơn khi di chuột */
-        }
+          background: rgba(90, 90, 115, 0.7);        }
 
         /* Cho Firefox */
         * {
           scrollbar-width: thin;
           scrollbar-color: rgba(70, 70, 90, 0.5) rgba(0, 0, 0, 0.1);
         }
-        
-        /* Loại bỏ padding mặc định của container-fluid */
+
         .container-fluid {
           padding-left: 0;
           padding-right: 0;
           max-width: 100%;
           overflow-x: hidden;
         }
-        
-        /* Điều chỉnh các phần tử con để sử dụng toàn bộ chiều rộng */
+
         .row {
           margin-left: 0;
           margin-right: 0;
         }
 
-        /* Reset padding cho phần tử con của row */
         .row > * {
           padding-right: calc(var(--bs-gutter-x) * 0.3);
           padding-left: calc(var(--bs-gutter-x) * 0.3);
         }
-        
-        /* Các phần CSS đã có trước */
+
         .col-xl-1-7 {
           flex: 0 0 calc(100% / 7);
           max-width: calc(100% / 7);
         }
-        
+
         @media (max-width: 1200px) {
           .col-xl-1-7 {
             flex: 0 0 20%;
             max-width: 20%;
           }
         }
-        
+
         @media (max-width: 992px) {
           .col-xl-1-7 {
             flex: 0 0 25%;
             max-width: 25%;
           }
         }
-        
+
         @media (max-width: 768px) {
           .col-xl-1-7 {
             flex: 0 0 33.333333%;
             max-width: 33.333333%;
           }
         }
-        
+
         @media (max-width: 576px) {
           .col-xl-1-7 {
             flex: 0 0 50%;
             max-width: 50%;
           }
         }
-        
+
         .movie-poster {
           position: relative;
           overflow: hidden;
           border-radius: 3px; /* Reduced from 8px to 3px */
         }
-        
+
         .movie-poster img {
           transition: transform 0.3s ease;
         }
-        
+
         .movie-poster:hover img {
           transform: scale(1.05);
         }
-        
+
         .overlay {
           position: absolute;
           top: 0;
@@ -349,16 +333,16 @@ const MovieList = () => {
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        
+
         .movie-poster:hover .overlay {
           opacity: 1;
         }
-        
+
         .watch-button {
           transform: translateY(20px);
           transition: transform 0.3s ease;
         }
-        
+
         .movie-poster:hover .watch-button {
           transform: translateY(0);
         }

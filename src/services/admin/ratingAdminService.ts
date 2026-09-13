@@ -24,9 +24,6 @@ export interface RatingStats {
   userRatingsStats: Record<number, number>;
 }
 
-/**
- * Lấy danh sách đánh giá cho một phim
- */
 export const getMovieRatings = async (movieId: string): Promise<RatingStats> => {
   try {
     const response = await axiosInstance.get(`/admin/ratings/${movieId}`);
@@ -37,9 +34,6 @@ export const getMovieRatings = async (movieId: string): Promise<RatingStats> => 
   }
 };
 
-/**
- * Đồng bộ đánh giá cho một phim cụ thể
- */
 export const syncMovieRatings = async (movieId: string) => {
   try {
     const response = await axiosInstance.post('/admin/ratings/update-movie-ratings', { movieId });
@@ -50,9 +44,6 @@ export const syncMovieRatings = async (movieId: string) => {
   }
 };
 
-/**
- * Đồng bộ đánh giá cho tất cả các phim
- */
 export const syncAllMovieRatings = async () => {
   try {
     const response = await axiosInstance.get('/admin/ratings/sync-all');

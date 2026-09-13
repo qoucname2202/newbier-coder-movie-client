@@ -11,7 +11,7 @@ import ReleasedMovieLink from '../../../components/Admin/UpcomingMovies/Released
 const UpcomingMovieDetail: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [movie, setMovie] = useState<UpcomingMovie | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +31,7 @@ const UpcomingMovieDetail: React.FC = () => {
     setError(null);
     try {
       const response = await getUpcomingMovieById(movieId);
-      console.log('Movie data:', response.data);
-      
+
       if (response.data?.upcomingMovie) {
         setMovie(response.data.upcomingMovie);
       } else if (response.data?.success && response.data?.upcomingMovie) {
@@ -50,7 +49,7 @@ const UpcomingMovieDetail: React.FC = () => {
 
   const handleDelete = async () => {
     if (!id) return;
-    
+
     try {
       await deleteUpcomingMovie(id as string);
       router.push('/admin/upcoming-movies');
@@ -62,11 +61,10 @@ const UpcomingMovieDetail: React.FC = () => {
 
   const handleRelease = async () => {
     if (!id) return;
-    
+
     try {
       const response = await releaseUpcomingMovie(id as string);
-      console.log('Release response:', response.data);
-      
+
       // Get the ID of the newly created regular movie
       if (response.data?.movie?._id) {
         setReleasedMovieId(response.data.movie._id);
@@ -176,11 +174,11 @@ const UpcomingMovieDetail: React.FC = () => {
                     </Col>
                     <Col md={9}>                      <h4 className="mb-3">{movie.name} {movie.is_released && <Badge bg="success">Đã phát hành</Badge>}</h4>
                       <p className="text-muted">{movie.origin_name}</p>
-                      
+
                       {movie.is_released && id && (
                         <ReleasedMovieLink upcomingMovieId={id as string} />
                       )}
-                      
+
                       <Row>
                         <Col md={6}>
                           <div className="mb-3">
@@ -211,7 +209,7 @@ const UpcomingMovieDetail: React.FC = () => {
                           </div>
                         </Col>
                       </Row>
-                      
+
                       <div className="mt-4">
                         <h5>Nội dung phim</h5>
                         <div dangerouslySetInnerHTML={{ __html: movie.content || 'Chưa cập nhật nội dung' }} />
@@ -225,7 +223,6 @@ const UpcomingMovieDetail: React.FC = () => {
         </section>
       </div>
 
-      {/* Modal Xác nhận xoá phim */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận xoá phim</Modal.Title>
@@ -247,7 +244,6 @@ const UpcomingMovieDetail: React.FC = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Xác nhận chuyển trạng thái phát hành */}
       <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận phát hành phim</Modal.Title>
@@ -267,7 +263,6 @@ const UpcomingMovieDetail: React.FC = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Thông báo phát hành thành công */}
       <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Phát hành phim thành công</Modal.Title>

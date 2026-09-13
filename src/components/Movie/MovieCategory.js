@@ -4,17 +4,16 @@ import { authorize } from 'passport';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import styles from '../MovieCategory.module.css'; 
+import styles from '../MovieCategory.module.css';
 import Skeleton from '../UI/Skeleton';
 import Moviecountry from './Moviecountry';
 import upcomingMovieService from '../../API/services/upcomingMovieService';
 
-// Helper function để tạo text đếm ngược cho phim sắp ra mắt
 const getCountdownText = (releaseDate) => {
   const now = new Date();
   const timeDiff = releaseDate.getTime() - now.getTime();
   const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-  
+
   if (daysDiff <= 0) {
     return "Đã ra mắt";
   } else if (daysDiff === 1) {
@@ -50,7 +49,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
   const [trailerUrl, setTrailerUrl] = useState('');
   const [showTrailerModal, setShowTrailerModal] = useState(false);
   const [currentTrailerMovie, setCurrentTrailerMovie] = useState(null);
-  
+
   const topMoviesSettings = {
     dots: false,
     infinite: false,
@@ -172,32 +171,28 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
   const [adjustedSettings, setAdjustedSettings] = useState(updatedMoviesSettings);
 
   useEffect(() => {
-    // Chỉ chạy trên client-side
     if (typeof window !== 'undefined') {
       setAdjustedSettings({
         ...updatedMoviesSettings,
         rows: window.innerWidth < 768 ? 1 : 2
       });
-      
+
       const handleResize = () => {
         setAdjustedSettings({
           ...updatedMoviesSettings,
           rows: window.innerWidth < 768 ? 1 : 2
         });
       };
-      
+
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
 
-  // Sử dụng localStorage để nhớ các ảnh đã tải xong
   const handleImageLoad = (id) => {
-    if (!loadedImages[id]) {  
-      // Lưu trạng thái tải xong vào localStorage
+    if (!loadedImages[id]) {
       localStorage.setItem(`img_loaded_${id}`, 'true');
-      
-      // Thêm timeout để đảm bảo React đã render xong trước khi cập nhật state
+
       setTimeout(() => {
         setLoadedImages(prev => ({
           ...prev,
@@ -207,29 +202,25 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
     }
   };
 
-  // Tải trạng thái ảnh từ localStorage khi component mount
   useEffect(() => {
-    // Khôi phục trạng thái từ localStorage
     const cachedLoadedImages = {};
     const movies = [...featuredMovies, ...topMovies];
-    
+
     movies.forEach(movie => {
-      if (movie && movie.slug) {  
+      if (movie && movie.slug) {
         const featuredImageId = `featured-${movie.slug}`;
         const topImageId = `top-${movie.slug}`;
-        
-        // Kiểm tra từng ID trong localStorage
+
         if (localStorage.getItem(`img_loaded_${featuredImageId}`) === 'true') {
           cachedLoadedImages[featuredImageId] = true;
         }
-        
+
         if (localStorage.getItem(`img_loaded_${topImageId}`) === 'true') {
           cachedLoadedImages[topImageId] = true;
         }
       }
     });
-    
-    // Cập nhật state ban đầu với các ảnh đã tải từ trước
+
     if (Object.keys(cachedLoadedImages).length > 0) {
       setLoadedImages(prev => ({
         ...prev,
@@ -242,7 +233,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
     if (previewTimeoutRef.current) {
       clearTimeout(previewTimeoutRef.current);
     }
-    
+
     previewTimeoutRef.current = setTimeout(() => {
       setPreviewMovie(movie);
     }, 3000);
@@ -253,7 +244,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       clearTimeout(previewTimeoutRef.current);
       previewTimeoutRef.current = null;
     }
-    
+
     setTimeout(() => {
       if (!document.querySelector(':hover > .video-preview-overlay')) {
         setPreviewMovie(null);
@@ -268,39 +259,33 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
   const fetchMovies = async (pageNumber = 1, limit = 24) => {
     try {
       setLoading(true);
-      // Gọi API phân trang với page và limit
       const response = await fetch(
         `http://localhost:5000/api/movies?page=${pageNumber}&limit=${limit}`
       );
       const result = await response.json();
-  
+
       if (result.data && result.data.movies) {
         const { movies, pagination } = result.data;
-        
-        // Xử lý URL hình ảnh
+
         const processedMovies = movies.map(movie => ({
           ...movie,
-          thumb_url: movie.thumb_url?.startsWith('http') 
-            ? movie.thumb_url 
+          thumb_url: movie.thumb_url?.startsWith('http')
+            ? movie.thumb_url
             : `${movie.thumb_url}`,
           poster_url: movie.poster_url?.startsWith('http')
             ? movie.poster_url
             : `${movie.poster_url}`
         }));
-  
-        // Nếu là trang đầu tiên
+
         if (pageNumber === 1) {
-          setFeaturedMovies(processedMovies.slice(0, 5)); // 5 phim nổi bật
+          setFeaturedMovies(processedMovies.slice(0, 5));
           setTopMovies(processedMovies.slice(5, 17));     // 12 phim top
-          setMovies(processedMovies);                     // Tất cả phim trang 1
-          
-          // Lấy dữ liệu cho phim xem nhiều nhất
+          setMovies(processedMovies);
+
           fetchMostViewedMovies();
-          
-          // Lấy dữ liệu cho phim sắp ra mắt
+
           fetchUpcomingMovies();
         } else {
-          // Nếu là trang tiếp theo, nối thêm vào danh sách hiện có
           setMovies(prevMovies => [...prevMovies, ...processedMovies]);
         }
       } else {
@@ -312,131 +297,113 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       setLoading(false);
     }
   };
-  
-  // Hàm lấy phim xem nhiều nhất trong ngày
+
   const fetchMostViewedMovies = async () => {
     try {
-      // Tìm nạp các phim gần đây từ cơ sở dữ liệu được sắp xếp theo cả số lượt xem và ngày
-      // Sử dụng ngày=3 để chỉ hiển thị phim trong 1 ngày qua
       const response = await fetch(`http://localhost:5000/api/movie-views/most-viewed?days=1&limit=10&sort=createdAt`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch most viewed movies');
       }
-      
+
       const result = await response.json();
-      
+
       if (result.message && result.data && result.data.movies) {
-      // Xử lý phim để thêm cờ isRecent dựa trên ngày tạo
         const processedMovies = result.data.movies.map(movie => {
-          // Kiểm tra xem phim đã được thêm vào trong 7 ngày qua chưa
           const createdAt = movie.createdAt || movie.updatedAt || null;
-          const isRecent = createdAt ? 
-            (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24) < 7 : 
+          const isRecent = createdAt ?
+            (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24) < 7 :
             false;
-          
+
           return {
             ...movie,
             isRecent
           };
         });
-        
-        // Sắp xếp theo mới nhất trước (ngày tạo gần đây nhất)
+
         const sortedMovies = processedMovies.sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
           const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
           return dateB - dateA; // Newest first
         });
-        
+
         setMostViewedMovies(sortedMovies);
       } else {
         console.error('Invalid data format from most-viewed API:', result);
-        // Dự phòng API phim thông thường nếu điểm cuối được xem nhiều nhất không thành công
         const fallbackResponse = await fetch(`http://localhost:5000/api/movies?limit=10&sort=-createdAt`);
         const fallbackResult = await fallbackResponse.json();
-        
+
         if (fallbackResult.data && fallbackResult.data.movies) {
-          console.log('Using fallback data for most viewed movies (sorting by newest)');
-          
-  // Xử lý phim để thêm cờ isRecent
+
           const processedMovies = fallbackResult.data.movies.map(movie => {
             const createdAt = movie.createdAt || movie.updatedAt || null;
-            const isRecent = createdAt ? 
-              (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24) < 7 : 
+            const isRecent = createdAt ?
+              (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24) < 7 :
               false;
-            
+
             return {
               ...movie,
               isRecent
             };
           });
-          
+
           setMostViewedMovies(processedMovies);
         }
       }
     } catch (error) {
       console.error('Error fetching most viewed movies:', error);
-      // Cố gắng lấy phim thông thường làm dự phòng
       try {
         const fallbackResponse = await fetch(`http://localhost:5000/api/movies?limit=10&sort=-createdAt`);
         const fallbackResult = await fallbackResponse.json();
-        
+
         if (fallbackResult.data && fallbackResult.data.movies) {
-          console.log('Using fallback data for most viewed movies (sorting by newest)');
-          
+
           // Process movies to add isRecent flag
           const processedMovies = fallbackResult.data.movies.map(movie => {
             const createdAt = movie.createdAt || movie.updatedAt || null;
-            const isRecent = createdAt ? 
-              (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24) < 7 : 
+            const isRecent = createdAt ?
+              (new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24) < 7 :
               false;
-            
+
             return {
               ...movie,
               isRecent
             };
           });
-          
+
           setMostViewedMovies(processedMovies);
         }
       } catch (fallbackError) {
         console.error('Error fetching fallback movies:', fallbackError);
       }
     }
-  };  // Hàm lấy phim sắp ra mắt
+  };
   const fetchUpcomingMovies = async () => {
     try {
-      console.log('Fetching upcoming movies...');
       const result = await upcomingMovieService.getUpcomingMovies(1, 30);
-      
+
       if (result.success && result.upcomingMovies) {
-        console.log('Upcoming movies fetched successfully:', result.upcomingMovies.length);
         setUpcomingMovies(result.upcomingMovies);
       } else {
         console.error('Invalid data format from upcoming movies API:', result);
-        // Nếu không có upcomingMovies hoặc dữ liệu không đúng định dạng, đặt state về mảng rỗng
         setUpcomingMovies([]);
       }
     } catch (error) {
       console.error('Error fetching upcoming movies:', error);
-      // Trong trường hợp có lỗi, đặt state về mảng rỗng
       setUpcomingMovies([]);
     }
   };
-  
-  // Phương pháp dự phòng để lấy phim sắp ra mắt từ API công khai nếu có
+
   const fetchPublicUpcomingMovies = async () => {
     try {
-      // Đây có thể là một API endpoint công khai khác nếu bạn có
       const response = await fetch(`http://localhost:5000/api/movies/upcoming?limit=10`);
       const data = await response.json();
-      
+
       if (data.success && data.movies) {
-        // Xử lý và định dạng dữ liệu giống như trong upcomingMovieService
         const processedMovies = data.movies.map(movie => {
           const releaseDate = movie.release_date ? new Date(movie.release_date) : new Date();
           const formattedDate = releaseDate.toLocaleDateString('vi-VN');
-          
+
           return {
             ...movie,
             formattedReleaseDate: formattedDate,
@@ -444,7 +411,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
             countdownText: movie.release_date ? getCountdownText(releaseDate) : 'Sắp ra mắt'
           };
         });
-        
+
         setUpcomingMovies(processedMovies);
       }
     } catch (fallbackError) {
@@ -452,15 +419,14 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
     }
   };
 
-  // Hàm xử lý khi click vào nút phát trailer
   const handlePlayTrailer = (movie) => {
     try {
       setCurrentTrailerMovie(movie);
       setShowTrailerModal(true);
       setTrailerUrl('');
-      
+
       const searchQuery = encodeURIComponent(`${movie.name} ${movie.origin_name || ''} ${movie.year || ''} official trailer`);
-      
+
       fetch(`https://api.dailymotion.com/videos?fields=id,title,thumbnail_url&search=${searchQuery}&limit=1`)
         .then(response => {
           if (!response.ok) {
@@ -481,16 +447,16 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
         })
         .catch(error => {
           console.error('Lỗi khi tìm kiếm trên Dailymotion:', error);
-          
+
           const fallbackQuery = encodeURIComponent(`${movie.name} trailer`);
-          
+
           fetch(`https://api.dailymotion.com/videos?fields=id,title&search=${fallbackQuery}&limit=1`)
             .then(response => response.json())
             .then(data => {
               if (data.list && data.list.length > 0) {
                 const videoId = data.list[0].id;
                 const embedUrl = `https://www.dailymotion.com/embed/video/${videoId}?autoplay=1`;
-                
+
                 setTimeout(() => {
                   setTrailerUrl(embedUrl);
                 }, 500);
@@ -504,7 +470,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
               setShowTrailerModal(false);
             });
         });
-      
+
     } catch (error) {
       console.error('Lỗi khi tải trailer:', error);
       const fallbackQuery = encodeURIComponent(`${movie.name} trailer`);
@@ -515,7 +481,6 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
 
   useEffect(() => {
     fetchMovies(1);
-    // Tìm nạp các phim sắp tới khi thành phần được gắn kết
     fetchUpcomingMovies();
   }, [endpoint]);
 
@@ -525,9 +490,9 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
         if (!isTransitioning) {
           handleNext();
         }
-      }, 5000); // Tự động chuyển slide sau mỗi 5 giây
+      }, 5000);
 
-      return () => clearInterval(autoSlideInterval);  
+      return () => clearInterval(autoSlideInterval);
     }
   }, [featuredMovies, activeIndex, isTransitioning]);
 
@@ -556,9 +521,9 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
         setShowBackToTop(false);
       }
     };
-    
+
     window.addEventListener('scroll', handleScroll);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
@@ -570,10 +535,10 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       const handleResize = () => {
         setWindowWidth(window.innerWidth);
       };
-      
+
       // Set initial width
       handleResize();
-      
+
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
@@ -587,29 +552,29 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
 
   const handlePrev = () => {
     if (isTransitioning) return;
-    
+
     setIsTransitioning(true);
-    setActiveIndex((prevIndex) => 
+    setActiveIndex((prevIndex) =>
       prevIndex === 0 ? featuredMovies.length - 1 : prevIndex - 1
     );
-    
+
     setTimeout(() => {
       setIsTransitioning(false);
     }, 500);
   };
- // 
+ //
   const handleNext = () => {
     if (isTransitioning) return;
-    
+
     setIsTransitioning(true);
-    
+
     const nextIndex = activeIndex === featuredMovies.length - 1 ? 0 : activeIndex + 1;
     const nextMovie = featuredMovies[nextIndex];
     const img = new Image();
     img.src = nextMovie.thumb_url || nextMovie.poster_url || '/placeholder.jpg';
-    
+
     setActiveIndex(nextIndex);
-    
+
     setTimeout(() => {
       setIsTransitioning(false);
     }, 500);
@@ -648,12 +613,12 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
   return (
     <div className="movie-section mb-5">
       {previewMovie && previewMovie.episodes && previewMovie.episodes[0] && (
-        <div 
+        <div
           className="video-preview-overlay position-fixed"
-          style={{ 
-            top: '50%', 
-            left: '50%', 
-            transform: 'translate(-50%, -50%)', 
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             zIndex: 1050,
             width: '450px',
             maxWidth: '90vw',
@@ -668,8 +633,8 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
             <h6 className="text-white m-0 text-truncate" style={{ width: '90%' }}>
               {previewMovie.name}
             </h6>
-            <button 
-              className="btn-close btn-close-white p-0" 
+            <button
+              className="btn-close btn-close-white p-0"
               style={{ fontSize: '0.8rem' }}
               onClick={closePreview}
             ></button>
@@ -685,9 +650,9 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
         </div>
       )}      {loading && featuredMovies.length === 0 && (
         <div className="featured-movies mb-4">
-          <div 
-            className="position-relative featured-container" 
-            style={{ 
+          <div
+            className="position-relative featured-container"
+            style={{
               height: windowWidth < 480 ? '450px' : windowWidth < 768 ? '500px' : '800px',
               width: '100%',
               overflow: 'hidden',
@@ -698,9 +663,9 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
             <div className="position-absolute top-0 start-0 w-100 h-100" style={{ opacity: 0.4 }}>
               <Skeleton height="100%" width="100%" />
             </div>
-            
+
             {/* Gradient overlay for more depth */}
-            <div 
+            <div
               className="position-absolute top-0 start-0 w-100 h-100"
               style={{
                 background: 'linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.7) 100%)',
@@ -713,34 +678,34 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                 // Calculate position relative to center (index 2)
                 const totalItems = 5;
                 let position = index - 2; // Center card is at index 2, so position will be -2, -1, 0, 1, 2
-                
+
                 let zIndex = 4 - Math.abs(position);
                 let scale = position === 0 ? 1 : 1 - Math.abs(position) * 0.2;
-                
+
                 let translateX = position * (
-                  windowWidth < 480 ? 100 : 
-                  windowWidth < 768 ? 150 : 
+                  windowWidth < 480 ? 100 :
+                  windowWidth < 768 ? 150 :
                   250
                 );
-                
+
                 let opacity = 1 - Math.abs(position) * 0.2;
-                
-                let visibility = 
+
+                let visibility =
                   windowWidth < 480 ? (Math.abs(position) <= 0 ? 'visible' : 'hidden') :
                   windowWidth < 768 ? (Math.abs(position) <= 1 ? 'visible' : 'hidden') :
                   (Math.abs(position) <= 2 ? 'visible' : 'hidden');
-                
+
                 let rotation = position * (
-                  windowWidth < 480 ? -3 : 
-                  windowWidth < 768 ? -5 : 
+                  windowWidth < 480 ? -3 :
+                  windowWidth < 768 ? -5 :
                   -15
                 );
-                
+
                 return (
-                  <div 
+                  <div
                     key={`featured-skeleton-${index}`}
-                    className="position-absolute"                    
-                    style={{ 
+                    className="position-absolute"
+                    style={{
                       width: windowWidth < 480 ? '220px' : windowWidth < 768 ? '280px' : '400px',
                       visibility,
                       zIndex,
@@ -754,25 +719,24 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                     }}
                   >
                     <div className="card bg-dark border-0" style={{
-                      boxShadow: position === 0 
-                        ? '0 10px 30px rgba(128, 128, 128, 0.3)' 
+                      boxShadow: position === 0
+                        ? '0 10px 30px rgba(128, 128, 128, 0.3)'
                         : '0 5px 15px rgba(0, 0, 0, 0.5)'
                     }}>
                       {/* Movie poster skeleton */}
                       <div className="position-relative" style={{ borderRadius: '15px 15px 0 0', overflow: 'hidden' }}>
                         <Skeleton
-                          height={windowWidth < 480 ? '330px' : windowWidth < 768 ? '400px' : '600px'} 
+                          height={windowWidth < 480 ? '330px' : windowWidth < 768 ? '400px' : '600px'}
                           borderRadius="15px 15px 0 0"
                         />
                       </div>
-                      
 
                     </div>
                   </div>
                 );
               })}
             </div>
-            
+
             {/* Pagination dots skeleton */}
             <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4" style={{ zIndex: 10 }}>
               <div className="d-flex gap-2">
@@ -795,9 +759,9 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
 
       {featuredMovies.length > 0 && (
         <div className="featured-movies mb-4">
-          <div 
-            className="position-relative featured-container" 
-            style={{ 
+          <div
+            className="position-relative featured-container"
+            style={{
               height: windowWidth < 480 ? '450px' : windowWidth < 768 ? '500px' : '800px',
               width: '100%',
               overflow: 'hidden',
@@ -809,7 +773,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
           >
             {featuredMovies[activeIndex] && (
               <>
-                <div 
+                <div
                   className="position-absolute top-0 start-0 w-100 h-100"
                   style={{
                     backgroundImage: `url(${featuredMovies[activeIndex].backdrop_url || featuredMovies[activeIndex].poster_url || featuredMovies[activeIndex].thumb_url})`,
@@ -819,11 +783,11 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                     opacity: 1,
                     transition: 'all 0.7s ease-in-out',
                     zIndex: 1
-                    
+
                   }}
                 />
-                
-                <div 
+
+                <div
                   className="position-absolute top-0 start-0 w-100 h-100"
                   style={{
                     background: 'linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.7) 100%)',
@@ -832,63 +796,63 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                 />
               </>
             )}
-            
-            <div 
+
+            <div
               className="position-absolute top-0 start-0 w-100 h-100"
               style={{
                 background: 'radial-gradient(circle at center, rgba(255,0,0,0.07) 0%, rgba(0,0,0,0) 70%)',
                 zIndex: 2
               }}
             />
-            
+
             <div className="d-flex justify-content-center align-items-center h-100" style={{ zIndex: 3, position: 'relative' }}>
               {featuredMovies.map((movie, index) => {
                 const totalItems = featuredMovies.length;
                 let position = (index - activeIndex + totalItems) % totalItems;
-                
+
                 if (position > Math.floor(totalItems / 2)) {
                   position = position - totalItems;
                 }
-                
+
                 let zIndex = 4 - Math.abs(position);
-                let scale = position === 0 ? 1 : 1 - Math.abs(position) * 0.2;  
-                
+                let scale = position === 0 ? 1 : 1 - Math.abs(position) * 0.2;
+
                 let translateX = position * (
-                  windowWidth < 480 ? 100 : 
-                  windowWidth < 768 ? 150 : 
+                  windowWidth < 480 ? 100 :
+                  windowWidth < 768 ? 150 :
                   250
                 );
-                
+
                 let opacity = 1 - Math.abs(position) * 0.2;
-                
-                let visibility = 
+
+                let visibility =
                   windowWidth < 480 ? (Math.abs(position) <= 0 ? 'visible' : 'hidden') :
                   windowWidth < 768 ? (Math.abs(position) <= 1 ? 'visible' : 'hidden') :
                   (Math.abs(position) <= 2 ? 'visible' : 'hidden');
-                
+
                 let rotation = position * (
-                  windowWidth < 480 ? -3 : 
-                  windowWidth < 768 ? -5 : 
+                  windowWidth < 480 ? -3 :
+                  windowWidth < 768 ? -5 :
                   -15
                 );
-                
-                let cardWidth = 
-                  windowWidth < 480 ? '220px' : 
-                  windowWidth < 768 ? '280px' : 
+
+                let cardWidth =
+                  windowWidth < 480 ? '220px' :
+                  windowWidth < 768 ? '280px' :
                   '400px';
-                
-                let marginLeft = 
-                  windowWidth < 480 ? '-110px' : 
-                  windowWidth < 768 ? '-140px' : 
+
+                let marginLeft =
+                  windowWidth < 480 ? '-110px' :
+                  windowWidth < 768 ? '-140px' :
                   '-200px';
-                
+
                 const imageId = `featured-${movie.slug}`;
-                
+
                 return (
-                  <div 
+                  <div
                     key={imageId}
                     className="position-absolute"
-                    style={{ 
+                    style={{
                       width: cardWidth,
                       visibility,
                       zIndex,
@@ -926,9 +890,9 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                   >
                     <div className="card bg-dark border-0">
                       <div className={`position-relative ${styles.moviePoster}`}>
-                        <div 
+                        <div
                           className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                          style={{ 
+                          style={{
                             height: windowWidth < 480 ? '330px' : windowWidth < 768 ? '400px' : '600px',
                             backgroundImage: `url(${movie.thumb_url || movie.poster_url})`,
                             backgroundSize: 'cover',
@@ -945,12 +909,12 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             alt={movie.name}
                             className="card-img-top"
                             loading="lazy"
-                            style={{ 
+                            style={{
                               height: windowWidth < 480 ? '330px' : windowWidth < 768 ? '400px' : '600px',
-                              objectFit: 'cover', 
+                              objectFit: 'cover',
                               borderRadius: '15px 15px 0 0',
-                              boxShadow: position === 0 
-                                ? '0 10px 30px rgba(255, 0, 0, 0.3)' 
+                              boxShadow: position === 0
+                                ? '0 10px 30px rgba(255, 0, 0, 0.3)'
                                 : '0 5px 15px rgba(0, 0, 0, 0.5)'
                             }}
                             onLoad={() => handleImageLoad(imageId)}
@@ -960,8 +924,8 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             }}
                           />
                         </div>
-                        
-                        <div 
+
+                        <div
                           className="position-absolute top-0 start-0 w-100 h-100"
                           style={{
                             background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
@@ -971,16 +935,15 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                           }}
                         />
 
-                    
-                        <Link 
+                        <Link
                           href={`/movie/${movie.slug}`}
                           className={`btn btn-sm ${styles.watchButton}`}
                         >
                           <i className="bi bi-play-fill"></i>
                         </Link>
-                        
+
                         <div className="position-absolute bottom-0 start-0 m-3" style={{ zIndex: 5 }}>
-                          
+
                         </div>
                       </div>
                     </div>
@@ -988,7 +951,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                 );
               })}
             </div>
-            
+
             <div className="position-absolute bottom-0 start-50 translate-middle-x mb-4" style={{ zIndex: 10 }}>
               <div className="d-flex gap-2">
                 {featuredMovies.map((_, index) => (
@@ -1019,17 +982,17 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
               {topMovies.map((movie) => {
                 const imageId = `top-${movie.slug}`;
                 return (
-                  <div 
-                    key={imageId} 
+                  <div
+                    key={imageId}
                     className={styles.sliderItem}
                     onMouseEnter={() => handleMouseEnter(movie)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <div className={`card bg-dark border-0 ${styles.movieCard}`}>
                       <div className={`position-relative ${styles.moviePoster}`}>
-                        <div 
-                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`} 
-                          style={{ 
+                        <div
+                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
+                          style={{
                             backgroundImage: `url(${movie.thumb_url})`,
                             backgroundSize: 'cover',
                             filter: loadedImages[imageId] ? 'none' : 'blur(10px)',
@@ -1046,10 +1009,10 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             className={`card-img-top ${styles.movieImage}`}
                             alt={movie.name}
                             loading="lazy"
-                            style={{ 
-                              height: '300px', 
-                              objectFit: 'cover', 
-                              borderRadius: '8px' 
+                            style={{
+                              height: '300px',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
                             }}
                             onLoad={() => handleImageLoad(imageId)}
                             onError={(e) => {
@@ -1058,23 +1021,23 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             }}
                           />
                         </div>
-                        
+
                         <div className={styles.overlay}></div>
-                        
-                        <Link 
+
+                        <Link
                           href={`/movie/${movie.slug}`}
                           className={`btn btn-sm ${styles.watchButton}`}
                         >
                         <i className="bi bi-play-fill"></i>
                         </Link>
-                        
+
                         <div className={styles.yearQualityBadges}>
                           <span className="badge bg-danger">
                             {movie.year}
                           </span>
-                          
+
                         </div>
-                        
+
                         <div className={styles.episodeInfoBadge}>
                           {movie.episodes && movie.episodes[0] && (
                             <span className="badge bg-success me-1">
@@ -1085,14 +1048,14 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             {movie.lang || 'Vietsub'}
                           </span>
                         </div>
-                        
+
                         <div className={styles.categoryBadge}>
                           <span className="badge bg-secondary">
                             {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="card-body">
                         <h6 className="card-title text-white mb-1 text-truncate">
                           {movie.name}
@@ -1110,9 +1073,8 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
         </div>
       )}
 
-      {/* Phim xem nhiều nhất trong ngày */}
       {mostViewedMovies.length > 0 && (
-        <div className="most-viewed-movies mb-5">   
+        <div className="most-viewed-movies mb-5">
           <h3 className="text-white mb-3">
             Phim Được Xem Nhiều Nhất hôm nay
             <span className="text-danger ms-2" style={{ fontSize: '0.8em', verticalAlign: 'super' }}>MỚI</span>
@@ -1122,17 +1084,17 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
               {mostViewedMovies.map((movie) => {
                 const imageId = `most-viewed-${movie.slug}`;
                 return (
-                  <div 
-                    key={imageId} 
+                  <div
+                    key={imageId}
                     className={styles.sliderItem}
                     onMouseEnter={() => handleMouseEnter(movie)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <div className={`card bg-dark border-0 ${styles.movieCard}`}>
                       <div className={`position-relative ${styles.moviePoster}`}>
-                        <div 
-                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`} 
-                          style={{ 
+                        <div
+                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
+                          style={{
                             backgroundImage: `url(${movie.thumb_url})`,
                             backgroundSize: 'cover',
                             filter: loadedImages[imageId] ? 'none' : 'blur(10px)',
@@ -1149,10 +1111,10 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             className={`card-img-top ${styles.movieImage}`}
                             alt={movie.name}
                             loading="lazy"
-                            style={{ 
-                              height: '300px', 
-                              objectFit: 'cover', 
-                              borderRadius: '8px' 
+                            style={{
+                              height: '300px',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
                             }}
                             onLoad={() => handleImageLoad(imageId)}
                             onError={(e) => {
@@ -1161,19 +1123,19 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             }}
                           />
                         </div>
-                        
+
                         <div className={styles.overlay}></div>
-                        
-                        <Link 
+
+                        <Link
                           href={`/movie/${movie.slug}?from=most-viewed`}
                           className={`btn btn-sm ${styles.watchButton}`}
                         >
                         <i className="bi bi-play-fill"></i>
                         </Link>
-                        
+
                         {/* View Count Badge */}
-                        <div 
-                          className="position-absolute top-0 end-0 me-2 mt-2" 
+                        <div
+                          className="position-absolute top-0 end-0 me-2 mt-2"
                           style={{ zIndex: 5 }}
                         >
                           <span className="badge bg-danger p-2">
@@ -1181,15 +1143,15 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             {movie.viewCount ? movie.viewCount.toLocaleString() : '0'}
                           </span>
                         </div>
-                        
+
                         {/* New Badge - only show for new content */}
                         {movie.isRecent && (
-                          <div 
-                            className="position-absolute top-0 start-0 ms-2 mt-2" 
+                          <div
+                            className="position-absolute top-0 start-0 ms-2 mt-2"
                             style={{ zIndex: 5 }}
                           >
-                            <span className="badge bg-success p-2" 
-                                  style={{ 
+                            <span className="badge bg-success p-2"
+                                  style={{
                                     boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
                                     animation: 'pulse 1.5s infinite'
                                   }}>
@@ -1198,7 +1160,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             </span>
                           </div>
                         )}
-                        
+
                         <div className={styles.episodeInfoBadge}>
                           {movie.episodes && movie.episodes[0] && (
                             <span className="badge bg-success me-1">
@@ -1209,14 +1171,14 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             {movie.lang || 'Vietsub'}
                           </span>
                         </div>
-                        
+
                         <div className={styles.categoryBadge}>
                           <span className="badge bg-secondary">
                             {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="card-body">
                         <h6 className="card-title text-white mb-1 text-truncate">
                           {movie.name}
@@ -1224,7 +1186,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                         <p className="card-text small text-muted text-truncate">
                           {movie.origin_name}
                         </p>
-                        
+
                         {/* Date Added Info */}
                         {movie.createdAt && (
                           <p className="card-text small text-muted mb-1">
@@ -1232,22 +1194,20 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             {new Date(movie.createdAt).toLocaleDateString('vi-VN')}
                           </p>
                         )}
-                        
-                
+
                       </div>
                     </div>
                   </div>
                 );
               })}
             </Slider>
-          </div>        
+          </div>
           </div>
       )}      {/* Upcoming Movies Section */}
       {/* Debug info for upcoming movies */}
-      {console.log('Upcoming movies in render:', upcomingMovies)}
-      
+
       {upcomingMovies && upcomingMovies.length > 0 && (
-        <div className="upcoming-movies mb-5">   
+        <div className="upcoming-movies mb-5">
           <h3 className="text-white mb-3">
             Phim Sắp Ra Mắt ({upcomingMovies.length})
             <span className="text-warning ms-2" style={{ fontSize: '0.8em', verticalAlign: 'super' }}>HOT</span>
@@ -1257,17 +1217,17 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
               {upcomingMovies.map((movie) => {
                 const imageId = `upcoming-${movie.slug}`;
                 return (
-                  <div 
-                    key={imageId} 
+                  <div
+                    key={imageId}
                     className={styles.sliderItem}
                     onMouseEnter={() => handleMouseEnter(movie)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <div className={`card bg-dark border-0 ${styles.movieCard}`}>
                       <div className={`position-relative ${styles.moviePoster}`}>
-                        <div 
-                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`} 
-                          style={{ 
+                        <div
+                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
+                          style={{
                             backgroundImage: `url(${movie.thumb_url})`,
                             backgroundSize: 'cover',
                             filter: loadedImages[imageId] ? 'none' : 'blur(10px)',
@@ -1283,10 +1243,10 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             className={`card-img-top ${styles.movieImage}`}
                             alt={movie.name}
                             loading="lazy"
-                            style={{ 
-                              height: '300px', 
-                              objectFit: 'cover', 
-                              borderRadius: '8px' 
+                            style={{
+                              height: '300px',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
                             }}
                             onLoad={() => handleImageLoad(imageId)}
                             onError={(e) => {
@@ -1295,22 +1255,21 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                               e.target.src = "/placeholder.jpg";
                               handleImageLoad(imageId);
                             }}
-                          />                        
-                          </div>                          
+                          />
+                          </div>
                           <div className={styles.overlay}>
                           </div>
-                        
-                        {/* Nút xem trailer phim */}
-                        <button 
+
+                        <button
                           onClick={() => handlePlayTrailer(movie)}
                           className={`btn btn-sm ${styles.watchButton}`}
                         >
                           <i className="bi bi-play-fill"></i>
                         </button>
-                        
+
                         {/* Release Badge */}
-                        <div 
-                          className="position-absolute top-0 end-0 me-2 mt-2" 
+                        <div
+                          className="position-absolute top-0 end-0 me-2 mt-2"
                           style={{ zIndex: 5 }}
                         >
                           <span className="badge bg-warning text-dark p-2">
@@ -1318,14 +1277,14 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             {movie.formattedReleaseDate}
                           </span>
                         </div>
-                        
+
                         {/* Countdown Badge */}
-                        <div 
-                          className="position-absolute top-0 start-0 ms-2 mt-2" 
+                        <div
+                          className="position-absolute top-0 start-0 ms-2 mt-2"
                           style={{ zIndex: 5 }}
                         >
-                          <span className="badge bg-danger p-2" 
-                                style={{ 
+                          <span className="badge bg-danger p-2"
+                                style={{
                                   boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
                                   animation: 'pulse 1.5s infinite'
                                 }}>
@@ -1333,20 +1292,20 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             {movie.countdownText}
                           </span>
                         </div>
-                        
+
                         <div className={styles.episodeInfoBadge}>
                           <span className="badge bg-info">
                             {movie.lang || 'Vietsub'}
                           </span>
                         </div>
-                        
+
                         <div className={styles.categoryBadge}>
                           <span className="badge bg-secondary">
                             {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="card-body">
                         <h6 className="card-title text-white mb-1 text-truncate">
                           {movie.name}
@@ -1364,7 +1323,6 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
         </div>
       )}
 
-      {/* Phim theo quốc gia */}
       {showTopMovies && <Moviecountry />}
 
       <h3 className="text-white mb-3">{title}</h3>
@@ -1373,7 +1331,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       {windowWidth < 768 ? (
         <div className={styles.sliderContainer}>
           <Slider {...adjustedSettings}>
-            {loading && page === 1 
+            {loading && page === 1
               ? [...Array(5)].map((_, i) => (
                   <div key={`skeleton-${i}`} className={styles.sliderItem}>
                     <div className={`card bg-dark border-0 ${styles.movieCard}`}>
@@ -1390,17 +1348,17 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
               : movies.slice(0, page * 5).map((movie) => {
                   const imageId = `grid-${movie.slug}`;
                   return (
-                    <div 
-                      key={movie.slug} 
+                    <div
+                      key={movie.slug}
                       className={styles.sliderItem}
                       onMouseEnter={() => handleMouseEnter(movie)}
                       onMouseLeave={handleMouseLeave}
                     >
                       <div className={`card bg-dark border-0 ${styles.movieCard}`}>
                         <div className={`position-relative ${styles.moviePoster}`}>
-                          <div 
+                          <div
                             className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                            style={{ 
+                            style={{
                               backgroundImage: `url(${movie.thumb_url}?blur=30)`,
                               height: "200px",
                               borderRadius: '8px'
@@ -1414,8 +1372,8 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                               className={`card-img-top ${styles.movieImage}`}
                               alt={movie.name}
                               loading="lazy"
-                              style={{ 
-                                height: "200px", 
+                              style={{
+                                height: "200px",
                                 objectFit: 'cover',
                                 borderRadius: '8px'
                               }}
@@ -1426,16 +1384,16 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                               }}
                             />
                           </div>
-                          
+
                           <div className={styles.overlay}></div>
-                          
-                          <Link 
+
+                          <Link
                             href={`/movie/${movie.slug}`}
                             className={`btn btn-sm ${styles.watchButton}`}
                           >
                            <i className="bi bi-play-fill"></i>
                           </Link>
-                          
+
                           {/* Add badges just like in the recommended movies section */}
                           <div className={styles.yearQualityBadges}>
                             <span className="badge bg-danger">
@@ -1447,7 +1405,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                               </span>
                             )}
                           </div>
-                          
+
                           <div className={styles.episodeInfoBadge}>
                             {movie.episodes && movie.episodes[0] && (
                               <span className="badge bg-success me-1">
@@ -1458,14 +1416,14 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                               {movie.lang || 'Vietsub'}
                             </span>
                           </div>
-                          
+
                           <div className={styles.categoryBadge}>
                             <span className="badge bg-secondary">
                               {movie.type === 'movie' ? 'Phim bộ' : 'Phim lẻ'}
                             </span>
-                          </div>  
+                          </div>
                         </div>
-                        
+
                         <div className="card-body p-2">
                           <h6 className="card-title text-white mb-1 text-truncate fs-6">
                             {movie.name}
@@ -1483,7 +1441,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       ) : (
         // Keep the original grid for desktop
         <div className="row movie-grid g-3">
-          {loading && page === 1 
+          {loading && page === 1
             ? [...Array(12)].map((_, i) => (
                 <div key={`skeleton-${i}`} className="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2-4 mb-4">
                   <div className="card h-100 bg-dark border-0">
@@ -1500,17 +1458,17 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
             : movies.slice(0, page * 5).map((movie) => {
                 const imageId = `grid-${movie.slug}`;
                 return (
-                  <div 
-                    key={movie.slug} 
+                  <div
+                    key={movie.slug}
                     className="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2-4 mb-4"
                     onMouseEnter={() => handleMouseEnter(movie)}
                     onMouseLeave={handleMouseLeave}
                   >
                     <div className={`card h-100 bg-dark border-0 ${styles.movieCard}`}>
                       <div className={`position-relative ${styles.moviePoster}`}>
-                        <div 
+                        <div
                           className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                          style={{ 
+                          style={{
                             backgroundImage: `url(${movie.thumb_url}?blur=30)`,
                             height: windowWidth < 480 ? "200px" : "300px"
                           }}
@@ -1523,8 +1481,8 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             className={`card-img-top ${styles.movieImage}`}
                             alt={movie.name}
                             loading="lazy"
-                            style={{ 
-                              height: windowWidth < 480 ? "200px" : "300px", 
+                            style={{
+                              height: windowWidth < 480 ? "200px" : "300px",
                               objectFit: 'cover',
                               borderRadius: '8px'
                             }}
@@ -1535,16 +1493,16 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             }}
                           />
                         </div>
-                        
+
                         <div className={styles.overlay}></div>
-                        
-                        <Link 
+
+                        <Link
                           href={`/movie/${movie.slug}`}
                           className={`btn btn-sm ${styles.watchButton}`}
                         >
                          <i className="bi bi-play-fill"></i>
                         </Link>
-                        
+
                         <div className={styles.yearQualityBadges}>
                           <span className="badge bg-danger">
                             {movie.year}
@@ -1555,7 +1513,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             </span>
                           )}
                         </div>
-                        
+
                         <div className={styles.episodeInfoBadge}>
                           {movie.episodes && movie.episodes[0] && (
                             <span className="badge bg-success me-1">
@@ -1566,14 +1524,14 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             {movie.lang || 'Vietsub'}
                           </span>
                         </div>
-                        
+
                         <div className={styles.categoryBadge}>
                           <span className="badge bg-secondary">
                             {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="card-body p-2">
                         <h6 className="card-title text-white mb-1 text-truncate fs-6">
                           {movie.name}
@@ -1590,7 +1548,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       )}
 
       <div className="text-center mt-4">
-        <button 
+        <button
           className="btn btn-outline-danger px-4"
           onClick={loadMore}
           disabled={loading}
@@ -1600,7 +1558,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       </div>
 
       {showBackToTop && (
-        <button 
+        <button
           onClick={scrollToTop}
           aria-label="Back to top"
           style={{
@@ -1762,14 +1720,14 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
           .featured-container {
             height: 400px !important;
           }
-          
+
           /* Mobile-specific trailer modal optimizations */
           .modal-overlay {
             padding: 0 !important;
             align-items: flex-start !important;
             padding-top: 20px !important;
           }
-          
+
           .trailer-modal-content {
             width: 95vw !important;
             max-width: 95vw !important;
@@ -1778,19 +1736,19 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
             max-height: 95vh !important;
             overflow-y: auto !important;
           }
-          
+
           .modal-header {
             padding: 0.75rem !important;
             flex-wrap: wrap !important;
           }
-          
+
           .modal-header h5 {
             font-size: 1rem !important;
             line-height: 1.2 !important;
             margin-right: 1rem !important;
             flex: 1 !important;
           }
-          
+
           .btn-close {
             padding: 0.5rem !important;
             font-size: 1.25rem !important;
@@ -1800,74 +1758,74 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
             align-items: center !important;
             justify-content: center !important;
           }
-          
+
           .trailer-container {
             margin: 0.5rem !important;
             min-height: 250px !important;
           }
-          
+
           .trailer-loading {
             min-height: 250px !important;
             padding: 1rem !important;
           }
-          
+
           .trailer-loading p {
             font-size: 0.9rem !important;
             text-align: center !important;
             margin: 0 !important;
           }
-          
+
           .trailer-movie-info {
             padding: 0 0.75rem 1rem !important;
           }
-          
+
           .trailer-movie-info h6 {
             font-size: 0.9rem !important;
             margin-bottom: 0.5rem !important;
           }
-          
+
           .trailer-movie-info .d-flex.justify-content-between {
             flex-direction: column !important;
             gap: 1rem !important;
           }
-          
+
           .trailer-movie-info .d-flex.gap-2 {
             align-self: stretch !important;
           }
-          
+
           .trailer-movie-info .badge {
             font-size: 0.75rem !important;
             padding: 0.25rem 0.5rem !important;
           }
-          
+
           .trailer-movie-info .btn {
             flex: 1 !important;
             min-height: 44px !important;
             font-size: 0.85rem !important;
             padding: 0.75rem !important;
           }
-          
+
           .movie-description {
             margin-bottom: 1rem !important;
           }
-          
+
           .movie-description p {
             font-size: 0.85rem !important;
             max-height: 120px !important;
             line-height: 1.4 !important;
             padding: 0.75rem !important;
           }
-          
+
           .movie-description h6,
           .trailer-movie-info h6.text-white-50 {
             font-size: 0.85rem !important;
             margin-bottom: 0.5rem !important;
           }
         }
-      `}</style>      {/* Modal hiển thị trailer */}
+      `}</style>
       {showTrailerModal && (
-        <div 
-          className="modal-overlay" 
+        <div
+          className="modal-overlay"
           style={{
             position: 'fixed',
             top: 0,
@@ -1890,7 +1848,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
             }
           }}
         >
-          <div 
+          <div
             className="trailer-modal-content"
             style={{
               backgroundColor: 'rgba(15, 15, 15, 0.95)',
@@ -1904,7 +1862,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
               overflow: 'hidden',
               animation: 'fadeIn 0.3s ease'
             }}
-          >            <div 
+          >            <div
               className="modal-header"
               style={{
                 display: 'flex',
@@ -1928,7 +1886,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                 style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.5rem' }}
               >×</button>
             </div>
-            <div 
+            <div
               className="trailer-container"
               style={{
                 margin: '1rem',
@@ -1949,7 +1907,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                   ></iframe>
                 </div>
               ) : (
-                <div 
+                <div
                   className="trailer-loading"
                   style={{
                     display: 'flex',
@@ -1966,8 +1924,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                   <p className="text-light">Đang tìm trailer cho phim {currentTrailerMovie?.name}...</p>
                 </div>              )}
             </div>
-            
-            {/* Thông tin phim bên dưới trailer */}
+
             {currentTrailerMovie && (
               <div className="trailer-movie-info" style={{ padding: '0 1rem 1.5rem', color: 'white' }}>
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -1998,18 +1955,17 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                       )}
                     </div>
                   </div>
-                  {/* Nút Tìm kiếm và Chia sẻ được chuyển lên đây */}
                   <div className="d-flex gap-2">
-                    <a 
-                      href={`https://www.google.com/search?q=${encodeURIComponent(currentTrailerMovie.name + ' ' + currentTrailerMovie.origin_name + ' phim')}`} 
-                      target="_blank" 
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(currentTrailerMovie.name + ' ' + currentTrailerMovie.origin_name + ' phim')}`}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-sm btn-outline-light"
                     >
                       <i className="bi bi-google me-1"></i>
                       Tìm kiếm
                     </a>
-                    <button 
+                    <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => {
                         if (navigator.share) {
@@ -2018,12 +1974,11 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                             text: `Xem trailer phim ${currentTrailerMovie.name}`,
                             url: window.location.href
                           })
-                          .catch(err => console.log('Lỗi khi chia sẻ:', err));
+                          .catch(err => {});
                         } else {
-                          // Fallback cho các trình duyệt không hỗ trợ Web Share API
                           navigator.clipboard.writeText(window.location.href)
                             .then(() => alert('Đã sao chép liên kết vào clipboard'))
-                            .catch(err => console.log('Lỗi khi sao chép:', err));
+                            .catch(err => {});
                         }
                       }}
                     >
@@ -2032,7 +1987,7 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                     </button>
                   </div>
                 </div>
-                
+
                 {currentTrailerMovie.category && Array.isArray(currentTrailerMovie.category) && currentTrailerMovie.category.length > 0 && (
                   <div className="mb-3">
                     <h6 className="text-white-50 mb-1">Thể loại:</h6>
@@ -2047,12 +2002,12 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
                     </div>
                   </div>
                 )}
-                
+
                 {currentTrailerMovie.content && (
                   <div className="movie-description mb-3">
                     <h6 className="text-white-50 mb-1">Nội dung:</h6>
-                    <p className="small text-white" style={{ 
-                      maxHeight: '80px', 
+                    <p className="small text-white" style={{
+                      maxHeight: '80px',
                       overflow: 'auto',
                       textAlign: 'justify',
                       padding: '0.5rem',

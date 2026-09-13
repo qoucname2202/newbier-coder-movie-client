@@ -1,8 +1,6 @@
-// searchSuggestionService.js - Dịch vụ cho các gợi ý cụm từ tìm kiếm
 import axiosInstance from '../config/axiosConfig';
 
 const searchSuggestionService = {
-  // Lấy các gợi ý cụm từ tìm kiếm từ Elasticsearch
   getSuggestions: async (query, limit = 5) => {
     try {
       if (!query || query.trim().length < 2) {
@@ -10,7 +8,7 @@ const searchSuggestionService = {
       }
 
       const response = await axiosInstance.get(`/search/suggestions?q=${encodeURIComponent(query.trim())}&limit=${limit}`);
-      
+
       if (response.data && response.data.success) {
         return {
           success: true,

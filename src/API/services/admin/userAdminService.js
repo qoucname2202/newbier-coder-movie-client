@@ -1,57 +1,44 @@
-/**
- * Service xử lý quản lý người dùng trong admin dashboard
- */
 
 import axiosInstance from '../../config/axiosConfig';
 import { endpoints } from '../../../config/API';
 
 /**
- * Interface cho thông tin người dùng trong admin
  * @typedef {Object} UserForAdmin
- * @property {string} _id - ID của người dùng
- * @property {string} fullname - Họ tên người dùng
- * @property {string} email - Email người dùng
- * @property {string|Object} role - ID vai trò hoặc object vai trò
- * @property {string|Object} accountType - ID loại tài khoản hoặc object loại tài khoản
- * @property {string} [password] - Mật khẩu (chỉ khi tạo mới hoặc cập nhật)
- * @property {Date} createdAt - Ngày tạo
- * @property {Date} updatedAt - Ngày cập nhật
- * @property {boolean} isActive - Trạng thái kích hoạt
+ * @property {string} _id
+ * @property {string} fullname
+ * @property {string} email
+ * @property {string|Object} role
+ * @property {string|Object} accountType
+ * @property {string} [password]
+ * @property {Date} createdAt
+ * @property {Date} updatedAt
+ * @property {boolean} isActive
  */
 
 /**
- * Interface cho thông tin vai trò
  * @typedef {Object} RoleForAdmin
- * @property {string} _id - ID của vai trò
- * @property {string} name - Tên vai trò
- * @property {string} description - Mô tả vai trò
+ * @property {string} _id
+ * @property {string} name
+ * @property {string} description
  */
 
 /**
- * Interface cho thông tin loại tài khoản
  * @typedef {Object} AccountTypeForAdmin
- * @property {string} _id - ID của loại tài khoản
- * @property {string} name - Tên loại tài khoản
- * @property {string} description - Mô tả loại tài khoản
+ * @property {string} _id
+ * @property {string} name
+ * @property {string} description
  */
 
-/**
- * Lấy danh sách người dùng cho trang admin
- * @param {Object} params - Tham số tìm kiếm và phân trang
- * @returns {Promise<{users: Array<UserForAdmin>, total: number, page: number, limit: number}>}
- */
 export const getUsersForAdmin = async (params = {}) => {
   try {
     const response = await axiosInstance.get(endpoints.admin.users.getAll(params.page, params.limit));
-    
-    // Kiểm tra và xử lý cấu trúc dữ liệu
+
     if (response.data && response.data.data) {
-      // Đảm bảo mọi giá trị isActive là boolean rõ ràng
       const users = (response.data.data.users || []).map(user => ({
         ...user,
         isActive: user.isActive === undefined ? true : Boolean(user.isActive)
       }));
-      
+
       return {
         users,
         page: response.data.data.pagination.currentPage || 1,
@@ -60,7 +47,7 @@ export const getUsersForAdmin = async (params = {}) => {
         limit: response.data.data.pagination.usersPerPage || 10
       };
     }
-    
+
     return {
       users: [],
       page: 1,
@@ -74,11 +61,6 @@ export const getUsersForAdmin = async (params = {}) => {
   }
 };
 
-/**
- * Lấy thông tin chi tiết một người dùng
- * @param {string} id - ID của người dùng
- * @returns {Promise<UserForAdmin>}
- */
 export const getUserByAdmin = async (id) => {
   try {
     const response = await axiosInstance.get(endpoints.admin.users.getById(id));
@@ -89,11 +71,6 @@ export const getUserByAdmin = async (id) => {
   }
 };
 
-/**
- * Tạo người dùng mới (dành cho admin)
- * @param {UserForAdmin} userData - Dữ liệu người dùng mới
- * @returns {Promise<UserForAdmin>}
- */
 export const createUserByAdmin = async (userData) => {
   try {
     const response = await axiosInstance.post(endpoints.admin.users.create(), userData);
@@ -104,12 +81,6 @@ export const createUserByAdmin = async (userData) => {
   }
 };
 
-/**
- * Cập nhật thông tin người dùng (dành cho admin)
- * @param {string} id - ID của người dùng
- * @param {Partial<UserForAdmin>} userData - Dữ liệu cập nhật
- * @returns {Promise<UserForAdmin>}
- */
 export const updateUserByAdmin = async (id, userData) => {
   try {
     const response = await axiosInstance.put(endpoints.admin.users.update(id), userData);
@@ -120,11 +91,6 @@ export const updateUserByAdmin = async (id, userData) => {
   }
 };
 
-/**
- * Xóa người dùng (dành cho admin)
- * @param {string} id - ID của người dùng
- * @returns {Promise<{success: boolean, message: string}>}
- */
 export const deleteUserByAdmin = async (id) => {
   try {
     const response = await axiosInstance.delete(endpoints.admin.users.delete(id));
@@ -135,26 +101,14 @@ export const deleteUserByAdmin = async (id) => {
   }
 };
 
-/**
- * Kích hoạt hoặc vô hiệu hóa người dùng
- * @param {string} id - ID của người dùng
- * @param {boolean} isActive - Trạng thái kích hoạt mới 
- *                             (true = mở khóa/kích hoạt, false = khóa/vô hiệu hóa)
- * @returns {Promise<UserForAdmin>}
- */
 export const toggleUserActiveStatus = async (id, isActive) => {
   try {
-    console.log(`API call: Thay đổi trạng thái người dùng ${id} thành ${isActive ? 'kích hoạt' : 'vô hiệu hóa'}`);
-    
-    // Sử dụng endpoint mới toggle-status và truyền trạng thái isActive trong body
+
     const response = await axiosInstance.patch(
-      endpoints.admin.users.toggleStatus(id), 
+      endpoints.admin.users.toggleStatus(id),
       { isActive }
     );
-    
-    console.log("API response:", response.data);
-    
-    // Đảm bảo isActive luôn là một boolean rõ ràng
+
     return {
       _id: id,
       isActive: Boolean(isActive),
@@ -166,10 +120,6 @@ export const toggleUserActiveStatus = async (id, isActive) => {
   }
 };
 
-/**
- * Lấy danh sách vai trò
- * @returns {Promise<Array<RoleForAdmin>>}
- */
 export const getRolesForAdmin = async () => {
   try {
     const response = await axiosInstance.get(endpoints.admin.roles.getAll());
@@ -180,10 +130,6 @@ export const getRolesForAdmin = async () => {
   }
 };
 
-/**
- * Lấy danh sách loại tài khoản
- * @returns {Promise<Array<AccountTypeForAdmin>>}
- */
 export const getAccountTypesForAdmin = async () => {
   try {
     const response = await axiosInstance.get(endpoints.admin.accountTypes.getAll());
@@ -193,32 +139,22 @@ export const getAccountTypesForAdmin = async () => {
     throw error;
   }
 };
-/**
- * Tải lên avatar cho người dùng (dành cho admin)
- * @param {string} id - ID của người dùng 
- * @param {File} avatarFile - File avatar để tải lên
- * @returns {Promise<{success: boolean, message: string, avatarUrl: string}>}
- */
 export const uploadUserAvatar = async (id, avatarFile) => {
   try {
-    console.log('Uploading avatar for user:', id);
-    console.log('Avatar file:', avatarFile.name, avatarFile.type, avatarFile.size);
-    
-    // Tạo FormData để gửi file
+
     const formData = new FormData();
     formData.append('avatar', avatarFile);
-    
+
     const response = await axiosInstance.post(
-      endpoints.admin.users.uploadAvatar(id), 
-      formData, 
+      endpoints.admin.users.uploadAvatar(id),
+      formData,
       {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       }
     );
-    
-    console.log('Upload response:', response.data);
+
     return response.data;
   } catch (error) {
     console.error(`Error uploading avatar for user ${id}:`, error);

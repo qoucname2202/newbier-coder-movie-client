@@ -4,17 +4,16 @@ import Link from 'next/link';
 import AdminRoute from '../../components/ProtectedRoute/AdminRoute';
 import styles from '@/styles/AdminReports.module.css';
 import AdminLayout from '@/components/Layout/AdminLayout';
-import { 
-  FaEye, FaCheck, FaTimes, FaFilter, FaExclamationTriangle, 
-  FaClock, FaExclamationCircle, FaUser, FaFilm, 
-  FaChevronLeft, FaChevronRight, FaEnvelope, FaLink, 
-  FaPlay, FaPlayCircle, FaEdit, FaTrash, FaSort, 
+import {
+  FaEye, FaCheck, FaTimes, FaFilter, FaExclamationTriangle,
+  FaClock, FaExclamationCircle, FaUser, FaFilm,
+  FaChevronLeft, FaChevronRight, FaEnvelope, FaLink,
+  FaPlay, FaPlayCircle, FaEdit, FaTrash, FaSort,
   FaSortUp, FaSortDown, FaListUl, FaCheckSquare, FaCalendarAlt,
   FaSearch
 } from 'react-icons/fa';
 import { getReports, updateReport } from '@/API/services/admin/reportService';
 
-// Định nghĩa kiểu dữ liệu cho báo cáo
 interface Report {
   _id: string;
   userId: {
@@ -39,112 +38,101 @@ interface Report {
   updatedAt: string;
   adminNotes?: string;
   movieInfo?: {
-    id: string;      // ID của phim
-    name: string;    // Tên phim
-    slug: string;    // Slug của phim
+    id: string;
+    name: string;
+    slug: string;
     thumb: string;   // Thumbnail phim
-    episode: number; // Tập phim đang xem khi báo cáo lỗi
+    episode: number;
   };
 }
 
-const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
+const ReportsPage = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalReports, setTotalReports] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<string>('all');
-  
-  // State cho bộ lọc
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [typeFilter, setTypeFilter] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
-  
-  // State cho sắp xếp
+
   const [sortField, setSortField] = useState<string>('createdAt');
   const [sortOrder, setSortOrder] = useState<string>('desc');
-  
+
   // State cho modal
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [adminNotes, setAdminNotes] = useState<string>('');
   const [newStatus, setNewStatus] = useState<string>('');
-  
-  // State cho hành động hàng loạt
+
   const [selectedReportIds, setSelectedReportIds] = useState<string[]>([]);
   const [showBulkActionModal, setShowBulkActionModal] = useState<boolean>(false);
   const [bulkActionType, setBulkActionType] = useState<string>('');
 
-  const ITEMS_PER_PAGE = 10;  // Hàm lấy dữ liệu báo cáo
+  const ITEMS_PER_PAGE = 10;
   const fetchReports = async () => {
     try {
       setLoading(true);
-      
-      // Xây dựng tham số query
+
       const params: any = {
         page: currentPage,
         limit: ITEMS_PER_PAGE
       };
-      
+
       if (searchQuery) {
         params.search = searchQuery;
       }
-      
+
       if (typeFilter) {
         params.type = typeFilter;
       }
-      
+
       if (statusFilter) {
         params.status = statusFilter;
       }
-      
+
       if (activeTab !== 'all') {
         params.status = activeTab;
       }
-      
-      // Thêm tham số lọc theo ngày
+
       if (startDate) {
         params.startDate = startDate;
       }
-      
+
       if (endDate) {
         params.endDate = endDate;
       }
-      
-      // Thêm tham số sắp xếp
+
       if (sortField) {
         params.sortBy = sortField;
         params.sortOrder = sortOrder;
       }
-      
-      // Gọi API để lấy dữ liệu
+
       const data = await getReports(params);
-      
+
       setReports(data.reports || []);
       setTotalPages(data.totalPages || 1);
       setTotalReports(data.total || 0);
     } catch (error) {
       console.error('Error fetching reports:', error);
-      // Xử lý khi API lỗi - Hiển thị thông báo
     } finally {
       setLoading(false);
     }
   };
-  // Effect để fetch data khi các điều kiện thay đổi
   useEffect(() => {
     fetchReports();
   }, [currentPage, activeTab, sortField, sortOrder]);
-  
-  // Hàm áp dụng bộ lọc
+
   const applyFilters = () => {
     setCurrentPage(1);
     fetchReports();
   };
-  
-  // Hàm reset bộ lọc
+
   const resetFilters = () => {
     setSearchQuery('');
     setTypeFilter('');
@@ -152,30 +140,25 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
     setCurrentPage(1);
     fetchReports();
   };
-    // Hàm xử lý khi click vào header để sắp xếp
   const handleSortChange = (field: string) => {
     if (sortField === field) {
-      // Đảo chiều sắp xếp nếu đang sắp xếp theo field này
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
-      // Sắp xếp theo field mới với thứ tự mặc định là desc
       setSortField(field);
       setSortOrder('desc');
     }
   };
-  
-  // Hiển thị icon sắp xếp
+
   const renderSortIcon = (field: string) => {
     if (sortField !== field) {
       return <span className={styles.sortIconInactive}><FaSort /></span>;
     }
-    
-    return sortOrder === 'asc' 
+
+    return sortOrder === 'asc'
       ? <span className={styles.sortIconActive}><FaSortUp /></span>
       : <span className={styles.sortIconActive}><FaSortDown /></span>;
   };
-  
-  // Hàm xử lý chọn/bỏ chọn tất cả báo cáo
+
   const handleSelectAllReports = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       setSelectedReportIds(reports.map(report => report._id));
@@ -183,8 +166,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
       setSelectedReportIds([]);
     }
   };
-  
-  // Hàm xử lý chọn/bỏ chọn một báo cáo
+
   const handleSelectReport = (reportId: string, isChecked: boolean) => {
     if (isChecked) {
       setSelectedReportIds([...selectedReportIds, reportId]);
@@ -192,82 +174,73 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
       setSelectedReportIds(selectedReportIds.filter(id => id !== reportId));
     }
   };
-  
+
   // Helper function to get table cell class names
   const getTableCellClassName = () => {
     return styles.tableCellCompact;
   };
-  
-  // Hàm xử lý hành động hàng loạt
+
   const handleBulkAction = async () => {
     if (!bulkActionType || selectedReportIds.length === 0) return;
-    
+
     try {
-      // Cập nhật trạng thái hàng loạt
-      const updatePromises = selectedReportIds.map(id => 
-        updateReport(id, { 
+      const updatePromises = selectedReportIds.map(id =>
+        updateReport(id, {
           status: bulkActionType,
-          adminNotes: bulkActionType === 'resolved' 
-            ? 'Báo cáo đã được xử lý hàng loạt' 
+          adminNotes: bulkActionType === 'resolved'
+            ? 'Báo cáo đã được xử lý hàng loạt'
             : bulkActionType === 'in-progress'
             ? 'Báo cáo đang được xử lý'
             : 'Báo cáo đã bị từ chối'
         })
       );
-      
+
       await Promise.all(updatePromises);
-      
-      // Cập nhật trạng thái trong danh sách
-      setReports(reports.map(report => 
+
+      setReports(reports.map(report =>
         selectedReportIds.includes(report._id)
-          ? { 
-              ...report, 
-              status: bulkActionType as any, 
-              adminNotes: bulkActionType === 'resolved' 
-                ? 'Báo cáo đã được xử lý hàng loạt' 
+          ? {
+              ...report,
+              status: bulkActionType as any,
+              adminNotes: bulkActionType === 'resolved'
+                ? 'Báo cáo đã được xử lý hàng loạt'
                 : bulkActionType === 'in-progress'
                 ? 'Báo cáo đang được xử lý'
                 : 'Báo cáo đã bị từ chối',
-              updatedAt: new Date().toISOString() 
-            } 
+              updatedAt: new Date().toISOString()
+            }
           : report
       ));
-      
+
       // Reset state
       setSelectedReportIds([]);
       setShowBulkActionModal(false);
       setBulkActionType('');
     } catch (error) {
       console.error('Error performing bulk action:', error);
-      // Hiển thị thông báo lỗi
     }
   };
-  
-  // Hàm cập nhật trạng thái báo cáo
+
   const handleUpdateReport = async () => {
     if (!selectedReport) return;
-    
+
     try {
-      // Gọi API để cập nhật báo cáo
       await updateReport(selectedReport._id, {
         status: newStatus,
         adminNotes: adminNotes
       });
-      
-      // Cập nhật trạng thái trong danh sách
-      setReports(reports.map(report => 
-        report._id === selectedReport._id 
-          ? { ...report, status: newStatus as any, adminNotes, updatedAt: new Date().toISOString() } 
+
+      setReports(reports.map(report =>
+        report._id === selectedReport._id
+          ? { ...report, status: newStatus as any, adminNotes, updatedAt: new Date().toISOString() }
           : report
       ));
-      
+
       setShowModal(false);
     } catch (error) {
       console.error('Error updating report:', error);
-      // Xử lý khi API lỗi - Hiển thị thông báo
     }
   };
-  // Hàm hiển thị icon theo loại báo cáo
   const renderTypeIcon = (type: string, report?: any) => {
     switch(type) {
       case 'movie':
@@ -280,8 +253,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
         return <FaExclamationTriangle />;
     }
   };
-  
-  // Hàm hiển thị trạng thái
+
   const renderStatusBadge = (status: string) => {
     switch(status) {
       case 'pending':
@@ -324,39 +296,39 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
 
         {/* Tab Navigation */}
         <div className={styles.tabContainer}>
-          <button 
+          <button
             className={`${styles.tabButton} ${activeTab === 'all' ? styles.tabButtonActive : ''}`}
             onClick={() => setActiveTab('all')}
           >
             Tất cả
           </button>
-          <button 
+          <button
             className={`${styles.tabButton} ${activeTab === 'pending' ? styles.tabButtonActive : ''}`}
             onClick={() => setActiveTab('pending')}
           >
             Đang chờ
           </button>
-          <button 
+          <button
             className={`${styles.tabButton} ${activeTab === 'in-progress' ? styles.tabButtonActive : ''}`}
             onClick={() => setActiveTab('in-progress')}
           >
             Đang xử lý
           </button>
-          <button 
+          <button
             className={`${styles.tabButton} ${activeTab === 'resolved' ? styles.tabButtonActive : ''}`}
             onClick={() => setActiveTab('resolved')}
           >
             Đã giải quyết
           </button>
-          <button 
+          <button
             className={`${styles.tabButton} ${activeTab === 'rejected' ? styles.tabButtonActive : ''}`}
             onClick={() => setActiveTab('rejected')}
           >
             Đã từ chối
           </button>
         </div>        {/* Filters */}
-        <div className={styles.filterContainer}>          <div className={styles.searchWrapper} style={{ 
-              position: 'relative', 
+        <div className={styles.filterContainer}>          <div className={styles.searchWrapper} style={{
+              position: 'relative',
               flex: '1',
               display: 'flex',
               alignItems: 'center',
@@ -367,7 +339,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             }}>
             <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', color: '#666' }}>
               <FaSearch />
-            </div>            <input 
+            </div>            <input
               type="text"
               className={styles.searchInput}
               placeholder="Tìm kiếm theo lý do, tên phim... (Enter để tìm)"
@@ -386,7 +358,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                 outline: 'none'
               }}
             />
-            <button 
+            <button
               className={styles.searchButton}
               onClick={applyFilters}
               style={{
@@ -404,15 +376,11 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             >
               Tìm
             </button></div>
-           
-          
-          
 
-          
-          <button 
+          <button
             className={styles.resetButton}
             onClick={resetFilters}
-            style={{ 
+            style={{
               marginLeft: '10px',
               display: 'flex',
               alignItems: 'center',
@@ -437,7 +405,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
               <span className={styles.selectedCount}>
                 Đã chọn {selectedReportIds.length} báo cáo
               </span>
-              <button 
+              <button
                 className={`${styles.bulkActionButton} ${styles.resolveButton}`}
                 onClick={() => {
                   setBulkActionType('resolved');
@@ -446,7 +414,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
               >
                 <FaCheck /> Đánh dấu đã giải quyết
               </button>
-              <button 
+              <button
                 className={`${styles.bulkActionButton} ${styles.processButton}`}
                 onClick={() => {
                   setBulkActionType('in-progress');
@@ -455,7 +423,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
               >
                 <FaClock /> Đánh dấu đang xử lý
               </button>
-              <button 
+              <button
                 className={`${styles.bulkActionButton} ${styles.rejectButton}`}
                 onClick={() => {
                   setBulkActionType('rejected');
@@ -503,7 +471,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             </div>
           </div>
         </div>
-        
+
         {/* Reports Table */}
         {loading ? (
           <div className={styles.loadingContainer}>
@@ -518,21 +486,21 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             <p className={styles.noDataSubtext}>Không có báo cáo nào phù hợp với điều kiện tìm kiếm của bạn</p>
           </div>
         ) : (
-          <div className={styles.tableContainer}>            
-          <table className={styles.table}>              
+          <div className={styles.tableContainer}>
+          <table className={styles.table}>
             <thead>
                 <tr>
                   <th style={{ width: '3%' }}>
                     <div className={styles.checkboxHeader}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={selectedReportIds.length === reports.length && reports.length > 0}
                         onChange={handleSelectAllReports}
                         className={styles.checkbox}
                       />
                     </div>
-                  </th>                  
-                  <th 
+                  </th>
+                  <th
                     style={{ width: '18%' }}
                     onClick={() => handleSortChange('userId.name')}
                     className={styles.sortableHeader}
@@ -546,7 +514,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                   </th>
                   <th style={{ width: '24%' }}>Tên phim/Tập phim</th>
                   <th style={{ width: '17%' }}>Lý do</th>
-                  <th 
+                  <th
                     style={{ width: '10%' }}
                     onClick={() => handleSortChange('createdAt')}
                     className={styles.sortableHeader}
@@ -556,7 +524,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                       {renderSortIcon('createdAt')}
                     </div>
                   </th>
-                  <th 
+                  <th
                     style={{ width: '8%' }}
                     onClick={() => handleSortChange('status')}
                     className={styles.sortableHeader}
@@ -571,26 +539,26 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
               </thead><tbody>
                 {reports.map((report, index) => (
                   <tr key={report._id} className={report.status === 'pending' ? styles.highlightRow : ''}>                    <td className={styles.tableCellCompact}>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={selectedReportIds.includes(report._id)}
                         onChange={(e) => handleSelectReport(report._id, e.target.checked)}
                         className={styles.checkbox}
                       />
-                    </td>                    
-                                       
+                    </td>
+
                     <td className={styles.tableCellCompact}>
                       <div className={styles.userInfo}>
-                        <div className={styles.userName} style={{ 
-                          fontWeight: 'bold', 
+                        <div className={styles.userName} style={{
+                          fontWeight: 'bold',
                           fontSize: '14px',
                           marginBottom: '4px',
                           color: '#333'
                         }}>
                           {report.userId?.fullname || report.userId?.name || (report.userId?.email ? report.userId.email.split('@')[0] : 'Không xác định')}
                         </div>
-                        <div className={styles.userEmail} style={{ 
-                          color: '#666', 
+                        <div className={styles.userEmail} style={{
+                          color: '#666',
                           fontSize: '12px',
                           display: 'flex',
                           alignItems: 'center'
@@ -603,9 +571,9 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                     </td><td className={styles.tableCellCompact}>
                       {report.movieInfo && report.movieInfo.name ? (
                         <div className={styles.movieInfo}>
-                          <div className={styles.movieTitle} style={{ 
-                            fontWeight: 'bold', 
-                            fontSize: '14px', 
+                          <div className={styles.movieTitle} style={{
+                            fontWeight: 'bold',
+                            fontSize: '14px',
                             marginBottom: '4px',
                             color: '#0056b3'
                           }}>
@@ -614,14 +582,14 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                           {report.movieInfo.episode && (
                             <div className={styles.episodeInfo} style={{ marginBottom: '4px' }}>
                               <span className={styles.episodeBadge} style={{
-                                background: '#e9f3ff', 
-                                color: '#0056b3', 
-                                padding: '2px 6px', 
-                                borderRadius: '4px', 
+                                background: '#e9f3ff',
+                                color: '#0056b3',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
                                 fontSize: '12px',
                                 fontWeight: 'bold'
                               }}>
-                                <FaPlayCircle style={{ marginRight: '4px' }} /> 
+                                <FaPlayCircle style={{ marginRight: '4px' }} />
                                 Tập {report.movieInfo.episode}
                               </span>
                             </div>
@@ -641,8 +609,8 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         </div>
                         <div className={styles.descriptionPreview} style={{ color: '#666', fontSize: '13px' }}>
                           {report.reason === 'Phụ đề không hiển thị' ? 'Phụ đề không hiển thị' :
-                           (report.description && report.description.length > 40) ? 
-                            report.description.substring(0, 40) + '...' : 
+                           (report.description && report.description.length > 40) ?
+                            report.description.substring(0, 40) + '...' :
                             report.description || 'Không có mô tả'}                        </div>
                       </div>
                     </td>
@@ -650,11 +618,11 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                       {new Date(report.createdAt).toLocaleDateString('vi-VN')}
                     </td>                    <td className={styles.tableCellCompact}>
                       {report.status === 'pending' && (
-                        <div 
+                        <div
                           title="Đang chờ"
-                          style={{ 
-                            background: '#fff8e1', 
-                            color: '#ff8f00', 
+                          style={{
+                            background: '#fff8e1',
+                            color: '#ff8f00',
                             width: '32px',
                             height: '32px',
                             borderRadius: '50%',
@@ -667,11 +635,11 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         </div>
                       )}
                       {report.status === 'in-progress' && (
-                        <div 
+                        <div
                           title="Đang xử lý"
-                          style={{ 
-                            background: '#e3f2fd', 
-                            color: '#0277bd', 
+                          style={{
+                            background: '#e3f2fd',
+                            color: '#0277bd',
                             width: '32px',
                             height: '32px',
                             borderRadius: '50%',
@@ -684,13 +652,13 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         </div>
                       )}
                       {report.status === 'resolved' && (
-                        <div 
+                        <div
                           title="Đã giải quyết"
-                          style={{ 
-                            background: '#e0f2f1', 
+                          style={{
+                            background: '#e0f2f1',
                             color: '#00897b',
                             width: '32px',
-                            height: '32px', 
+                            height: '32px',
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
@@ -701,10 +669,10 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         </div>
                       )}
                       {report.status === 'rejected' && (
-                        <div 
+                        <div
                           title="Đã từ chối"
-                          style={{ 
-                            background: '#ffebee', 
+                          style={{
+                            background: '#ffebee',
                             color: '#c62828',
                             width: '32px',
                             height: '32px',
@@ -719,7 +687,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                       )}
                     </td><td className={styles.tableCellCompact}>
                       <div className={styles.actionButtons} style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                        <Link 
+                        <Link
                           href={`/admin/reports/${report._id}`}
                           className={`${styles.actionButton} ${styles.viewButton}`}
                           title="Xem chi tiết"
@@ -738,7 +706,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         >
                           <FaEye />
                         </Link>
-                        
+
                         <button
                           className={`${styles.actionButton} ${styles.processButton}`}
                           onClick={() => {
@@ -763,7 +731,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         >
                           <FaClock />
                         </button>
-                        
+
                         <button
                           className={`${styles.actionButton} ${styles.resolveButton}`}
                           onClick={() => {
@@ -807,7 +775,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             )}
           </div>
           <div className={styles.paginationButtons}>
-            <button 
+            <button
               className={`${styles.paginationButton} ${currentPage === 1 ? styles.paginationButtonDisabled : ''}`}
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -818,7 +786,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             {(() => {
               // Calculate which page numbers to show
               const pageNumbers: number[] = [];
-              
+
               if (totalPages <= 5) {
                 // Show all pages if 5 or fewer
                 for (let i = 1; i <= totalPages; i++) {
@@ -838,7 +806,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                   pageNumbers.push(i);
                 }
               }
-              
+
               // Return the generated buttons
               return pageNumbers.map(pageNum => (
                 <button
@@ -850,8 +818,8 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                 </button>
               ));
             })()}
-            
-            <button 
+
+            <button
               className={`${styles.paginationButton} ${currentPage === totalPages ? styles.paginationButtonDisabled : ''}`}
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
@@ -865,8 +833,8 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             <div className={styles.modalContent}>
               <div className={styles.modalHeader}>
                 <h2 className={styles.modalTitle}>Chi tiết báo cáo</h2>
-                <button 
-                  className={styles.modalCloseButton} 
+                <button
+                  className={styles.modalCloseButton}
                   onClick={() => setShowModal(false)}
                 >
                   ×
@@ -876,21 +844,21 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                 <div className={styles.formGroup}>
                   <strong>ID báo cáo:</strong> {selectedReport._id}
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <strong>Loại báo cáo:</strong> {
-                    selectedReport.type === 'movie' ? 'Phim' : 
-                    selectedReport.type === 'user' ? 'Người dùng' : 
+                    selectedReport.type === 'movie' ? 'Phim' :
+                    selectedReport.type === 'user' ? 'Người dùng' :
                     selectedReport.type === 'comment' ? 'Bình luận' : 'Khác'
                   }
                 </div>
                   <div className={styles.reportSection}>
                   <h3 className={styles.sectionTitle}>Thông tin người báo cáo</h3>
-                  <div className={styles.userDetailWrapper} style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    border: '1px solid #eaeaea', 
-                    padding: '12px', 
+                  <div className={styles.userDetailWrapper} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    border: '1px solid #eaeaea',
+                    padding: '12px',
                     borderRadius: '8px',
                     marginBottom: '12px',
                     background: '#f9f9f9'
@@ -913,7 +881,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         marginBottom: '4px',
                         color: '#333'
                       }}>
-                        {selectedReport.userId?.fullname || selectedReport.userId?.name || 
+                        {selectedReport.userId?.fullname || selectedReport.userId?.name ||
                           (selectedReport.userId?.email ? selectedReport.userId.email.split('@')[0] : 'Không xác định')}
                       </div>
                       <div className={styles.userDetailEmail} style={{
@@ -936,25 +904,25 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                   {selectedReport.type === 'movie' && selectedReport.movieInfo && (                    <div className={styles.movieDetailInfo}>
                       <div className={styles.movieInfoHeader}>
                         <div className={styles.movieInfoHeaderText}>
-                          <div className={styles.movieTitle} style={{ 
-                            fontWeight: 'bold', 
-                            fontSize: '16px', 
-                            color: '#0056b3' 
+                          <div className={styles.movieTitle} style={{
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            color: '#0056b3'
                           }}>
                             {selectedReport.movieInfo.name || 'Không có tên'}
                           </div>
                           {selectedReport.movieInfo.episode && (
                             <span className={styles.episodeBadge} style={{
-                              background: '#e9f3ff', 
-                              color: '#0056b3', 
-                              padding: '3px 8px', 
-                              borderRadius: '4px', 
+                              background: '#e9f3ff',
+                              color: '#0056b3',
+                              padding: '3px 8px',
+                              borderRadius: '4px',
                               fontSize: '13px',
                               fontWeight: 'bold',
                               display: 'inline-block',
                               marginTop: '5px'
                             }}>
-                              <FaPlayCircle style={{ marginRight: '4px' }} /> 
+                              <FaPlayCircle style={{ marginRight: '4px' }} />
                               Tập {selectedReport.movieInfo.episode}
                             </span>
                           )}
@@ -967,7 +935,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                           </Link>
                         )}
                       </div>
-                      
+
                       <div className={styles.movieDetailsList}>
                         <div className={styles.movieDetailItem}>
                           <span className={styles.movieDetailLabel}>ID phim:</span>
@@ -979,26 +947,26 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                         </div>                        <div className={styles.movieDetailItem}>
                             <span className={styles.movieDetailLabel}>Thumbnail:</span>
                             <span className={styles.movieDetailValue}>
-                              <img 
-                                src={selectedReport.movieInfo.thumb || '/placeholder.jpg'} 
-                                alt={selectedReport.movieInfo.name || 'Movie thumbnail'} 
+                              <img
+                                src={selectedReport.movieInfo.thumb || '/placeholder.jpg'}
+                                alt={selectedReport.movieInfo.name || 'Movie thumbnail'}
                                 className={styles.movieThumbnail}
                                 style={{ maxWidth: '80px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
-                                onError={(e) => { 
-                                  (e.target as HTMLImageElement).src = "/placeholder.jpg"; 
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/placeholder.jpg";
                                 }}
                               />
                             </span>
                           </div>
-                        
+
                       </div>
-                      
+
                       <div className={styles.movieActions}>
                         <button className={`${styles.movieActionButton} ${styles.previewButton}`}>
                           Xem trang phim
                         </button>
-                        <a 
-                          href={`mailto:?subject=Báo cáo lỗi: ${selectedReport.movieInfo.name}&body=Phim: ${selectedReport.movieInfo.name}%0ATập: ${selectedReport.movieInfo.episode}%0ALý do: ${selectedReport.reason}%0AMô tả: ${selectedReport.description}%0A%0AID báo cáo: ${selectedReport._id}`} 
+                        <a
+                          href={`mailto:?subject=Báo cáo lỗi: ${selectedReport.movieInfo.name}&body=Phim: ${selectedReport.movieInfo.name}%0ATập: ${selectedReport.movieInfo.episode}%0ALý do: ${selectedReport.reason}%0AMô tả: ${selectedReport.description}%0A%0AID báo cáo: ${selectedReport._id}`}
                           className={`${styles.movieActionButton} ${styles.emailButton}`}
                         >
                           Báo lỗi cho bộ phận kỹ thuật
@@ -1006,7 +974,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedReport.contentId && selectedReport.type === 'user' && (
                     <div className={styles.userContentInfo}>
                       <div className={styles.userContentHeader}>
@@ -1023,7 +991,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                       </div>
                     </div>
                   )}
-                  
+
                   {selectedReport.contentId && selectedReport.type === 'comment' && (
                     <div className={styles.commentContentInfo}>
                       <div className={styles.commentText}>
@@ -1035,37 +1003,37 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                       </div>
                     </div>
                   )}
-                  
+
                   {!selectedReport.contentId && selectedReport.type !== 'movie' && (
                     <div className={styles.formGroup}>
                       <em>Không có thông tin chi tiết về nội dung bị báo cáo</em>
                     </div>
                   )}
                 </div>
-                
+
                 <div className={styles.reportSection}>
                   <h3 className={styles.sectionTitle}>Chi tiết báo cáo</h3>
                   <div className={styles.formGroup}>
                     <strong>Lý do báo cáo:</strong> {selectedReport.reason}
                   </div>
-                  
+
                   <div className={styles.formGroup}>
                     <strong>Mô tả chi tiết:</strong>
                     <p className={styles.descriptionText}>{selectedReport.description}</p>
                   </div>
-                  
+
                   <div className={styles.formGroup}>
                     <strong>Thời gian tạo:</strong> {new Date(selectedReport.createdAt).toLocaleString('vi-VN')}
                   </div>
-                  
+
                   <div className={styles.formGroup}>
                     <strong>Cập nhật lần cuối:</strong> {new Date(selectedReport.updatedAt).toLocaleString('vi-VN')}
                   </div>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="reportStatus" className={styles.formLabel}>Trạng thái:</label>
-                  <select 
+                  <select
                     id="reportStatus"
                     className={styles.selectFilter}
                     value={newStatus}
@@ -1077,7 +1045,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                     <option value="rejected">Đã từ chối</option>
                   </select>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="adminNotes" className={styles.formLabel}>Ghi chú của Admin:</label>
                   <textarea
@@ -1089,15 +1057,15 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                   />
                 </div>
               </div>
-              
+
               <div className={styles.modalFooter}>
-                <button 
+                <button
                   className={styles.resetButton}
                   onClick={() => setShowModal(false)}
                 >
                   Hủy
                 </button>
-                <button 
+                <button
                   className={styles.filterButton}
                   onClick={handleUpdateReport}
                 >
@@ -1114,8 +1082,8 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
             <div className={styles.modalContent} style={{ maxWidth: "500px" }}>
               <div className={styles.modalHeader}>
                 <h2 className={styles.modalTitle}>Xác nhận hành động hàng loạt</h2>
-                <button 
-                  className={styles.modalCloseButton} 
+                <button
+                  className={styles.modalCloseButton}
                   onClick={() => {
                     setShowBulkActionModal(false);
                     setBulkActionType('');
@@ -1127,16 +1095,16 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
               <div className={styles.modalBody}>
                 <div className={styles.bulkConfirmationMessage}>
                   <div className={styles.bulkConfirmIcon}>
-                    {bulkActionType === 'resolved' ? <FaCheck size={24} /> : 
-                     bulkActionType === 'in-progress' ? <FaClock size={24} /> : 
+                    {bulkActionType === 'resolved' ? <FaCheck size={24} /> :
+                     bulkActionType === 'in-progress' ? <FaClock size={24} /> :
                      <FaTimes size={24} />}
                   </div>
                   <p>Bạn đang chuẩn bị cập nhật trạng thái của <strong>{selectedReportIds.length}</strong> báo cáo thành:</p>
                   <div className={styles.bulkStatusBadge}>
-                    {bulkActionType === 'resolved' ? 
-                      <span className={`${styles.statusBadge} ${styles.resolved}`}><FaCheck /> Đã giải quyết</span> : 
-                     bulkActionType === 'in-progress' ? 
-                      <span className={`${styles.statusBadge} ${styles.inProgress}`}><FaClock /> Đang xử lý</span> : 
+                    {bulkActionType === 'resolved' ?
+                      <span className={`${styles.statusBadge} ${styles.resolved}`}><FaCheck /> Đã giải quyết</span> :
+                     bulkActionType === 'in-progress' ?
+                      <span className={`${styles.statusBadge} ${styles.inProgress}`}><FaClock /> Đang xử lý</span> :
                       <span className={`${styles.statusBadge} ${styles.rejected}`}><FaTimes /> Từ chối</span>}
                   </div>
                   <p className={styles.bulkConfirmWarning}>
@@ -1145,7 +1113,7 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                 </div>
               </div>
               <div className={styles.modalFooter}>
-                <button 
+                <button
                   className={styles.resetButton}
                   onClick={() => {
                     setShowBulkActionModal(false);
@@ -1154,10 +1122,10 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
                 >
                   Hủy
                 </button>
-                <button 
+                <button
                   className={`${styles.filterButton} ${
-                    bulkActionType === 'resolved' ? styles.resolveButtonConfirm : 
-                    bulkActionType === 'in-progress' ? styles.processButtonConfirm : 
+                    bulkActionType === 'resolved' ? styles.resolveButtonConfirm :
+                    bulkActionType === 'in-progress' ? styles.processButtonConfirm :
                     styles.rejectButtonConfirm
                   }`}
                   onClick={handleBulkAction}
@@ -1173,7 +1141,6 @@ const ReportsPage = () => {  // State cho dữ liệu và bộ lọc
   );
 };
 
-// Thêm getLayout để sử dụng AdminLayout với bảo vệ admin
 ReportsPage.getLayout = (page: React.ReactElement) => {
   return (
     <AdminRoute>

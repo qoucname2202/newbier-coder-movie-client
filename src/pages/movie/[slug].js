@@ -27,15 +27,15 @@ const MAX_COMMENTS_PER_DAY = 4; // Maximum comments allowed per day
 const checkCommentLimit = (username) => {
   const today = new Date().toLocaleDateString('vi-VN');
   const commentStats = JSON.parse(localStorage.getItem('commentStats') || '{}');
-  
+
   if (!commentStats[today]) {
     commentStats[today] = {};
   }
-  
+
   if (!commentStats[today][username]) {
     commentStats[today][username] = 0;
   }
-  
+
   return {
     count: commentStats[today][username],
     updateCount: () => {
@@ -52,17 +52,17 @@ const ActorCard = ({ actorName }) => {
   const router = useRouter();
   const imageBaseUrl = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL || 'https://image.tmdb.org/t/p/w500';
   const profilePlaceholder = '/img/user-avatar.png';
-  
+
   // If actor name is empty, don't render anything
   if (!actorName || actorName.trim() === '') {
     return null;
   }
-  
+
   // Fetch actor image on component mount
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    
+
     const fetchActorImage = async () => {
       try {
         // Check if actor name exists and has at least 2 characters
@@ -70,7 +70,7 @@ const ActorCard = ({ actorName }) => {
           setLoading(false);
           return;
         }
-        
+
         // Check if we've already tried to fetch this image in this session
         const sessionImageCache = JSON.parse(sessionStorage.getItem('actorImageCache') || '{}');
         if (sessionImageCache[actorName.toLowerCase()]) {
@@ -80,11 +80,11 @@ const ActorCard = ({ actorName }) => {
           setLoading(false);
           return;
         }
-        
+
         // Check if actor ID is cached first
         const actorCache = JSON.parse(localStorage.getItem('actorCache') || '{}');
         let actorId = actorCache[actorName.toLowerCase()];
-        
+
         if (!actorId) {
           // Search for actor on TMDB
           const response = await axios.get(`${process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://api.themoviedb.org/3'}/search/person`, {
@@ -101,20 +101,20 @@ const ActorCard = ({ actorName }) => {
             },
             signal: controller.signal
           });
-          
+
           if (isMounted && response.data.results && response.data.results.length > 0) {
             actorId = response.data.results[0].id;
-            
+
             // Cache the actor ID for future use
             const updatedCache = JSON.parse(localStorage.getItem('actorCache') || '{}');
             updatedCache[actorName.toLowerCase()] = actorId;
             localStorage.setItem('actorCache', JSON.stringify(updatedCache));
-            
+
             // Get the profile path
             if (response.data.results[0].profile_path) {
               const imagePath = `${imageBaseUrl}${response.data.results[0].profile_path}`;
               setActorImage(imagePath);
-              
+
               // Cache the image path in session storage
               const imageCache = JSON.parse(sessionStorage.getItem('actorImageCache') || '{}');
               imageCache[actorName.toLowerCase()] = imagePath;
@@ -139,11 +139,11 @@ const ActorCard = ({ actorName }) => {
             },
             signal: controller.signal
           });
-          
+
           if (isMounted && personResponse.data.profile_path) {
             const imagePath = `${imageBaseUrl}${personResponse.data.profile_path}`;
             setActorImage(imagePath);
-            
+
             // Cache the image path in session storage
             const imageCache = JSON.parse(sessionStorage.getItem('actorImageCache') || '{}');
             imageCache[actorName.toLowerCase()] = imagePath;
@@ -165,9 +165,9 @@ const ActorCard = ({ actorName }) => {
         }
       }
     };
-    
+
     fetchActorImage();
-    
+
     // Cleanup function to prevent memory leaks and state updates on unmounted components
     return () => {
       isMounted = false;
@@ -177,17 +177,17 @@ const ActorCard = ({ actorName }) => {
     // Use a function to search for actor on TMDB
   const handleActorClick = async (e) => {
     e.preventDefault();
-    
+
     // Create a unique toast ID so we can update it later
     const toastId = toast.loading(`Đang tìm kiếm thông tin về diễn viên: ${actorName}...`, {
       autoClose: false
     });
-    
+
     try {
       // Check if we already have the actor ID cached
       const actorCache = JSON.parse(localStorage.getItem('actorCache') || '{}');
       const cachedActorId = actorCache[actorName.toLowerCase()];
-      
+
       if (cachedActorId) {
         // If we have the ID, navigate directly to the performer page
         toast.update(toastId, {
@@ -199,7 +199,7 @@ const ActorCard = ({ actorName }) => {
         router.push(`/performer/${cachedActorId}`);
         return;
       }
-      
+
       // Otherwise, search for the actor
       const response = await axios.get(`${process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://api.themoviedb.org/3'}/search/person`, {
         params: {
@@ -214,9 +214,8 @@ const ActorCard = ({ actorName }) => {
           'accept': 'application/json'
         }
       });
-      
+
       if (response.data.results && response.data.results.length > 0) {
-        // Lưu ID diễn viên vào localStorage để sử dụng sau này
         try {
           const existingActors = JSON.parse(localStorage.getItem('actorCache') || '{}');
           existingActors[actorName.toLowerCase()] = response.data.results[0].id;
@@ -224,7 +223,7 @@ const ActorCard = ({ actorName }) => {
         } catch (e) {
           console.error("Error saving actor to cache:", e);
         }
-        
+
         // Update toast and navigate
         toast.update(toastId, {
           render: `Đã tìm thấy thông tin diễn viên: ${actorName}`,
@@ -232,7 +231,7 @@ const ActorCard = ({ actorName }) => {
           isLoading: false,
           autoClose: 1000
         });
-        
+
         // Navigate to performer page with the first matched actor ID
         router.push(`/performer/${response.data.results[0].id}`);
       } else {
@@ -242,7 +241,6 @@ const ActorCard = ({ actorName }) => {
           isLoading: false,
           autoClose: 2000
         });
-        // Chuyển hướng đến trang tìm kiếm với tên diễn viên
         router.push(`/search?query=${encodeURIComponent(actorName)}`);
       }
     } catch (error) {
@@ -255,8 +253,8 @@ const ActorCard = ({ actorName }) => {
       });
     }
   };
-    
-  return (    <div 
+
+  return (    <div
       className={styles.actorCard}
       onClick={handleActorClick}
       title={`Xem thông tin diễn viên: ${actorName}`}
@@ -299,21 +297,20 @@ const MovieDetail = ({ slug: slugProp }) => {
       console.warn('TMDB API environment variables not properly set. Actor search functionality may not work correctly.');
     }
   }, []);
-  
+
   // Add a ref to track if we've already recorded a view for this session
   // This prevents double counting of views when both play functions are called
   const viewRecordedRef = useRef(false);
   // Track if this movie was opened from the most-viewed section to prevent double counting
   const fromMostViewedRef = useRef(false);
-  
-  // Thêm refs để theo dõi phiên xem
+
   const watchSessionRef = useRef(null);
   const positionUpdateTimerRef = useRef(null);
   const lastPositionUpdateRef = useRef(0);
-  
+
   const reportReasons = [
     "Phim không xem được",
-    "Âm thanh không đồng bộ", 
+    "Âm thanh không đồng bộ",
     "Phụ đề không hiển thị",
     "Chất lượng phim kém",
     "Nội dung không phù hợp",
@@ -411,7 +408,7 @@ const MovieDetail = ({ slug: slugProp }) => {
     const handleClickOutside = () => {
       setOpenMenuId(null);
     };
-    
+
     document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('click', handleClickOutside);
@@ -424,89 +421,79 @@ const MovieDetail = ({ slug: slugProp }) => {
       toast.error("Không thể xác định bình luận cần xóa");
       return;
     }
-    
+
     // Find the comment that's being deleted
     const commentToDelete = comments.find(comment => comment.id === commentId);
     if (!commentToDelete) {
       toast.error("Không tìm thấy bình luận");
       return;
     }
-    
+
     // Check if the comment was created less than 1 minute ago
     const commentDate = new Date(commentToDelete.createdAt || commentToDelete.date);
     const currentTime = new Date();
     const timeDifferenceInMinutes = (currentTime - commentDate) / (1000 * 60);
-    
+
     if (timeDifferenceInMinutes < 1) {
       toast.error("Bạn cần đợi ít nhất 1 phút sau khi đăng bình luận mới có thể xóa");
       return;
     }
-    
+
     if (confirm("Bạn có chắc chắn muốn xóa bình luận này?")) {
       try {
-        // Kiểm tra xem đây có phải là bình luận ẩn danh do chính người dùng hiện tại đăng không
         const anonymousCommentIds = JSON.parse(localStorage.getItem('anonymousComments') || '[]');
         const isMyAnonymousComment = anonymousCommentIds.includes(commentId);
-        
+
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
         let endpoint;
         let options = {};
-        
-        // Nếu là bình luận ẩn danh của người dùng hiện tại
+
         if (isMyAnonymousComment) {
-          // Thêm secret_key làm tham số query để xác thực người xóa
           endpoint = `/api/comments/anonymous/${commentId}?secret_key=${commentId}`;
-          
-          const url = baseUrl.endsWith('/api') 
+
+          const url = baseUrl.endsWith('/api')
             ? `${baseUrl.substring(0, baseUrl.length - 4)}${endpoint}`
             : `${baseUrl}${endpoint}`;
-            
+
           const response = await axios.delete(url);
-          
+
           if (response.status === 200 || response.status === 204) {
-            // Xóa bình luận khỏi danh sách
             const updatedComments = comments.filter(comment => comment.id !== commentId);
             setComments(updatedComments);
-            
-            // Xóa ID bình luận khỏi localStorage
+
             const updatedAnonymousComments = anonymousCommentIds.filter(id => id !== commentId);
             localStorage.setItem('anonymousComments', JSON.stringify(updatedAnonymousComments));
-            
+
             toast.success('Đã xóa bình luận thành công!');
           } else {
             toast.error("Không thể xóa bình luận.");
           }
           return;
         }
-        
-        // Xử lý bình luận của người dùng đã đăng nhập
+
         if (!user) {
           toast.error("Bạn không có quyền xóa bình luận này.");
           return;
         }
-        
+
         const token = localStorage.getItem('auth_token');
-        
+
         if (!token) {
           toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
           return;
         }
-        
-        // Log the comment ID for debugging
-        console.log("Attempting to delete comment with ID:", commentId);
-        
-        // Use the correct API endpoint structure
+
         endpoint = `/api/comments/${commentId}`;
-        const url = baseUrl.endsWith('/api') 
+        const url = baseUrl.endsWith('/api')
           ? `${baseUrl.substring(0, baseUrl.length - 4)}${endpoint}`
           : `${baseUrl}${endpoint}`;
-          
+
         const response = await axios.delete(url, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        
+
         if (response.status === 200 || response.status === 204) {
           // Use the id property to filter comments, as that's what's returned from the backend
           const updatedComments = comments.filter(comment => comment.id !== commentId);
@@ -537,13 +524,13 @@ const MovieDetail = ({ slug: slugProp }) => {
     if (previewTimeoutRef.current) {
       clearTimeout(previewTimeoutRef.current);
     }
-    
+
     previewTimeoutRef.current = setTimeout(async () => {
       if (!movie.episodes || !movie.episodes.length) {
         try {
           const response = await fetch(`http://localhost:5000/api/movies${movie.slug}`);
           const data = await response.json();
-          
+
           if (data.status && data.movie && data.episodes && data.episodes.length > 0) {
             const movieWithEpisodes = {
               ...movie,
@@ -565,7 +552,7 @@ const MovieDetail = ({ slug: slugProp }) => {
       clearTimeout(previewTimeoutRef.current);
       previewTimeoutRef.current = null;
     }
-    
+
     setTimeout(() => {
       if (!document.querySelector(':hover > .video-preview-overlay')) {
         setPreviewMovie(null);
@@ -662,7 +649,7 @@ const MovieDetail = ({ slug: slugProp }) => {
 
   const handleImageLoaded = () => {
     setImageLoaded(true);
-    
+
     if (!loading) {
       setContentLoaded(true);
     }
@@ -673,7 +660,7 @@ const MovieDetail = ({ slug: slugProp }) => {
       const timer = setTimeout(() => {
         setContentLoaded(true);
       }, 3000);
-    
+
       return () => clearTimeout(timer);
     }
   }, [loading, contentLoaded]);
@@ -682,7 +669,7 @@ const MovieDetail = ({ slug: slugProp }) => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
       const scrollAmount = container.clientWidth * 0.8;
-      
+
       container.scrollBy({
         left: -scrollAmount,
         behavior: 'smooth'
@@ -694,7 +681,7 @@ const MovieDetail = ({ slug: slugProp }) => {
     if (scrollContainerRef.current) {
       const container = scrollContainerRef.current;
       const scrollAmount = container.clientWidth * 0.8;
-      
+
       container.scrollBy({
         left: scrollAmount,
         behavior: 'smooth'
@@ -705,14 +692,13 @@ const MovieDetail = ({ slug: slugProp }) => {
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-    
+
     let autoScrollInterval;
-    let scrollDirection = 'right'; // Theo dõi hướng cuộn
-    
+    let scrollDirection = 'right';
+
     const startAutoScroll = () => {
       autoScrollInterval = setInterval(() => {
         if (scrollDirection === 'right') {
-          // Nếu đã đến cuối danh sách, đổi hướng thành 'left'
           if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 50) {
             scrollDirection = 'left';
             scrollLeft();
@@ -720,7 +706,6 @@ const MovieDetail = ({ slug: slugProp }) => {
             scrollRight();
           }
         } else {
-          // Nếu đã đến đầu danh sách, đổi hướng thành 'right'
           if (container.scrollLeft <= 50) {
             scrollDirection = 'right';
             scrollRight();
@@ -728,20 +713,20 @@ const MovieDetail = ({ slug: slugProp }) => {
             scrollLeft();
           }
         }
-      }, 5000); // 5000ms để tự động chạy nhanh hơn
+      }, 5000);
     };
-    
+
     const stopAutoScroll = () => {
       if (autoScrollInterval) clearInterval(autoScrollInterval);
     };
-    
+
     if (relatedMovies.length > 0) {
       startAutoScroll();
     }
-    
+
     container.addEventListener('mouseenter', stopAutoScroll);
     container.addEventListener('mouseleave', startAutoScroll);
-    
+
     return () => {
       stopAutoScroll();
       if (container) {
@@ -765,13 +750,13 @@ const MovieDetail = ({ slug: slugProp }) => {
     }
   }, []);
 
-  useEffect(() => {    
+  useEffect(() => {
     const fetchMovie = async () => {
       if (!slug) return;
-      
+
       // Reset view tracking refs for new movie fetch
       viewRecordedRef.current = false;
-      
+
       // Check if we're coming from the most-viewed section to prevent double counting
       if (router.query.from === 'most-viewed') {
         fromMostViewedRef.current = true;
@@ -780,29 +765,26 @@ const MovieDetail = ({ slug: slugProp }) => {
       try {
         setLoading(true);
         setContentLoaded(false);
-        
+
         // Fetch movie data from API
         const response = await fetch(`http://localhost:5000/api/movies/${slug}`);
-        
+
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        console.log("Movie API Response:", result);
-        
+
         if (result.data) {
-          // Movie data is inside the data property based on responseHelper.js
           const movieData = result.data;
-          console.log("Movie data loaded:", movieData);
-          
+
           // Set the movie data first
           setMovie(movieData);
-          
+
           // Set initial rating state from movie data as a fallback
           setAverageRating(movieData.rating || 0);
           setRatingCount(movieData.rating_count || 0);
-          
+
           // Check if the movie is in the user's favorites list
           if (user) {
             try {
@@ -812,7 +794,7 @@ const MovieDetail = ({ slug: slugProp }) => {
               console.error("Error checking favorite status:", err);
             }
           }
-          
+
           // Fetch user's personal rating if user is logged in
           if (user) {
             fetchUserRating();
@@ -822,27 +804,19 @@ const MovieDetail = ({ slug: slugProp }) => {
             try {
               // Extract the main part of the movie name (before season/part numbers)
               const mainMovieName = movieData.name.replace(/ (phần|season|mùa|tập) \d+/gi, '').trim();
-              console.log("Searching for movies with similar names:", mainMovieName);
-              
-              // Search for movies with similar names
+
               const similarNameResponse = await fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(mainMovieName)}&size=8`);
               const similarNameResult = await similarNameResponse.json();
-              console.log("Similar name search result:", similarNameResult);
-              
+
               if (similarNameResult.success && similarNameResult.hits) {
-                // Filter out the current movie and limit to 4 movies
-                // Use a Set of slugs to prevent duplicate movie entries
-                const seenSlugs = new Set([slug]); // Add current movie slug to prevent showing it
+                const seenSlugs = new Set([slug]);
                 similarNameMovies = similarNameResult.hits
                   .filter(similar => {
-                    // Skip if this is the current movie or we've seen this slug before
                     if (seenSlugs.has(similar.slug)) return false;
-                    // Add to seen set and keep this movie
                     seenSlugs.add(similar.slug);
                     return true;
                   })
                   .slice(0, 5);
-                console.log("Found similar name movies:", similarNameMovies);
               }
             } catch (similarNameError) {
               console.error("Error fetching movies with similar names:", similarNameError);
@@ -857,15 +831,15 @@ const MovieDetail = ({ slug: slugProp }) => {
               } else {
                 categoryName = movieData.category[0];
               }
-              
+
               // Fetch related movies by category
               const relatedResponse = await fetch(`http://localhost:5000/api/movies?category=${encodeURIComponent(categoryName)}&limit=20`);
               const relatedResult = await relatedResponse.json();
-              
+
               if (relatedResult.data && relatedResult.data.movies) {
                 // Create a Set of all slugs we've already seen to prevent duplicates
                 const seenSlugs = new Set([slug, ...similarNameMovies.map(movie => movie.slug)]);
-                
+
                 // Filter out the current movie, similar name movies, and any duplicates
                 const categoryMovies = relatedResult.data.movies
                   .filter(related => {
@@ -876,24 +850,21 @@ const MovieDetail = ({ slug: slugProp }) => {
                     return true;
                   })
                   .slice(0, 12); // Get up to 12 category movies to ensure we have enough content
-                
+
                 // Combine similar name movies (first) with category movies
                 const combinedMovies = [...similarNameMovies, ...categoryMovies];
-                console.log("Combined movies (similar names + category):", combinedMovies.length);
-                
+
                 // Check for any potential duplicates in the final list
                 const finalMovies = [];
                 const finalSeenSlugs = new Set();
-                
+
                 combinedMovies.forEach(movie => {
                   if (!finalSeenSlugs.has(movie.slug)) {
                     finalSeenSlugs.add(movie.slug);
                     finalMovies.push(movie);
                   }
                 });
-                
-                console.log("Final movies after deduplication:", finalMovies.length);
-                
+
                 // Set both states for backward compatibility
                 setSimilarNameMovies(similarNameMovies);
                 setRelatedMovies(finalMovies);
@@ -902,7 +873,7 @@ const MovieDetail = ({ slug: slugProp }) => {
               console.error("Error fetching related movies:", relatedError);
             }
           }
-          
+
           setLoading(false);
         } else {
           setError("Không tìm thấy phim");
@@ -922,48 +893,43 @@ const MovieDetail = ({ slug: slugProp }) => {
     const checkUserPreferences = () => {
       const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
       const watchLater = JSON.parse(localStorage.getItem('watchLater') || '[]');
-      
+
       setIsFavorite(favorites.includes(slug));
       setIsWatchLater(watchLater.includes(slug));
     };
 
     const fetchRatingsStats = async () => {
       if (!slug) return;
-      
+
       try {
-        console.log("Fetching ratings stats for movie slug:", slug);
         // Use fetch to avoid any issues with axiosInstance
         const response = await fetch(`http://localhost:5000/api/ratings/stats/${slug}`);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch rating stats: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        console.log("Raw rating stats response:", data);
-        
+
         if (data.data) {
           const ratingData = data.data;
-          console.log("Setting rating data from stats endpoint:", ratingData);
-          
+
           // Update the rating states with fetched data
           setAverageRating(ratingData.averageRating || 0);
           setRatingCount(ratingData.ratingCount || 0);
-          
+
           // Store detailed rating statistics if available - backend returns userRatingsStats, not ratingDistribution
           if (ratingData.userRatingsStats) {
-            console.log("User ratings distribution received:", ratingData.userRatingsStats);
             setUserRatingsStats(ratingData.userRatingsStats);
           } else {
             // If the API doesn't return rating distribution, create a placeholder
-            console.log("No rating distribution found, creating placeholder");
             const distribution = {};
             for (let i = 1; i <= 10; i++) {
               distribution[i] = 0;
             }
             setUserRatingsStats(distribution);
           }
-          
+
           // Also update the movie object for consistency
           setMovie(prev => ({
             ...prev,
@@ -1027,21 +993,17 @@ const MovieDetail = ({ slug: slugProp }) => {
     }
   }, [movie]);
 
-  // Thêm kiểm tra tài khoản bị khóa ngay khi component được tải
   useEffect(() => {
-    // Kiểm tra trạng thái tài khoản khi component được tải
     const checkAccountStatus = () => {
       const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
       if (currentUser && currentUser.isActive === false) {
-        // Chuyển hướng đến trang thông báo tài khoản bị khóa
         router.push('/BlockedAccountAlert');
       }
     };
-    
+
     checkAccountStatus();
   }, [router]);
 
-  // Thêm hàm kiểm tra tài khoản bị khóa riêng để sử dụng ở nhiều nơi
   const checkIfAccountBlocked = () => {
     const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
     return currentUser && currentUser.isActive === false;
@@ -1062,7 +1024,7 @@ const MovieDetail = ({ slug: slugProp }) => {
         }
 
         const result = await favoritesService.removeFromFavorites(movie._id);
-        
+
         if (result.success) {
           setIsFavorite(false);
           toast.success(result.message || "Đã xóa khỏi danh sách yêu thích");
@@ -1074,7 +1036,6 @@ const MovieDetail = ({ slug: slugProp }) => {
         const result = await favoritesService.addToFavorites({ slug });
           if (result.success) {
           if (result.alreadyExists) {
-            // Phim đã tồn tại trong danh sách yêu thích - cập nhật trạng thái UI
             setIsFavorite(true);
             toast.info(result.message || "Đã có trong danh sách yêu thích");
           } else {
@@ -1106,7 +1067,7 @@ const MovieDetail = ({ slug: slugProp }) => {
         }
 
         const result = await watchlistService.removeFromWatchlist(movie._id);
-        
+
         if (result.success) {
           setIsWatchLater(false);
           toast.success(result.message || "Đã xóa khỏi danh sách xem sau");
@@ -1127,9 +1088,9 @@ const MovieDetail = ({ slug: slugProp }) => {
             category: movie.category || []
           }
         };
-        
+
         const result = await watchlistService.addToWatchlist(movieData);
-        
+
         if (result.success) {
           if (result.alreadyExists) {
             // Already exists in watchlist - not an error
@@ -1157,9 +1118,9 @@ const MovieDetail = ({ slug: slugProp }) => {
     const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
     const movieTitle = movie ? `${movie.name} (${movie.origin_name || ''})` : 'Phim hay';
     const description = movie ? `Xem phim ${movie.name} chất lượng cao tại MovieStreaming` : 'Xem phim chất lượng cao tại MovieStreaming';
-    
+
     let shareUrl = '';
-    
+
     switch (platform) {
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}&quote=${encodeURIComponent(description)}`;
@@ -1195,19 +1156,14 @@ const MovieDetail = ({ slug: slugProp }) => {
       default:
         break;
     }
-    
+
     if (shareUrl) {
       window.open(shareUrl, '_blank', 'width=600,height=400');
     }
-    
+
     // Track sharing analytics
     try {
-      console.log(`Shared via ${platform}:`, {
-        movieId: movie?._id,
-        movieSlug: slug,
-        platform: platform
-      });
-      
+
       // Optional: You could also send this data to your analytics endpoint
       // if you wanted to track sharing metrics
     } catch (error) {
@@ -1235,35 +1191,33 @@ if (!user) {
     }
     setShowReportModal(true);
   };
-  
+
   const handleCloseReportModal = () => {
     setShowReportModal(false);
     setReportType('');
     setReportMessage('');
     setReportSuccess(false);
   };
-  
+
   const handleSubmitReport = async () => {
     if (!reportType) {
       toast.error('Vui lòng chọn loại lỗi');
       return;
     }
-    
+
     try {
       setReportLoading(true);
-      
-      // Chuẩn bị dữ liệu báo cáo
+
       const reportData = {
         movieId: movie?._id,
         movieSlug: movie?.slug,
         type: reportType,
         message: reportMessage || reportType,
-        episode: selectedEpisode + 1 // Thêm thông tin tập phim đang xem
+        episode: selectedEpisode + 1
       };
-      
-      // Gửi báo cáo đến API endpoint
+
       const response = await axios.post(
-        'http://localhost:5000/api/reports/movie', 
+        'http://localhost:5000/api/reports/movie',
         reportData,
         {
           headers: {
@@ -1272,7 +1226,7 @@ if (!user) {
           }
         }
       );
-      
+
       if (response.status === 201 || response.status === 200) {
         setReportSuccess(true);
         toast.success('Báo cáo lỗi phim thành công!');
@@ -1299,12 +1253,7 @@ if (!user) {
     setRatingLoading(true);
 
     try {
-      console.log("Sending rating:", {
-        movieSlug: slug,
-        rating: value,
-        userId: user._id
-      });
-      
+
       // Use direct fetch with the full URL to avoid any path issues with axiosInstance
       const response = await fetch('http://localhost:5000/api/ratings', {
         method: 'POST',
@@ -1324,17 +1273,16 @@ if (!user) {
       }
 
       const result = await response.json();
-      console.log("Rating API response:", result);
 
       if (result.data) {
         // Update local state with response values
         setUserRating(value);
-        
+
         // Update average rating and rating count from the API response
         const ratingData = result.data;
         setAverageRating(ratingData.averageRating || 0);
         setRatingCount(ratingData.ratingCount || 0);
-        
+
         // Update the movie rating information in the movie object
         setMovie(prev => ({
           ...prev,
@@ -1343,7 +1291,7 @@ if (!user) {
         }));
 
         toast.success('Đánh giá của bạn đã được lưu!');
-        
+
         // Also immediately fetch the user's current ratings to ensure UI stays in sync
         fetchUserRating();
       } else {
@@ -1360,41 +1308,36 @@ if (!user) {
 
   const fetchRatingsStats = async () => {
     if (!slug) return;
-    
+
     try {
-      console.log("Fetching ratings stats for movie slug:", slug);
       // Use fetch to avoid any issues with axiosInstance
       const response = await fetch(`http://localhost:5000/api/ratings/stats/${slug}`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch rating stats: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      console.log("Raw rating stats response:", data);
-      
+
       if (data.data) {
         const ratingData = data.data;
-        console.log("Setting rating data from stats endpoint:", ratingData);
-        
+
         // Update the rating states with fetched data
         setAverageRating(ratingData.averageRating || 0);
         setRatingCount(ratingData.ratingCount || 0);
-        
+
         // Store detailed rating statistics if available - backend returns userRatingsStats, not ratingDistribution
         if (ratingData.userRatingsStats) {
-          console.log("User ratings distribution received:", ratingData.userRatingsStats);
           setUserRatingsStats(ratingData.userRatingsStats);
         } else {
           // If the API doesn't return rating distribution, create a placeholder
-          console.log("No rating distribution found, creating placeholder");
           const distribution = {};
           for (let i = 1; i <= 10; i++) {
             distribution[i] = 0;
           }
           setUserRatingsStats(distribution);
         }
-        
+
         // Also update the movie object for consistency
         setMovie(prev => ({
           ...prev,
@@ -1412,45 +1355,37 @@ if (!user) {
   // Fix fetchUserRating function to better handle token and improve reliability
   const fetchUserRating = async () => {
     if (!slug) return;
-    
+
     try {
-      console.log("Fetching user rating for movie:", slug);
-      
+
       // Get the user either from state or localStorage to ensure we have the latest
       const currentUser = user || JSON.parse(localStorage.getItem('user') || 'null');
       if (!currentUser || !currentUser._id) {
-        console.log("No user found, skipping user rating fetch");
         return;
       }
-      
+
       // Get token from localStorage directly to ensure it's the latest
       const token = localStorage.getItem('auth_token');
       if (!token) {
-        console.log("No auth token found, skipping user rating fetch");
         return;
       }
-      
-      console.log("Making request to get user rating with user ID:", currentUser._id);
+
       const response = await fetch(`http://localhost:5000/api/ratings/user/${currentUser._id}/movie/${slug}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const result = await response.json();
-        console.log("User rating response:", result);
-        
+
         if (result.data && typeof result.data.rating === 'number') {
-          console.log("Setting user rating to:", result.data.rating);
           setUserRating(result.data.rating);
           setTempRating(result.data.rating);
         } else if (result.rating && typeof result.rating === 'number') {
-          console.log("Setting user rating to:", result.rating);
           setUserRating(result.rating);
           setTempRating(result.rating);
         } else {
-          console.log("No user rating found for this movie");
           setUserRating(0);
           setTempRating(0);
         }
@@ -1527,9 +1462,9 @@ if (!user) {
     try {
       setShowTrailerModal(true);
       setTrailerUrl('');
-      
+
       const searchQuery = encodeURIComponent(`${movie.name} ${movie.origin_name || ''} ${movie.year || ''} official trailer`);
-      
+
       fetch(`https://api.dailymotion.com/videos?fields=id,title,thumbnail_url&search=${searchQuery}&limit=1`)
         .then(response => {
           if (!response.ok) {
@@ -1550,16 +1485,16 @@ if (!user) {
         })
         .catch(error => {
           console.error('Lỗi khi tìm kiếm trên Dailymotion:', error);
-          
+
           const fallbackQuery = encodeURIComponent(`${movie.name} trailer`);
-          
+
           fetch(`https://api.dailymotion.com/videos?fields=id,title&search=${fallbackQuery}&limit=1`)
             .then(response => response.json())
             .then(data => {
               if (data.list && data.list.length > 0) {
                 const videoId = data.list[0].id;
                 const embedUrl = `https://www.dailymotion.com/embed/video/${videoId}?autoplay=1`;
-                
+
                 setTimeout(() => {
                   setTrailerUrl(embedUrl);
                 }, 500);
@@ -1573,7 +1508,7 @@ if (!user) {
               setShowTrailerModal(false);
             });
         });
-      
+
     } catch (error) {
       console.error('Lỗi khi tải trailer:', error);
       const fallbackQuery = encodeURIComponent(`${movie.name} trailer`);
@@ -1584,7 +1519,7 @@ if (!user) {
 
   const startWatchSession = async (position = 0) => {
     if (!user || !movie || !movie._id) return;
-    
+
     try {
       const sessionData = {
         movieId: movie._id,
@@ -1592,33 +1527,32 @@ if (!user) {
         currentTime: position || 0,
         episode: selectedEpisode + 1
       };
-      
+
       const response = await historyService.startWatchSession(sessionData);
-      console.log("Watch session started:", response);
-      
+
       watchSessionRef.current = {
         started: true,
         startTime: new Date(),
         lastPosition: position || 0
       };
-      
+
       startPositionUpdateTimer();
     } catch (error) {
       console.error("Failed to start watch session:", error);
     }
   };
-  
+
   const endWatchSession = async (position = 0, completed = false) => {
     if (!user || !movie || !movie._id || !watchSessionRef.current?.started) return;
-    
+
     try {
-      const videoDuration = 
-        typeof movie.time === 'number' ? movie.time * 60 : 
-        typeof movie.duration === 'number' ? movie.duration : 
-        0; 
-        
+      const videoDuration =
+        typeof movie.time === 'number' ? movie.time * 60 :
+        typeof movie.duration === 'number' ? movie.duration :
+        0;
+
       const isCompleted = completed || (videoDuration > 0 && position >= videoDuration * 0.8);
-      
+
       const sessionData = {
         movieId: movie._id,
         currentTime: position,
@@ -1626,43 +1560,41 @@ if (!user) {
         completed: isCompleted,
         episode: selectedEpisode + 1
       };
-      
+
       const response = await historyService.endWatchSession(sessionData);
-      console.log("Watch session ended:", response);
-      
+
       watchSessionRef.current = null;
-      
+
       stopPositionUpdateTimer();
     } catch (error) {
       console.error("Failed to end watch session:", error);
     }
   };
-  
+
   const updateWatchPosition = async (position) => {
     if (!user || !movie || !movie._id || !watchSessionRef.current?.started) return;
-    
+
     try {
       const lastPosition = lastPositionUpdateRef.current || 0;
       if (Math.abs(position - lastPosition) < 5) return;
-      
+
       lastPositionUpdateRef.current = position;
-      
+
       const updateData = {
         movieId: movie._id,
         currentTime: position,
         episode: selectedEpisode + 1
       };
-      
+
       await historyService.updateWatchPosition(updateData);
-      console.log("Watch position updated:", position);
     } catch (error) {
       console.error("Failed to update watch position:", error);
     }
   };
-  
+
   const startPositionUpdateTimer = () => {
     stopPositionUpdateTimer();
-    
+
     positionUpdateTimerRef.current = setInterval(() => {
       if (videoRef && watchSessionRef.current?.started) {
         const currentPosition = currentTime || 0;
@@ -1670,17 +1602,15 @@ if (!user) {
       }
     }, 30000);
   };
-  
+
   const stopPositionUpdateTimer = () => {
     if (positionUpdateTimerRef.current) {
       clearInterval(positionUpdateTimerRef.current);
       positionUpdateTimerRef.current = null;
     }
   };  const selectEpisode = async (index) => {
-    // Kiểm tra trạng thái tài khoản của người dùng
     const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
     if (currentUser && currentUser.isActive === false) {
-      // Chuyển hướng đến trang thông báo tài khoản bị khóa
       router.push('/BlockedAccountAlert');
       return;
     }
@@ -1688,10 +1618,10 @@ if (!user) {
     if (watchSessionRef.current?.started) {
       await endWatchSession(currentTime);
     }
-    
+
     setSelectedEpisode(index);
     setVideoLoading(true);
-    
+
     try {
       // Show advertisement before the main content
       const adData = await adService.getRandomVideoAd();
@@ -1711,7 +1641,6 @@ if (!user) {
       if (movie && movie._id && !viewRecordedRef.current) {
       try {
         await movieViewService.recordMovieView(movie._id);
-        console.log("Movie view recorded successfully from episode selection");
         viewRecordedRef.current = true;
       } catch (viewError) {
         console.error("Error recording movie view from episode selection:", viewError);
@@ -1722,7 +1651,7 @@ if (!user) {
         startWatchSession(0);
       }, 1000);
     }
-      
+
     if (user && movie) {
       try {
         const processCategory = (category) => {
@@ -1740,7 +1669,7 @@ if (!user) {
         } else {
           movieType = 'series';
         }
-        
+
         const historyData = {
           movieId: movie._id || null,
           movieSlug: slug,
@@ -1756,47 +1685,37 @@ if (!user) {
             type: movieType
           }
         };
-        
-        console.log("Saving to history:", historyData);
-        
+
         await historyService.addToHistory(historyData);
-        console.log("Movie added to history");
       } catch (error) {
         console.error("Failed to add movie to history:", error);
       }    }
   };  const handlePlayMainButton = async () => {
-    // Kiểm tra trạng thái tài khoản của người dùng
     const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
     if (currentUser && currentUser.isActive === false) {
-      // Chuyển hướng đến trang thông báo tài khoản bị khóa
       router.push('/BlockedAccountAlert');
       return;
     }
-    
+
     try {
-      // Kiểm tra gói Premium 15k trước (ID: 682f7d849c310399aa715c9d)
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token') || localStorage.getItem('authToken');
       if (token) {
-        // Nếu có token, kiểm tra quyền lợi từ API trước khi hiển thị quảng cáo
         try {
           const response = await fetch('http://localhost:5000/api/subscription/ad-benefits', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           });
-          
+
           if (response.ok) {
             const data = await response.json();
-              // Nếu user có quyền ẩn quảng cáo video (Premium 15k), hiển thị player trực tiếp
             if (data.data && data.data.hideVideoAds === true) {
-              console.log('%c[Movie Player] Premium user detected - showing player directly', 'color: #32CD32; font-weight: bold');              // Đánh dấu là đã ghi nhận lượt xem để tránh ghi nhận lại trong handleAdComplete
+
               if (movie && movie._id) {
-                try { 
+                try {
                   await movieViewService.recordMovieView(movie._id);
-                  console.log("Movie view recorded successfully for premium user");
                   viewRecordedRef.current = true;
-                  
-                  // Thêm lịch sử xem phim cho người dùng premium
+
                   if (user) {
                     startWatchSession(0);
                   }
@@ -1807,20 +1726,17 @@ if (!user) {
               setShowPlayer(true);
               return;
             }
-            
+
             // Ghi log package ID cho debug
             if (data.data && data.data.packageType) {
-              console.log(`[Movie Player] User package ID: ${data.data.packageType}`);
-              
+
               if (data.data.packageType === '682f7d849c310399aa715c9d') {
-                console.log('%c[Movie Player] Premium 15K package detected!', 'color: #FF00FF; font-weight: bold');                // Đánh dấu là đã ghi nhận lượt xem để tránh ghi nhận lại trong handleAdComplete
+
                 if (movie && movie._id) {
                   try {
                     await movieViewService.recordMovieView(movie._id);
-                    console.log("Movie view recorded successfully for premium 15K user");
                     viewRecordedRef.current = true;
-                    
-                    // Thêm lịch sử xem phim cho người dùng premium 15K
+
                     if (user) {
                       startWatchSession(0);
                     }
@@ -1835,11 +1751,9 @@ if (!user) {
           }
         } catch (benefitsError) {
           console.error("Error checking ad benefits:", benefitsError);
-          // Tiếp tục hiển thị quảng cáo nếu không kiểm tra được quyền lợi
         }
       }
-      
-      // Nếu không phải Premium, hiển thị quảng cáo
+
       const adData = await adService.getRandomVideoAd();
       if (adData) {
         setCurrentAd(adData);
@@ -1860,12 +1774,11 @@ if (!user) {
     setShowAd(false);
     setCurrentAd(null);
     setShowPlayer(true);
-    
+
     if (movie && movie._id && !viewRecordedRef.current && !fromMostViewedRef.current) {
       try {
         movieViewService.recordMovieView(movie._id)
           .then(() => {
-            console.log("Movie view recorded successfully from main play button");
             viewRecordedRef.current = true;
           })
           .catch((viewError) => {
@@ -1875,7 +1788,7 @@ if (!user) {
         console.error("Error recording movie view from main play button:", viewError);
       }
     }
-    
+
     if (user && movie) {
       startWatchSession(0);
     }
@@ -1885,7 +1798,7 @@ if (!user) {
     const handleBeforeUnload = () => {
       if (watchSessionRef.current?.started) {
         const position = currentTime || 0;
-        
+
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/history/watch-session/end', false);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -1897,16 +1810,16 @@ if (!user) {
         }));
       }
     };
-    
+
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     return () => {
       if (watchSessionRef.current?.started) {
         endWatchSession(currentTime);
       }
-      
+
       stopPositionUpdateTimer();
-      
+
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [movie, currentTime, selectedEpisode]);
@@ -1926,13 +1839,12 @@ if (!user) {
     }
 
     try {
-      const commentId = comments[index].id; // Lấy ID của comment
+      const commentId = comments[index].id;
       if (!commentId) {
         toast.error("Không thể xác định ID bình luận");
         return;
       }
 
-      // Gọi API để toggle like - sử dụng API mới
       const response = await fetch('http://localhost:5000/api/likes', {
         method: 'POST',
         headers: {
@@ -1947,19 +1859,17 @@ if (!user) {
 
       if (response.ok) {
         const responseData = await response.json();
-        
-        // Cập nhật UI dựa trên kết quả từ server
+
         if (responseData.success && responseData.data) {
           const { likeCount, dislikeCount, action } = responseData.data;
-          
+
           const updatedComments = [...comments];
           updatedComments[index].likes = likeCount;
           updatedComments[index].dislikes = dislikeCount;
-          
-          // Cập nhật trạng thái UI
-          updatedComments[index].liked = action !== 'removed'; // true nếu đã thêm hoặc thay đổi, false nếu đã xóa
-          updatedComments[index].disliked = false; // Nếu like thành công, dislike luôn là false
-          
+
+          updatedComments[index].liked = action !== 'removed';
+          updatedComments[index].disliked = false;
+
           setComments(updatedComments);
         }
       } else {
@@ -1980,13 +1890,12 @@ if (!user) {
     }
 
     try {
-      const commentId = comments[index].id; // Lấy ID của comment
+      const commentId = comments[index].id;
       if (!commentId) {
         toast.error("Không thể xác định ID bình luận");
         return;
       }
 
-      // Gọi API để toggle dislike - sử dụng API mới
       const response = await fetch('http://localhost:5000/api/likes', {
         method: 'POST',
         headers: {
@@ -2001,19 +1910,17 @@ if (!user) {
 
       if (response.ok) {
         const responseData = await response.json();
-        
-        // Cập nhật UI dựa trên kết quả từ server
+
         if (responseData.success && responseData.data) {
           const { likeCount, dislikeCount, action } = responseData.data;
-          
+
           const updatedComments = [...comments];
           updatedComments[index].likes = likeCount;
           updatedComments[index].dislikes = dislikeCount;
-          
-          // Cập nhật trạng thái UI
-          updatedComments[index].disliked = action !== 'removed'; // true nếu đã thêm hoặc thay đổi, false nếu đã xóa
-          updatedComments[index].liked = false; // Nếu dislike thành công, like luôn là false
-          
+
+          updatedComments[index].disliked = action !== 'removed';
+          updatedComments[index].liked = false;
+
           setComments(updatedComments);
         }
       } else {
@@ -2029,80 +1936,72 @@ if (!user) {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-    
+
     if (containsRestrictedWords(newComment)) {
       toast.error("Bình luận của bạn chứa từ ngữ không phù hợp. Vui lòng chỉnh sửa lại.");
       return;
     }
-    
+
     if (!user && !isAnonymous) {
       toast.error("Bạn cần đăng nhập để bình luận hoặc sử dụng chế độ ẩn danh.");
       router.push('/auth/login');
       return;
     }
-    
+
     const username = isAnonymous ? "Người ẩn danh" : user ? user.username || user.fullname : "Khách";
-    
+
     const commentLimit = checkCommentLimit(username);
     if (commentLimit.hasReachedLimit) {
       toast.error(`Bạn đã đạt giới hạn ${MAX_COMMENTS_PER_DAY} bình luận trong ngày hôm nay. Vui lòng thử lại vào ngày mai.`);
       return;
     }
-    
+
     const commentObj = {
       content: newComment.trim(),
       rating: userRating || 5,
-      isAnonymous: isAnonymous // Giữ nguyên trạng thái ẩn danh
+      isAnonymous: isAnonymous
     };
-    
+
     try {
       // Get token from multiple possible sources to support both regular and Google logins
-      const token = localStorage.getItem('auth_token') || 
+      const token = localStorage.getItem('auth_token') ||
                    (typeof window !== 'undefined' && window.sessionStorage && window.sessionStorage.getItem('backendToken')) ||
                    (user && user.backendToken);
-      
+
       // Only require token for non-anonymous comments
       if (!token && !isAnonymous) {
         toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
         router.push('/auth/login');
         return;
       }
-      
-      // Fix: Sử dụng đường dẫn API hợp lệ, tránh trùng lặp /api
+
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      
-      // Sử dụng endpoint khác nhau dựa vào chế độ ẩn danh
+
       const endpoint = isAnonymous ? '/api/comments/anonymous' : '/api/comments';
-      const url = baseUrl.endsWith('/api') 
+      const url = baseUrl.endsWith('/api')
         ? `${baseUrl.substring(0, baseUrl.length - 4)}${endpoint}`
         : `${baseUrl}${endpoint}`;
-      
-      console.log("Sending comment to URL:", url);
 
-      // Chuẩn bị data gửi đi
       const commentData = {
         movieSlug: slug,
         comment: commentObj,
       };
-      
-      // Thêm userId vào dữ liệu nếu người dùng đã đăng nhập (ngay cả khi bình luận ẩn danh)
+
       if (user && user._id) {
         commentData.userId = user._id;
       }
 
-      // Chỉ đính kèm header token khi không phải bình luận ẩn danh
       const headers = isAnonymous ? {} : { 'Authorization': `Bearer ${token}` };
 
       const response = await axios.post(url, commentData, {
         headers: headers
       });
-      
+
       if (response.status === 200) {
         commentLimit.updateCount();
-        
-        // Chuẩn bị avatar và thời gian hiển thị cho bình luận mới
+
         const currentAvatar = isAnonymous ? "/img/user-avatar.png" : getAvatarUrl(user?.avatar || response.data.comment.avatar);
-        
+
         // Format the date in the same format as returned by the backend for consistency
         const now = new Date();
         const formattedDate = now.toLocaleDateString('vi-VN', {
@@ -2112,22 +2011,20 @@ if (!user) {
           hour: '2-digit',
           minute: '2-digit'
         });
-        
-        // Thêm avatar và thời gian được cập nhật vào bình luận mới
+
         const newCommentData = {
           ...response.data.comment,
           avatar: currentAvatar,
           date: formattedDate,
           createdAt: now.toISOString() // Store ISO date for time difference calculations
         };
-        
-        // Nếu là bình luận ẩn danh, lưu thông tin ID và userId để có thể xóa sau này
+
         if (isAnonymous && response.data.comment.id && user && user._id) {
           const userComments = JSON.parse(localStorage.getItem('userComments') || '{}');
           userComments[response.data.comment.id] = user._id;
           localStorage.setItem('userComments', JSON.stringify(userComments));
         }
-        
+
         // Add new comment to the beginning of the comments array (top of the list)
         setComments([newCommentData, ...comments]);
         setNewComment("");
@@ -2144,36 +2041,35 @@ if (!user) {
   // Function to get properly formatted avatar URL (same as in Navbar)
   const getAvatarUrl = (avatar) => {
     if (!avatar) return "/img/avatar.png";
-    
+
     let avatarUrl = avatar;
-    
+
     // Handle relative paths for local avatars
     if (avatarUrl && avatarUrl.startsWith('/')) {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const baseWithoutApi = baseUrl.endsWith('/api') 
-        ? baseUrl.substring(0, baseUrl.length - 4) 
+      const baseWithoutApi = baseUrl.endsWith('/api')
+        ? baseUrl.substring(0, baseUrl.length - 4)
         : baseUrl;
-      
+
       avatarUrl = `${baseWithoutApi}${avatarUrl}`;
     }
-    
+
     // Only add cache-busting for non-external URLs (exclude Google, Cloudinary, etc.)
-    if (!avatarUrl.includes('?') && 
-        !avatarUrl.includes('googleusercontent.com') && 
+    if (!avatarUrl.includes('?') &&
+        !avatarUrl.includes('googleusercontent.com') &&
         !avatarUrl.includes('cloudinary.com')) {
       avatarUrl = `${avatarUrl}?t=${Date.now()}`;
     }
-    
+
     return avatarUrl;
   };
-
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
         // Clear any previous comments first
         setComments([]);
-        
+
         // Fetch the latest comments data
         const response = await axios.get(`${API_URL}/comments?movieSlug=${slug}`);
         if (response.status === 200) {
@@ -2184,7 +2080,7 @@ if (!user) {
               avatar: getAvatarUrl(comment.avatar)
             };
           });
-          
+
           setComments(processedComments || []);
         } else {
           console.error("Error fetching comments:", response.statusText);
@@ -2202,19 +2098,18 @@ if (!user) {
   // Add a function to fetch movie recommendations based on viewing history
   const fetchHistoryRecommendations = async () => {
     if (!user) return;
-    
+
     try {
       setLoadingRecommendations(true);
-      
+
       // Get the user's history data
       const historyData = await historyService.getUserHistory(10, 1);
-      
+
       if (!historyData || !historyData.histories || historyData.histories.length === 0) {
-        console.log("No history found to base recommendations on");
         setLoadingRecommendations(false);
         return;
       }
-      
+
       // Extract categories from watch history
       const categories = [];
       historyData.histories.forEach(item => {
@@ -2227,7 +2122,7 @@ if (!user) {
           }
         }
       });
-      
+
       // Count categories to find most watched
       const categoryCounts = {};
       categories.forEach(category => {
@@ -2237,14 +2132,12 @@ if (!user) {
       const sortedCategories = Object.keys(categoryCounts).sort(
         (a, b) => categoryCounts[b] - categoryCounts[a]
       );
-      
-      console.log("Most watched categories:", sortedCategories);
-      
+
       if (sortedCategories.length === 0) {
         setLoadingRecommendations(false);
         return;
       }
-      
+
       // Get watched movie slugs to filter out
       const watchedMovieSlugs = new Set();
       historyData.histories.forEach(item => {
@@ -2252,18 +2145,17 @@ if (!user) {
           watchedMovieSlugs.add(item.movieData.slug);
         }
       });
-      
+
       // Use top 2 most watched categories to fetch recommendations
       const topCategories = sortedCategories.slice(0, 2);
-      console.log("Using top categories for recommendations:", topCategories);
-      
+
       const allRecommendations = [];
-      
+
       // Fetch movies from each top category
       for (const category of topCategories) {
         try {
           const response = await fetch(`http://localhost:5000/api/movies?category=${encodeURIComponent(category)}&limit=15`);
-          
+
           if (response.ok) {
             const result = await response.json();
             if (result.data && result.data.movies) {
@@ -2274,30 +2166,28 @@ if (!user) {
           console.error(`Error fetching movies for category ${category}:`, error);
         }
       }
-      
+
       if (allRecommendations.length > 0) {
         // Remove duplicates based on slug
-        const uniqueMovies = allRecommendations.filter((movie, index, self) => 
+        const uniqueMovies = allRecommendations.filter((movie, index, self) =>
           index === self.findIndex(m => m.slug === movie.slug)
         );
-        
+
         // Filter out current movie, related movies, and watched movies
         const relatedSlugs = new Set(relatedMovies.map(movie => movie.slug));
-        const filteredRecommendations = uniqueMovies.filter(movie => 
-          movie.slug !== slug && 
+        const filteredRecommendations = uniqueMovies.filter(movie =>
+          movie.slug !== slug &&
           !relatedSlugs.has(movie.slug) &&
           !watchedMovieSlugs.has(movie.slug)
         );
-        
+
         // Limit to 20 recommendations and shuffle for variety
         const shuffledRecommendations = filteredRecommendations
           .sort(() => Math.random() - 0.5)
           .slice(0, 20);
-        
-        console.log(`Found ${filteredRecommendations.length} unique recommendations, showing ${shuffledRecommendations.length}`);
+
         setHistoryRecommendations(shuffledRecommendations);
       } else {
-        console.log("No recommendations found from top categories");
         setHistoryRecommendations([]);
       }
     } catch (error) {
@@ -2319,18 +2209,16 @@ if (!user) {
 
   return (
     <div className={styles.container}>
-      
-    
-      
-      {previewMovie && previewMovie.episodes && previewMovie.episodes.length > 0 && 
-       previewMovie.episodes[0] && previewMovie.episodes[0].server_data && 
+
+      {previewMovie && previewMovie.episodes && previewMovie.episodes.length > 0 &&
+       previewMovie.episodes[0] && previewMovie.episodes[0].server_data &&
        previewMovie.episodes[0].server_data.length > 0 && (
-        <div 
+        <div
           className="video-preview-overlay position-fixed"
-          style={{ 
-            top: '50%', 
-            left: '50%', 
-            transform: 'translate(-50%, -50%)', 
+          style={{
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
             zIndex: 1050,
             width: '450px',
             maxWidth: '90vw',
@@ -2345,8 +2233,8 @@ if (!user) {
             <h6 className="text-white m-0 text-truncate" style={{ width: '90%' }}>
               {previewMovie.name}
             </h6>
-            <button 
-              className="btn-close btn-close-white p-0" 
+            <button
+              className="btn-close btn-close-white p-0"
               style={{ fontSize: '0.8rem' }}
               onClick={closePreview}
             ></button>
@@ -2361,37 +2249,37 @@ if (!user) {
           </div>
         </div>
       )}
-      
+
       {!contentLoaded && (
         <div className={styles.banner}>
           <div className={styles.bannerBackground}>
             <div className={`${styles.skeleton} ${styles.bannerSkeleton}`}></div>
             <div className={styles.bannerGradient}></div>
-            
+
             <div className={styles.contentContainer}>
               <div className={styles.bannerContent}>
                 <div className={styles.leftSection}>
                   <div className={`${styles.skeleton} ${styles.posterSkeleton}`}></div>
                 </div>
-                
+
                 <div className={styles.rightSection}>
                   <div className={`${styles.skeleton} ${styles.titleSkeleton}`}></div>
                   <div className={`${styles.skeleton} ${styles.subtitleSkeleton}`}></div>
-                  
+
                   <div className={`${styles.skeleton} ${styles.ratingSkeleton}`}></div>
-                  
+
                   <div className={styles.metaSkeleton}>
                     {[...Array(4)].map((_, i) => (
                       <div key={i} className={`${styles.skeleton} ${styles.metaItemSkeleton}`}></div>
                     ))}
                   </div>
-                  
+
                   <div className={styles.badgesSkeleton}>
                     {[...Array(5)].map((_, i) => (
                       <div key={i} className={`${styles.skeleton} ${styles.badgeSkeleton}`}></div>
                     ))}
                   </div>
-                  
+
                   <div className={styles.badgesSkeleton}>
                     {[...Array(3)].map((_, i) => (
                       <div key={i} className={`${styles.skeleton} ${styles.badgeSkeleton}`}></div>
@@ -2403,14 +2291,14 @@ if (!user) {
           </div>
         </div>
       )}
-      
+
       <div className={contentLoaded ? '' : styles.hiddenContent}>
         <div className={styles.banner}>
           <div className={styles.bannerBackground}>
             {!imageLoaded && (
               <div className={`${styles.skeleton} ${styles.bannerImageSkeleton}`}></div>
             )}
-            
+
             <img
               src={movie.poster_url || movie.thumb_url}
               alt={movie.name || "Movie Background"}
@@ -2423,7 +2311,7 @@ if (!user) {
               }}
             />
             <div className={styles.bannerGradient}></div>
-            
+
             <div className={`${styles.contentContainer} ${contentLoaded ? styles.contentLoaded : styles.contentLoading}`}>
               <div className={`${styles.bannerContent} ${contentLoaded ? styles.contentLoaded : styles.contentLoading}`}>
                 <div className={styles.leftSection}>
@@ -2439,7 +2327,7 @@ if (!user) {
                         handleImageLoaded();
                       }}
                     />
-                    
+
                     <div className={styles.posterControls}>
                       <div
                         className={styles.saveButtonContainer}
@@ -2476,7 +2364,7 @@ if (!user) {
                             </div>
                           </div>
                         )}
-                        <button 
+                        <button
                           className={`${styles.posterControlButton} ${styles.saveButton}`}
                           onClick={() => setShowSaveOptions(!showSaveOptions)}
                         >
@@ -2492,9 +2380,8 @@ if (!user) {
                         <i className="bi bi-share-fill"></i>
                         <span>Chia sẻ</span>
                       </button>
-                      {/* Nút báo lỗi ở góc trên phải */}
                         <div className={styles.reportButtonContainer}>
-                          <button 
+                          <button
                             className={styles.reportButtonTop}
                             onClick={handleReport}
                             title="Báo lỗi phim"
@@ -2504,7 +2391,7 @@ if (!user) {
                           </button>
                         </div>
                     </div>
-                    
+
                     <div className={styles.posterOverlay}>
                       <button
                         className={styles.playButtonOverlay}
@@ -2524,7 +2411,7 @@ if (!user) {
                       </button>
                     </div>
                   </div>
-                  
+
                   <div className={styles.posterActionButtonsRow}>
                     <button
                       className={`${styles.posterActionButton} ${userRating > 0 ? styles.active : ''}`}
@@ -2537,10 +2424,10 @@ if (!user) {
                         <span className={styles.buttonLabel}>
                           {userRating > 0 ? `${userRating}/10` : 'Đánh giá'}
                         </span>
-                        
+
                       </div>
                     </button>
-                    
+
                     <button
                       className={styles.posterActionButton}
                       onClick={handlePlayTrailer}
@@ -2554,7 +2441,7 @@ if (!user) {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className={`${styles.rightSection} ${contentLoaded ? styles.contentLoaded : styles.contentLoading}`}>
                   <h1 className={styles.movieTitle}>{movie.name}</h1>
                   {movie.origin_name && (
@@ -2566,12 +2453,12 @@ if (!user) {
                       {[...Array(10)].map((_, i) => {
                         // Only show stars if there are actual ratings
                         const hasRatings = ratingCount > 0;
-                        
+
                         // Calculate star value based on the 10-star scale, but only if there are ratings
                         const starValue = i + 1;
                         const filled = hasRatings && averageRating >= starValue;
                         const halfFilled = hasRatings && !filled && averageRating > starValue - 0.5;
-                        
+
                         let starType = '';
                         if (filled) {
                           starType = 'bi-star-fill';
@@ -2626,7 +2513,7 @@ if (!user) {
                         {movie.quality}
                       </span>
                     )}
-                  
+
                     {movie.country && Array.isArray(movie.country) ? (
                       movie.country.map((country, index) => (
                         <span key={index} className={styles.genreBadge}>
@@ -2640,14 +2527,14 @@ if (!user) {
                     ) : (
                       <span className="text-muted">Chưa có thông tin</span>
                     )}
-                 
+
                   </div>                  {movie.actor && Array.isArray(movie.actor) && movie.actor.length > 0 && movie.actor.some(actor => {
                     const name = typeof actor === 'object' ? actor.name : actor;
                     return name && name.trim() !== '';
                   }) && (
                     <>
                       <h3 className={styles.sectionTitle}>Diễn Viên</h3>
-                      <div className={styles.actorsContainer}>                    
+                      <div className={styles.actorsContainer}>
                         {movie.actor.map((actor, index) => {
                           const actorName = typeof actor === 'object' ? actor.name : actor;
                           return actorName && actorName.trim() !== '' ? (
@@ -2667,11 +2554,9 @@ if (!user) {
                     ))}
                   </div>
 
-                  
                 </div>
               </div>
-              
-              
+
               <div className={styles.headerButtons}>
                 <button
                   className={`${styles.actionButton} ${styles.shareButton}`}
@@ -2685,12 +2570,12 @@ if (!user) {
           </div>
         </div>
       </div>
-      
+
       <div className={styles.container}>
         {!contentLoaded && (
           <>
             <div className={`${styles.skeleton} ${styles.descriptionSkeleton}`}></div>
-            
+
             <div className={styles.relatedMoviesSkeleton}>
               {[...Array(6)].map((_, i) => (
                 <div key={i} className={styles.relatedMovieCardSkeleton}>
@@ -2702,7 +2587,7 @@ if (!user) {
             </div>
           </>
         )}
-        
+
         <div className={contentLoaded ? '' : styles.hiddenContent}>
           <div className={`container text-white mt-5 ${contentLoaded ? styles.contentLoaded : styles.contentLoading}`}>
             {showPlayer && (
@@ -2762,17 +2647,17 @@ if (!user) {
               <h5>Nội Dung Phim</h5>              <div style={{ position: 'relative' }}>
                 <p className={!showFullDescription ? styles.descriptionCollapsed : undefined}>
                   {movie.content || movie.description}
-                </p>                {(movie.content || movie.description) && 
-                 (movie.content || movie.description).length > 200 && 
-                 !showFullDescription && (                  <button 
-                    className={styles.showMoreBtn} 
+                </p>                {(movie.content || movie.description) &&
+                 (movie.content || movie.description).length > 200 &&
+                 !showFullDescription && (                  <button
+                    className={styles.showMoreBtn}
                     onClick={() => setShowFullDescription(true)}
                   >
                     Xem thêm <i className="bi bi-arrow-down-circle-fill" style={{ color: '#dc3545', marginLeft: '5px' }}></i>
                   </button>
                 )}
-                {showFullDescription && (                  <button 
-                    className={styles.showMoreBtn} 
+                {showFullDescription && (                  <button
+                    className={styles.showMoreBtn}
                     onClick={() => setShowFullDescription(false)}
                   >
                     Thu gọn <i className="bi bi-arrow-up-circle-fill" style={{ color: '#dc3545', marginLeft: '5px' }}></i>
@@ -2783,14 +2668,13 @@ if (!user) {
               <div className={`mt-5 mb-5 ${contentLoaded ? styles.contentLoaded : styles.contentLoading}`}>
                 <h3 className={styles.relatedMoviesTitle}>
                   Phim Cùng Thể Loại
-                  
-                  
+
                 </h3>
                   <div className={styles.relatedMoviesContainer} ref={scrollContainerRef}>
                   <Slider {...sliderSettings} className={styles.slickSlider}>
                     {relatedMovies.map((movie) => (
-                      <div 
-                        key={movie.slug} 
+                      <div
+                        key={movie.slug}
                         className={styles.slickSlide}
                         onMouseEnter={() => handleMouseEnter(movie)}
                         onMouseLeave={handleMouseLeave}
@@ -2818,7 +2702,7 @@ if (!user) {
                                 <span className={styles.relatedMovieBadge}>
                                   {movie.year || "2023"}
                                 </span>
-                                
+
                               </div>
                               <div className={styles.relatedMovieOverlay}>
                                 <button className={styles.watchButton}>
@@ -2832,7 +2716,7 @@ if (!user) {
                                 <div className={styles.relatedMovieSubtitle}>
                                   {movie.origin_name}
                                 </div>
-                              )}  
+                              )}
                             </div>
                           </Link>
                         </div>
@@ -2854,8 +2738,8 @@ if (!user) {
                 <div className={styles.relatedMoviesContainer} ref={scrollContainerRef}>
                   <Slider {...sliderSettings} className={styles.slickSlider}>
                     {historyRecommendations.map((movie) => (
-                      <div 
-                        key={movie.slug} 
+                      <div
+                        key={movie.slug}
                         className={styles.slickSlide}
                         onMouseEnter={() => handleMouseEnter(movie)}
                         onMouseLeave={handleMouseLeave}
@@ -2895,7 +2779,7 @@ if (!user) {
                                 <div className={styles.relatedMovieSubtitle}>
                                   {movie.origin_name}
                                 </div>
-                              )}  
+                              )}
                             </div>
                           </Link>
                         </div>
@@ -2913,10 +2797,10 @@ if (!user) {
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className={styles.sectionTitle}>
                   Bình luận {comments.length > 0 && <span className={styles.commentCount}>({comments.length})</span>}
-                </h5>                {console.log("Passing rating stats to component:", {userRatingsStats, averageRating, ratingCount})}
-                <RatingStats 
-                  userRatingsStats={userRatingsStats} 
-                  averageRating={averageRating} 
+                </h5>
+                <RatingStats
+                  userRatingsStats={userRatingsStats}
+                  averageRating={averageRating}
                   ratingCount={ratingCount}
                   movieSlug={slug}
                 />
@@ -3038,8 +2922,8 @@ if (!user) {
             <div className={styles.modalBody}>
               <div className={styles.movieSharePreview}>
                 <div className={styles.sharePreviewImage}>
-                  <img 
-                    src={movie.thumb_url || movie.poster_url || "/img/default-poster.jpg"} 
+                  <img
+                    src={movie.thumb_url || movie.poster_url || "/img/default-poster.jpg"}
                     alt={movie.name}
                     onError={(e) => {
                       e.target.onerror = null;
@@ -3055,63 +2939,63 @@ if (!user) {
                   </p>
                 </div>
               </div>
-              
+
               <div className={styles.shareDivider}><span>Chia sẻ qua mạng xã hội</span></div>
-              
+
               <div className={styles.shareIconGrid}>
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#3b5998'}} onClick={() => handleSocialShare('facebook')} title="Facebook">
                   <img src="/img/social/facebook.png" alt="Facebook" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Facebook</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#1da1f2'}} onClick={() => handleSocialShare('twitter')} title="Twitter">
                   <img src="/img/social/twitter.png" alt="Twitter" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Twitter</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#0088cc'}} onClick={() => handleSocialShare('telegram')} title="Telegram">
                   <img src="/img/social/telegram.png" alt="Telegram" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Telegram</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#25d366'}} onClick={() => handleSocialShare('whatsapp')} title="WhatsApp">
                   <img src="/img/social/whatsapp.png" alt="WhatsApp" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>WhatsApp</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#0077b5'}} onClick={() => handleSocialShare('linkedin')} title="LinkedIn">
                   <img src="/img/social/linkedin.png" alt="LinkedIn" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>LinkedIn</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#bd081c'}} onClick={() => handleSocialShare('pinterest')} title="Pinterest">
                   <img src="/img/social/pinterest.png" alt="Pinterest" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Pinterest</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#ff4500'}} onClick={() => handleSocialShare('reddit')} title="Reddit">
                   <img src="/img/social/reddit.png" alt="Reddit" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Reddit</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#7360f2'}} onClick={() => handleSocialShare('viber')} title="Viber">
                   <img src="/img/social/viber.png" alt="Viber" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Viber</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#0068ff'}} onClick={() => handleSocialShare('zalo')} title="Zalo">
                   <img src="/img/social/zalo.png" alt="Zalo" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Zalo</span>
                 </button>
-                
+
                 <button className={styles.shareIconBtn} style={{backgroundColor: '#333333'}} onClick={() => handleSocialShare('email')} title="Email">
                   <img src="/img/social/email.png" alt="Email" className={styles.socialLogo} />
                   <span className={styles.shareIconTooltip}>Email</span>
                 </button>
               </div>
-              
+
               <div className={styles.shareDivider}><span>Hoặc sao chép link</span></div>
-              
+
               <div className={styles.shareLinkContainer}>
                 <div className="input-group">
                   <input
@@ -3131,9 +3015,9 @@ if (!user) {
                 </div>
                 <div className={styles.shareQRCode}>
                   <div className={styles.qrCodeContainer}>
-                    <img 
+                    <img
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`}
-                      alt="QR Code" 
+                      alt="QR Code"
                     />
                   </div>
                   <span>Quét QR code</span>
@@ -3252,7 +3136,6 @@ if (!user) {
         </div>
       )}
 
-      {/* Modal báo lỗi phim */}
       {showReportModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -3276,8 +3159,8 @@ if (!user) {
                   <p>Vui lòng cho chúng tôi biết bạn gặp lỗi gì khi xem phim này:</p>
                   <div className="mb-3">
                     <label className="form-label">Loại lỗi:</label>
-                    <select 
-                      className="form-select bg-dark text-white border-secondary" 
+                    <select
+                      className="form-select bg-dark text-white border-secondary"
                       value={reportType}
                       onChange={(e) => setReportType(e.target.value)}
                     >
@@ -3289,8 +3172,8 @@ if (!user) {
                   </div>
                   <div className="mb-3">
                     <label className="form-label">Mô tả chi tiết (không bắt buộc):</label>
-                    <textarea 
-                      className="form-control bg-dark text-white border-secondary" 
+                    <textarea
+                      className="form-control bg-dark text-white border-secondary"
                       rows="4"
                       placeholder="Mô tả chi tiết lỗi bạn gặp phải..."
                       value={reportMessage}
@@ -3337,27 +3220,27 @@ if (!user) {
         .video-preview-overlay {
           animation: fadeIn 0.3s ease-in-out;
         }
-        
+
         ::-webkit-scrollbar {
           width: 4px;
           height: 6px;
         }
-        
+
         ::-webkit-scrollbar-track {
           background: rgba(0, 0, 0, 0.2);
           border-radius: 10px;
         }
-        
+
         ::-webkit-scrollbar-thumb {
           background: rgba(99, 97, 97, 0.5);
           border-radius: 10px;
           transition: all 0.3s ease;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
           background: rgba(126, 121, 121, 0.8);
         }
-        
+
         * {
           scrollbar-width: thin;
           scrollbar-color: rgba(95, 94, 94, 0.5) rgba(0, 0, 0, 0.2);
@@ -3370,7 +3253,7 @@ if (!user) {
 
 export async function getServerSideProps(context) {
   const { slug } = context.params;
-  
+
   return {
     props: {
       slug,

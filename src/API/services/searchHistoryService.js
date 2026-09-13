@@ -1,16 +1,13 @@
-// searchHistoryService.js - Service cho lịch sử tìm kiếm
 import axiosInstance from '../config/axiosConfig';
 
 const searchHistoryService = {
-  // Lưu truy vấn tìm kiếm vào lịch sử
   saveSearchHistory: async (query, filters = {}) => {
     try {
       const response = await axiosInstance.post('/search-history', {
         query,
         filters
       });
-      
-      // Đảm bảo trả về cả thông tin của mục lịch sử đã lưu
+
       if (response.data && response.data.success) {
         return {
           success: true,
@@ -25,14 +22,12 @@ const searchHistoryService = {
     }
   },
 
-  // Lấy lịch sử tìm kiếm của người dùng
   getSearchHistory: async (limit = 8) => {
     try {
       const response = await axiosInstance.get(`/search-history?limit=${limit}`);
-      // Đảm bảo xử lý đúng cấu trúc dữ liệu trả về từ API
       if (response.data && response.data.success) {
         return {
-          success: true, 
+          success: true,
           searchHistory: response.data.data?.searchHistory || []
         };
       }
@@ -43,7 +38,6 @@ const searchHistoryService = {
     }
   },
 
-  // Xóa một mục trong lịch sử tìm kiếm
   deleteSearchHistoryItem: async (id) => {
     try {
       const response = await axiosInstance.delete(`/search-history/${id}`);
@@ -54,7 +48,6 @@ const searchHistoryService = {
     }
   },
 
-  // Xóa toàn bộ lịch sử tìm kiếm
   clearSearchHistory: async () => {
     try {
       const response = await axiosInstance.delete('/search-history');

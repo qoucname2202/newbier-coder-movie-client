@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { API_URL } from '../../../config/API';
 
-// Định nghĩa kiểu dữ liệu cho thông báo
 export interface Notification {
   _id: string;
   title: string;
@@ -15,7 +14,6 @@ export interface Notification {
   };
 }
 
-// Lấy danh sách thông báo
 export const getNotifications = async (): Promise<Notification[]> => {
   try {
     const response = await axios.get(`${API_URL}/admin/notifications`, {
@@ -28,7 +26,6 @@ export const getNotifications = async (): Promise<Notification[]> => {
   }
 };
 
-// Đánh dấu thông báo đã đọc
 export const markNotificationAsRead = async (notificationId: string): Promise<void> => {
   try {
     await axios.put(
@@ -42,7 +39,6 @@ export const markNotificationAsRead = async (notificationId: string): Promise<vo
   }
 };
 
-// Xóa thông báo
 export const deleteNotification = async (notificationId: string): Promise<void> => {
   try {
     await axios.delete(`${API_URL}/admin/notifications/${notificationId}`, {
@@ -54,7 +50,6 @@ export const deleteNotification = async (notificationId: string): Promise<void> 
   }
 };
 
-// Đọc tất cả thông báo
 export const markAllNotificationsAsRead = async (): Promise<void> => {
   try {
     await axios.put(

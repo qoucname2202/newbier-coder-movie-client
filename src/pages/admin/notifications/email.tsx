@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import AdminLayout from '@/components/Layout/AdminLayout';
-import { 
-  sendMaintenanceNotification, 
-  sendCustomNotification, 
-  getNotificationHistory 
+import {
+  sendMaintenanceNotification,
+  sendCustomNotification,
+  getNotificationHistory
 } from '@/API/services/admin/emailNotificationService';
 import { toast } from 'react-hot-toast';
 import { Card, Button, Spinner, Modal } from 'react-bootstrap';
@@ -75,7 +75,7 @@ function NotificationContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('maintenance');
   const [historyTab, setHistoryTab] = useState(false);
-  
+
   // State for preview
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState({
@@ -87,27 +87,24 @@ function NotificationContent() {
 
   // State for notification history
   const [notificationHistory, setNotificationHistory] = useState<NotificationHistoryItem[]>([]);
-  // Trạng thái tải lịch sử thông báo
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Tải lịch sử thông báo khi component được mount hoặc khi trang thay đổi
   useEffect(() => {
     if (historyTab) {
       fetchNotificationHistory();
     }
   }, [currentPage, historyTab]);
 
-  // Hàm để lấy lịch sử thông báo
   const fetchNotificationHistory = async () => {
     try {
       setIsLoadingHistory(true);
-      const response = await getNotificationHistory({ 
-        page: currentPage, 
-        limit: 10 
+      const response = await getNotificationHistory({
+        page: currentPage,
+        limit: 10
       }) as ApiResponse;
-      
+
       if (response.success) {
         setNotificationHistory(response.data || []);
         setTotalPages(response.pages || 1);
@@ -143,7 +140,7 @@ function NotificationContent() {
   // Preview maintenance notification
   const handleMaintenancePreview = () => {
     let recipients = '';
-    
+
     switch(maintenanceForm.userGroup) {
       case 'all':
         recipients = 'Tất cả người dùng';
@@ -157,9 +154,9 @@ function NotificationContent() {
     }
 
     // Format maintenance time
-    const startTime = maintenanceForm.maintenanceTime ? 
+    const startTime = maintenanceForm.maintenanceTime ?
       new Date(maintenanceForm.maintenanceTime).toLocaleString('vi-VN') : '';
-    const endTime = maintenanceForm.expectedDuration ? 
+    const endTime = maintenanceForm.expectedDuration ?
       new Date(maintenanceForm.expectedDuration).toLocaleString('vi-VN') : '';
 
     // Create preview content
@@ -190,7 +187,7 @@ Trân trọng,
   // Preview custom notification
   const handleCustomPreview = () => {
     let recipients = '';
-    
+
     switch(customForm.userGroup) {
       case 'all':
         recipients = 'Tất cả người dùng';
@@ -219,7 +216,7 @@ Trân trọng,
   // Send maintenance notification
   const handleMaintenanceSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!maintenanceForm.message || !maintenanceForm.maintenanceTime || !maintenanceForm.expectedDuration) {
       toast.error('Vui lòng điền đầy đủ thông tin');
@@ -229,10 +226,10 @@ Trân trọng,
     try {
       setIsLoading(true);
       const response = await sendMaintenanceNotification(maintenanceForm) as ApiResponse;
-      
+
       if (response.success) {
         toast.success(`Đã gửi thông báo bảo trì thành công đến ${response.count || 0} người dùng`);
-        
+
         // Reset form after successful submission
         setMaintenanceForm({
           subject: 'Thông báo bảo trì hệ thống Movie Streaming',
@@ -241,7 +238,7 @@ Trân trọng,
           expectedDuration: '',
           userGroup: 'all'
         });
-        
+
         // Update notification history
         if (historyTab) {
           fetchNotificationHistory();
@@ -260,7 +257,7 @@ Trân trọng,
   // Send custom notification
   const handleCustomSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!customForm.subject || !customForm.message) {
       toast.error('Vui lòng điền đầy đủ tiêu đề và nội dung thông báo');
@@ -270,10 +267,10 @@ Trân trọng,
     try {
       setIsLoading(true);
       const response = await sendCustomNotification(customForm) as ApiResponse;
-      
+
       if (response.success) {
         toast.success(`Đã gửi thông báo tùy chỉnh thành công đến ${response.count || 0} người dùng`);
-        
+
         // Reset form after successful submission
         setCustomForm({
           subject: '',
@@ -314,11 +311,11 @@ Trân trọng,
   // Render pagination items
   const renderPaginationItems = () => {
     const items = [];
-    
+
     for (let i = 1; i <= totalPages; i++) {
       items.push(
         <li key={i} className={emailStyles.pageItem}>
-          <button 
+          <button
             className={`${emailStyles.pageLink} ${currentPage === i ? emailStyles.activePageLink : ''}`}
             onClick={() => setCurrentPage(i)}
           >
@@ -327,7 +324,7 @@ Trân trọng,
         </li>
       );
     }
-    
+
     return items;
   };
 
@@ -357,19 +354,19 @@ Trân trọng,
 
         <div className={emailStyles.tabsContainer}>
           <div className={emailStyles.tabHeader}>
-            <button 
+            <button
               className={`${emailStyles.tabButton} ${!historyTab && activeTab === 'maintenance' ? emailStyles.activeTab : ''}`}
               onClick={() => { setHistoryTab(false); setActiveTab('maintenance') }}
             >
               Thông báo bảo trì
             </button>
-            <button 
+            <button
               className={`${emailStyles.tabButton} ${!historyTab && activeTab === 'custom' ? emailStyles.activeTab : ''}`}
               onClick={() => { setHistoryTab(false); setActiveTab('custom') }}
             >
               Thông báo tùy chỉnh
             </button>
-            <button 
+            <button
               className={`${emailStyles.tabButton} ${historyTab ? emailStyles.activeTab : ''}`}
               onClick={() => { setHistoryTab(true); fetchNotificationHistory(); }}
             >
@@ -593,7 +590,7 @@ Trân trọng,
             {historyTab && (
               <div className={emailStyles.formWrapper}>
                 <h2 className={emailStyles.sectionTitle}>Lịch sử thông báo đã gửi</h2>
-                
+
                 {isLoadingHistory ? (
                   <div className={emailStyles.loadingContainer}>
                     <Spinner animation="border" />
@@ -636,7 +633,7 @@ Trân trọng,
                     {totalPages > 1 && (
                       <ul className={emailStyles.pagination}>
                         <li className={emailStyles.pageItem}>
-                          <button 
+                          <button
                             className={emailStyles.pageLink}
                             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                             disabled={currentPage === 1}
@@ -644,11 +641,11 @@ Trân trọng,
                             &laquo;
                           </button>
                         </li>
-                        
+
                         {renderPaginationItems()}
-                        
+
                         <li className={emailStyles.pageItem}>
-                          <button 
+                          <button
                             className={emailStyles.pageLink}
                             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                             disabled={currentPage === totalPages}
@@ -666,9 +663,8 @@ Trân trọng,
         </div>
       </div>
 
-      {/* Modal xem trước email */}
-      <Modal 
-        show={showPreview} 
+      <Modal
+        show={showPreview}
         onHide={() => setShowPreview(false)}
         size="lg"
         centered
@@ -689,7 +685,7 @@ Trân trọng,
                 <strong>Gửi đến:</strong> {previewData.recipients}
               </div>
             </div>
-            
+
             <div className={emailStyles.previewContent}>
               {previewData.formType === 'custom' && previewData.content.includes('<') ? (
                 <div dangerouslySetInnerHTML={{ __html: previewData.content }} />
@@ -698,10 +694,10 @@ Trân trọng,
               )}
             </div>
           </div>
-          
+
           <div className={emailStyles.previewActions}>
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               onClick={() => setShowPreview(false)}
             >
               Đóng

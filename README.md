@@ -1,7 +1,7 @@
-# 🎬 Movie Streaming Platform - Đồ Án Cuối Khóa
+# 🎬 Newbee Coder Movie Client
 
 ## Giới thiệu dự án
-Đây là một ứng dụng streaming phim trực tuyến hoàn chỉnh được xây dựng bằng **Next.js** (Frontend) và **Node.js/Express** (Backend). Dự án bao gồm đầy đủ các tính năng của một nền tảng xem phim hiện đại với hệ thống quản lý, quảng cáo, và thanh toán.
+Đây là một ứng dụng xem phim trực tuyến hoàn chỉnh được xây dựng bằng **Next.js** (Frontend) và **Node.js/Express** (Backend). Dự án bao gồm đầy đủ các tính năng của một nền tảng xem phim hiện đại với hệ thống quản lý, quảng cáo, và thanh toán.
 
 ## 🏗️ Kiến trúc hệ thống
 
