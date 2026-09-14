@@ -1,135 +1,35 @@
-import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import MovieCategory from "./MovieCategory";
-import { mockMovies } from "../../mock/mockMovies";
+/**
+ * @file MovieList.js
+ * @description Container component that manages movie category rails on the homepage.
+ */
 
-const MovieList = () => {
-  const [categories, setCategories] = useState([
+import React, { useState } from 'react';
+import MovieCategory from './MovieCategory';
+import { MOVIE_CONFIG } from '../../config/movieConfig';
+
+/**
+ * Generates initial category list from centralized movie configuration.
+ * @returns {Array<Object>} Array of category definitions for display.
+ */
+const getDefaultCategories = () => {
+  return [
     {
-      id: 'new',
-      title: "Phim mới cập nhật",
-      endpoint: 'danh-sach/phim-moi-cap-nhat',
-      movies: mockMovies
-    },
-  ]);
-
-  const [loading, setLoading] = useState(false);
-  const [selectedMovie, setSelectedMovie] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-
-  const fetchMovieDetail = async (slug) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/movies/${slug}`);
-      if (!response.ok) return null;
-      const data = await response.json();
-      return data.movie || null;
-    } catch {
-      return null;
+      id: MOVIE_CONFIG.categories.new.id,
+      title: MOVIE_CONFIG.categories.new.title,
+      endpoint: MOVIE_CONFIG.categories.new.endpoint
     }
-  };
+  ];
+};
 
-  const fetchMoviesForCategory = async (endpoint, categoryId) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/movies`);
-      if (!response.ok) throw new Error('Network error');
-      const data = await response.json();
-
-      if (data.items || (data.data && data.data.movies)) {
-        const rawList = data.items || data.data.movies;
-        const moviePromises = rawList.map(async (movie) => {
-          if (!movie.slug) return movie;
-          const movieDetail = await fetchMovieDetail(movie.slug);
-          return movieDetail || movie;
-        });
-
-        let movies = await Promise.all(moviePromises);
-        movies = movies.filter(movie => movie !== null);
-
-        if (categoryId === 'series') {
-          movies = movies.filter(movie =>
-            movie.type === 'series' ||
-            movie.episode_current !== 'Full' ||
-            movie.category?.some(cat =>
-              (cat.name || '').toLowerCase().includes('phim bộ'))
-          );
-        } else if (categoryId === 'single') {
-          movies = movies.filter(movie =>
-            movie.type === 'single' ||
-            movie.episode_current === 'Full' ||
-            movie.category?.some(cat =>
-              (cat.name || '').toLowerCase().includes('phim lẻ'))
-          );
-        }
-
-        return movies.length > 0 ? movies : mockMovies;
-      }
-      return mockMovies;
-    } catch (error) {
-      // Backend offline -> Trả về mockMovies an toàn, không ném lỗi
-      return mockMovies;
-    }
-  };
-
-  useEffect(() => {
-    const fetchAllMovies = async () => {
-      try {
-        setLoading(true);
-        const updatedCategories = [...categories];
-
-        for (let i = 0; i < categories.length; i++) {
-          const movies = await fetchMoviesForCategory(
-            categories[i].endpoint,
-            categories[i].id
-          );
-
-          updatedCategories[i] = {
-            ...categories[i],
-            movies: movies
-          };
-        }
-
-        setCategories(updatedCategories);
-      } catch (error) {
-        console.error("Lỗi khi fetch dữ liệu phim:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllMovies();
-  }, []);
-
-  const loadMoreMovies = async (categoryId) => {
-    try {
-      setLoading(true);
-      const categoryIndex = categories.findIndex(cat => cat.id === categoryId);
-      if (categoryIndex === -1) return;
-
-      const category = categories[categoryIndex];
-      const nextPage = Math.ceil(category.movies.length / 20) + 1;
-
-      const newMovies = await fetchMoviesForCategory(
-        `${category.endpoint}?page=${nextPage}`,
-        category.id
-      );
-
-      if (newMovies.length > 0) {
-        const updatedCategories = [...categories];
-        updatedCategories[categoryIndex] = {
-          ...category,
-          movies: [...category.movies, ...newMovies]
-        };
-        setCategories(updatedCategories);
-      }
-    } catch (error) {
-      console.error("Lỗi khi tải thêm phim:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+/**
+ * MovieList component renders category sections with horizontal carousels.
+ * @returns {JSX.Element} Rendered movie category sections.
+ */
+const MovieList = () => {
+  const [categories] = useState(getDefaultCategories);
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid movie-list-container">
       {categories.map((category) => (
         <MovieCategory
           key={category.id}
@@ -138,254 +38,43 @@ const MovieList = () => {
         />
       ))}
 
-      {showModal && selectedMovie && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.8)' }}>
-          <div className="modal-dialog modal-lg modal-dialog-centered">
-            <div className="modal-content bg-dark text-white">
-              <div className="modal-header border-secondary">
-                <h5 className="modal-title">
-                  {selectedMovie.name}
-                  <small className="text-muted ms-2">({selectedMovie.year})</small>
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  onClick={() => setShowModal(false)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="row">
-                  <div className="col-md-4">
-                    <div className="position-relative">
-                      <img
-                        src={selectedMovie.thumb_url || selectedMovie.poster_url}
-                        alt={selectedMovie.name}
-                        className="img-fluid rounded w-100"
-                        style={{ objectFit: 'cover' }}
-                        onError={(e) => {
-                          e.target.src = "";
-                        }}
-                      />
-                      <div className="position-absolute bottom-0 start-0 end-0 p-2 text-center"
-                        style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.8))' }}>
-                        <div className="d-flex gap-2 justify-content-center">
-                          <button
-                            className="btn btn-danger"
-                            onClick={() => setShowTrailer(true)} // Show trailer
-                          >
-                            <i className="fas fa-play me-2"></i>
-                            Xem trailer
-                          </button>
-                          <button
-                            className="btn btn-danger"
-                            onClick={() => setShowPlayer(true)} // Play the movie
-                          >
-                            <i className="fas fa-play me-2"></i>
-                            Xem phim
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-8">
-                  </div>
-                </div>
-
-                {/* Show Trailer */}
-                {showTrailer && selectedMovie.trailer_url && (
-                  <div className="mt-4">
-                    <div className="ratio ratio-16x9">
-                      <iframe
-                        src={`https://www.youtube.com/embed/${selectedMovie.trailer_url}`}
-                        allowFullScreen
-                        className="rounded"
-                      ></iframe>
-                    </div>
-                  </div>
-                )}
-
-                {/* Player section */}
-                {showPlayer && selectedMovie.episodes && selectedMovie.episodes[0] && (
-                  <div className="mt-4">
-                    <div className="ratio ratio-16x9">
-                      <iframe
-                        src={selectedMovie.episodes[0].server_data[0].link_embed}
-                        allowFullScreen
-                        className="rounded"
-                      ></iframe>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="modal-footer border-secondary">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowModal(false)}
-                >
-                  Đóng
-                </button>
-                <Link
-                  href={`/movie/${selectedMovie.slug}`}
-                  className="btn btn-danger"
-                >
-                  Chi tiết phim
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       <style jsx global>{`
-        html, body {
+        html,
+        body {
           margin: 0;
           padding: 0;
           overflow-x: hidden;
-          background: #0d1117;        }
+          background: #0d1117;
+        }
 
         ::-webkit-scrollbar {
-          width: 5px;          height: 5px;        }
+          width: 6px;
+          height: 6px;
+        }
 
         ::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.1);          border-radius: 3px;
+          background: rgba(13, 17, 23, 0.6);
         }
 
         ::-webkit-scrollbar-thumb {
-          background: rgba(70, 70, 90, 0.5);          border-radius: 3px;
+          background: rgba(70, 70, 90, 0.5);
+          border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-          background: rgba(90, 90, 115, 0.7);        }
-
-        /* Cho Firefox */
-        * {
-          scrollbar-width: thin;
-          scrollbar-color: rgba(70, 70, 90, 0.5) rgba(0, 0, 0, 0.1);
+          background: rgba(90, 90, 115, 0.8);
         }
 
-        .container-fluid {
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(70, 70, 90, 0.5) rgba(13, 17, 23, 0.6);
+        }
+
+        .movie-list-container {
           padding-left: 0;
           padding-right: 0;
           max-width: 100%;
           overflow-x: hidden;
-        }
-
-        .row {
-          margin-left: 0;
-          margin-right: 0;
-        }
-
-        .row > * {
-          padding-right: calc(var(--bs-gutter-x) * 0.3);
-          padding-left: calc(var(--bs-gutter-x) * 0.3);
-        }
-
-        .col-xl-1-7 {
-          flex: 0 0 calc(100% / 7);
-          max-width: calc(100% / 7);
-        }
-
-        @media (max-width: 1200px) {
-          .col-xl-1-7 {
-            flex: 0 0 20%;
-            max-width: 20%;
-          }
-        }
-
-        @media (max-width: 992px) {
-          .col-xl-1-7 {
-            flex: 0 0 25%;
-            max-width: 25%;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .col-xl-1-7 {
-            flex: 0 0 33.333333%;
-            max-width: 33.333333%;
-          }
-        }
-
-        @media (max-width: 576px) {
-          .col-xl-1-7 {
-            flex: 0 0 50%;
-            max-width: 50%;
-          }
-        }
-
-        .movie-poster {
-          position: relative;
-          overflow: hidden;
-          border-radius: 3px; /* Reduced from 8px to 3px */
-        }
-
-        .movie-poster img {
-          transition: transform 0.3s ease;
-        }
-
-        .movie-poster:hover img {
-          transform: scale(1.05);
-        }
-
-        .overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0,0,0,0.5);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        .movie-poster:hover .overlay {
-          opacity: 1;
-        }
-
-        .watch-button {
-          transform: translateY(20px);
-          transition: transform 0.3s ease;
-        }
-
-        .movie-poster:hover .watch-button {
-          transform: translateY(0);
-        }
-
-        /* Added: Spacing adjustments */
-        .card {
-          border: none !important;
-          margin-bottom: 0.25rem;
-          border-radius: 3px;
-        }
-
-        .card-body {
-          padding: 0.5rem 0.5rem;
-        }
-
-        /* Added: Tighter spacing between movie items */
-        .row.g-1 > * {
-          padding-right: calc(var(--bs-gutter-x) * 0.3);
-          padding-left: calc(var(--bs-gutter-x) * 0.3);
-        }
-
-        /* Added: Make badges smaller */
-        .badge {
-          padding: 0.25em 0.5em;
-          font-size: 0.75em;
-        }
-
-        /* Updating modal styling */
-        .modal-content {
-          border-radius: 3px;
-          border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        img.rounded, iframe.rounded {
-          border-radius: 3px !important;
         }
       `}</style>
     </div>
