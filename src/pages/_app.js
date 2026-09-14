@@ -13,6 +13,7 @@ import OfflineNotice from "../components/OfflineNotice";
 import NetworkStatusBar from "../components/NetworkStatusBar";
 import AdContextProvider from "../context/AdContext";
 import { registerServiceWorker } from "../utils/serviceWorker";
+import { ROUTES } from "../config/routesConfig";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   const router = useRouter();
@@ -45,9 +46,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     initializeUser();
   }, [initializeUser]);
 
-  const isAdminPage = router.pathname.startsWith('/admin');
-  const isAuthPage = router.pathname.startsWith('/auth');
-  const isSearchPage = router.pathname === '/search';
+  const isAdminPage = router.pathname.startsWith(ROUTES.ADMIN_PREFIX);
+  const isAuthPage = router.pathname.startsWith(ROUTES.AUTH_PREFIX);
+  const isSearchPage = router.pathname === ROUTES.SEARCH;
 
   const getLayout = useCallback((page) => {
     if (Component.getLayout) {
@@ -94,16 +95,16 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
             font-family: 'Helvetica Neue', Arial, sans-serif;
           }
 
-          /* Custom scrollbar */
+          /* Seamless full-bleed layout: hide visible scrollbar tracks across all modern browsers */
+          html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            overflow-x: hidden;
+          }
           ::-webkit-scrollbar {
-            width: 8px;
-          }
-          ::-webkit-scrollbar-track {
-            background: #111;
-          }
-          ::-webkit-scrollbar-thumb {
-            background: #e50914;
-            border-radius: 4px;
+            display: none; /* Chrome, Safari, Opera */
+            width: 0px;
+            background: transparent;
           }
         `}</style>
       </AuthProvider>

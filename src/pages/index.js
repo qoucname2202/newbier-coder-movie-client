@@ -1,37 +1,40 @@
+/**
+ * @file pages/index.js
+ * @description Homepage displaying featured cinematic hero banner and movie category rails.
+ */
+
 import { useState, useEffect, useRef } from "react";
 import MovieList from "../components/Movie/MovieList";
 import HeroBanner from "../components/Movie/HeroBanner";
 import { useAuth } from "../utils/auth";
 import { useRouter } from "next/router";
 
+/**
+ * Main Home page component.
+ * @returns {JSX.Element} Rendered homepage layout.
+ */
 export default function Home() {
   const { isAuthenticated, isAccountLocked } = useAuth();
   const [redirected, setRedirected] = useState(false);
   const router = useRouter();
   const checkTimeoutRef = useRef(null);
 
-  // Check account status only once on mount and prevent repeated requests
+  // Check account status only once on mount and prevent repeated redirects
   useEffect(() => {
-    // Avoid any action if we've already started redirecting
     if (redirected) return;
 
     if (isAuthenticated && isAccountLocked) {
       setRedirected(true);
 
-      // Store account lock status in localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('isAccountLocked', 'true');
       }
 
-      // Clear any previous timeout
       if (checkTimeoutRef.current) {
         clearTimeout(checkTimeoutRef.current);
       }
 
-      // Use a timeout to prevent immediate redirects that could cause rendering loops
       checkTimeoutRef.current = setTimeout(() => {
-        // Use direct window location change instead of Next.js router
-        // to prevent additional renders and state updates
         window.location.href = '/account-locked';
       }, 300);
     }
@@ -43,10 +46,9 @@ export default function Home() {
     };
   }, [isAuthenticated, isAccountLocked, redirected]);
 
-  // Apply an extra layer of protection against data fetching when locked
+  // Block data fetching when locked
   useEffect(() => {
     if (typeof window !== 'undefined' && localStorage.getItem('isAccountLocked') === 'true') {
-      // Block data fetching for this page specifically
       const originalFetch = window.fetch;
       const fetchBlocker = function(url, options) {
         if (typeof url === 'string' && url.includes('/_next/data')) {
@@ -66,10 +68,8 @@ export default function Home() {
     }
   }, []);
 
-  // Simple check if account is locked before initial render
+  // Display lock warning if account is flagged
   if (typeof window !== 'undefined' && localStorage.getItem('isAccountLocked') === 'true') {
-    // We're client-side and the account is locked
-    // Return minimal content to prevent data fetching
     return (
       <div className="bg-black text-white h-screen flex items-center justify-center">
         <p>Đang chuyển hướng đến trang tài khoản bị khóa...</p>
@@ -78,24 +78,36 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-black text-white">
+    <div className="home-container bg-black text-white">
+      {/* Full-bleed cinematic hero banner */}
       <HeroBanner />
-      <div className="container-fluid mt-5 px-4">
-        <h5 className="mb-4" style={{ color: "#000000" }}></h5>
+
+      {/* Main movie category rails */}
+      <div className="container-fluid mt-4 px-3 px-lg-4">
         <MovieList />
       </div>
 
       <style jsx global>{`
         body {
-          background-color: #000;
-          color: #fff;
+          background-color: #0d1117;
+          color: #ffffff;
+        }
+
+        .home-container {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          overflow-x: hidden;
         }
       `}</style>
     </div>
   );
 }
 
-// Switch to static props to avoid constant server-side rendering
+/**
+ * Static props fetching to avoid unnecessary server-side rendering bottlenecks.
+ * @returns {Promise<{ props: Object }>} Empty static props object.
+ */
 export async function getStaticProps() {
   return {
     props: {}
