@@ -41,6 +41,119 @@ const formatQualityLabel = (quality) => {
 };
 
 /**
+ * Resolves episode, series progress, or release status for badges.
+ * Gracefully returns null for standalone released movies.
+ * @param {Object} movie - Movie data object.
+ * @returns {string|null} Formatted status label or null.
+ */
+const resolveSeriesStatus = (movie) => {
+  if (!movie) return null;
+  if (movie.status === 'upcoming') {
+    return 'Sắp khởi chiếu';
+  }
+  if (movie.type === 'series') {
+    if (movie.episode_current) {
+      return movie.episode_current;
+    }
+    if (movie.status === 'completed' && movie.episode_total) {
+      return `Trọn bộ ${movie.episode_total} tập`;
+    }
+    return 'Phim bộ';
+  }
+  return null;
+};
+
+/**
+ * Renders an interactive row of clickable category pill chips.
+ * Gracefully returns null if no categories exist or if the array is empty.
+ * @param {Array<Object>} categories - Array of category objects.
+ * @returns {JSX.Element|null} Rendered category navigation container or null.
+ */
+const renderCategoryPills = (categories) => {
+  if (!categories || !Array.isArray(categories) || categories.length === 0) {
+    return null;
+  }
+
+  return (
+    <nav className={styles.categoryRow} aria-label="Thể loại phim">
+      {categories.map((cat, idx) => {
+        const slug = cat.slug || cat.name || '';
+        return (
+          <Link
+            key={slug || idx}
+            href={`/search?category=${encodeURIComponent(slug)}`}
+            className={styles.categoryPill}
+            title={`Khám phá phim thể loại ${cat.name}`}
+          >
+            <i className={`fas fa-tag ${styles.categoryPillIcon}`} />
+            <span>{cat.name}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+};
+
+/**
+ * Renders an Apple TV+ style bottom-right horizontal floating dock for featured spotlight movies.
+ * Leaves the entire upper backdrop open, uncluttered, and luminous for character art.
+ * @param {Object} props - Component properties.
+ * @param {Array<Object>} props.movies - Array of featured playlist movies.
+ * @param {number} props.currentIndex - Currently active movie index.
+ * @param {Function} props.onSelect - Callback invoked when a movie card is clicked.
+ * @returns {JSX.Element|null} Rendered dock element or null.
+ */
+const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
+  if (!movies || movies.length <= 1) return null;
+
+  return (
+    <aside className={styles.spotlightDock} aria-label="Danh sách phim tiêu điểm">
+      <div className={styles.dockHeader}>
+        <span className={styles.dockTitle}>
+          <i className="fas fa-play me-1 text-danger" /> Tiêu Điểm
+        </span>
+        <span className={styles.dockCounter}>
+          {currentIndex + 1} / {movies.length}
+        </span>
+      </div>
+
+      <div className={styles.dockTrack} role="tablist" aria-label="Các phim tiêu điểm">
+        {movies.map((movie, idx) => {
+          const isActive = idx === currentIndex;
+          const cardThumb = movie.thumb_url || movie.poster_url || resolveBackdropUrl(movie);
+
+          return (
+            <button
+              key={movie._id || idx}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-label={`Chuyển tới phim ${movie.name}`}
+              className={`${styles.dockCard} ${isActive ? styles.dockCardActive : ''}`}
+              onClick={() => onSelect(idx)}
+            >
+              <img
+                src={cardThumb}
+                alt={movie.name || 'Movie thumbnail'}
+                className={styles.dockThumbImg}
+                loading="lazy"
+              />
+              {isActive && (
+                <span className={styles.dockPlayBadge}>
+                  <i className="fas fa-play" />
+                </span>
+              )}
+              {/* Tooltip on hover */}
+              <span className={styles.dockTooltip}>{movie.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </aside>
+  );
+};
+
+/**
  * HeroBanner component for displaying featured cinematic movies.
  * @returns {JSX.Element} Rendered hero banner.
  */
@@ -80,6 +193,8 @@ const HeroBanner = () => {
 
   if (!activeMovie) return null;
 
+  const seriesStatusText = resolveSeriesStatus(activeMovie);
+
   return (
     <section className={styles.heroBanner} aria-label="Featured Movie Spotlight">
       {/* Background Media */}
@@ -93,90 +208,90 @@ const HeroBanner = () => {
         <div className={styles.overlay} />
       </div>
 
-      {/* Hero Content Overlay */}
-      <div className={styles.heroContent}>
-        {/* Curated Cinema Badges */}
-        <div className={styles.badgeGroup}>
-          {activeMovie.rating && (
-            <span className={styles.ratingBadge}>
-              <i className={`fas fa-star ${styles.ratingIcon}`} />
-              IMDb {activeMovie.rating}
+      {/* Main Two-Column Container */}
+      <div className={styles.heroContainer}>
+        {/* Left Column: Movie Details */}
+        <div className={styles.heroDetails}>
+          {/* Tier 1: Technical & Release Badges (Read-only) */}
+          <div className={styles.badgeGroup}>
+            {activeMovie.rating && (
+              <span className={styles.ratingBadge}>
+                <i className={`fas fa-star ${styles.ratingIcon}`} />
+                IMDb {activeMovie.rating}
+              </span>
+            )}
+
+            <span className={styles.qualityBadge}>
+              {formatQualityLabel(activeMovie.quality)}
             </span>
-          )}
 
-          <span className={styles.qualityBadge}>
-            {formatQualityLabel(activeMovie.quality)}
-          </span>
+            {seriesStatusText && (
+              <span className={styles.seriesBadge}>
+                <i className="fas fa-layer-group me-1" />
+                {seriesStatusText}
+              </span>
+            )}
 
-          {activeMovie.lang && (
-            <span className={styles.langBadge}>{activeMovie.lang}</span>
-          )}
+            {activeMovie.lang && (
+              <span className={styles.langBadge}>{activeMovie.lang}</span>
+            )}
 
-          <span className={styles.metaDot} />
-          <span className={styles.metaItem}>{activeMovie.year || MOVIE_CONFIG.hero.defaultYear}</span>
+            {activeMovie.year && (
+              <>
+                <span className={styles.metaDot} />
+                <span className={styles.metaItem}>{activeMovie.year}</span>
+              </>
+            )}
 
-          {activeMovie.time && (
-            <>
-              <span className={styles.metaDot} />
-              <span className={styles.metaItem}>{activeMovie.time}</span>
-            </>
-          )}
-
-          {activeMovie.category?.[0]?.name && (
-            <>
-              <span className={styles.metaDot} />
-              <span className={styles.metaItem}>{activeMovie.category[0].name}</span>
-            </>
-          )}
-        </div>
-
-        {/* Titles */}
-        <h1 className={styles.title}>{activeMovie.name}</h1>
-        {activeMovie.origin_name && (
-          <h2 className={styles.subTitle}>{activeMovie.origin_name}</h2>
-        )}
-
-        {/* Description */}
-        {activeMovie.content && (
-          <p className={styles.description}>
-            {truncateText(activeMovie.content, MOVIE_CONFIG.hero.maxDescriptionLength)}
-          </p>
-        )}
-
-        {/* Action Controls */}
-        <div className={styles.actionRow}>
-          <Link
-            href={`/movie/${activeMovie.slug || '#'}`}
-            className={styles.btnPrimary}
-            id="hero-btn-play"
-          >
-            <i className="fas fa-play" /> Xem ngay
-          </Link>
-          <Link
-            href={`/movie/${activeMovie.slug || '#'}`}
-            className={styles.btnSecondary}
-            id="hero-btn-details"
-          >
-            <i className="fas fa-circle-info" /> Chi tiết
-          </Link>
-        </div>
-
-        {/* Navigation Indicator Bars (to be evolved into Right-side Playlist in Task 06) */}
-        {candidateMovies.length > 1 && (
-          <div className={styles.thumbnailNav} role="tablist" aria-label="Spotlight movies">
-            {candidateMovies.map((movie, idx) => (
-              <button
-                key={movie._id || idx}
-                type="button"
-                className={`${styles.thumbItem} ${idx === currentIndex ? styles.thumbItemActive : ''}`}
-                onClick={() => handleSelectSpotlight(idx)}
-                aria-label={`Slide ${idx + 1}: ${movie.name}`}
-                aria-selected={idx === currentIndex}
-                role="tab"
-              />
-            ))}
+            {activeMovie.time && (
+              <>
+                <span className={styles.metaDot} />
+                <span className={styles.metaItem}>{activeMovie.time}</span>
+              </>
+            )}
           </div>
-        )}
+
+          {/* Primary Titles */}
+          <h1 className={styles.title}>{activeMovie.name}</h1>
+          {activeMovie.origin_name && (
+            <h2 className={styles.subTitle}>{activeMovie.origin_name}</h2>
+          )}
+
+          {/* Tier 2: Interactive Category Pills */}
+          {renderCategoryPills(activeMovie.category)}
+
+          {/* Description */}
+          {activeMovie.content && (
+            <p className={styles.description}>
+              {truncateText(activeMovie.content, MOVIE_CONFIG.hero.maxDescriptionLength)}
+            </p>
+          )}
+
+          {/* Action Controls */}
+          <div className={styles.actionRow}>
+            <Link
+              href={`/movie/${activeMovie.slug || '#'}`}
+              className={styles.btnPrimary}
+              id="hero-btn-play"
+            >
+              <i className="fas fa-play" /> {activeMovie.status === 'upcoming' ? 'Xem Trailer' : 'Xem ngay'}
+            </Link>
+            <Link
+              href={`/movie/${activeMovie.slug || '#'}`}
+              className={styles.btnSecondary}
+              id="hero-btn-details"
+            >
+              <i className="fas fa-circle-info" /> Chi tiết
+            </Link>
+          </div>
+        </div>
+
+        {/* Right Corner: Horizontal Floating Spotlight Dock (Apple TV+ Style) */}
+        <SpotlightDock
+          movies={candidateMovies}
+          currentIndex={currentIndex}
+          onSelect={handleSelectSpotlight}
+        />
       </div>
     </section>
   );

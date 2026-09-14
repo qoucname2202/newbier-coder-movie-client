@@ -2,7 +2,7 @@
   position: relative;
   height: 100vh;
   min-height: 680px;
-  max-height: 1080px;
+  max-height: 1120px;
   overflow: hidden;
   margin-top: 0;
   background-color: #0d1117;
@@ -37,7 +37,7 @@
   transform: scale(1.03);
 }
 
-/* Multi-layer Cinematic Vignette & Theater Ambient Shadows */
+/* Multi-layer Cinematic Vignette & Ambient Shadows */
 .overlay {
   position: absolute;
   top: 0;
@@ -45,51 +45,52 @@
   right: 0;
   bottom: 0;
   background:
-    /* Left-side contrast protection for typography */
+    /* Left contrast protection for typography, feathering out cleanly before center */
     linear-gradient(
       90deg,
       rgba(13, 17, 23, 0.96) 0%,
       rgba(13, 17, 23, 0.82) 32%,
-      rgba(13, 17, 23, 0.35) 60%,
-      rgba(13, 17, 23, 0.05) 85%,
-      transparent 100%
+      rgba(13, 17, 23, 0.32) 55%,
+      transparent 75%
     ),
-    /* Bottom seamless gradient fading into page background */
+    /* Bottom seamless gradient */
     linear-gradient(
       180deg,
       transparent 0%,
-      rgba(13, 17, 23, 0.2) 50%,
-      rgba(13, 17, 23, 0.75) 82%,
+      rgba(13, 17, 23, 0.08) 45%,
+      rgba(13, 17, 23, 0.72) 80%,
       #0d1117 100%
     ),
-    /* Top subtle shadow for fixed navbar contrast */
+    /* Top navbar shade */
     linear-gradient(
       180deg,
-      rgba(10, 13, 18, 0.75) 0%,
-      transparent 22%
-    ),
-    /* Peripheral radial vignette for cinematic depth */
-    radial-gradient(
-      circle at 75% 30%,
-      transparent 45%,
-      rgba(10, 13, 18, 0.5) 100%
+      rgba(10, 13, 18, 0.7) 0%,
+      transparent 20%
     );
   pointer-events: none;
 }
 
-.heroContent {
+/* Main Two-Column Container: Details on Left + Side Playlist on Right */
+.heroContainer {
   position: absolute;
-  bottom: 14%;
+  bottom: 8%;
   left: 0;
   right: 0;
-  color: #ffffff;
   z-index: 3;
-  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2.5rem;
   padding-left: clamp(1.5rem, 5vw, 4.5rem);
-  padding-right: 1.5rem;
+  padding-right: clamp(1.5rem, 5vw, 4.5rem);
 }
 
-/* Curated Cinematic Badges */
+.heroDetails {
+  flex: 1;
+  max-width: 720px;
+}
+
+/* Curated Technical & Status Badges */
 .badgeGroup {
   display: flex;
   flex-wrap: wrap;
@@ -128,6 +129,20 @@
   border-radius: 4px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.seriesBadge {
+  background: rgba(99, 102, 241, 0.16);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.42);
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
 }
 
 .langBadge {
@@ -172,6 +187,49 @@
   margin-bottom: 1.1rem;
   font-weight: 500;
   letter-spacing: 0.01em;
+}
+
+/* Tier 2: Interactive Category Pills */
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.categoryPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.07);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.26rem 0.7rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.categoryPill:hover {
+  background: rgba(229, 9, 20, 0.18);
+  color: #ffffff;
+  border-color: rgba(229, 9, 20, 0.55);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.28);
+}
+
+.categoryPillIcon {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.categoryPill:hover .categoryPillIcon {
+  color: #ff4d58;
 }
 
 .description {
@@ -238,48 +296,171 @@
   border-color: rgba(255, 255, 255, 0.35);
 }
 
-/* Temporary indicator bars (to be replaced with Right-side Featured Playlist in Task 06) */
-.thumbnailNav {
+/* Bottom-Right Horizontal Floating Spotlight Dock (Apple TV+ / Prime Video Style) */
+.spotlightDock {
   display: flex;
-  gap: 0.6rem;
-  margin-top: 1.85rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
+  background: rgba(13, 17, 23, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+  padding: 0.55rem 0.75rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
 }
 
-.thumbItem {
-  width: 44px;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.25);
+.dockHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.dockTitle {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dockCounter {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.dockTrack {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dockCard {
+  position: relative;
+  width: 76px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: visible;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: #1e293b;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
   padding: 0;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.65;
 }
 
-.thumbItemActive {
-  width: 68px;
-  background: #e50914;
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.7);
+.dockCard:hover {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 
-@media (max-width: 992px) {
+.dockCardActive {
+  opacity: 1;
+  border-color: #e50914 !important;
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 0 16px rgba(229, 9, 20, 0.6), 0 6px 18px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+.dockThumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4.5px;
+  display: block;
+}
+
+.dockPlayBadge {
+  position: absolute;
+  inset: 0;
+  background: rgba(229, 9, 20, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.7rem;
+  border-radius: 4.5px;
+  pointer-events: none;
+}
+
+.dockTooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 0.25rem 0.55rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.dockCard:hover .dockTooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Responsive Handling */
+@media (max-width: 1024px) {
   .heroBanner {
-    height: 80vh;
-    min-height: 580px;
+    height: auto;
+    min-height: 100vh;
   }
 
-  .heroContent {
-    bottom: 10%;
-    padding-left: 2rem;
+  .heroContainer {
+    position: relative;
+    bottom: auto;
+    padding-top: 130px;
+    padding-bottom: 2.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.5rem;
+  }
+
+  .heroDetails {
+    max-width: 100%;
+  }
+
+  .spotlightDock {
+    align-items: stretch;
+    max-width: 100%;
+  }
+
+  .dockTrack {
+    overflow-x: auto;
+    gap: 0.6rem;
+    padding-bottom: 0.25rem;
+    scrollbar-width: none;
+  }
+
+  .dockCard {
+    width: 84px;
+    height: 52px;
+    flex-shrink: 0;
   }
 }
 
 @media (max-width: 768px) {
-  .heroBanner {
-    height: 72vh;
-    min-height: 520px;
-  }
-
   .title {
     font-size: 1.85rem;
   }
@@ -296,9 +477,13 @@
     overflow: hidden;
   }
 
-  .heroContent {
-    bottom: 8%;
+  .heroContainer {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
+  }
+
+  .dockCard {
+    width: 72px;
+    height: 46px;
   }
 }
