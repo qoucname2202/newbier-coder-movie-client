@@ -425,16 +425,45 @@
   .heroBanner {
     height: auto;
     min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .bannerImage {
+    object-position: center top;
+  }
+
+  /* Overlay on tablet: Clear on top, dark at bottom for readable text */
+  .overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(10, 13, 18, 0.55) 0%,
+        transparent 18%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        transparent 38%,
+        rgba(13, 17, 23, 0.6) 65%,
+        rgba(13, 17, 23, 0.92) 88%,
+        #0d1117 100%
+      );
   }
 
   .heroContainer {
     position: relative;
     bottom: auto;
-    padding-top: 130px;
-    padding-bottom: 2.5rem;
+    padding-top: clamp(80px, 10vh, 110px);
+    padding-bottom: 2rem;
+    padding-left: clamp(1.5rem, 4vw, 3rem);
+    padding-right: clamp(1.5rem, 4vw, 3rem);
     flex-direction: column;
     align-items: stretch;
     gap: 1.5rem;
+    z-index: 3;
   }
 
   .heroDetails {
@@ -444,46 +473,209 @@
   .spotlightDock {
     align-items: stretch;
     max-width: 100%;
+    background: rgba(13, 17, 23, 0.65);
   }
 
   .dockTrack {
     overflow-x: auto;
     gap: 0.6rem;
-    padding-bottom: 0.25rem;
+    padding-bottom: 0.35rem;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
   }
 
   .dockCard {
-    width: 84px;
-    height: 52px;
+    width: 80px;
+    height: 50px;
     flex-shrink: 0;
+    scroll-snap-align: start;
   }
 }
 
 @media (max-width: 768px) {
-  .title {
-    font-size: 1.85rem;
+  .heroBanner {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 560px;
+    max-height: 840px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
   }
 
-  .subTitle {
-    font-size: 0.95rem;
+  .heroImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 68%; /* Backdrop focuses on upper 68% of screen, completely clear of bottom controls */
+    width: 100%;
   }
 
-  .description {
-    font-size: 0.875rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .bannerImage {
+    object-position: center top;
+    object-fit: cover;
+  }
+
+  /* Overlay on mobile: 0-45% completely clear for character poster, 55-100% smooth gradient to bottom */
+  .overlay {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(10, 13, 18, 0.45) 0%,
+        transparent 12%,
+        transparent 45%,
+        rgba(13, 17, 23, 0.7) 70%,
+        #0d1117 100%
+      );
   }
 
   .heroContainer {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    position: relative;
+    bottom: auto;
+    padding-top: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    width: 100%;
+    z-index: 3;
+  }
+
+  .heroDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .badgeGroup {
+    gap: 0.35rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .ratingBadge,
+  .qualityBadge,
+  .seriesBadge,
+  .langBadge {
+    font-size: 0.7rem;
+    padding: 0.14rem 0.42rem;
+  }
+
+  .metaItem {
+    font-size: 0.74rem;
+  }
+
+  .title {
+    font-size: clamp(1.35rem, 5vw, 1.7rem);
+    line-height: 1.16;
+    margin-bottom: 0.1rem;
+  }
+
+  .subTitle {
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .categoryRow {
+    gap: 0.28rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .categoryPill {
+    font-size: 0.68rem;
+    padding: 0.16rem 0.48rem;
+  }
+
+  /* Hide description on mobile to guarantee zero obstruction of the movie artwork */
+  .description {
+    display: none;
+  }
+
+  .actionRow {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    flex: 1;
+    justify-content: center;
+    padding: 0.52rem 0.85rem;
+    font-size: 0.84rem;
+    border-radius: 6px;
+  }
+
+  /* Ultra-slim minimalist spotlight dock on mobile: No bulky box, no header, only 32px mini-strip */
+  .spotlightDock {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    padding: 0;
+    margin-top: 0.15rem;
+    width: 100%;
+  }
+
+  .dockHeader {
+    display: none; /* Hide 'TIÊU ĐIỂM 1/5' header on mobile to prevent pushing up into the image */
+  }
+
+  .dockTrack {
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding: 2px 1px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    justify-content: flex-start;
   }
 
   .dockCard {
-    width: 72px;
-    height: 46px;
+    width: 52px;
+    height: 32px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    border-radius: 4px;
+    border-width: 1px;
+  }
+
+  .dockCardActive {
+    transform: scale(1.06);
+    border-color: #e50914 !important;
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.7);
+  }
+
+  .dockPlayBadge {
+    font-size: 0.55rem;
+    border-radius: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroContainer {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+    padding-bottom: 0.75rem;
+    gap: 0.45rem;
+  }
+
+  .title {
+    font-size: 1.3rem;
+    line-height: 1.15;
+  }
+
+  .subTitle {
+    font-size: 0.75rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .dockCard {
+    width: 48px;
+    height: 30px;
   }
 }

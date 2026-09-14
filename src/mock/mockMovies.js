@@ -62,7 +62,7 @@ export const mockFeaturedMovie = {
   content: "Paul Atreides hợp nhất với Chani và người Fremen trong khi tìm kiếm sự trả thù chống lại những kẻ đã hủy hoại gia đình anh. Phải đối mặt với sự lựa chọn giữa tình yêu của đời mình và số phận của vũ trụ, anh cố gắng ngăn chặn một tương lai khủng khiếp mà chỉ anh có thể thấy trước.",
   poster_url: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
   thumb_url: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
-  backdrop_url: "https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s520Wio.jpg",
+  backdrop_url: "https://image.tmdb.org/t/p/original/eZ239CUp1d6OryZEBPnO2n87gMG.jpg",
   trailer_url: "Way9Dexny3w",
   category: [
     { name: "Khoa Học Viễn Tưởng", slug: "khoa-hoc-vien-tuong" },
@@ -103,9 +103,9 @@ export const mockOngoingSeries = {
   rating: 9.0,
   view: 245000,
   content: "Căng thẳng giữa thành phố Piltover thịnh vượng và thế giới ngầm Zaun nghèo nàn lên đến đỉnh điểm sau vụ tấn công vào Hội đồng. Hai chị em Vi và Jinx đứng ở hai đầu chiến tuyến trong cuộc chiến định đoạt tương lai của cả hai thế giới.",
-  poster_url: "https://image.tmdb.org/t/p/w500/abf8tHznhSvl9BAElD2cQY96Iz.jpg",
-  thumb_url: "https://image.tmdb.org/t/p/w500/abf8tHznhSvl9BAElD2cQY96Iz.jpg",
-  backdrop_url: "https://image.tmdb.org/t/p/original/uL0b7k4l4zOqH5v0zG1rG5k8wFm.jpg",
+  poster_url: "https://image.tmdb.org/t/p/w500/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg",
+  thumb_url: "https://image.tmdb.org/t/p/w500/fqldf2t8ztc9aiwn3k6mlX3tvRT.jpg",
+  backdrop_url: "https://image.tmdb.org/t/p/original/5cvnxEHT3e39DvT6ARw4GNCFrB0.jpg",
   trailer_url: "yu95qJjB5eY",
   category: [
     { name: "Hoạt Hình", slug: "hoat-hinh" },
