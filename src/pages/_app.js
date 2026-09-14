@@ -92,7 +92,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
           body {
             background-color: #000;
             color: #fff;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
           }
 
           /* Seamless full-bleed layout: hide visible scrollbar tracks across all modern browsers */

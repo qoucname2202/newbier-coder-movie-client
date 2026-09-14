@@ -31,6 +31,16 @@ const resolveBackdropUrl = (movie) => {
 };
 
 /**
+ * Formats display quality label into a cinema-grade string.
+ * @param {string} quality - Raw quality attribute (e.g. '4K', 'FHD').
+ * @returns {string} Formatted quality string.
+ */
+const formatQualityLabel = (quality) => {
+  if (!quality) return 'FHD';
+  return quality === '4K' ? '4K Ultra HD' : quality;
+};
+
+/**
  * HeroBanner component for displaying featured cinematic movies.
  * @returns {JSX.Element} Rendered hero banner.
  */
@@ -85,26 +95,36 @@ const HeroBanner = () => {
 
       {/* Hero Content Overlay */}
       <div className={styles.heroContent}>
-        {/* Meta badges */}
+        {/* Curated Cinema Badges */}
         <div className={styles.badgeGroup}>
           {activeMovie.rating && (
             <span className={styles.ratingBadge}>
-              <i className="fas fa-star me-1" /> {activeMovie.rating}
+              <i className={`fas fa-star ${styles.ratingIcon}`} />
+              IMDb {activeMovie.rating}
             </span>
           )}
-          {activeMovie.quality && (
-            <span className={styles.qualityBadge}>{activeMovie.quality}</span>
+
+          <span className={styles.qualityBadge}>
+            {formatQualityLabel(activeMovie.quality)}
+          </span>
+
+          {activeMovie.lang && (
+            <span className={styles.langBadge}>{activeMovie.lang}</span>
           )}
+
+          <span className={styles.metaDot} />
           <span className={styles.metaItem}>{activeMovie.year || MOVIE_CONFIG.hero.defaultYear}</span>
+
           {activeMovie.time && (
             <>
-              <span className={styles.metaItem}>•</span>
+              <span className={styles.metaDot} />
               <span className={styles.metaItem}>{activeMovie.time}</span>
             </>
           )}
+
           {activeMovie.category?.[0]?.name && (
             <>
-              <span className={styles.metaItem}>•</span>
+              <span className={styles.metaDot} />
               <span className={styles.metaItem}>{activeMovie.category[0].name}</span>
             </>
           )}
@@ -123,25 +143,25 @@ const HeroBanner = () => {
           </p>
         )}
 
-        {/* Action Buttons */}
+        {/* Action Controls */}
         <div className={styles.actionRow}>
           <Link
             href={`/movie/${activeMovie.slug || '#'}`}
             className={styles.btnPrimary}
             id="hero-btn-play"
           >
-            <i className="fas fa-play me-2" /> Xem ngay
+            <i className="fas fa-play" /> Xem ngay
           </Link>
           <Link
             href={`/movie/${activeMovie.slug || '#'}`}
             className={styles.btnSecondary}
             id="hero-btn-details"
           >
-            <i className="fas fa-info-circle me-2" /> Chi tiết
+            <i className="fas fa-circle-info" /> Chi tiết
           </Link>
         </div>
 
-        {/* Navigation Indicator Bars */}
+        {/* Navigation Indicator Bars (to be evolved into Right-side Playlist in Task 06) */}
         {candidateMovies.length > 1 && (
           <div className={styles.thumbnailNav} role="tablist" aria-label="Spotlight movies">
             {candidateMovies.map((movie, idx) => (
