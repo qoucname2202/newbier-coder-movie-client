@@ -1,106 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import Slider from 'react-slick';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import SectionHeader from './SectionHeader';
 import MovieCardVertical from './MovieCardVertical';
 import MovieCardHorizontal from './MovieCardHorizontal';
 import Skeleton from '../UI/Skeleton';
-import styles from '../../styles/MovieCategory.module.css';
-
-/**
- * Custom Next Arrow for Slider
- */
-const NextArrow = ({ onClick }) => (
-  <button
-    type="button"
-    className="slick-custom-arrow slick-custom-next"
-    onClick={onClick}
-    aria-label="Xem tiếp"
-  >
-    <i className="fas fa-chevron-right" />
-    <style jsx>{`
-      .slick-custom-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        right: -12px;
-        z-index: 10;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: rgba(15, 15, 20, 0.85);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      }
-      .slick-custom-arrow:hover {
-        background: #e50914;
-        border-color: #e50914;
-        transform: translateY(-50%) scale(1.1);
-      }
-      @media (max-width: 768px) {
-        .slick-custom-arrow {
-          display: none !important;
-        }
-      }
-    `}</style>
-  </button>
-);
-
-/**
- * Custom Prev Arrow for Slider
- */
-const PrevArrow = ({ onClick }) => (
-  <button
-    type="button"
-    className="slick-custom-arrow slick-custom-prev"
-    onClick={onClick}
-    aria-label="Quay lại"
-  >
-    <i className="fas fa-chevron-left" />
-    <style jsx>{`
-      .slick-custom-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        left: -12px;
-        z-index: 10;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: rgba(15, 15, 20, 0.85);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      }
-      .slick-custom-arrow:hover {
-        background: #e50914;
-        border-color: #e50914;
-        transform: translateY(-50%) scale(1.1);
-      }
-      @media (max-width: 768px) {
-        .slick-custom-arrow {
-          display: none !important;
-        }
-      }
-    `}</style>
-  </button>
-);
 
 /**
  * @file MovieCarouselSection.js
- * @description Standardized, reusable carousel section for movie rails (Vertical posters & Horizontal cards).
+ * @description Ultra-smooth, hardware-accelerated native horizontal scroll rail for movies.
+ * Completely eliminates mobile card squishing bugs from react-slick.
+ * Features:
+ * - Hidden scrollbar across all browsers (Chrome, Safari, Firefox, iOS, Android)
+ * - Native touch momentum scrolling (60/120fps) with scroll snap
+ * - Desktop hover arrow navigation with bounds detection (disabled at start/end)
+ * - Strict flex-shrink: 0 guaranteeing pristine card proportions on any screen
  *
  * @param {Object} props
  * @param {string} props.title - Section title.
@@ -122,89 +34,53 @@ export default function MovieCarouselSection({
   loading = false,
   onPlayTrailer
 }) {
-  const [mounted, setMounted] = useState(false);
+  const railRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   const isHorizontal = variant === 'horizontal';
 
-  useEffect(() => {
-    setMounted(true);
+  /**
+   * Checks scroll position to toggle visibility of navigation arrows.
+   */
+  const updateScrollBounds = useCallback(() => {
+    const el = railRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
   }, []);
 
-  const verticalSettings = {
-    dots: false,
-    infinite: false,
-    speed: 400,
-    slidesToShow: 5.5,
-    slidesToScroll: 2,
-    swipeToSlide: true,
-    draggable: true,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    responsive: [
-      {
-        breakpoint: 1280,
-        settings: { slidesToShow: 4.5, slidesToScroll: 2 }
-      },
-      {
-        breakpoint: 992,
-        settings: { slidesToShow: 3.5, slidesToScroll: 2 }
-      },
-      {
-        breakpoint: 768,
-        settings: { slidesToShow: 2.3, slidesToScroll: 1, arrows: false }
-      },
-      {
-        breakpoint: 576,
-        settings: { slidesToShow: 1.85, slidesToScroll: 1, arrows: false }
-      },
-      {
-        breakpoint: 400,
-        settings: { slidesToShow: 1.6, slidesToScroll: 1, arrows: false }
-      }
-    ]
-  };
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el) return;
+    updateScrollBounds();
+    el.addEventListener('scroll', updateScrollBounds, { passive: true });
+    window.addEventListener('resize', updateScrollBounds);
+    return () => {
+      el.removeEventListener('scroll', updateScrollBounds);
+      window.removeEventListener('resize', updateScrollBounds);
+    };
+  }, [movies, updateScrollBounds]);
 
-  const horizontalSettings = {
-    dots: false,
-    infinite: false,
-    speed: 400,
-    slidesToShow: 3.5,
-    slidesToScroll: 1,
-    swipeToSlide: true,
-    draggable: true,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    responsive: [
-      {
-        breakpoint: 1280,
-        settings: { slidesToShow: 3, slidesToScroll: 1 }
-      },
-      {
-        breakpoint: 992,
-        settings: { slidesToShow: 2.5, slidesToScroll: 1 }
-      },
-      {
-        breakpoint: 768,
-        settings: { slidesToShow: 1.8, slidesToScroll: 1, arrows: false }
-      },
-      {
-        breakpoint: 576,
-        settings: { slidesToShow: 1.35, slidesToScroll: 1, arrows: false }
-      },
-      {
-        breakpoint: 400,
-        settings: { slidesToShow: 1.25, slidesToScroll: 1, arrows: false }
-      }
-    ]
+  /**
+   * Smoothly scrolls the rail horizontally by direction.
+   */
+  const handleScroll = (direction) => {
+    const el = railRef.current;
+    if (!el) return;
+    const distance = el.clientWidth * 0.75;
+    el.scrollBy({
+      left: direction === 'left' ? -distance : distance,
+      behavior: 'smooth'
+    });
   };
-
-  const currentSettings = isHorizontal ? horizontalSettings : verticalSettings;
 
   if (!loading && (!movies || movies.length === 0)) {
     return null;
   }
 
   return (
-    <section className="movie-carousel-section mb-5" aria-label={title}>
+    <section className="movie-rail-section mb-4 mb-md-5" aria-label={title}>
       <SectionHeader
         title={title}
         badge={badge}
@@ -212,30 +88,43 @@ export default function MovieCarouselSection({
         viewAllHref={viewAllHref}
       />
 
-      <div className={styles.sliderContainer}>
-        {loading && (!movies || movies.length === 0) ? (
-          <div className="d-flex gap-3 overflow-hidden py-2">
-            {[...Array(6)].map((_, i) => (
+      <div className="rail-wrapper">
+        {/* Desktop Prev Arrow */}
+        {canScrollLeft && (
+          <button
+            type="button"
+            className="rail-nav-btn rail-nav-prev d-none d-md-flex"
+            onClick={() => handleScroll('left')}
+            aria-label="Cuộn sang trái"
+          >
+            <i className="fas fa-chevron-left" />
+          </button>
+        )}
+
+        {/* Horizontal Scroll Track */}
+        <div
+          ref={railRef}
+          className="movie-scroll-track"
+          role="region"
+          aria-label={`Danh sách ${title}`}
+        >
+          {loading && (!movies || movies.length === 0) ? (
+            [...Array(6)].map((_, i) => (
               <div
                 key={`skel-${i}`}
-                style={{
-                  flex: isHorizontal ? '0 0 280px' : '0 0 180px',
-                  height: isHorizontal ? '160px' : '270px'
-                }}
+                className={`rail-card-item ${isHorizontal ? 'card-item-horizontal' : 'card-item-vertical'}`}
               >
-                <Skeleton height="100%" borderRadius="8px" />
+                <Skeleton
+                  height={isHorizontal ? '170px' : '280px'}
+                  borderRadius="8px"
+                />
               </div>
-            ))}
-          </div>
-        ) : (
-          <Slider
-            key={`slider-${variant}-${mounted ? 'client' : 'ssr'}`}
-            {...currentSettings}
-          >
-            {movies.map((movie, index) => (
+            ))
+          ) : (
+            movies.map((movie, index) => (
               <div
                 key={movie._id || movie.slug || index}
-                className={styles.sliderItem}
+                className={`rail-card-item ${isHorizontal ? 'card-item-horizontal' : 'card-item-vertical'}`}
               >
                 {isHorizontal ? (
                   <MovieCardHorizontal
@@ -248,14 +137,161 @@ export default function MovieCarouselSection({
                   />
                 )}
               </div>
-            ))}
-          </Slider>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Next Arrow */}
+        {canScrollRight && (
+          <button
+            type="button"
+            className="rail-nav-btn rail-nav-next d-none d-md-flex"
+            onClick={() => handleScroll('right')}
+            aria-label="Cuộn sang phải"
+          >
+            <i className="fas fa-chevron-right" />
+          </button>
         )}
       </div>
 
       <style jsx>{`
-        .movie-carousel-section {
+        .movie-rail-section {
           position: relative;
+        }
+
+        .rail-wrapper {
+          position: relative;
+          margin: 0 -8px;
+        }
+
+        /* Native Horizontal Scroll Track */
+        .movie-scroll-track {
+          display: flex;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch; /* Momentum scrolling on iOS/Safari */
+          scroll-snap-type: x proximity;
+          gap: 12px;
+          padding: 8px 8px 16px 8px;
+          user-select: none;
+
+          /* Hide Scrollbar completely across all browsers */
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE & Edge */
+        }
+
+        .movie-scroll-track::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Opera */
+          width: 0;
+          height: 0;
+        }
+
+        /* Card Item - Strict flex-shrink: 0 prevents any squishing */
+        .rail-card-item {
+          flex: 0 0 auto;
+          scroll-snap-align: start;
+        }
+
+        /* Vertical Poster Sizing (2:3 Aspect) */
+        .card-item-vertical {
+          width: 200px;
+        }
+
+        @media (max-width: 1400px) {
+          .card-item-vertical {
+            width: 185px;
+          }
+        }
+
+        @media (max-width: 992px) {
+          .card-item-vertical {
+            width: 165px;
+          }
+        }
+
+        /* Mobile Phone Viewport: 140px ensures ~2.3 cards visible, never squished! */
+        @media (max-width: 576px) {
+          .card-item-vertical {
+            width: 142px;
+          }
+          .movie-scroll-track {
+            gap: 10px;
+            padding: 4px 6px 12px 6px;
+          }
+          .rail-wrapper {
+            margin: 0 -4px;
+          }
+        }
+
+        /* Small mobile screens (iPhone SE, Galaxy A) */
+        @media (max-width: 380px) {
+          .card-item-vertical {
+            width: 132px;
+          }
+        }
+
+        /* Horizontal Card Sizing (Top 10 View) */
+        .card-item-horizontal {
+          width: 340px;
+        }
+
+        @media (max-width: 1400px) {
+          .card-item-horizontal {
+            width: 310px;
+          }
+        }
+
+        @media (max-width: 992px) {
+          .card-item-horizontal {
+            width: 280px;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .card-item-horizontal {
+            width: 260px;
+          }
+        }
+
+        /* Navigation Arrows (Desktop) */
+        .rail-nav-btn {
+          position: absolute;
+          top: calc(50% - 10px);
+          transform: translateY(-50%);
+          z-index: 15;
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          background: rgba(15, 18, 24, 0.88);
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          backdrop-filter: blur(12px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+        }
+
+        .rail-nav-prev {
+          left: -12px;
+        }
+
+        .rail-nav-next {
+          right: -12px;
+        }
+
+        .rail-nav-btn:hover {
+          background: #e50914;
+          border-color: #e50914;
+          transform: translateY(-50%) scale(1.12);
+          box-shadow: 0 10px 28px rgba(229, 9, 20, 0.45);
+        }
+
+        .rail-nav-btn:active {
+          transform: translateY(-50%) scale(0.96);
         }
       `}</style>
     </section>
