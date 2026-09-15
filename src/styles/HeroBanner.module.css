@@ -509,24 +509,30 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 68%; /* Backdrop focuses on upper 68% of screen, completely clear of bottom controls */
+    bottom: 0;
     width: 100%;
+    height: 100%;
+    overflow: hidden;
   }
 
   .bannerImage {
     object-position: center top;
     object-fit: cover;
+    transform: none;
   }
 
-  /* Overlay on mobile: 0-45% completely clear for character poster, 55-100% smooth gradient to bottom */
+  /* Overlay on mobile: 0-40% clear for character poster, seamlessly fading into solid #0d1117 at bottom */
   .overlay {
+    bottom: -4px;
     background:
       linear-gradient(
         180deg,
         rgba(10, 13, 18, 0.45) 0%,
         transparent 12%,
-        transparent 45%,
-        rgba(13, 17, 23, 0.7) 70%,
+        transparent 38%,
+        rgba(13, 17, 23, 0.55) 58%,
+        rgba(13, 17, 23, 0.92) 76%,
+        #0d1117 88%,
         #0d1117 100%
       );
   }
@@ -590,7 +596,6 @@
     padding: 0.16rem 0.48rem;
   }
 
-  /* Hide description on mobile to guarantee zero obstruction of the movie artwork */
   .description {
     display: none;
   }
@@ -622,7 +627,7 @@
   }
 
   .dockHeader {
-    display: none; /* Hide 'TIÊU ĐIỂM 1/5' header on mobile to prevent pushing up into the image */
+    display: none;
   }
 
   .dockTrack {
