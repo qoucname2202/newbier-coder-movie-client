@@ -155,11 +155,14 @@ const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
 
 /**
  * HeroBanner component for displaying featured cinematic movies.
+ * @param {Object} props
+ * @param {Array<Object>} [props.movies] - Featured playlist movies passed from page/hook.
+ * @param {Function} [props.onPlayTrailer] - Callback to open trailer modal.
  * @returns {JSX.Element} Rendered hero banner.
  */
-const HeroBanner = () => {
-  // Use featured candidate movies from mock data
-  const candidateMovies = mockMovies && mockMovies.length > 0 ? mockMovies.slice(0, 5) : [];
+const HeroBanner = ({ movies = [], onPlayTrailer }) => {
+  // Use passed movies with fallback to mock data
+  const candidateMovies = movies && movies.length > 0 ? movies.slice(0, 5) : (mockMovies ? mockMovies.slice(0, 5) : []);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const activeMovie = candidateMovies[currentIndex] || candidateMovies[0];
@@ -269,13 +272,24 @@ const HeroBanner = () => {
 
           {/* Action Controls */}
           <div className={styles.actionRow}>
-            <Link
-              href={`/movie/${activeMovie.slug || '#'}`}
-              className={styles.btnPrimary}
-              id="hero-btn-play"
-            >
-              <i className="fas fa-play" /> {activeMovie.status === 'upcoming' ? 'Xem Trailer' : 'Xem ngay'}
-            </Link>
+            {activeMovie.status === 'upcoming' && onPlayTrailer ? (
+              <button
+                type="button"
+                className={styles.btnPrimary}
+                id="hero-btn-play"
+                onClick={() => onPlayTrailer(activeMovie)}
+              >
+                <i className="fas fa-play" /> Xem Trailer
+              </button>
+            ) : (
+              <Link
+                href={`/movie/${activeMovie.slug || '#'}`}
+                className={styles.btnPrimary}
+                id="hero-btn-play"
+              >
+                <i className="fas fa-play" /> {activeMovie.status === 'upcoming' ? 'Xem Trailer' : 'Xem ngay'}
+              </Link>
+            )}
             <Link
               href={`/movie/${activeMovie.slug || '#'}`}
               className={styles.btnSecondary}

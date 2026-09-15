@@ -1,13 +1,18 @@
 /**
  * @file pages/index.js
- * @description Homepage displaying featured cinematic hero banner and movie category rails.
+ * @description Standardized Homepage orchestrating cinematic hero banner and movie section rails.
  */
 
-import { useState, useEffect, useRef } from "react";
-import MovieList from "../components/Movie/MovieList";
+import React, { useState, useEffect } from "react";
+import Head from "next/head";
 import HeroBanner from "../components/Movie/HeroBanner";
+import MovieCarouselSection from "../components/Movie/MovieCarouselSection";
+import MovieCountrySection from "../components/Movie/MovieCountrySection";
+import MovieGridSection from "../components/Movie/MovieGridSection";
+import TrailerModal from "../components/Movie/TrailerModal";
+import BackToTop from "../components/UI/BackToTop";
+import { useHomeData } from "../hooks/useHomeData";
 import { useAuth } from "../utils/auth";
-import { useRouter } from "next/router";
 
 /**
  * Main Home page component.
@@ -15,92 +20,126 @@ import { useRouter } from "next/router";
  */
 export default function Home() {
   const { isAuthenticated, isAccountLocked } = useAuth();
-  const [redirected, setRedirected] = useState(false);
-  const router = useRouter();
-  const checkTimeoutRef = useRef(null);
+  const {
+    featuredMovies,
+    topMovies,
+    mostViewedMovies,
+    upcomingMovies,
+    latestMovies,
+    loading,
+    loadingMore,
+    hasMore,
+    loadMore
+  } = useHomeData();
 
-  // Check account status only once on mount and prevent repeated redirects
+  const [activeTrailerMovie, setActiveTrailerMovie] = useState(null);
+
+  // Safeguard: Redirect if account is flagged as locked
   useEffect(() => {
-    if (redirected) return;
-
-    if (isAuthenticated && isAccountLocked) {
-      setRedirected(true);
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('isAccountLocked', 'true');
-      }
-
-      if (checkTimeoutRef.current) {
-        clearTimeout(checkTimeoutRef.current);
-      }
-
-      checkTimeoutRef.current = setTimeout(() => {
-        window.location.href = '/account-locked';
-      }, 300);
+    if (isAuthenticated && isAccountLocked && typeof window !== 'undefined') {
+      localStorage.setItem('isAccountLocked', 'true');
+      window.location.href = '/account-locked';
     }
+  }, [isAuthenticated, isAccountLocked]);
 
-    return () => {
-      if (checkTimeoutRef.current) {
-        clearTimeout(checkTimeoutRef.current);
-      }
-    };
-  }, [isAuthenticated, isAccountLocked, redirected]);
+  const handlePlayTrailer = (movie) => {
+    setActiveTrailerMovie(movie);
+  };
 
-  // Block data fetching when locked
-  useEffect(() => {
-    if (typeof window !== 'undefined' && localStorage.getItem('isAccountLocked') === 'true') {
-      const originalFetch = window.fetch;
-      const fetchBlocker = function(url, options) {
-        if (typeof url === 'string' && url.includes('/_next/data')) {
-          return Promise.resolve(new Response(JSON.stringify({ blocked: true }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          }));
-        }
-        return originalFetch(url, options);
-      };
-
-      window.fetch = fetchBlocker;
-
-      return () => {
-        window.fetch = originalFetch;
-      };
-    }
-  }, []);
-
-  // Display lock warning if account is flagged
-  if (typeof window !== 'undefined' && localStorage.getItem('isAccountLocked') === 'true') {
-    return (
-      <div className="bg-black text-white h-screen flex items-center justify-center">
-        <p>Đang chuyển hướng đến trang tài khoản bị khóa...</p>
-      </div>
-    );
-  }
+  const handleCloseTrailer = () => {
+    setActiveTrailerMovie(null);
+  };
 
   return (
-    <div className="home-container bg-black text-white">
-      {/* Full-bleed cinematic hero banner */}
-      <HeroBanner />
+    <>
+      <Head>
+        <title>MovieStreaming - Xem Phim Online HD Miễn Phí</title>
+        <meta
+          name="description"
+          content="Xem phim online chất lượng cao miễn phí, cập nhật liên tục các bộ phim mới nhất, phim chiếu rạp, phim bộ hot."
+        />
+      </Head>
 
-      {/* Main movie category rails */}
-      <div className="container-fluid mt-4 px-3 px-lg-4">
-        <MovieList />
+      <div className="home-container bg-black text-white">
+        {/* Full-bleed cinematic hero spotlight */}
+        <HeroBanner
+          movies={featuredMovies}
+          onPlayTrailer={handlePlayTrailer}
+        />
+
+        {/* Main movie section rails */}
+        <div className="container-fluid mt-4 px-3 px-lg-4">
+          {/* Section 1: Featured Movies */}
+          <MovieCarouselSection
+            title="Phim Đề Xuất"
+            badge="HOT"
+            viewAllHref="/danh-sach/phim-de-xuat"
+            movies={topMovies}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+
+          {/* Section 2: Top 10 Trending Movies */}
+          <MovieCarouselSection
+            title="Phim Được Xem Nhiều Nhất"
+            badge="TOP 10"
+            viewAllHref="/danh-sach/phim-hot"
+            movies={mostViewedMovies}
+            variant="horizontal"
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+
+          {/* Section 3: Upcoming Movies */}
+          <MovieCarouselSection
+            title="Phim Sắp Ra Mắt"
+            badge="SẮP CHIẾU"
+            viewAllHref="/danh-sach/phim-sap-chieu"
+            movies={upcomingMovies}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+
+          {/* Section 4: K-Drama & C-Drama */}
+          <MovieCountrySection
+            onPlayTrailer={handlePlayTrailer}
+          />
+
+          {/* Section 5: Latest Movies */}
+          <MovieGridSection
+            title="Phim Mới Cập Nhật"
+            movies={latestMovies}
+            loading={loading}
+            loadingMore={loadingMore}
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+          />
+        </div>
+
+        {/* Global Trailer Video Modal */}
+        <TrailerModal
+          movie={activeTrailerMovie}
+          onClose={handleCloseTrailer}
+        />
+
+        {/* Smooth Scroll to Top Button */}
+        <BackToTop />
+
+        <style jsx global>{`
+          body {
+            background-color: #0d1117;
+            color: #ffffff;
+          }
+
+          .home-container {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+          }
+        `}</style>
       </div>
-
-      <style jsx global>{`
-        body {
-          background-color: #0d1117;
-          color: #ffffff;
-        }
-
-        .home-container {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          overflow-x: hidden;
-        }
-      `}</style>
-    </div>
+    </>
   );
 }
 
