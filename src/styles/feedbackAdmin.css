@@ -975,31 +975,31 @@ tr:hover td {
     color: #0d6efd;
 }
 
-:global(.custom-breadcrumb) {
+.custom-breadcrumb {
     background-color: transparent !important;
     padding: 0.5rem 0 !important;
     margin-bottom: 0 !important;
     border-radius: 0 !important;
 }
 
-:global(.custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before) {
+.custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
     content: "›";
     font-size: 1.2rem;
     line-height: 1;
     color: #6c757d;
 }
 
-:global(.custom-breadcrumb .breadcrumb-item a) {
+.custom-breadcrumb .breadcrumb-item a {
     color: #0d6efd;
     text-decoration: none;
     font-weight: 500;
 }
 
-:global(.custom-breadcrumb .breadcrumb-item a:hover) {
+.custom-breadcrumb .breadcrumb-item a:hover {
     text-decoration: underline;
 }
 
-:global(.custom-breadcrumb .breadcrumb-item.active) {
+.custom-breadcrumb .breadcrumb-item.active {
     color: #495057;
     font-weight: 600;
 }

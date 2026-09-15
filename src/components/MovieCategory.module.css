@@ -3,7 +3,7 @@
   width: 100%;
   height: 250px;
   overflow: hidden;
-  border-radius: 3px; /* Reduced from 8px to 3px */
+  border-radius: 3px; 
 }
 
 .posterSkeleton {
@@ -48,7 +48,6 @@
   opacity: 1;
 }
 
-/* Cập nhật class watchButton với thiết kế đẹp hơn cho nút play */
 .watchButton {
   position: absolute;
   top: 50%;
@@ -58,33 +57,29 @@
   border: none !important;
   width: 60px !important;
   height: 60px !important;
-  border-radius: 50% !important; /* Tạo nút tròn hoàn toàn */
+  border-radius: 50% !important;
   z-index: 3;
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 !important; /* Bỏ padding */
-  box-shadow: 0 0 20px rgba(36, 33, 33, 0.5); /* Hiệu ứng glow đỏ */
-  backdrop-filter: blur(5px); /* Thêm hiệu ứng blur nhẹ phía sau nút */
+  padding: 0 !important;
+  box-shadow: 0 0 20px rgba(36, 33, 33, 0.5);
+  backdrop-filter: blur(5px);
 }
-
-/* Icon play trong nút */
 .watchButton i {
-  font-size: 40px !important; /* Icon lớn hơn */
-  margin-left: 3px; /* Căn chỉnh icon play cho cân đối */
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* Thêm bóng cho icon */
+  font-size: 40px !important;
+  margin-left: 3px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Hiệu ứng khi hover vào nút */
 .watchButton:hover {
-  opacity: 0.8 !important; /* Khi hover vào nút, hiển thị đầy đủ không trong suốt */
-  box-shadow: 0 0 25px rgba(119, 89, 89, 0.7); /* Tăng độ sáng của glow */
-  transform: translate(-50%, -50%) scale(1.3) !important; /* Scale lớn hơn khi hover trực tiếp */
+  opacity: 0.8 !important;
+  box-shadow: 0 0 25px rgba(119, 89, 89, 0.7);
+  transform: translate(-50%, -50%) scale(1.3) !important;
 }
 
-/* Hiệu ứng pulse nhẹ khi hover */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(89, 74, 74, 0.7); }
   70% { box-shadow: 0 0 0 10px rgba(255, 49, 49, 0); }
@@ -96,12 +91,10 @@
   animation: pulse 1.5s infinite;
 }
 
-/* Thêm overlay tối hơn khi hover để nút nổi bật */
 .moviePoster:hover .overlay {
   opacity: 1;
 }
 
-/* Điều chỉnh overlay để che phủ toàn bộ poster */
 .overlay {
   position: absolute;
   top: 0;
@@ -112,46 +105,42 @@
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease;
-  border-radius: 3px; /* Reduced from 8px to 3px */
+  border-radius: 3px;
 }
 
-/* Styles cho các badges */
 .yearQualityBadges {
   position: absolute;
-  top: 5px; /* Reduced from 10px */
-  right: 5px; /* Reduced from 10px */
+  top: 5px;
+  right: 5px;
   z-index: 3;
 }
 
 .categoryBadge {
   position: absolute;
-  top: 5px; /* Reduced from 10px */
-  left: 5px; /* Reduced from 10px */
+  top: 5px;
+  left: 5px;
   z-index: 3;
 }
 
-/* Thêm style cho badge thông tin phát hành (số tập & ngôn ngữ) */
 .episodeInfoBadge {
   position: absolute;
-  bottom: 5px; /* Reduced from 10px */
-  left: 5px; /* Reduced from 10px */
+  bottom: 5px;
+  left: 5px;
   z-index: 3;
   display: flex;
-  gap: 3px; /* Reduced from 5px */
+  gap: 3px;
   flex-wrap: wrap;
   max-width: 80%;
 }
 
-/* Loại bỏ badge số tập riêng lẻ */
 .episodesBadge {
   display: none;
 }
 
-/* Hiệu ứng thu nhỏ cho hình ảnh khi hover */
 .moviePoster {
   position: relative;
   overflow: hidden;
-  border-radius: 3px; /* Reduced from 8px to 3px */
+  border-radius: 3px;
   transition: transform 0.3s ease;
 }
 
@@ -174,12 +163,12 @@
 
 /* Tăng khoảng cách giữa các phim */
 .sliderItem {
-  padding: 0 20px; /* Tăng padding từ 15px lên 20px */
+  padding: 0 10px;
 }
 
 /* Style cho card trong slider để thêm khoảng cách */
 .sliderItem .movieCard {
-  margin: 10px; /* Tăng margin từ 5px lên 10px */
+  margin: 10px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }

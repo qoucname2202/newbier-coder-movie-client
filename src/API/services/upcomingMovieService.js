@@ -1,19 +1,59 @@
+import { mockMovies } from '../../mock/mockMovies';
+
+/**
+ * @file upcomingMovieService.js
+ * @description Service for fetching upcoming movies with safe offline fallback to mock data.
+ */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
+/**
+ * Generates formatted fallback upcoming movies from mock dataset.
+ * @returns {Array<Object>}
+ */
+const getFallbackUpcomingMovies = () => {
+  return (mockMovies || []).slice(2, 7).map((movie, index) => {
+    const futureDate = new Date(Date.now() + (index + 2) * 86400000);
+    return {
+      ...movie,
+      release_date: futureDate.toISOString(),
+      formattedReleaseDate: futureDate.toLocaleDateString('vi-VN'),
+      daysUntilRelease: index + 2,
+      countdownText: `Ra mắt sau ${index + 2} ngày`
+    };
+  });
+};
+
 const upcomingMovieService = {
+  /**
+   * Fetches paginated upcoming movies list.
+   * @param {number} [page=1]
+   * @param {number} [limit=10]
+   * @returns {Promise<{ success: boolean, upcomingMovies: Array, pagination?: Object }>}
+   */
   getUpcomingMovies: async (page = 1, limit = 10) => {
     try {
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timeoutId = controller ? setTimeout(() => controller.abort(), 1200) : null;
+
       const response = await fetch(
-        `${API_URL}/upcoming-movies?page=${page}&limit=${limit}`
-      );
+        `${API_URL}/upcoming-movies?page=${page}&limit=${limit}`,
+        controller ? { signal: controller.signal } : {}
+      ).catch(() => null);
 
-      if (!response.ok) {
-        throw new Error('Không thể lấy danh sách phim sắp chiếu');
+      if (timeoutId) clearTimeout(timeoutId);
+
+      if (!response || !response.ok) {
+        return {
+          success: true,
+          upcomingMovies: getFallbackUpcomingMovies(),
+          pagination: { currentPage: 1, totalPages: 1, totalCount: 5 }
+        };
       }
-      const data = await response.json();
 
-      if (data.success && data.upcomingMovies) {
+      const data = await response.json().catch(() => null);
+
+      if (data && data.success && data.upcomingMovies) {
         const processedMovies = data.upcomingMovies.map(movie => {
           const releaseDate = new Date(movie.release_date);
           const formattedDate = releaseDate.toLocaleDateString('vi-VN');
@@ -53,22 +93,35 @@ const upcomingMovieService = {
         };
       }
 
-      return { success: false, upcomingMovies: [] };
-    } catch (error) {
-      console.error('Lỗi khi lấy danh sách phim sắp chiếu:', error);
-      return { success: false, upcomingMovies: [], error: error.message };
+      return {
+        success: true,
+        upcomingMovies: getFallbackUpcomingMovies(),
+        pagination: { currentPage: 1, totalPages: 1, totalCount: 5 }
+      };
+    } catch {
+      return {
+        success: true,
+        upcomingMovies: getFallbackUpcomingMovies(),
+        pagination: { currentPage: 1, totalPages: 1, totalCount: 5 }
+      };
     }
   },
 
+  /**
+   * Fetches single upcoming movie details by ID.
+   * @param {string} movieId
+   * @returns {Promise<{ success: boolean, upcomingMovie: Object|null }>}
+   */
   getUpcomingMovieById: async (movieId) => {
     try {
-      const response = await fetch(`${API_URL}/admin/upcoming-movies/${movieId}`);
-      if (!response.ok) {
-        throw new Error('Không thể lấy chi tiết phim sắp chiếu');
+      const response = await fetch(`${API_URL}/admin/upcoming-movies/${movieId}`).catch(() => null);
+      if (!response || !response.ok) {
+        const fallback = getFallbackUpcomingMovies()[0] || null;
+        return { success: !!fallback, upcomingMovie: fallback };
       }
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
-      if (data.success && data.upcomingMovie) {
+      if (data && data.success && data.upcomingMovie) {
         const movie = data.upcomingMovie;
         const releaseDate = new Date(movie.release_date);
 
@@ -84,47 +137,62 @@ const upcomingMovieService = {
       }
 
       return { success: false, upcomingMovie: null };
-    } catch (error) {
-      console.error('Lỗi khi lấy chi tiết phim sắp chiếu:', error);
-      return { success: false, upcomingMovie: null, error: error.message };
+    } catch {
+      const fallback = getFallbackUpcomingMovies()[0] || null;
+      return { success: !!fallback, upcomingMovie: fallback };
     }
   },
 
+  /**
+   * Fetches single upcoming movie details by URL slug.
+   * @param {string} slug
+   * @returns {Promise<Object>}
+   */
   getUpcomingMovieBySlug: async (slug) => {
     try {
-      const response = await fetch(`${API_URL}/upcoming-movies/${slug}`);
-
-      if (!response.ok) {
-        throw new Error('Không thể lấy phim sắp chiếu');
+      const response = await fetch(`${API_URL}/upcoming-movies/${slug}`).catch(() => null);
+      if (!response || !response.ok) {
+        const fallback = (mockMovies || []).find(m => m.slug === slug) || getFallbackUpcomingMovies()[0] || null;
+        return { success: !!fallback, movie: fallback };
       }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Lỗi trong hàm getUpcomingMovieBySlug:', error);
-      return { success: false, error: error.message };
+      const data = await response.json().catch(() => null);
+      return data || { success: false };
+    } catch {
+      const fallback = (mockMovies || []).find(m => m.slug === slug) || getFallbackUpcomingMovies()[0] || null;
+      return { success: !!fallback, movie: fallback };
     }
   },
 
+  /**
+   * Fetches upcoming movies filtered by category slug.
+   * @param {string} categorySlug
+   * @param {number} [page=1]
+   * @param {number} [limit=10]
+   * @returns {Promise<Object>}
+   */
   getUpcomingMoviesByCategory: async (categorySlug, page = 1, limit = 10) => {
     try {
       const response = await fetch(
         `${API_URL}/upcoming-movies/category/${categorySlug}?page=${page}&limit=${limit}`
-      );
+      ).catch(() => null);
 
-      if (!response.ok) {
-        throw new Error('Không thể lấy phim sắp chiếu theo thể loại');
+      if (!response || !response.ok) {
+        return { success: true, upcomingMovies: getFallbackUpcomingMovies() };
       }
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Lỗi trong hàm getUpcomingMoviesByCategory:', error);
-      return { success: false, error: error.message };
+      const data = await response.json().catch(() => null);
+      return data || { success: true, upcomingMovies: getFallbackUpcomingMovies() };
+    } catch {
+      return { success: true, upcomingMovies: getFallbackUpcomingMovies() };
     }
   }
 };
 
+/**
+ * Helper to compute human-readable countdown text from release date.
+ * @param {Date} releaseDate
+ * @returns {string}
+ */
 function getCountdownText(releaseDate) {
   const now = new Date();
   const timeDiff = releaseDate.getTime() - now.getTime();

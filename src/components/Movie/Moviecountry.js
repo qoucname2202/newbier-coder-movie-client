@@ -6,6 +6,8 @@ import "slick-carousel/slick/slick-theme.css";
 import styles from '../../styles/MovieCategory.module.css';
 import Skeleton from '../UI/Skeleton';
 import { mockKoreanMovies, mockChineseMovies } from '../../mock/mockMovies';
+import SectionHeader from './SectionHeader';
+import MovieCardVertical from './MovieCardVertical';
 
 const Moviecountry = () => {
   const [countriesData, setCountriesData] = useState({
@@ -23,35 +25,48 @@ const Moviecountry = () => {
   const [loadedImages, setLoadedImages] = useState({});
   const [previewMovie, setPreviewMovie] = useState(null);
   const previewTimeoutRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    window.dispatchEvent(new Event('resize'));
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const sliderSettings = {
     dots: false,
     infinite: false,
-    speed: 500,
-    slidesToShow: 5,
-    slidesToScroll: 2,
+    speed: 400,
+    slidesToShow: mounted && isMobile ? 1.85 : 5.5,
+    slidesToScroll: 1,
     swipeToSlide: true,
     draggable: true,
-    variableWidth: false,
     responsive: [
       {
         breakpoint: 1200,
         settings: {
-          slidesToShow: 4,
+          slidesToShow: 4.5,
           slidesToScroll: 2,
         }
       },
       {
         breakpoint: 992,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: 3.5,
           slidesToScroll: 2,
         }
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 2.3,
           slidesToScroll: 1,
           arrows: false,
         }
@@ -59,21 +74,25 @@ const Moviecountry = () => {
       {
         breakpoint: 576,
         settings: {
-          slidesToShow: 1.7,
+          slidesToShow: 1.85,
           slidesToScroll: 1,
           arrows: false,
-          centerMode: true,
-          centerPadding: '30px',
         }
       },
       {
         breakpoint: 480,
         settings: {
-          slidesToShow: 1.3,
+          slidesToShow: 1.85,
           slidesToScroll: 1,
           arrows: false,
-          centerMode: true,
-          centerPadding: '20px',
+        }
+      },
+      {
+        breakpoint: 360,
+        settings: {
+          slidesToShow: 1.6,
+          slidesToScroll: 1,
+          arrows: false,
         }
       }
     ]
@@ -221,14 +240,18 @@ const Moviecountry = () => {
 
       {/* Korean Movies Section */}
       <div className="top-movies mb-5">
-        <h3 className="text-white mb-3">{countriesData.korean.title}</h3>
+        <SectionHeader
+          title={countriesData.korean.title}
+          badge="K-DRAMA"
+          viewAllHref="/quoc-gia/han-quoc"
+        />
         <div className={styles.sliderContainer}>
           {countriesData.korean.loading ? (
             <div className="row g-3">
               {[...Array(4)].map((_, i) => (
                 <div key={`korean-skeleton-${i}`} className="col">
                   <div className="card h-100 bg-dark border-0">
-                    <Skeleton height="220px" />
+                    <Skeleton height="280px" />
                     <div className="card-body">
                       <Skeleton height="18px" width="85%" />
                     </div>
@@ -239,76 +262,22 @@ const Moviecountry = () => {
           ) : countriesData.korean.movies.length === 0 ? (
             <div className="text-white text-center">Không tìm thấy phim Hàn Quốc</div>
           ) : (
-            <Slider {...sliderSettings}>
-              {countriesData.korean.movies.map((movie) => {
-                const imageId = `han-quoc-${movie.slug}`;
-                return (
-                  <div
-                    key={imageId}
-                    className="px-2"
-                    onMouseEnter={() => handleMouseEnter(movie)}
+            <Slider
+              key={`korean-slider-${mounted ? (isMobile ? 'm' : 'd') : 's'}`}
+              {...sliderSettings}
+            >
+              {countriesData.korean.movies.map((movie) => (
+                <div
+                  key={`han-quoc-${movie.slug}`}
+                  className={styles.sliderItem}
+                >
+                  <MovieCardVertical
+                    movie={movie}
+                    onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
-                  >
-                    <div className="card bg-dark border-0">
-                      <div className="position-relative">
-                        <img
-                          src={movie.poster_url}
-                          className="card-img-top"
-                          alt={movie.name}
-                          loading="lazy"
-                          style={{
-                            height: '220px',
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                          onError={(e) => {
-                            e.target.src = "/placeholder.jpg";
-                          }}
-                        />
-
-                        <div
-                          className="position-absolute top-0 start-0 w-100 h-100"
-                          style={{
-                            background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
-                            borderRadius: '8px'
-                          }}
-                        ></div>
-
-                        <Link
-                          href={`/movie/${movie.slug}`}
-                          className="btn btn-danger position-absolute top-50 start-50 translate-middle"
-                        >
-                          <i className="bi bi-play-fill"></i>
-                        </Link>
-
-                        <div className="position-absolute bottom-0 start-0 p-2 w-100">
-                          <h6 className="text-white mb-1 text-truncate">{movie.name}</h6>
-                          <div className="d-flex flex-wrap gap-1 mb-1">
-                            {movie.episode_current && (
-                              <span className="badge bg-success me-1">
-                                {movie.episode_current}
-                              </span>
-                            )}
-                            <span className="badge bg-info">
-                              {movie.lang}
-                            </span>
-                            {movie.year && (
-                              <span className="badge bg-danger">
-                                {movie.year}
-                              </span>
-                            )}
-                            {movie.quality && (
-                              <span className="badge bg-primary ms-1">
-                                {movie.quality}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                  />
+                </div>
+              ))}
             </Slider>
           )}
         </div>
@@ -316,14 +285,18 @@ const Moviecountry = () => {
 
       {/* Chinese Movies Section */}
       <div className="top-movies mb-5">
-        <h3 className="text-white mb-3">{countriesData.chinese.title}</h3>
+        <SectionHeader
+          title={countriesData.chinese.title}
+          badge="C-DRAMA"
+          viewAllHref="/quoc-gia/trung-quoc"
+        />
         <div className={styles.sliderContainer}>
           {countriesData.chinese.loading ? (
             <div className="row g-3">
               {[...Array(4)].map((_, i) => (
                 <div key={`chinese-skeleton-${i}`} className="col">
                   <div className="card h-100 bg-dark border-0">
-                    <Skeleton height="220px" />
+                    <Skeleton height="280px" />
                     <div className="card-body">
                       <Skeleton height="18px" width="85%" />
                     </div>
@@ -334,76 +307,22 @@ const Moviecountry = () => {
           ) : countriesData.chinese.movies.length === 0 ? (
             <div className="text-white text-center">Không tìm thấy phim Trung Quốc</div>
           ) : (
-            <Slider {...sliderSettings}>
-              {countriesData.chinese.movies.map((movie) => {
-                const imageId = `trung-quoc-${movie.slug}`;
-                return (
-                  <div
-                    key={imageId}
-                    className="px-2"
-                    onMouseEnter={() => handleMouseEnter(movie)}
+            <Slider
+              key={`chinese-slider-${mounted ? (isMobile ? 'm' : 'd') : 's'}`}
+              {...sliderSettings}
+            >
+              {countriesData.chinese.movies.map((movie) => (
+                <div
+                  key={`trung-quoc-${movie.slug}`}
+                  className={styles.sliderItem}
+                >
+                  <MovieCardVertical
+                    movie={movie}
+                    onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
-                  >
-                    <div className="card bg-dark border-0">
-                      <div className="position-relative">
-                        <img
-                          src={movie.poster_url}
-                          className="card-img-top"
-                          alt={movie.name}
-                          loading="lazy"
-                          style={{
-                            height: '220px',
-                            objectFit: 'cover',
-                            borderRadius: '8px'
-                          }}
-                          onError={(e) => {
-                            e.target.src = "/placeholder.jpg";
-                          }}
-                        />
-
-                        <div
-                          className="position-absolute top-0 start-0 w-100 h-100"
-                          style={{
-                            background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.1) 100%)',
-                            borderRadius: '8px'
-                          }}
-                        ></div>
-
-                        <Link
-                          href={`/movie/${movie.slug}`}
-                          className="btn btn-danger position-absolute top-50 start-50 translate-middle"
-                        >
-                          <i className="bi bi-play-fill"></i>
-                        </Link>
-
-                        <div className="position-absolute bottom-0 start-0 p-2 w-100">
-                          <h6 className="text-white mb-1 text-truncate">{movie.name}</h6>
-                          <div className="d-flex flex-wrap gap-1 mb-1">
-                            {movie.episode_current && (
-                              <span className="badge bg-success me-1">
-                                {movie.episode_current}
-                              </span>
-                            )}
-                            <span className="badge bg-info">
-                              {movie.lang}
-                            </span>
-                            {movie.year && (
-                              <span className="badge bg-danger">
-                                {movie.year}
-                              </span>
-                            )}
-                            {movie.quality && (
-                              <span className="badge bg-primary ms-1">
-                                {movie.quality}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                  />
+                </div>
+              ))}
             </Slider>
           )}
         </div>

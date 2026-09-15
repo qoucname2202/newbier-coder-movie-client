@@ -4,11 +4,14 @@ import { authorize } from 'passport';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import styles from '../MovieCategory.module.css';
+import styles from '../../styles/MovieCategory.module.css';
 import Skeleton from '../UI/Skeleton';
 import Moviecountry from './Moviecountry';
 import upcomingMovieService from '../../API/services/upcomingMovieService';
 import { mockMovies } from '../../mock/mockMovies';
+import SectionHeader from './SectionHeader';
+import MovieCardVertical from './MovieCardVertical';
+import MovieCardHorizontal from './MovieCardHorizontal';
 
 const getCountdownText = (releaseDate) => {
   const now = new Date();
@@ -31,12 +34,12 @@ const getCountdownText = (releaseDate) => {
 };
 
 const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
-  const [movies, setMovies] = useState([]);
-  const [featuredMovies, setFeaturedMovies] = useState([]);
-  const [topMovies, setTopMovies] = useState([]);
-  const [mostViewedMovies, setMostViewedMovies] = useState([]);
-  const [upcomingMovies, setUpcomingMovies] = useState([]); // Added state for upcoming movies
-  const [loading, setLoading] = useState(true);
+  const [movies, setMovies] = useState(mockMovies);
+  const [featuredMovies, setFeaturedMovies] = useState(mockMovies.slice(0, 5));
+  const [topMovies, setTopMovies] = useState(mockMovies.slice(4, 10));
+  const [mostViewedMovies, setMostViewedMovies] = useState(mockMovies.slice(0, 6));
+  const [upcomingMovies, setUpcomingMovies] = useState(mockMovies.slice(2, 6));
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -47,6 +50,8 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [windowWidth, setWindowWidth] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [trailerUrl, setTrailerUrl] = useState('');
   const [showTrailerModal, setShowTrailerModal] = useState(false);
   const [currentTrailerMovie, setCurrentTrailerMovie] = useState(null);
@@ -54,32 +59,30 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
   const topMoviesSettings = {
     dots: false,
     infinite: false,
-    speed: 500,
-    slidesToShow: 5,
-    slidesToScroll: 2,
+    speed: 400,
+    slidesToShow: mounted && isMobile ? 1.85 : 5.5,
+    slidesToScroll: 1,
     swipeToSlide: true,
     draggable: true,
-    centerPadding: '30px',
-    variableWidth: false,
     responsive: [
       {
         breakpoint: 1200,
         settings: {
-          slidesToShow: 4,
+          slidesToShow: 4.5,
           slidesToScroll: 2,
         }
       },
       {
         breakpoint: 992,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: 3.5,
           slidesToScroll: 2,
         }
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 2.3,
           slidesToScroll: 1,
           arrows: false,
         }
@@ -87,108 +90,80 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
       {
         breakpoint: 576,
         settings: {
-          slidesToShow: 1.7,
+          slidesToShow: 1.85,
           slidesToScroll: 1,
           arrows: false,
-          centerMode: true,
-          centerPadding: '30px',
         }
       },
       {
         breakpoint: 480,
         settings: {
-          slidesToShow: 1.3,
+          slidesToShow: 1.85,
           slidesToScroll: 1,
           arrows: false,
-          centerMode: true,
-          centerPadding: '20px',
+        }
+      },
+      {
+        breakpoint: 360,
+        settings: {
+          slidesToShow: 1.6,
+          slidesToScroll: 1,
+          arrows: false,
         }
       }
     ]
   };
 
-  const updatedMoviesSettings = {
+  const horizontalSliderSettings = {
     dots: false,
     infinite: false,
-    speed: 500,
-    slidesToShow: 5,
-    slidesToScroll: 2,
+    speed: 400,
+    slidesToShow: mounted && isMobile ? 1.3 : 3.5,
+    slidesToScroll: 1,
     swipeToSlide: true,
     draggable: true,
-    centerPadding: '30px',
-    variableWidth: false,
-    rows: 2,  // Default to desktop view
     responsive: [
       {
         breakpoint: 1200,
         settings: {
-          slidesToShow: 4,
-          slidesToScroll: 2,
-          rows: 2
+          slidesToShow: 3,
+          slidesToScroll: 2
         }
       },
       {
         breakpoint: 992,
         settings: {
-          slidesToShow: 3,
-          slidesToScroll: 2,
-          rows: 2
+          slidesToShow: 2.5,
+          slidesToScroll: 1
         }
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 1.8,
           slidesToScroll: 1,
-          arrows: false,
-          rows: 1
+          arrows: false
         }
       },
       {
         breakpoint: 576,
         settings: {
-          slidesToShow: 1.7,
+          slidesToShow: 1.35,
           slidesToScroll: 1,
-          arrows: false,
-          centerMode: true,
-          centerPadding: '30px',
-          rows: 1
+          arrows: false
         }
       },
       {
         breakpoint: 480,
         settings: {
-          slidesToShow: 1.3,
+          slidesToShow: 1.25,
           slidesToScroll: 1,
-          arrows: false,
-          centerMode: true,
-          centerPadding: '20px',
-          rows: 1
+          arrows: false
         }
       }
     ]
   };
 
-  const [adjustedSettings, setAdjustedSettings] = useState(updatedMoviesSettings);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setAdjustedSettings({
-        ...updatedMoviesSettings,
-        rows: window.innerWidth < 768 ? 1 : 2
-      });
-
-      const handleResize = () => {
-        setAdjustedSettings({
-          ...updatedMoviesSettings,
-          rows: window.innerWidth < 768 ? 1 : 2
-        });
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
-  }, []);
 
   const handleImageLoad = (id) => {
     if (!loadedImages[id]) {
@@ -539,16 +514,19 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
     // Only run on client-side
     if (typeof window !== 'undefined') {
       const handleResize = () => {
         setWindowWidth(window.innerWidth);
+        setIsMobile(window.innerWidth < 768);
       };
 
       // Set initial width
       handleResize();
 
       window.addEventListener('resize', handleResize);
+      window.dispatchEvent(new Event('resize'));
       return () => window.removeEventListener('resize', handleResize);
     }
   }, []);
@@ -985,98 +963,28 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
 
       {showTopMovies && topMovies.length > 0 && (
         <div className="top-movies mb-5">
-          <h3 className="text-white mb-3">Phim Đề Xuất</h3>
+          <SectionHeader
+            title="Phim Đề Xuất"
+            badge="HOT"
+            viewAllHref="/danh-sach/phim-de-xuat"
+          />
           <div className={styles.sliderContainer}>
-            <Slider {...topMoviesSettings}>
-              {topMovies.map((movie) => {
-                const imageId = `top-${movie.slug}`;
-                return (
-                  <div
-                    key={imageId}
-                    className={styles.sliderItem}
-                    onMouseEnter={() => handleMouseEnter(movie)}
+            <Slider
+              key={`top-slider-${mounted ? (isMobile ? 'm' : 'd') : 's'}`}
+              {...topMoviesSettings}
+            >
+              {topMovies.map((movie) => (
+                <div
+                  key={`top-${movie.slug}`}
+                  className={styles.sliderItem}
+                >
+                  <MovieCardVertical
+                    movie={movie}
+                    onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
-                  >
-                    <div className={`card bg-dark border-0 ${styles.movieCard}`}>
-                      <div className={`position-relative ${styles.moviePoster}`}>
-                        <div
-                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                          style={{
-                            backgroundImage: `url(${movie.thumb_url})`,
-                            backgroundSize: 'cover',
-                            filter: loadedImages[imageId] ? 'none' : 'blur(10px)',
-                            transition: 'filter 0.3s ease-in-out',
-                            height: '300px',
-                            borderRadius: '8px'
-                          }}
-                        >
-                          {!loadedImages[imageId] && (
-                            <Skeleton height="300px" borderRadius="8px" />
-                          )}
-                          <img
-                            src={movie.thumb_url}
-                            className={`card-img-top ${styles.movieImage}`}
-                            alt={movie.name}
-                            loading="lazy"
-                            style={{
-                              height: '300px',
-                              objectFit: 'cover',
-                              borderRadius: '8px'
-                            }}
-                            onLoad={() => handleImageLoad(imageId)}
-                            onError={(e) => {
-                              e.target.src = "/placeholder.jpg";
-                              handleImageLoad(imageId);
-                            }}
-                          />
-                        </div>
-
-                        <div className={styles.overlay}></div>
-
-                        <Link
-                          href={`/movie/${movie.slug}`}
-                          className={`btn btn-sm ${styles.watchButton}`}
-                        >
-                        <i className="bi bi-play-fill"></i>
-                        </Link>
-
-                        <div className={styles.yearQualityBadges}>
-                          <span className="badge bg-danger">
-                            {movie.year}
-                          </span>
-
-                        </div>
-
-                        <div className={styles.episodeInfoBadge}>
-                          {movie.episodes && movie.episodes[0] && (
-                            <span className="badge bg-success me-1">
-                              {movie.episodes[0].server_data.length} tập
-                            </span>
-                          )}
-                          <span className="badge bg-info">
-                            {movie.lang || 'Vietsub'}
-                          </span>
-                        </div>
-
-                        <div className={styles.categoryBadge}>
-                          <span className="badge bg-secondary">
-                            {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="card-body">
-                        <h6 className="card-title text-white mb-1 text-truncate">
-                          {movie.name}
-                        </h6>
-                        <p className="card-text small text-muted text-truncate">
-                          {movie.origin_name}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                  />
+                </div>
+              ))}
             </Slider>
           </div>
         </div>
@@ -1084,249 +992,58 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
 
       {mostViewedMovies.length > 0 && (
         <div className="most-viewed-movies mb-5">
-          <h3 className="text-white mb-3">
-            Phim Được Xem Nhiều Nhất hôm nay
-            <span className="text-danger ms-2" style={{ fontSize: '0.8em', verticalAlign: 'super' }}>MỚI</span>
-          </h3>
+          <SectionHeader
+            title="Phim Được Xem Nhiều Nhất"
+            badge="TOP 10"
+            viewAllHref="/danh-sach/phim-hot"
+          />
           <div className={styles.sliderContainer}>
-            <Slider {...topMoviesSettings}>
-              {mostViewedMovies.map((movie) => {
-                const imageId = `most-viewed-${movie.slug}`;
-                return (
-                  <div
-                    key={imageId}
-                    className={styles.sliderItem}
-                    onMouseEnter={() => handleMouseEnter(movie)}
+            <Slider
+              key={`horizontal-slider-${mounted ? (isMobile ? 'm' : 'd') : 's'}`}
+              {...horizontalSliderSettings}
+            >
+              {mostViewedMovies.map((movie, index) => (
+                <div
+                  key={`most-viewed-${movie.slug}`}
+                  className={styles.sliderItem}
+                >
+                  <MovieCardHorizontal
+                    movie={movie}
+                    rank={index + 1}
+                    onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
-                  >
-                    <div className={`card bg-dark border-0 ${styles.movieCard}`}>
-                      <div className={`position-relative ${styles.moviePoster}`}>
-                        <div
-                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                          style={{
-                            backgroundImage: `url(${movie.thumb_url})`,
-                            backgroundSize: 'cover',
-                            filter: loadedImages[imageId] ? 'none' : 'blur(10px)',
-                            transition: 'filter 0.3s ease-in-out',
-                            height: '300px',
-                            borderRadius: '8px'
-                          }}
-                        >
-                          {!loadedImages[imageId] && (
-                            <Skeleton height="300px" borderRadius="8px" />
-                          )}
-                          <img
-                            src={movie.thumb_url}
-                            className={`card-img-top ${styles.movieImage}`}
-                            alt={movie.name}
-                            loading="lazy"
-                            style={{
-                              height: '300px',
-                              objectFit: 'cover',
-                              borderRadius: '8px'
-                            }}
-                            onLoad={() => handleImageLoad(imageId)}
-                            onError={(e) => {
-                              e.target.src = "/placeholder.jpg";
-                              handleImageLoad(imageId);
-                            }}
-                          />
-                        </div>
-
-                        <div className={styles.overlay}></div>
-
-                        <Link
-                          href={`/movie/${movie.slug}?from=most-viewed`}
-                          className={`btn btn-sm ${styles.watchButton}`}
-                        >
-                        <i className="bi bi-play-fill"></i>
-                        </Link>
-
-                        {/* View Count Badge */}
-                        <div
-                          className="position-absolute top-0 end-0 me-2 mt-2"
-                          style={{ zIndex: 5 }}
-                        >
-                          <span className="badge bg-danger p-2">
-                            <i className="bi bi-eye-fill me-1"></i>
-                            {movie.viewCount ? movie.viewCount.toLocaleString() : '0'}
-                          </span>
-                        </div>
-
-                        {/* New Badge - only show for new content */}
-                        {movie.isRecent && (
-                          <div
-                            className="position-absolute top-0 start-0 ms-2 mt-2"
-                            style={{ zIndex: 5 }}
-                          >
-                            <span className="badge bg-success p-2"
-                                  style={{
-                                    boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
-                                    animation: 'pulse 1.5s infinite'
-                                  }}>
-                              <i className="bi bi-lightning-fill me-1"></i>
-                              MỚI
-                            </span>
-                          </div>
-                        )}
-
-                        <div className={styles.episodeInfoBadge}>
-                          {movie.episodes && movie.episodes[0] && (
-                            <span className="badge bg-success me-1">
-                              {movie.episodes[0].server_data.length} tập
-                            </span>
-                          )}
-                          <span className="badge bg-info">
-                            {movie.lang || 'Vietsub'}
-                          </span>
-                        </div>
-
-                        <div className={styles.categoryBadge}>
-                          <span className="badge bg-secondary">
-                            {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="card-body">
-                        <h6 className="card-title text-white mb-1 text-truncate">
-                          {movie.name}
-                        </h6>
-                        <p className="card-text small text-muted text-truncate">
-                          {movie.origin_name}
-                        </p>
-
-                        {/* Date Added Info */}
-                        {movie.createdAt && (
-                          <p className="card-text small text-muted mb-1">
-                            <i className="bi bi-calendar-plus me-1"></i>
-                            {new Date(movie.createdAt).toLocaleDateString('vi-VN')}
-                          </p>
-                        )}
-
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                  />
+                </div>
+              ))}
             </Slider>
           </div>
-          </div>
-      )}      {/* Upcoming Movies Section */}
-      {/* Debug info for upcoming movies */}
+        </div>
+      )}
 
       {upcomingMovies && upcomingMovies.length > 0 && (
         <div className="upcoming-movies mb-5">
-          <h3 className="text-white mb-3">
-            Phim Sắp Ra Mắt ({upcomingMovies.length})
-            <span className="text-warning ms-2" style={{ fontSize: '0.8em', verticalAlign: 'super' }}>HOT</span>
-          </h3>
+          <SectionHeader
+            title={`Phim Sắp Ra Mắt (${upcomingMovies.length})`}
+            badge="SẮP CHIẾU"
+            viewAllHref="/danh-sach/phim-sap-chieu"
+          />
           <div className={styles.sliderContainer}>
-            <Slider {...topMoviesSettings}>
-              {upcomingMovies.map((movie) => {
-                const imageId = `upcoming-${movie.slug}`;
-                return (
-                  <div
-                    key={imageId}
-                    className={styles.sliderItem}
-                    onMouseEnter={() => handleMouseEnter(movie)}
+            <Slider
+              key={`upcoming-slider-${mounted ? (isMobile ? 'm' : 'd') : 's'}`}
+              {...topMoviesSettings}
+            >
+              {upcomingMovies.map((movie) => (
+                <div
+                  key={`upcoming-${movie.slug}`}
+                  className={styles.sliderItem}
+                >
+                  <MovieCardVertical
+                    movie={movie}
+                    onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
-                  >
-                    <div className={`card bg-dark border-0 ${styles.movieCard}`}>
-                      <div className={`position-relative ${styles.moviePoster}`}>
-                        <div
-                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                          style={{
-                            backgroundImage: `url(${movie.thumb_url})`,
-                            backgroundSize: 'cover',
-                            filter: loadedImages[imageId] ? 'none' : 'blur(10px)',
-                            transition: 'filter 0.3s ease-in-out',
-                            height: '300px',
-                            borderRadius: '8px'
-                          }}
-                        >
-                          {!loadedImages[imageId] && (
-                            <Skeleton height="300px" borderRadius="8px" />
-                          )}                          <img
-                            src={movie.thumb_url || movie.poster_url || '/placeholder.jpg'}
-                            className={`card-img-top ${styles.movieImage}`}
-                            alt={movie.name}
-                            loading="lazy"
-                            style={{
-                              height: '300px',
-                              objectFit: 'cover',
-                              borderRadius: '8px'
-                            }}
-                            onLoad={() => handleImageLoad(imageId)}
-                            onError={(e) => {
-                              e.target.src = "/placeholder.jpg";
-                              handleImageLoad(imageId);
-                              e.target.src = "/placeholder.jpg";
-                              handleImageLoad(imageId);
-                            }}
-                          />
-                          </div>
-                          <div className={styles.overlay}>
-                          </div>
-
-                        <button
-                          onClick={() => handlePlayTrailer(movie)}
-                          className={`btn btn-sm ${styles.watchButton}`}
-                        >
-                          <i className="bi bi-play-fill"></i>
-                        </button>
-
-                        {/* Release Badge */}
-                        <div
-                          className="position-absolute top-0 end-0 me-2 mt-2"
-                          style={{ zIndex: 5 }}
-                        >
-                          <span className="badge bg-warning text-dark p-2">
-                            <i className="bi bi-calendar-event me-1"></i>
-                            {movie.formattedReleaseDate}
-                          </span>
-                        </div>
-
-                        {/* Countdown Badge */}
-                        <div
-                          className="position-absolute top-0 start-0 ms-2 mt-2"
-                          style={{ zIndex: 5 }}
-                        >
-                          <span className="badge bg-danger p-2"
-                                style={{
-                                  boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
-                                  animation: 'pulse 1.5s infinite'
-                                }}>
-                            <i className="bi bi-hourglass-split me-1"></i>
-                            {movie.countdownText}
-                          </span>
-                        </div>
-
-                        <div className={styles.episodeInfoBadge}>
-                          <span className="badge bg-info">
-                            {movie.lang || 'Vietsub'}
-                          </span>
-                        </div>
-
-                        <div className={styles.categoryBadge}>
-                          <span className="badge bg-secondary">
-                            {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="card-body">
-                        <h6 className="card-title text-white mb-1 text-truncate">
-                          {movie.name}
-                        </h6>
-                        <p className="card-text small text-muted text-truncate">
-                          {movie.origin_name}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                  />
+                </div>
+              ))}
             </Slider>
           </div>
         </div>
@@ -1334,227 +1051,40 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
 
       {showTopMovies && <Moviecountry />}
 
-      <h3 className="text-white mb-3">{title}</h3>
+      <SectionHeader
+        title={title || "Danh Mục Phim"}
+        viewAllHref="/danh-sach"
+      />
 
-      {/* Show slider on mobile, grid on desktop */}
-      {windowWidth < 768 ? (
-        <div className={styles.sliderContainer}>
-          <Slider {...adjustedSettings}>
-            {loading && page === 1
-              ? [...Array(5)].map((_, i) => (
-                  <div key={`skeleton-${i}`} className={styles.sliderItem}>
-                    <div className={`card bg-dark border-0 ${styles.movieCard}`}>
-                      <Skeleton height="200px" borderRadius="8px" />
-                      <div className="card-body p-2">
-                        <Skeleton height="18px" width="85%" />
-                        <div className="mt-1">
-                          <Skeleton height="14px" width="65%" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              : movies.slice(0, page * 5).map((movie) => {
-                  const imageId = `grid-${movie.slug}`;
-                  return (
-                    <div
-                      key={movie.slug}
-                      className={styles.sliderItem}
-                      onMouseEnter={() => handleMouseEnter(movie)}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <div className={`card bg-dark border-0 ${styles.movieCard}`}>
-                        <div className={`position-relative ${styles.moviePoster}`}>
-                          <div
-                            className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                            style={{
-                              backgroundImage: `url(${movie.thumb_url}?blur=30)`,
-                              height: "200px",
-                              borderRadius: '8px'
-                            }}
-                          >
-                            {!loadedImages[imageId] && (
-                              <Skeleton height="200px" borderRadius="8px" />
-                            )}
-                            <img
-                              src={movie.thumb_url}
-                              className={`card-img-top ${styles.movieImage}`}
-                              alt={movie.name}
-                              loading="lazy"
-                              style={{
-                                height: "200px",
-                                objectFit: 'cover',
-                                borderRadius: '8px'
-                              }}
-                              onLoad={() => handleImageLoad(imageId)}
-                              onError={(e) => {
-                                e.target.src = "/placeholder.jpg";
-                                handleImageLoad(imageId);
-                              }}
-                            />
-                          </div>
-
-                          <div className={styles.overlay}></div>
-
-                          <Link
-                            href={`/movie/${movie.slug}`}
-                            className={`btn btn-sm ${styles.watchButton}`}
-                          >
-                           <i className="bi bi-play-fill"></i>
-                          </Link>
-
-                          {/* Add badges just like in the recommended movies section */}
-                          <div className={styles.yearQualityBadges}>
-                            <span className="badge bg-danger">
-                              {movie.year}
-                            </span>
-                            {movie.quality && (
-                              <span className="badge bg-primary ms-1">
-                                {movie.quality}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className={styles.episodeInfoBadge}>
-                            {movie.episodes && movie.episodes[0] && (
-                              <span className="badge bg-success me-1">
-                                {movie.episodes[0].server_data.length} tập
-                              </span>
-                            )}
-                            <span className="badge bg-info">
-                              {movie.lang || 'Vietsub'}
-                            </span>
-                          </div>
-
-                          <div className={styles.categoryBadge}>
-                            <span className="badge bg-secondary">
-                              {movie.type === 'movie' ? 'Phim bộ' : 'Phim lẻ'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="card-body p-2">
-                          <h6 className="card-title text-white mb-1 text-truncate fs-6">
-                            {movie.name}
-                          </h6>
-                          <p className="card-text small text-muted text-truncate mb-1">
-                            {movie.origin_name}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-          </Slider>
-        </div>
-      ) : (
-        // Keep the original grid for desktop
-        <div className="row movie-grid g-3">
-          {loading && page === 1
-            ? [...Array(12)].map((_, i) => (
-                <div key={`skeleton-${i}`} className="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2-4 mb-4">
-                  <div className="card h-100 bg-dark border-0">
-                    <Skeleton height="300px" borderRadius="8px" />
-                    <div className="card-body p-2">
-                      <Skeleton height="18px" width="85%" />
-                      <div className="mt-1">
-                        <Skeleton height="14px" width="65%" />
-                      </div>
+      {/* Clean responsive movie grid with MovieCardVertical */}
+      <div className="row movie-grid g-2 g-sm-3">
+        {loading && page === 1
+          ? [...Array(10)].map((_, i) => (
+              <div key={`skeleton-${i}`} className="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2-4 mb-3 mb-sm-4">
+                <div className="card h-100 bg-dark border-0">
+                  <Skeleton height="280px" borderRadius="8px" />
+                  <div className="card-body p-2">
+                    <Skeleton height="18px" width="85%" />
+                    <div className="mt-1">
+                      <Skeleton height="14px" width="65%" />
                     </div>
                   </div>
                 </div>
-              ))
-            : movies.slice(0, page * 5).map((movie) => {
-                const imageId = `grid-${movie.slug}`;
-                return (
-                  <div
-                    key={movie.slug}
-                    className="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2-4 mb-4"
-                    onMouseEnter={() => handleMouseEnter(movie)}
-                    onMouseLeave={handleMouseLeave}
-                  >
-                    <div className={`card h-100 bg-dark border-0 ${styles.movieCard}`}>
-                      <div className={`position-relative ${styles.moviePoster}`}>
-                        <div
-                          className={`blur-load ${loadedImages[imageId] ? 'loaded' : ''}`}
-                          style={{
-                            backgroundImage: `url(${movie.thumb_url}?blur=30)`,
-                            height: windowWidth < 480 ? "200px" : "300px"
-                          }}
-                        >
-                          {!loadedImages[imageId] && (
-                            <Skeleton height={windowWidth < 480 ? "200px" : "300px"} borderRadius="8px" />
-                          )}
-                          <img
-                            src={movie.thumb_url}
-                            className={`card-img-top ${styles.movieImage}`}
-                            alt={movie.name}
-                            loading="lazy"
-                            style={{
-                              height: windowWidth < 480 ? "200px" : "300px",
-                              objectFit: 'cover',
-                              borderRadius: '8px'
-                            }}
-                            onLoad={() => handleImageLoad(imageId)}
-                            onError={(e) => {
-                              e.target.src = "/placeholder.jpg";
-                              handleImageLoad(imageId);
-                            }}
-                          />
-                        </div>
-
-                        <div className={styles.overlay}></div>
-
-                        <Link
-                          href={`/movie/${movie.slug}`}
-                          className={`btn btn-sm ${styles.watchButton}`}
-                        >
-                         <i className="bi bi-play-fill"></i>
-                        </Link>
-
-                        <div className={styles.yearQualityBadges}>
-                          <span className="badge bg-danger">
-                            {movie.year}
-                          </span>
-                          {movie.quality && (
-                            <span className="badge bg-primary ms-1">
-                              {movie.quality}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className={styles.episodeInfoBadge}>
-                          {movie.episodes && movie.episodes[0] && (
-                            <span className="badge bg-success me-1">
-                              {movie.episodes[0].server_data.length} tập
-                            </span>
-                          )}
-                          <span className="badge bg-info">
-                            {movie.lang || 'Vietsub'}
-                          </span>
-                        </div>
-
-                        <div className={styles.categoryBadge}>
-                          <span className="badge bg-secondary">
-                            {movie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="card-body p-2">
-                        <h6 className="card-title text-white mb-1 text-truncate fs-6">
-                          {movie.name}
-                        </h6>
-                        <p className="card-text small text-muted text-truncate mb-1">
-                          {movie.origin_name}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-        </div>
-      )}
+              </div>
+            ))
+          : movies.slice(0, page * 10).map((movie) => (
+              <div
+                key={movie.slug}
+                className="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-2-4 mb-3 mb-sm-4"
+              >
+                <MovieCardVertical
+                  movie={movie}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                />
+              </div>
+            ))}
+      </div>
 
       <div className="text-center mt-4">
         <button
@@ -1629,7 +1159,9 @@ const MovieCategory = ({ title, endpoint, showTopMovies = true }) => {
           padding-left: 10px;
         }
         .slick-list {
-          padding: 0 5% 0 0 !important;
+          padding: 14px 5% 18px 0 !important;
+          margin-top: -14px !important;
+          margin-bottom: -18px !important;
         }
         .slick-track {
           margin-left: 0;
