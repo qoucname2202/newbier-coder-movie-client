@@ -1,18 +1,24 @@
 /**
  * @file pages/index.js
- * @description Standardized Homepage orchestrating cinematic hero banner and movie section rails.
+ * @description Standardized Homepage orchestrating cinema hero banner and movie sections.
+ * Powered by unified Base & Preset components sharing the same behavior and visual form.
  */
 
 import React, { useState, useEffect } from "react";
 import Head from "next/head";
-import HeroBanner from "../components/Movie/HeroBanner";
-import MovieCarouselSection from "../components/Movie/MovieCarouselSection";
-import MovieCountrySection from "../components/Movie/MovieCountrySection";
-import MovieGridSection from "../components/Movie/MovieGridSection";
-import TrailerModal from "../components/Movie/TrailerModal";
-import BackToTop from "../components/UI/BackToTop";
-import { useHomeData } from "../hooks/useHomeData";
-import { useAuth } from "../utils/auth";
+import {
+  HeroBanner,
+  FeaturedCarousel3D,
+  TopRecommendedSection,
+  TrendingTop10Section,
+  UpcomingMoviesSection,
+  CountryMoviesSection,
+  LatestMoviesGridSection,
+  useHomeData
+} from "@/features/home";
+import { TrailerModal } from "@/features/movie-detail";
+import BackToTop from "@/components/UI/BackToTop";
+import { useAuth } from "@/utils/auth";
 
 /**
  * Main Home page component.
@@ -67,48 +73,48 @@ export default function Home() {
           onPlayTrailer={handlePlayTrailer}
         />
 
-        {/* Main movie section rails */}
+        {/* 3D Rotating Featured Carousel */}
+        <FeaturedCarousel3D
+          movies={featuredMovies}
+          loading={loading}
+        />
+
+        {/* Main movie section rails: easily customizable via props */}
         <div className="container-fluid mt-4 px-3 px-lg-4">
-          {/* Section 1: Featured Movies */}
-          <MovieCarouselSection
-            title="Phim Đề Xuất"
-            badge="HOT"
-            viewAllHref="/danh-sach/phim-de-xuat"
+          {/* Section 1: Recommended Movies */}
+          <TopRecommendedSection
             movies={topMovies}
+            cardSize="md"
             loading={loading}
             onPlayTrailer={handlePlayTrailer}
           />
 
-          {/* Section 2: Top 10 Trending Movies */}
-          <MovieCarouselSection
-            title="Phim Được Xem Nhiều Nhất"
-            badge="TOP 10"
-            viewAllHref="/danh-sach/phim-hot"
+          {/* Section 2: TOP 10 Widescreen */}
+          <TrendingTop10Section
             movies={mostViewedMovies}
-            variant="horizontal"
+            cardSize="md"
             loading={loading}
             onPlayTrailer={handlePlayTrailer}
           />
 
           {/* Section 3: Upcoming Movies */}
-          <MovieCarouselSection
-            title="Phim Sắp Ra Mắt"
-            badge="SẮP CHIẾU"
-            viewAllHref="/danh-sach/phim-sap-chieu"
+          <UpcomingMoviesSection
             movies={upcomingMovies}
+            cardSize="md"
             loading={loading}
             onPlayTrailer={handlePlayTrailer}
           />
 
           {/* Section 4: K-Drama & C-Drama */}
-          <MovieCountrySection
+          <CountryMoviesSection
+            cardSize="md"
             onPlayTrailer={handlePlayTrailer}
           />
 
           {/* Section 5: Latest Movies */}
-          <MovieGridSection
-            title="Phim Mới Cập Nhật"
+          <LatestMoviesGridSection
             movies={latestMovies}
+            columns={5}
             loading={loading}
             loadingMore={loadingMore}
             hasMore={hasMore}

@@ -28,6 +28,52 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     }
   }, []);
 
+  // Global Smart Drag vs Click Detection across the entire application
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+    const DRAG_THRESHOLD = 8; // 8px movement threshold to distinguish drag from click
+
+    const handlePointerDown = (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
+      isDragging = false;
+    };
+
+    const handlePointerMove = (e) => {
+      // Only track if mouse button is held down (buttons > 0) or on touch/pen
+      if (e.pointerType === 'mouse' && e.buttons === 0) return;
+      const diffX = Math.abs(e.clientX - startX);
+      const diffY = Math.abs(e.clientY - startY);
+      if (diffX > DRAG_THRESHOLD || diffY > DRAG_THRESHOLD) {
+        isDragging = true;
+      }
+    };
+
+    const handleClickCapture = (e) => {
+      if (isDragging) {
+        // User was dragging! Suppress click to prevent navigating to link
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        isDragging = false;
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown, { capture: true, passive: true });
+    window.addEventListener('pointermove', handlePointerMove, { capture: true, passive: true });
+    window.addEventListener('click', handleClickCapture, { capture: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown, { capture: true });
+      window.removeEventListener('pointermove', handlePointerMove, { capture: true });
+      window.removeEventListener('click', handleClickCapture, { capture: true });
+    };
+  }, []);
+
   const initializeUser = useCallback(() => {
     if (typeof window !== 'undefined' && !isInitialized) {
       const userData = localStorage.getItem('user');
