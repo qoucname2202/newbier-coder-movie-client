@@ -254,23 +254,30 @@ const HeroBanner = ({ movies = [], onPlayTrailer }) => {
             )}
           </div>
 
-          {/* Primary Titles */}
-          <h1 className={styles.title}>{activeMovie.name}</h1>
-          {activeMovie.origin_name && (
-            <h2 className={styles.subTitle}>{activeMovie.origin_name}</h2>
-          )}
+          {/* Primary Titles: Fixed container preventing baseline drift */}
+          <div className={styles.titleContainer}>
+            <h1 className={styles.title} title={activeMovie.name}>
+              {activeMovie.name}
+            </h1>
+            <h2 className={styles.subTitle}>
+              {activeMovie.origin_name || '\u00A0'}
+            </h2>
+          </div>
 
           {/* Tier 2: Interactive Category Pills */}
-          {renderCategoryPills(activeMovie.category)}
+          <div className={styles.categoryContainer}>
+            {renderCategoryPills(activeMovie.category)}
+          </div>
 
-          {/* Description */}
-          {activeMovie.content && (
-            <p className={styles.description}>
-              {truncateText(activeMovie.content, MOVIE_CONFIG.hero.maxDescriptionLength)}
-            </p>
-          )}
+          {/* Description: Exactly 3 lines reserved height so action buttons never jump */}
+          <p className={styles.description}>
+            {truncateText(
+              activeMovie.content || activeMovie.description || 'Khám phá ngay bộ phim hấp dẫn với chất lượng hình ảnh sắc nét và âm thanh sống động.',
+              MOVIE_CONFIG.hero.maxDescriptionLength || 250
+            )}
+          </p>
 
-          {/* Action Controls */}
+          {/* Action Control */}
           <div className={styles.actionRow}>
             {activeMovie.status === 'upcoming' && onPlayTrailer ? (
               <button
@@ -300,7 +307,7 @@ const HeroBanner = ({ movies = [], onPlayTrailer }) => {
           </div>
         </div>
 
-        {/* Right Corner: Horizontal Floating Spotlight Dock (Apple TV+ Style) */}
+        {/* Right Corner */}
         <SpotlightDock
           movies={candidateMovies}
           currentIndex={currentIndex}
