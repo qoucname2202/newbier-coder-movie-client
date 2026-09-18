@@ -14,6 +14,8 @@ import {
   UpcomingMoviesSection,
   CountryMoviesSection,
   LatestMoviesGridSection,
+  AnimationMoviesSection,
+  BigSlideBanner,
   useHomeData
 } from "@/features/home";
 import { TrailerModal } from "@/features/movie-detail";
@@ -111,7 +113,19 @@ export default function Home() {
             onPlayTrailer={handlePlayTrailer}
           />
 
-          {/* Section 5: Latest Movies (Single-Row Rail) */}
+          {/* Special Feature: RoPhim-style Big Slide Widescreen Banner */}
+          <BigSlideBanner
+            onPlayTrailer={handlePlayTrailer}
+            badge="SIÊU PHẨM HOẠT HÌNH & ANIME"
+          />
+
+          {/* Section 5: Animation & Anime Highlights Rail */}
+          <AnimationMoviesSection
+            cardSize="md"
+            onPlayTrailer={handlePlayTrailer}
+          />
+
+          {/* Section 6: Latest Movies (Single-Row Rail) */}
           <LatestMoviesGridSection
             movies={latestMovies}
             cardSize="md"
