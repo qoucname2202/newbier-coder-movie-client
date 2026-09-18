@@ -18,7 +18,7 @@ import styles from './BigSlideBanner.module.css';
 export default function BigSlideBanner({
   movies = [],
   onPlayTrailer,
-  badge = "SIÊU PHẨM HOẠT HÌNH & ANIME",
+  badge = "ANIME SPOTLIGHT",
   autoPlayInterval = 7000
 }) {
   const displayMovies = movies && movies.length > 0 ? movies : mockAnimationMovies;

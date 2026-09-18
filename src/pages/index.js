@@ -16,6 +16,7 @@ import {
   LatestMoviesGridSection,
   AnimationMoviesSection,
   BigSlideBanner,
+  CommunityCommentSection,
   useHomeData
 } from "@/features/home";
 import { TrailerModal } from "@/features/movie-detail";
@@ -116,7 +117,7 @@ export default function Home() {
           {/* Special Feature: RoPhim-style Big Slide Widescreen Banner */}
           <BigSlideBanner
             onPlayTrailer={handlePlayTrailer}
-            badge="SIÊU PHẨM HOẠT HÌNH & ANIME"
+            badge="ANIME SPOTLIGHT"
           />
 
           {/* Section 5: Animation & Anime Highlights Rail */}
@@ -130,6 +131,12 @@ export default function Home() {
             movies={latestMovies}
             cardSize="md"
             loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+
+          {/* Section 7: Standalone Community Discussion & Real-time Live Buzz (Toggleable) */}
+          <CommunityCommentSection
+            enabled={true}
             onPlayTrailer={handlePlayTrailer}
           />
         </div>

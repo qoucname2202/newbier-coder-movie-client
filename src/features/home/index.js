@@ -7,6 +7,7 @@
 export { default as HeroBanner } from './components/HeroBanner';
 export { default as FeaturedCarousel3D } from './components/FeaturedCarousel3D';
 export { BigSlideBanner } from './components/BigSlideBanner';
+export { CommunityCommentSection } from './components/CommunityCommentSection';
 
 export {
   TopRecommendedSection,
