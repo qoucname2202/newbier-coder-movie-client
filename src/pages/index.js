@@ -111,14 +111,12 @@ export default function Home() {
             onPlayTrailer={handlePlayTrailer}
           />
 
-          {/* Section 5: Latest Movies */}
+          {/* Section 5: Latest Movies (Single-Row Rail) */}
           <LatestMoviesGridSection
             movies={latestMovies}
-            columns={5}
+            cardSize="md"
             loading={loading}
-            loadingMore={loadingMore}
-            hasMore={hasMore}
-            onLoadMore={loadMore}
+            onPlayTrailer={handlePlayTrailer}
           />
         </div>
 
