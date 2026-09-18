@@ -47,15 +47,6 @@ export default function Document() {
             }
           `
         }} />
-
-        {/* Disable browser swipe-to-navigate history back/forward gesture globally */}
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            html, body {
-              overscroll-behavior-x: none !important;
-            }
-          `
-        }} />
       </Head>
       <body>
         <Main />

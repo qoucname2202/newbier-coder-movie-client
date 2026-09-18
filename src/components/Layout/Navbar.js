@@ -497,18 +497,6 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
           </div>
 
           <ul className="navbar-nav flex-column flex-lg-row mx-auto" ref={navRef}>
-            <li className={`nav-item ${isActive('/') ? 'active' : ''}`}>
-              <Link href="/" className={`nav-link text-white px-3 ${isActive('/') ? 'active' : ''}`}>
-                <span className="d-inline-block d-lg-none me-2"><FaHome /></span>
-                Trang chủ
-              </Link>
-            </li>
-            <li className={`nav-item ${isActive('/search') ? 'active' : ''}`}>
-              <Link href="/search" className={`nav-link text-white px-3 ${isActive('/search') ? 'active' : ''}`}>
-                <span className="d-inline-block d-lg-none me-2"><FaSearch /></span>
-                Tìm kiếm
-              </Link>
-            </li>
             <li className={`nav-item ${isActive('/movies') ? 'active' : ''}`}>
               <Link href="/movies" className={`nav-link text-white px-3 ${isActive('/movies') ? 'active' : ''}`}>
                 <span className="d-inline-block d-lg-none me-2"><FaFilm /></span>
@@ -532,22 +520,12 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
                 <span className="d-inline-block d-lg-none me-2"><FaBookmark /></span>
                 Xem sau
               </Link>
-            </li>            <li className={`nav-item ${isActive('/history') ? 'active' : ''}`}>
+            </li>
+            <li className={`nav-item ${isActive('/history') ? 'active' : ''}`}>
               <Link href="/history" className={`nav-link text-white px-3 ${isActive('/history') ? 'active' : ''}`}>
                 <span className="d-inline-block d-lg-none me-2"><FaHistory /></span>
                 Đã Xem
               </Link>
-            </li>
-            <li className="nav-item d-lg-none">              <button
-                onClick={() => {
-                  setShowFeedbackForm(!showFeedbackForm);
-                  setIsMenuOpen(false);
-                }}
-                className="nav-link text-white px-3 bg-transparent border-0 w-100 text-start"
-              >
-                <span className="d-inline-block me-2"><FaComment /></span>
-                Góp ý
-              </button>
             </li>
             {!isAuthenticated && (
               <li className="nav-item d-lg-none">
@@ -569,37 +547,54 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
           </ul>
 
           <div className="d-none d-lg-flex align-items-center gap-3">
-            {showSearchInput ? (
-              <form onSubmit={handleSearch} className="d-flex position-relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchInputChange}
-                  className="form-control form-control-sm bg-dark text-white border-secondary"
-                  placeholder="Tìm kiếm..."
-                  autoFocus
-                  ref={searchInputRef}
-                  onFocus={() => isAuthenticated && toggleSearchHistory(true)}
-                  onBlur={() => setTimeout(() => toggleSearchHistory(false), 200)}
-                />
-                <button type="submit" className="btn btn-sm btn-outline-danger ms-2">
-                  Tìm
-                </button>
-              </form>            ) : (
-              <FaSearch className="text-white fs-5 cursor-pointer" onClick={toggleSearchInput} />
-            )}
-            <FaComment
-              className="text-white fs-5 cursor-pointer feedback-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowFeedbackForm(!showFeedbackForm);
-              }}            />
-              <div className="profile-avatar position-relative" onClick={handleAvatarClick}>
+            {/* Expanded Minimalist Search Bar */}
+            <div className="search-wrapper position-relative">
+              <form onSubmit={handleSearch} className="expanded-search-form">
+                <div className="expanded-search-box">
+                  <FaSearch className="search-icon" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    className="expanded-search-input"
+                    placeholder="Tìm phim, diễn viên..."
+                    ref={searchInputRef}
+                    onFocus={() => {
+                      if (searchQuery.trim().length >= 2) {
+                        setShowSuggestions(true);
+                      } else if (isAuthenticated) {
+                        toggleSearchHistory(true);
+                      }
+                    }}
+                    onBlur={() => setTimeout(() => {
+                      toggleSearchHistory(false);
+                      setShowSuggestions(false);
+                    }, 250)}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className="btn-clear-search"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSearchSuggestions([]);
+                        setShowSuggestions(false);
+                      }}
+                      title="Xoá tìm kiếm"
+                    >
+                      <FaTimesCircle />
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            <div className="profile-avatar position-relative" onClick={handleAvatarClick} title="Tài khoản cá nhân">
               <img
                 src={getAvatarUrl(user)}
                 alt="User Avatar"
                 className="rounded-circle"
-                style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+                style={{ width: '38px', height: '38px', objectFit: 'cover' }}
                 onError={(e) => {
                   e.target.src = "/img/avatar.png";
                 }}
@@ -766,16 +761,31 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
           z-index: 1000;
         }
         .nav-link {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 500;
-          transition: all 0.3s ease;
-          padding: 0.75rem 1.2rem;
+          color: #cbd5e1 !important;
+          padding: 0.45rem 1.05rem !important;
           position: relative;
-          border-radius: 4px;
+          border-radius: 9999px;
           margin: 0 0.15rem;
+          transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+          user-select: none;
+          display: inline-flex;
+          align-items: center;
+          cursor: pointer;
         }
+
         .nav-link:hover {
-          color: #e50914 !important;
+          color: #ffffff !important;
+          background: rgba(255, 255, 255, 0.08);
+          transform: translateY(-1px);
+        }
+
+        /* Tactile click micro-animation */
+        .nav-link:active {
+          transform: scale(0.92) translateY(1px);
+          background: rgba(229, 9, 20, 0.22);
+          transition: transform 0.08s ease, background 0.08s ease;
         }
 
         .navbar-nav {
@@ -784,47 +794,102 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
 
         .nav-indicator {
           position: absolute;
-          bottom: 0;
+          bottom: -2px;
           height: 3px;
-          background: linear-gradient(90deg,rgb(228, 214, 214),rgb(241, 231, 231),rgb(215, 210, 210));
+          background: linear-gradient(90deg, #ff4d58, #e50914);
           border-radius: 3px;
-          transition: all 0.4s cubic-bezier(0.65, 0, 0.35, 1);
-          box-shadow: 0 0 10px rgba(68, 91, 22, 0.7);
-          z-index: 1;
+          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 0 10px rgba(229, 9, 20, 0.7);
+          z-index: 2;
         }
 
         .nav-link.active {
           color: #ffffff !important;
           font-weight: 600;
+          background: rgba(229, 9, 20, 0.16);
+          border: 1px solid rgba(229, 9, 20, 0.35);
+          box-shadow: 0 0 14px rgba(229, 9, 20, 0.25);
         }
 
-        .nav-link.active::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, rgba(229, 9, 20, 0.1) 0%, rgba(229, 9, 20, 0.2) 100%);
-          border-radius: 4px;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-          z-index: -1;
+        /* Expanded Minimalist Search Bar Styling */
+        .expanded-search-form {
+          position: relative;
+          display: flex;
+          align-items: center;
         }
 
-        .nav-link.active:hover::before {
-          opacity: 1;
+        .expanded-search-box {
+          display: flex;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.07);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          border-radius: 9999px;
+          padding: 0.32rem 0.85rem;
+          width: 220px;
+          height: 36px;
+          backdrop-filter: blur(12px);
+          transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .expanded-search-box:focus-within {
+          width: 275px;
+          background: rgba(13, 17, 23, 0.94);
+          border-color: #e50914;
+          box-shadow: 0 0 14px rgba(229, 9, 20, 0.35), 0 4px 18px rgba(0, 0, 0, 0.45);
+        }
+
+        .search-icon {
+          color: #94a3b8;
+          font-size: 13px;
+          margin-right: 8px;
+          flex-shrink: 0;
+          transition: color 0.25s ease;
+        }
+
+        .expanded-search-box:focus-within .search-icon {
+          color: #e50914;
+        }
+
+        .expanded-search-input {
+          background: transparent;
+          border: none;
+          color: #ffffff;
+          font-size: 13px;
+          width: 100%;
+          outline: none;
+        }
+
+        .expanded-search-input::placeholder {
+          color: #94a3b8;
+          font-size: 12.5px;
+        }
+
+        .btn-clear-search {
+          background: transparent;
+          border: none;
+          color: #64748b;
+          font-size: 14px;
+          cursor: pointer;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          margin-left: 6px;
+          transition: color 0.2s ease;
+        }
+
+        .btn-clear-search:hover {
+          color: #ffffff;
         }
 
         @media (max-width: 992px) {
           .nav-link.active {
-            background: rgba(229, 9, 20, 0.1);
+            background: rgba(229, 9, 20, 0.15);
           }
 
           .nav-item.active {
-            background-color: rgba(229, 9, 20, 0.05);
-            border-radius: 4px;
-            box-shadow: 0 0 15px rgba(229, 9, 20, 0.1) inset;
+            background-color: rgba(229, 9, 20, 0.08);
+            border-radius: 6px;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.15) inset;
           }
 
           .nav-indicator {
@@ -1014,15 +1079,15 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
 
         .search-history-dropdown {
           position: absolute;
-          top: 55px;
-          right: 100px;
-          width: 320px;
-          background-color: #212529;
-          border-radius: 8px;
-          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          top: 58px;
+          right: 75px;
+          width: 300px;
+          background-color: #1a1f26;
+          border-radius: 12px;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
           z-index: 1001;
           padding: 0;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           overflow: hidden;
           max-height: 300px;
           display: flex;
@@ -1033,12 +1098,12 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
           content: '';
           position: absolute;
           top: -8px;
-          right: 25px;
+          right: 80px;
           width: 0;
           height: 0;
           border-left: 8px solid transparent;
           border-right: 8px solid transparent;
-          border-bottom: 8px solid #212529;
+          border-bottom: 8px solid #1a1f26;
         }        @media (max-width: 992px) {
           .search-history-dropdown {
             position: fixed;
@@ -1284,15 +1349,15 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
 
         .search-suggestions-dropdown {
           position: absolute;
-          top: 55px;
-          right: 100px;
-          width: 320px;
-          background-color: #212529;
-          border-radius: 8px;
-          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+          top: 58px;
+          right: 75px;
+          width: 300px;
+          background-color: #1a1f26;
+          border-radius: 12px;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
           z-index: 1001;
           padding: 0;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           overflow: hidden;
           max-height: 300px;
           display: flex;
@@ -1303,13 +1368,15 @@ const Navbar = () => {  const [isScrolled, setIsScrolled] = useState(false);
           content: '';
           position: absolute;
           top: -8px;
-          right: 25px;
+          right: 80px;
           width: 0;
           height: 0;
           border-left: 8px solid transparent;
           border-right: 8px solid transparent;
-          border-bottom: 8px solid #212529;
-        }          @media (max-width: 992px) {
+          border-bottom: 8px solid #1a1f26;
+        }
+
+        @media (max-width: 992px) {
           .search-suggestions-dropdown {
             position: fixed;
             top: 70px;
