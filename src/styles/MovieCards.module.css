@@ -210,26 +210,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(13, 17, 23, 0.4);
+  background: rgba(13, 17, 23, 0.35);
   backdrop-filter: blur(2px);
   opacity: 0;
   transition: opacity 0.25s ease;
   z-index: 3;
+  pointer-events: none;
+}
+
+.cardVertical:hover .playOverlay {
+  opacity: 1;
 }
 
 .playCircle {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: #e50914;
+  border: none;
+  outline: none;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  box-shadow: 0 0 20px rgba(229, 9, 20, 0.7);
-  transform: scale(0.8);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.75);
+  transform: scale(0.85);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.playCircle:hover {
+  background: #f40612;
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 26px rgba(229, 9, 20, 0.95);
+}
+
+.playCircle:active {
+  transform: scale(0.92) !important;
 }
 
 .cardVertical:hover .posterContainer {
@@ -354,7 +373,7 @@
   z-index: 3;
 }
 
-/* Pulse Radar Play Button */
+/* Pulse Radar Play Button: Only appears when hovering horizontal card */
 .radarPulseBtn {
   position: absolute;
   bottom: 10px;
@@ -363,14 +382,36 @@
   height: 36px;
   border-radius: 50%;
   background: #e50914;
+  border: none;
+  outline: none;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.85rem;
-  box-shadow: 0 0 14px rgba(229, 9, 20, 0.6);
-  z-index: 4;
-  transition: all 0.25s ease;
+  box-shadow: 0 0 16px rgba(229, 9, 20, 0.7);
+  z-index: 5;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.65);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cardHorizontal:hover .radarPulseBtn {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.radarPulseBtn:hover {
+  background: #f40612;
+  transform: scale(1.12) !important;
+  box-shadow: 0 0 24px rgba(229, 9, 20, 0.95);
+}
+
+.radarPulseBtn:active {
+  transform: scale(0.92) !important;
 }
 
 .wideBottomFade {

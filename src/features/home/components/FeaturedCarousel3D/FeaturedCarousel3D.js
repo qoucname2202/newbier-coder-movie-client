@@ -135,28 +135,6 @@ export default function FeaturedCarousel3D({ movies = [], loading = false }) {
           </div>
         )}
 
-        {/* Desktop Navigation Arrows */}
-        {totalItems > 1 && (
-          <>
-            <button
-              type="button"
-              className="nav-arrow nav-prev d-none d-md-flex"
-              onClick={handlePrev}
-              aria-label="Phim trước"
-            >
-              <i className="fas fa-chevron-left" />
-            </button>
-            <button
-              type="button"
-              className="nav-arrow nav-next d-none d-md-flex"
-              onClick={handleNext}
-              aria-label="Phim kế tiếp"
-            >
-              <i className="fas fa-chevron-right" />
-            </button>
-          </>
-        )}
-
         {/* 3D Rotating Cards Track */}
         <div className="cards-3d-stage">
           {candidateMovies.map((movie, index) => {

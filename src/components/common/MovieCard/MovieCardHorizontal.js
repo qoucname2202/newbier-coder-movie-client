@@ -22,6 +22,7 @@ const MovieCardHorizontal = ({
   badge,
   onMouseEnter,
   onMouseLeave,
+  onPlayTrailer,
   className = ""
 }) => {
   const [imgSrc, setImgSrc] = useState(
@@ -68,8 +69,20 @@ const MovieCardHorizontal = ({
         {/* Bottom Ambient Vignette Gradient */}
         <div className={styles.wideBottomFade} aria-hidden="true" />
 
-        {/* Radar Pulse Play Button */}
-        <div className={styles.radarPulseBtn} aria-hidden="true">
+        {/* Radar Pulse Play Button (Trailer Trigger on Hover) */}
+        <button
+          type="button"
+          className={styles.radarPulseBtn}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (onPlayTrailer) {
+              onPlayTrailer(movie);
+            }
+          }}
+          aria-label={`Xem trailer ${movie?.name}`}
+          title="Xem trailer"
+        >
           <svg
             width="14"
             height="14"
@@ -78,7 +91,7 @@ const MovieCardHorizontal = ({
           >
             <polygon points="5 3 19 12 5 21 5 3" />
           </svg>
-        </div>
+        </button>
 
         {/* Overlaid Movie Information */}
         <div className={styles.wideInfoOverlay}>

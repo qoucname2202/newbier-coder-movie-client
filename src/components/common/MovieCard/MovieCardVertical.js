@@ -18,6 +18,7 @@ const MovieCardVertical = ({
   movie,
   onMouseEnter,
   onMouseLeave,
+  onPlayTrailer,
   className = ""
 }) => {
   const [imgSrc, setImgSrc] = useState(
@@ -82,9 +83,21 @@ const MovieCardVertical = ({
 
         <div className={styles.posterBottomFade} aria-hidden="true" />
 
-        {/* Hover Play Overlay */}
-        <div className={styles.playOverlay} aria-hidden="true">
-          <div className={styles.playCircle}>
+        {/* Hover Play Overlay with Red Trailer Trigger Button */}
+        <div className={styles.playOverlay}>
+          <button
+            type="button"
+            className={styles.playCircle}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (onPlayTrailer) {
+                onPlayTrailer(movie);
+              }
+            }}
+            aria-label={`Xem trailer ${movie?.name}`}
+            title="Xem trailer"
+          >
             <svg
               width="18"
               height="18"
@@ -93,7 +106,7 @@ const MovieCardVertical = ({
             >
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
-          </div>
+          </button>
         </div>
       </div>
 

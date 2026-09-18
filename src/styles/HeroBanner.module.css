@@ -331,81 +331,51 @@
   border-color: rgba(255, 255, 255, 0.32);
 }
 
-/* Minimalist Spotlight Dock (RoPhim / Mobile Inspired Compact Strip) */
+/* Floating Spotlight Thumbnails: Unbounded, floating naturally on cinematic backdrop */
 .spotlightDock {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.35rem;
-  background: rgba(13, 17, 23, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  backdrop-filter: blur(12px);
-  padding: 0.4rem 0.6rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  align-items: center;
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+  padding: 0;
+  box-shadow: none;
   flex-shrink: 0;
-}
-
-.dockHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding-bottom: 0.2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.dockTitle {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #cbd5e1;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  display: inline-flex;
-  align-items: center;
-}
-
-.dockCounter {
-  font-size: 0.62rem;
-  font-weight: 600;
-  color: #94a3b8;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 0.08rem 0.32rem;
-  border-radius: 3px;
 }
 
 .dockTrack {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.55rem;
 }
 
 .dockCard {
   position: relative;
-  width: 58px;
-  height: 36px;
-  border-radius: 4px;
+  width: 60px;
+  height: 38px;
+  border-radius: 6px;
   overflow: visible;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(13, 17, 23, 0.5);
   cursor: pointer;
   padding: 0;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0.65;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.7;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 
 .dockCard:hover {
   opacity: 1;
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
 }
 
 .dockCardActive {
   opacity: 1;
   border-color: #e50914 !important;
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 0 10px rgba(229, 9, 20, 0.55);
+  transform: translateY(-4px) scale(1.08);
+  box-shadow: 0 0 16px rgba(229, 9, 20, 0.65), 0 8px 20px rgba(0, 0, 0, 0.8);
   z-index: 2;
 }
 

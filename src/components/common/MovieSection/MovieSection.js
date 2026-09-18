@@ -137,6 +137,7 @@ export default function MovieSection({
   loadingMore = false,
   hasMore = false,
   onLoadMore,
+  onPlayTrailer,
   className = ""
 }) {
   const [mounted, setMounted] = useState(false);
@@ -271,7 +272,7 @@ export default function MovieSection({
                   key={movie._id || movie.slug || index}
                   className={`col-item col-cols-${columns} mb-3`}
                 >
-                  <MovieCardVertical movie={movie} />
+                  <MovieCardVertical movie={movie} onPlayTrailer={onPlayTrailer} />
                 </div>
               ))
             )}
@@ -315,10 +316,12 @@ export default function MovieSection({
                   <MovieCardHorizontal
                     movie={movie}
                     rank={index + 1}
+                    onPlayTrailer={onPlayTrailer}
                   />
                 ) : (
                   <MovieCardVertical
                     movie={movie}
+                    onPlayTrailer={onPlayTrailer}
                   />
                 )}
               </div>

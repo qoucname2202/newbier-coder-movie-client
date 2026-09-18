@@ -108,15 +108,6 @@ const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
 
   return (
     <aside className={styles.spotlightDock} aria-label="Danh sách phim tiêu điểm">
-      <div className={styles.dockHeader}>
-        <span className={styles.dockTitle}>
-          <i className="fas fa-play me-1 text-danger" /> Tiêu Điểm
-        </span>
-        <span className={styles.dockCounter}>
-          {currentIndex + 1} / {movies.length}
-        </span>
-      </div>
-
       <div className={styles.dockTrack} role="tablist" aria-label="Các phim tiêu điểm">
         {movies.map((movie, idx) => {
           const isActive = idx === currentIndex;

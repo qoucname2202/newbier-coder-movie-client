@@ -130,10 +130,12 @@ export default function MovieCarouselSection({
                   <MovieCardHorizontal
                     movie={movie}
                     rank={index + 1}
+                    onPlayTrailer={onPlayTrailer}
                   />
                 ) : (
                   <MovieCardVertical
                     movie={movie}
+                    onPlayTrailer={onPlayTrailer}
                   />
                 )}
               </div>
