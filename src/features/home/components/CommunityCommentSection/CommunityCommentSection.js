@@ -417,9 +417,9 @@ export default function CommunityCommentSection({ enabled = true }) {
             <div className={styles.liveChatHeader}>
               <div className={styles.liveIndicator}>
                 <span className={styles.liveDot} />
-                <h4 className={styles.liveChatTitle}>Trực Tiếp</h4>
+                <h4 className={styles.liveChatTitle}>Mới nhất</h4>
               </div>
-              <span className={styles.liveChatCount}>164 người</span>
+              <span className={styles.liveChatCount}>164 bình luận</span>
             </div>
 
             {/* Scrollable Live Feed with Infinite Scroll Loader */}

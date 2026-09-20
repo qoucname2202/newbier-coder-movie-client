@@ -17,6 +17,7 @@ import {
   AnimationMoviesSection,
   BigSlideBanner,
   CommunityCommentSection,
+  TrendingRadarSection,
   useHomeData
 } from "@/features/home";
 import { TrailerModal } from "@/features/movie-detail";
@@ -134,7 +135,13 @@ export default function Home() {
             onPlayTrailer={handlePlayTrailer}
           />
 
-          {/* Section 7: Standalone Community Discussion & Real-time Live Buzz (Toggleable) */}
+          {/* Section 7: Cinema Trending Radar & Genre Pulse */}
+          <TrendingRadarSection
+            enabled={true}
+            onPlayTrailer={handlePlayTrailer}
+          />
+
+          {/* Section 8: Standalone Community Discussion & Real-time Live Buzz (Toggleable) */}
           <CommunityCommentSection
             enabled={true}
             onPlayTrailer={handlePlayTrailer}
