@@ -10,7 +10,7 @@ import Skeleton from '@/components/UI/Skeleton';
  * @param {Array<Object>} props.movies - Featured movies list (typically 5 items).
  * @param {boolean} [props.loading=false] - Skeleton loading state.
  */
-export default function FeaturedCarousel3D({ movies = [], loading = false }) {
+export default function FeaturedCarousel3D({ movies = [], loading = false, onPlayTrailer }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [prevActiveIndex, setPrevActiveIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -237,9 +237,22 @@ export default function FeaturedCarousel3D({ movies = [], loading = false }) {
 
                   {/* Sharp, High-Definition Play Button (No fuzzy pale ring) */}
                   {isCenter && (
-                    <div className="center-play-button">
+                    <button
+                      type="button"
+                      className="center-play-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onPlayTrailer) {
+                          onPlayTrailer(movie);
+                        } else {
+                          window.location.href = `/movie/${movie.slug}`;
+                        }
+                      }}
+                      title={`Xem trailer ${movie.name}`}
+                      aria-label={`Xem trailer ${movie.name}`}
+                    >
                       <i className="fas fa-play" />
-                    </div>
+                    </button>
                   )}
 
                   {/* Card Title & Meta Info at Bottom with Dedicated Solid Vignette */}
@@ -475,9 +488,11 @@ export default function FeaturedCarousel3D({ movies = [], loading = false }) {
           padding-left: 3px;
           box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(229, 9, 20, 0.5);
           border: none;
+          outline: none;
           z-index: 4;
           transition: transform 0.25s ease, box-shadow 0.25s ease;
-          pointer-events: none;
+          pointer-events: auto;
+          cursor: pointer;
         }
 
         .active-card:hover .center-play-button {

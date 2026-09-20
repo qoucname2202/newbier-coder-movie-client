@@ -4,7 +4,7 @@
  * Powered by unified Base & Preset components sharing the same behavior and visual form.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import {
   HeroBanner,
@@ -35,6 +35,9 @@ export default function Home() {
     topMovies,
     mostViewedMovies,
     upcomingMovies,
+    upcomingLoading,
+    upcomingLoaded,
+    loadUpcoming,
     latestMovies,
     loading,
     loadingMore,
@@ -43,6 +46,55 @@ export default function Home() {
   } = useHomeData();
 
   const [activeTrailerMovie, setActiveTrailerMovie] = useState(null);
+  const bottomSentinelRef = useRef(null);
+  const isBusyRef = useRef(false);
+
+  // Controlled infinite scroll & lazy loading with 2s loading buffer & loop prevention
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          // Prevent rapid concurrent requests or infinite loops
+          if (isBusyRef.current) return;
+
+          if (!upcomingLoaded && !upcomingLoading) {
+            isBusyRef.current = true;
+            loadUpcoming().finally(() => {
+              setTimeout(() => {
+                isBusyRef.current = false;
+              }, 1200);
+            });
+          } else if (upcomingLoaded && hasMore && !loadingMore) {
+            isBusyRef.current = true;
+            loadMore().finally(() => {
+              setTimeout(() => {
+                isBusyRef.current = false;
+              }, 1200);
+            });
+          }
+        }
+      },
+      {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+      }
+    );
+
+    const sentinel = bottomSentinelRef.current;
+    if (sentinel && (!upcomingLoaded || hasMore)) {
+      observer.observe(sentinel);
+    }
+
+    return () => {
+      if (sentinel) {
+        observer.unobserve(sentinel);
+      }
+    };
+  }, [upcomingLoaded, upcomingLoading, loadUpcoming, hasMore, loadingMore, loadMore]);
 
   // Safeguard: Redirect if account is flagged as locked
   useEffect(() => {
@@ -81,6 +133,7 @@ export default function Home() {
         <FeaturedCarousel3D
           movies={featuredMovies}
           loading={loading}
+          onPlayTrailer={handlePlayTrailer}
         />
 
         {/* Main movie section rails: easily customizable via props */}
@@ -101,15 +154,7 @@ export default function Home() {
             onPlayTrailer={handlePlayTrailer}
           />
 
-          {/* Section 3: Upcoming Movies */}
-          <UpcomingMoviesSection
-            movies={upcomingMovies}
-            cardSize="md"
-            loading={loading}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 4: K-Drama & C-Drama */}
+          {/* Section 3: K-Drama & C-Drama */}
           <CountryMoviesSection
             cardSize="md"
             onPlayTrailer={handlePlayTrailer}
@@ -146,6 +191,39 @@ export default function Home() {
             enabled={true}
             onPlayTrailer={handlePlayTrailer}
           />
+
+          {/* Section 9: Upcoming Movies (Lazy-loaded dynamically on scroll) */}
+          {upcomingLoaded && upcomingMovies.length > 0 && (
+            <div className="home-lazy-section">
+              <UpcomingMoviesSection
+                movies={upcomingMovies}
+                cardSize="md"
+                onPlayTrailer={handlePlayTrailer}
+              />
+            </div>
+          )}
+
+          {/* Infinite Scroll & Lazy Loading Status Indicator */}
+          {(upcomingLoading || loadingMore) && (
+            <div className="home-infinite-loader">
+              <div className="infinite-spinner" />
+              <span className="infinite-loader-text">Đang tải thêm nội dung...</span>
+            </div>
+          )}
+
+          {/* Invisible Sentinel triggering fetch on scroll */}
+          {(!upcomingLoaded || hasMore) && (
+            <div ref={bottomSentinelRef} className="bottom-scroll-sentinel" />
+          )}
+
+          {/* End of content indicator when no more data exists */}
+          {!hasMore && upcomingLoaded && !upcomingLoading && !loadingMore && (
+            <div className="home-end-indicator">
+              <span className="end-line" />
+              <span className="end-text">Đã hiển thị toàn bộ nội dung</span>
+              <span className="end-line" />
+            </div>
+          )}
         </div>
 
         {/* Global Trailer Video Modal */}
@@ -168,6 +246,76 @@ export default function Home() {
             padding: 0;
             width: 100%;
             overflow-x: hidden;
+          }
+
+          .home-lazy-section {
+            animation: fadeInLazySection 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          }
+
+          @keyframes fadeInLazySection {
+            from {
+              opacity: 0;
+              transform: translateY(24px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .home-infinite-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.85rem;
+            padding: 2.5rem 0 3.5rem;
+          }
+
+          .infinite-spinner {
+            width: 26px;
+            height: 26px;
+            border: 2.5px solid rgba(255, 255, 255, 0.12);
+            border-top-color: #e50914;
+            border-radius: 50%;
+            animation: spinLoader 0.75s linear infinite;
+          }
+
+          @keyframes spinLoader {
+            to {
+              transform: rotate(360deg);
+            }
+          }
+
+          .infinite-loader-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.02em;
+          }
+
+          .bottom-scroll-sentinel {
+            width: 100%;
+            height: 40px;
+            pointer-events: none;
+            visibility: hidden;
+          }
+
+          .home-end-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2.5rem 0 3.5rem;
+            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+          }
+
+          .end-line {
+            width: 60px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
           }
         `}</style>
       </div>

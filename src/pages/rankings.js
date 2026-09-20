@@ -251,15 +251,13 @@ export default function RankingsPage() {
                         <Link href={`/movie/${movie.slug}`} className={styles.overlayPlayBtn}>
                           Xem Phim
                         </Link>
-                        {movie.trailer_url && (
-                          <button
-                            type="button"
-                            className={styles.overlayTrailerBtn}
-                            onClick={() => setActiveTrailerMovie(movie)}
-                          >
-                            Trailer
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          className={styles.overlayTrailerBtn}
+                          onClick={() => setActiveTrailerMovie(movie)}
+                        >
+                          Trailer
+                        </button>
                       </div>
                     </div>
 

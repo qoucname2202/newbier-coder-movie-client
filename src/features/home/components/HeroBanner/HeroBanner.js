@@ -288,6 +288,17 @@ const HeroBanner = ({ movies = [], onPlayTrailer }) => {
                 <i className="fas fa-play" /> {activeMovie.status === 'upcoming' ? 'Xem Trailer' : 'Xem ngay'}
               </Link>
             )}
+            {onPlayTrailer && activeMovie.status !== 'upcoming' && (
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                id="hero-btn-trailer"
+                onClick={() => onPlayTrailer(activeMovie)}
+                title={`Xem trailer ${activeMovie.name}`}
+              >
+                <i className="fas fa-film text-danger" /> Trailer
+              </button>
+            )}
             <Link
               href={`/movie/${activeMovie.slug || '#'}`}
               className={styles.btnSecondary}
