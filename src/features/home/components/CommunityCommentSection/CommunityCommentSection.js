@@ -367,7 +367,7 @@ export default function CommunityCommentSection({ enabled = true }) {
               <div className={styles.railHeader}>
                 <h3 className={styles.railTitle}>
                   <i className={`fas fa-fire ${styles.railIcon}`} />
-                  Top Bình Luận Trong Tuần
+                  Bình Luận Trong Tuần
                 </h3>
               </div>
 
@@ -381,7 +381,7 @@ export default function CommunityCommentSection({ enabled = true }) {
               <div className={styles.railHeader}>
                 <h3 className={styles.railTitle}>
                   <i className={`fas fa-trophy ${styles.railIcon}`} />
-                  Bình Luận Đỉnh Cao
+                  Bình Luận Trong Tháng
                 </h3>
 
                 {/* Sub-toggle: Month vs All-Time */}
