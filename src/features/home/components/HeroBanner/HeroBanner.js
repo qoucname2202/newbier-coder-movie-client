@@ -7,7 +7,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import styles from '@/styles/HeroBanner.module.css';
 import { mockMovies } from '@/mock/mockMovies';
-import { MOVIE_CONFIG } from '@/config/movieConfig';
+import {
+  MOVIE_CONFIG,
+  normalizeHeroMovie,
+  LOCAL_DEFAULT_BACKDROP
+} from '@/config/movieConfig';
 
 /**
  * Truncates text to a specified maximum length with ellipsis.
@@ -18,26 +22,6 @@ import { MOVIE_CONFIG } from '@/config/movieConfig';
 const truncateText = (text, maxLength) => {
   if (!text) return '';
   return text.length > maxLength ? `${text.substring(0, maxLength).trim()}...` : text;
-};
-
-/**
- * Resolves the backdrop or thumbnail URL for a given movie object.
- * @param {Object} movie - Movie object containing image attributes.
- * @returns {string} Best available image URL.
- */
-const resolveBackdropUrl = (movie) => {
-  if (!movie) return MOVIE_CONFIG.ui.defaultBackdrop;
-  return movie.backdrop_url || movie.poster_url || movie.thumb_url || MOVIE_CONFIG.ui.defaultBackdrop;
-};
-
-/**
- * Formats display quality label into a cinema-grade string.
- * @param {string} quality - Raw quality attribute (e.g. '4K', 'FHD').
- * @returns {string} Formatted quality string.
- */
-const formatQualityLabel = (quality) => {
-  if (!quality) return 'FHD';
-  return quality === '4K' ? '4K Ultra HD' : quality;
 };
 
 /**
@@ -111,7 +95,7 @@ const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
       <div className={styles.dockTrack} role="tablist" aria-label="Các phim tiêu điểm">
         {movies.map((movie, idx) => {
           const isActive = idx === currentIndex;
-          const cardThumb = movie.thumb_url || movie.poster_url || resolveBackdropUrl(movie);
+          const cardThumb = movie.thumb_url || movie.poster_url || movie.backdrop_url || LOCAL_DEFAULT_BACKDROP;
 
           return (
             <button
@@ -128,6 +112,10 @@ const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
                 alt={movie.name || 'Movie thumbnail'}
                 className={styles.dockThumbImg}
                 loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = LOCAL_DEFAULT_BACKDROP;
+                }}
               />
               {isActive && (
                 <span className={styles.dockPlayBadge}>
@@ -152,8 +140,9 @@ const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
  * @returns {JSX.Element} Rendered hero banner.
  */
 const HeroBanner = ({ movies = [], onPlayTrailer }) => {
-  // Use passed movies with fallback to mock data
-  const candidateMovies = movies && movies.length > 0 ? movies.slice(0, 5) : (mockMovies ? mockMovies.slice(0, 5) : []);
+  // Use passed movies with fallback to mock data, normalized defensively
+  const rawList = movies && movies.length > 0 ? movies.slice(0, 5) : (mockMovies ? mockMovies.slice(0, 5) : []);
+  const candidateMovies = rawList.map((m, idx) => normalizeHeroMovie(m, idx));
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const activeMovie = candidateMovies[currentIndex] || candidateMovies[0];
@@ -195,9 +184,13 @@ const HeroBanner = ({ movies = [], onPlayTrailer }) => {
       <div className={styles.heroImage}>
         <img
           key={activeMovie._id || currentIndex}
-          src={resolveBackdropUrl(activeMovie)}
+          src={activeMovie.backdrop_url}
           alt={activeMovie.name || 'Featured Movie'}
           className={styles.bannerImage}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = LOCAL_DEFAULT_BACKDROP;
+          }}
         />
         <div className={styles.overlay} />
       </div>
@@ -216,7 +209,7 @@ const HeroBanner = ({ movies = [], onPlayTrailer }) => {
             )}
 
             <span className={styles.qualityBadge}>
-              {formatQualityLabel(activeMovie.quality)}
+              {activeMovie.quality || 'FHD'}
             </span>
 
             {seriesStatusText && (

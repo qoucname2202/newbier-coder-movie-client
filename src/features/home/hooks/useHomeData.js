@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { mockMovies } from '@/mock/mockMovies';
-import { MOVIE_CONFIG } from '@/config/movieConfig';
+import { MOVIE_CONFIG, normalizeHeroMovie } from '@/config/movieConfig';
 import upcomingMovieService from '@/API/services/upcomingMovieService';
 
 const API_BASE = MOVIE_CONFIG.apiBaseUrl;
@@ -21,6 +21,7 @@ const normalizeMovie = (movie) => {
   if (!movie) return null;
   return {
     ...movie,
+    _id: movie._id || movie.id || '',
     thumb_url: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${movie.thumb_url || ''}`,
     poster_url: movie.poster_url?.startsWith('http') ? movie.poster_url : `${movie.poster_url || ''}`,
     backdrop_url: movie.backdrop_url || movie.poster_url || movie.thumb_url || MOVIE_CONFIG.ui.defaultBackdrop
@@ -28,7 +29,9 @@ const normalizeMovie = (movie) => {
 };
 
 export const useHomeData = () => {
-  const [featuredMovies, setFeaturedMovies] = useState(() => mockMovies.slice(0, 5));
+  const [featuredMovies, setFeaturedMovies] = useState(() =>
+    mockMovies.slice(0, 5).map((m, idx) => normalizeHeroMovie(m, idx))
+  );
   const [topMovies, setTopMovies] = useState(() => mockMovies.slice(4, 12));
   const [mostViewedMovies, setMostViewedMovies] = useState(() => mockMovies.slice(0, 10));
   const [upcomingMovies, setUpcomingMovies] = useState([]);
@@ -51,7 +54,7 @@ export const useHomeData = () => {
   }, []);
 
   /**
-   * Fetches latest movies with pagination for the homepage grid.
+   * Fetches latest movies with pagination for the homepage grid and hero spotlight.
    */
   const fetchLatestMovies = useCallback(async (pageNumber = 1, isLoadMore = false) => {
     try {
@@ -62,31 +65,37 @@ export const useHomeData = () => {
       }
 
       const res = await fetch(`${API_BASE}/movies?page=${pageNumber}&limit=24`);
-      if (!res.ok) throw new Error('API request failed');
+      if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
 
       const result = await res.json();
-      const rawMovies = result?.data?.movies || result?.movies || [];
+      // Support both Fastify Enterprise envelope (responseData.data or responseData) and legacy (data.movies or movies)
+      const rawMovies =
+        result?.responseData?.data ||
+        (Array.isArray(result?.responseData) ? result.responseData : null) ||
+        result?.data?.movies ||
+        result?.movies ||
+        [];
 
       if (rawMovies.length > 0 && isMountedRef.current) {
         const normalized = rawMovies.map(normalizeMovie);
 
         if (pageNumber === 1) {
-          // Set featured and top recommendations from fresh data
-          setFeaturedMovies(normalized.slice(0, 5));
+          // Set featured hero spotlight using defensive normalizer with resilient cinema backdrops
+          setFeaturedMovies(rawMovies.slice(0, 5).map((m, idx) => normalizeHeroMovie(m, idx)));
           setTopMovies(normalized.slice(5, 17));
           setLatestMovies(normalized);
         } else {
           setLatestMovies((prev) => [...prev, ...normalized]);
         }
 
-        const pagination = result?.data?.pagination || result?.pagination;
-        if (pagination && pagination.currentPage >= pagination.totalPages) {
+        const pagination = result?.responseData || result?.data?.pagination || result?.pagination;
+        if (pagination && pagination.page >= pagination.totalPages) {
           setHasMore(false);
         }
       }
     } catch (error) {
       // Backend not running or network issue: keep safe mock data
-      console.warn('[useHomeData] Backend API unavailable, utilizing robust mock fallback.');
+      console.warn('[useHomeData] Backend API unavailable or cold starting, utilizing robust mock fallback.', error.message);
     } finally {
       if (isMountedRef.current) {
         setLoading(false);
