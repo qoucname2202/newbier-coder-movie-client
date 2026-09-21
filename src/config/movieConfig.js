@@ -3,6 +3,14 @@
  * @description Centralized configuration for movie pages, hero banners, and data providers.
  */
 
+import {
+  LOCAL_DEFAULT_BACKDROP,
+  LOCAL_DEFAULT_POSTER,
+  MOVIE_FALLBACK_DEFAULTS
+} from './movieFallbackConfig';
+
+export * from './movieFallbackConfig';
+
 /**
  * Movie configuration object.
  * Reads environment variables with safe default fallbacks.
@@ -12,13 +20,13 @@ export const MOVIE_CONFIG = {
   useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA !== 'false',
 
   // Base API URL for movie services
-  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://core-movie-service.onrender.com/api/v1',
 
   // Hero banner configurations
   hero: {
     maxDescriptionLength: parseInt(process.env.NEXT_PUBLIC_HERO_DESC_LIMIT || '220', 10),
     autoPlayInterval: parseInt(process.env.NEXT_PUBLIC_HERO_AUTOPLAY_INTERVAL || '6000', 10),
-    defaultYear: '2024'
+    defaultYear: String(MOVIE_FALLBACK_DEFAULTS.year)
   },
 
   // Category IDs and default titles
@@ -26,24 +34,24 @@ export const MOVIE_CONFIG = {
     new: {
       id: 'new',
       title: 'Phim mới cập nhật',
-      endpoint: 'danh-sach/phim-moi-cap-nhat'
+      endpoint: 'movies/latest'
     },
     series: {
       id: 'series',
       title: 'Phim bộ đặc sắc',
-      endpoint: 'danh-sach/phim-bo'
+      endpoint: 'formats/series/movies'
     },
     single: {
       id: 'single',
       title: 'Phim lẻ chiếu rạp',
-      endpoint: 'danh-sach/phim-le'
+      endpoint: 'formats/single/movies'
     }
   },
 
   // UI display defaults
   ui: {
-    defaultPoster: '/images/default-poster.jpg',
-    defaultBackdrop: '/images/default-backdrop.jpg',
+    defaultPoster: LOCAL_DEFAULT_POSTER,
+    defaultBackdrop: LOCAL_DEFAULT_BACKDROP,
     itemsPerPage: 20
   }
 };
@@ -65,3 +73,4 @@ export const getCategoryEndpoint = (categoryKey) => {
 export const isMockModeActive = () => {
   return MOVIE_CONFIG.useMockData;
 };
+
