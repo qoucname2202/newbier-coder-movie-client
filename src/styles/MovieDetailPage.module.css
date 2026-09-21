@@ -4,23 +4,24 @@
  */
 
 .movieDetailWrapper {
-  background-color: #0b0e14;
-  color: #f0f6fc;
+  background-color: #0c0f16;
+  color: #e6edf3;
   min-height: 100vh;
-  padding-bottom: 72px;
+  padding-bottom: 48px;
   overflow-x: hidden;
 }
 
 .mainContentContainer {
-  max-width: 1400px;
+  max-width: 1240px;
   margin: 0 auto;
-  padding: 32px 28px 0;
+  padding: 0 20px;
   box-sizing: border-box;
 }
 
 .sectionSpacing {
-  margin-top: 48px;
+  margin-top: 24px;
 }
+
 
 /* Loading Canvas */
 .loadingContainer {
