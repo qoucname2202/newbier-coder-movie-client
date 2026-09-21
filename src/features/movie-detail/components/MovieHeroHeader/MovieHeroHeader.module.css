@@ -1,0 +1,339 @@
+.heroBackdropSection {
+  position: relative;
+  width: 100%;
+  min-height: 520px;
+  overflow: hidden;
+  background-color: #0d1117;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 2.5rem;
+  padding-top: 5.5rem;
+}
+
+.backdropBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  transform: scale(1.04);
+  transition: transform 10s ease-out;
+  pointer-events: none;
+}
+
+.backdropOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    /* Left feathering gradient protects typography */
+    linear-gradient(
+      90deg,
+      rgba(13, 17, 23, 0.98) 0%,
+      rgba(13, 17, 23, 0.88) 35%,
+      rgba(13, 17, 23, 0.45) 65%,
+      rgba(13, 17, 23, 0.25) 100%
+    ),
+    /* Bottom blend to page content */
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(13, 17, 23, 0.2) 40%,
+      rgba(13, 17, 23, 0.85) 80%,
+      #0d1117 100%
+    ),
+    /* Top navbar shade */
+    linear-gradient(
+      180deg,
+      rgba(10, 13, 18, 0.75) 0%,
+      transparent 30%
+    );
+  pointer-events: none;
+}
+
+.heroContentContainer {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-end;
+}
+
+/* 2:3 Cinema Poster Container */
+.posterBox {
+  flex-shrink: 0;
+  width: 240px;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #161f2e;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(229, 9, 20, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.posterBox:hover {
+  transform: translateY(-4px);
+  border-color: rgba(229, 9, 20, 0.5);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85), 0 0 28px rgba(229, 9, 20, 0.4);
+}
+
+.posterImg {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.posterBadges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+.ratingTag {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.qualityTag {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  backdrop-filter: blur(8px);
+}
+
+/* Movie Info Detail Column */
+.infoColumn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Technical Badges Row */
+.techBadgesRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.techBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.statusBadge {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.langBadge {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+}
+
+/* Title & Subtitle */
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.movieTitle {
+  font-size: clamp(1.75rem, 3.5vw, 2.65rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);
+}
+
+.movieSubTitle {
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
+  font-weight: 500;
+  color: #94a3b8;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+/* Category Pills Row */
+.categoryPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.pill {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.22rem 0.65rem;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.pill:hover {
+  background: rgba(229, 9, 20, 0.18);
+  border-color: #e50914;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Quick Action Bar */
+.actionBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.btnPlayNow {
+  background: linear-gradient(135deg, #e50914 0%, #b80710 100%);
+  color: #ffffff;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.75rem 1.65rem;
+  border-radius: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(229, 9, 20, 0.45);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.btnPlayNow:hover {
+  background: linear-gradient(135deg, #ff1a25 0%, #e50914 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 30px rgba(229, 9, 20, 0.6);
+  color: #ffffff;
+}
+
+.btnTrailer {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.72rem 1.35rem;
+  border-radius: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.btnTrailer:hover {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: #e50914;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.btnCircleAction {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.btnCircleAction:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px) scale(1.08);
+  border-color: #ffffff;
+}
+
+.btnFavoriteActive {
+  background: rgba(229, 9, 20, 0.25);
+  border-color: #e50914;
+  color: #e50914;
+}
+
+.btnFavoriteActive:hover {
+  background: rgba(229, 9, 20, 0.35);
+  color: #ff4d58;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .heroContentContainer {
+    gap: 1.5rem;
+  }
+  .posterBox {
+    width: 190px;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroBackdropSection {
+    padding-top: 4.5rem;
+    padding-bottom: 1.5rem;
+  }
+  .heroContentContainer {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+  }
+  .posterBox {
+    width: 170px;
+  }
+  .techBadgesRow,
+  .categoryPills,
+  .actionBar {
+    justify-content: center;
+  }
+}
