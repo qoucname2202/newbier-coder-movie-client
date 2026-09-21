@@ -1,0 +1,308 @@
+/**
+ * @file pages/movie/[slug]/watch.js
+ * @description Dedicated Cinema Watch & Streaming Player Page.
+ * Features an immersive 16:9 player cockpit, live side-deck episode playlist,
+ * quick server switcher, breadcrumb navigation, and in-stream community discussion.
+ */
+
+import React, { useState, useEffect, useCallback } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import {
+  MoviePlayerSection,
+  WatchSidebarPlaylist,
+  MovieCommentsSection,
+  useMovieDetail
+} from '@/features/movie-detail';
+import { MovieSection } from '@/components/common/MovieSection';
+import BackToTop from '@/components/UI/BackToTop';
+import styles from '@/styles/MovieWatchPage.module.css';
+
+/**
+ * Watch Page Component
+ * @param {Object} props
+ * @param {string} [props.initialSlug] - Extracted slug from getServerSideProps
+ * @returns {JSX.Element}
+ */
+export default function MovieWatchPage({ initialSlug }) {
+  const router = useRouter();
+  const slug = initialSlug || router.query.slug;
+
+  const {
+    movie,
+    loading,
+    error,
+    currentServerIndex,
+    currentEpisodeIndex,
+    activeServer,
+    activeEpisode,
+    setCurrentServerIndex,
+    setCurrentEpisodeIndex,
+    isFavorite,
+    favoriteLoading,
+    toggleFavorite,
+    comments,
+    commentsLoading,
+    addComment,
+    relatedMovies
+  } = useMovieDetail(slug);
+
+  const [shareCopied, setShareCopied] = useState(false);
+
+  // Sync route query (?ep=... & ?server=...) to active episode/server
+  useEffect(() => {
+    if (!router.isReady || !activeServer?.server_data) return;
+
+    const { ep, server } = router.query;
+
+    if (server !== undefined && Number(server) !== currentServerIndex) {
+      const sIdx = Number(server);
+      if (sIdx >= 0 && sIdx < (movie?.episodes?.length || 0)) {
+        setCurrentServerIndex(sIdx);
+      }
+    }
+
+    if (ep) {
+      const epIndex = activeServer.server_data.findIndex(
+        (item) => item.slug === ep || item.name === ep
+      );
+      if (epIndex !== -1 && epIndex !== currentEpisodeIndex) {
+        setCurrentEpisodeIndex(epIndex);
+      }
+    }
+  }, [router.isReady, router.query, activeServer, currentServerIndex, currentEpisodeIndex, movie?.episodes, setCurrentEpisodeIndex, setCurrentServerIndex]);
+
+  // Handle episode change and update URL query smoothly without full reload
+  const handleSelectEpisode = useCallback((epIndex) => {
+    setCurrentEpisodeIndex(epIndex);
+    const targetEp = activeServer?.server_data?.[epIndex];
+    if (targetEp?.slug) {
+      router.replace(
+        {
+          pathname: `/movie/${slug}/watch`,
+          query: {
+            ep: targetEp.slug,
+            server: currentServerIndex
+          }
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [activeServer, currentServerIndex, router, setCurrentEpisodeIndex, slug]);
+
+  // Handle server change
+  const handleSelectServer = useCallback((srvIndex) => {
+    setCurrentServerIndex(srvIndex);
+    setCurrentEpisodeIndex(0);
+    const newServer = movie?.episodes?.[srvIndex];
+    const firstEp = newServer?.server_data?.[0];
+    if (firstEp?.slug) {
+      router.replace(
+        {
+          pathname: `/movie/${slug}/watch`,
+          query: {
+            ep: firstEp.slug,
+            server: srvIndex
+          }
+        },
+        undefined,
+        { shallow: true }
+      );
+    }
+  }, [movie?.episodes, router, setCurrentEpisodeIndex, setCurrentServerIndex, slug]);
+
+  // Copy share URL
+  const handleShare = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2500);
+    }
+  };
+
+  // Loading screen
+  if (loading && !movie) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner} />
+        <p className={styles.loadingText}>Đang nạp dữ liệu rạp chiếu...</p>
+      </div>
+    );
+  }
+
+  // Error / Not found state
+  if (!loading && (!movie || error)) {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.errorCard}>
+          <i className="fas fa-exclamation-triangle text-danger mb-3" style={{ fontSize: '3rem' }} />
+          <h2 className={styles.errorTitle}>Không tìm thấy phim để phát</h2>
+          <p className={styles.errorDescription}>
+            Nội dung phim này hiện không có sẵn hoặc liên kết phát sóng đã thay đổi.
+          </p>
+          <button
+            type="button"
+            className="btn btn-danger px-4 py-2 mt-2"
+            onClick={() => router.push('/')}
+          >
+            <i className="fas fa-home me-2" /> Về Trang Chủ
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const epTitle = activeEpisode?.name
+    ? (activeEpisode.name.toLowerCase().startsWith('tập') ? activeEpisode.name : `Tập ${activeEpisode.name}`)
+    : 'Tập 1';
+  const pageTitle = `Xem phim ${movie.name} - ${epTitle} | MovieStreaming`;
+
+  return (
+    <div className={styles.watchPageWrapper}>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={`Xem phim ${movie.name} ${epTitle} chất lượng cao trực tuyến miễn phí.`} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:image" content={movie?.backdrop_url || movie?.poster_url || '/img/background/movies-wall.jpg'} />
+      </Head>
+
+      {/* Top Breadcrumb Bar */}
+      <div className={styles.breadcrumbBar}>
+        <div className={styles.breadcrumbInner}>
+          <Link href={`/movie/${slug}`} className={styles.backLink}>
+            <i className="fas fa-arrow-left me-2" />
+            <span>Về trang thông tin phim</span>
+          </Link>
+          <div className={styles.breadcrumbs}>
+            <Link href="/" className={styles.crumbItem}>Trang chủ</Link>
+            <span className={styles.crumbDivider}>/</span>
+            <Link href={`/movie/${slug}`} className={styles.crumbItem}>{movie.name}</Link>
+            <span className={styles.crumbDivider}>/</span>
+            <span className={styles.crumbActive}>{epTitle}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Cockpit: Player + Live Playlist */}
+      <div className={styles.cockpitContainer}>
+        <div className={styles.cockpitLayout}>
+          {/* Left Column: 16:9 Video Player & Meta */}
+          <div className={styles.playerColumn}>
+            <MoviePlayerSection
+              movie={movie}
+              servers={movie.episodes}
+              currentServerIndex={currentServerIndex}
+              onSelectServer={handleSelectServer}
+              activeEpisode={activeEpisode}
+              currentEpisodeIndex={currentEpisodeIndex}
+              onSelectEpisode={handleSelectEpisode}
+            />
+
+            {/* Video Info Header below Player */}
+            <div className={styles.videoMetaHeader}>
+              <div className={styles.metaTitleGroup}>
+                <h1 className={styles.movieMainTitle}>
+                  {movie.name} <span className={styles.highlightEp}>- {epTitle}</span>
+                </h1>
+                <p className={styles.movieSubTitle}>{movie.origin_name}</p>
+
+                <div className={styles.tagRow}>
+                  <span className={styles.qualityTag}>{movie.quality || 'Full HD'}</span>
+                  {movie.year && <span className={styles.infoPill}>{movie.year}</span>}
+                  {movie.time && <span className={styles.infoPill}>{movie.time}</span>}
+                  <span className={styles.infoPill}>
+                    {activeServer?.server_name || 'Server 1'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className={styles.metaActions}>
+                <button
+                  type="button"
+                  className={`${styles.actionBtn} ${isFavorite ? styles.actionBtnActive : ''}`}
+                  onClick={toggleFavorite}
+                  disabled={favoriteLoading}
+                  title="Yêu thích"
+                >
+                  <i className={isFavorite ? 'fas fa-heart text-danger' : 'far fa-heart'} />
+                  <span>{isFavorite ? 'Đã lưu' : 'Yêu thích'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={styles.actionBtn}
+                  onClick={handleShare}
+                  title="Chia sẻ link xem"
+                >
+                  <i className={shareCopied ? 'fas fa-check text-success' : 'fas fa-share-alt'} />
+                  <span>{shareCopied ? 'Đã sao chép' : 'Chia sẻ'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Synopsis Peek */}
+            {movie.content && (
+              <div className={styles.synopsisCard}>
+                <h4 className={styles.synopsisHeading}>
+                  <i className="fas fa-info-circle text-danger me-2" />
+                  Tóm tắt nội dung
+                </h4>
+                <p className={styles.synopsisText}>{movie.content}</p>
+              </div>
+            )}
+
+            {/* Discussion & Comments */}
+            <div className={styles.commentsWrapper}>
+              <MovieCommentsSection
+                comments={comments}
+                loading={commentsLoading}
+                onAddComment={addComment}
+              />
+            </div>
+          </div>
+
+          {/* Right Column: Live Side-deck Episode Playlist */}
+          <div className={styles.playlistColumn}>
+            <WatchSidebarPlaylist
+              servers={movie.episodes}
+              currentServerIndex={currentServerIndex}
+              onSelectServer={handleSelectServer}
+              currentEpisodeIndex={currentEpisodeIndex}
+              onSelectEpisode={handleSelectEpisode}
+            />
+          </div>
+        </div>
+
+        {/* Related Recommendations Rail */}
+        {relatedMovies.length > 0 && (
+          <div className={styles.relatedSection}>
+            <MovieSection
+              layout="rail"
+              variant="vertical"
+              title="Phim Cùng Thể Loại Đề Xuất"
+              movies={relatedMovies}
+            />
+          </div>
+        )}
+      </div>
+
+      <BackToTop />
+    </div>
+  );
+}
+
+/**
+ * Server-side props to extract slug before hydration
+ */
+export async function getServerSideProps(context) {
+  const { slug } = context.params;
+
+  return {
+    props: {
+      initialSlug: slug || null,
+    },
+  };
+}
