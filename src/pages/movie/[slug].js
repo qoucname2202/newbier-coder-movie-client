@@ -13,10 +13,10 @@ import {
   MovieHeroHeader,
   EpisodeDirectory,
   CastCrewSection,
-  MovieMetaBento,
   MovieCommentsSection,
   TrailerModal,
   useMovieDetail
+
 } from '@/features/movie-detail';
 import { MovieSection } from '@/components/common/MovieSection';
 import BackToTop from '@/components/UI/BackToTop';
@@ -124,13 +124,9 @@ export default function MovieDetailPage({ initialSlug }) {
           movieType={movie.type}
         />
 
-        {/* Bento Specifications & Synopsis Overview */}
-        <div className={styles.sectionSpacing}>
-          <MovieMetaBento movie={movie} />
-        </div>
-
         {/* Cast & Crew Section */}
         <div className={styles.sectionSpacing}>
+
           <CastCrewSection
             actors={movie.actors}
             directors={movie.directors}

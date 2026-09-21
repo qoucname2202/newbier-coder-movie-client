@@ -2,13 +2,13 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import styles from './EpisodeDirectory.module.css';
 
-const GROUP_SIZE = 50;
+const GROUP_SIZE = 100;
 
 /**
  * @file EpisodeDirectory.js
- * @description Cinema-grade Episode Directory for the Movie Detail page.
- * Renders an inviting, intuitive episode grid where clicking any episode
- * navigates directly to the dedicated Watch Page (/movie/[slug]/watch?ep=...).
+ * @description Compact, high-density episode directory modeled after Asian streaming
+ * platforms (AnimeVietSub, RoPhim). Displays a clean grid of compact episode chips
+ * grouped by server with zero bloat and instant navigation.
  *
  * @param {Object} props
  * @param {string} props.movieSlug - Movie slug for navigation.
@@ -27,6 +27,9 @@ export default function EpisodeDirectory({
   const currentServer = servers[activeServerIndex] || servers[0] || null;
   const rawEpisodes = currentServer?.server_data || [];
   const totalEpisodes = rawEpisodes.length;
+
+  // Single movie check: If single movie with only 1 episode, render a clean compact single-source row
+  const isSeries = movieType === 'series' || totalEpisodes > 1;
 
   // Filter episodes by search term
   const filteredEpisodes = useMemo(() => {
@@ -48,74 +51,46 @@ export default function EpisodeDirectory({
     return filteredEpisodes.slice(start, start + GROUP_SIZE);
   }, [filteredEpisodes, activeGroupIndex, searchTerm]);
 
-  // Single movie (Phim Lẻ) presentation
-  if (movieType === 'single' || totalEpisodes <= 1) {
+  if (!isSeries && totalEpisodes <= 1) {
     const singleEp = rawEpisodes[0];
     const watchHref = singleEp?.slug
       ? `/movie/${movieSlug}/watch?ep=${encodeURIComponent(singleEp.slug)}&server=${activeServerIndex}`
       : `/movie/${movieSlug}/watch`;
 
     return (
-      <section className={styles.directoryContainer} aria-label="Danh sách tập phim">
-        <div className={styles.sectionHeader}>
-          <div className={styles.headerTitleGroup}>
-            <div className={styles.iconCircle}>
-              <i className="fas fa-play-circle text-danger" />
-            </div>
-            <div>
-              <h3 className={styles.sectionTitle}>Tập Phim</h3>
-              <p className={styles.sectionSubtitle}>Phim lẻ bản chuẩn Full HD có phụ đề & lồng tiếng</p>
-            </div>
-          </div>
-          <span className={styles.totalBadge}>Bản Đầy Đủ</span>
-        </div>
-
-        <div className={styles.singleMovieCard}>
-          <div className={styles.singleMovieInfo}>
-            <span className={styles.singleBadge}>Full Movie</span>
-            <h4 className={styles.singleTitle}>Bản Chiếu Rạp Chính Thức</h4>
-            <p className={styles.singleDesc}>
-              Thưởng thức trọn vẹn tác phẩm điện ảnh với chất lượng hình ảnh và âm thanh sắc nét nhất.
-            </p>
+      <section className={styles.container} aria-label="Nguồn phát phim">
+        <div className={styles.singleSourceRow}>
+          <div className={styles.singleSourceInfo}>
+            <span className={styles.sourceLabel}>Nguồn phát:</span>
+            <span className={styles.sourceName}>{currentServer?.server_name || 'Bản Full HD'}</span>
           </div>
           <Link href={watchHref} className={styles.btnWatchSingle}>
-            <i className="fas fa-play me-2" />
-            Bắt đầu xem phim
+            <i className="fas fa-play me-1" />
+            Xem Phim
           </Link>
         </div>
       </section>
     );
   }
 
-  // TV Series (Phim Bộ) presentation
   return (
-    <section className={styles.directoryContainer} aria-label="Danh sách tập phim">
-      {/* Top Header */}
-      <div className={styles.sectionHeader}>
-        <div className={styles.headerTitleGroup}>
-          <div className={styles.iconCircle}>
-            <i className="fas fa-layer-group text-danger" />
-          </div>
-          <div>
-            <h3 className={styles.sectionTitle}>Danh Sách Tập Phim</h3>
-            <p className={styles.sectionSubtitle}>Chọn tập phim bất kỳ để bắt đầu thưởng thức</p>
-          </div>
+    <section className={styles.container} aria-label="Danh sách tập phim">
+      {/* Header bar */}
+      <div className={styles.headerBar}>
+        <div className={styles.headerTitleWrap}>
+          <i className="fas fa-list text-danger me-2" />
+          <h3 className={styles.headerTitle}>Danh Sách Tập</h3>
+          <span className={styles.epCountBadge}>({totalEpisodes} tập)</span>
         </div>
-        <span className={styles.totalBadge}>{totalEpisodes} Tập</span>
-      </div>
 
-      {/* Server Selection Tabs */}
-      {servers.length > 1 && (
-        <div className={styles.serverRow}>
-          <span className={styles.serverLabel}>
-            <i className="fas fa-server me-1 text-danger" /> Nguồn phát:
-          </span>
-          <div className={styles.serverList}>
+        {/* Server selection buttons */}
+        {servers.length > 1 && (
+          <div className={styles.serverTabs}>
             {servers.map((srv, idx) => (
               <button
                 key={srv.server_name || idx}
                 type="button"
-                className={`${styles.serverBtn} ${activeServerIndex === idx ? styles.serverBtnActive : ''}`}
+                className={`${styles.serverTab} ${activeServerIndex === idx ? styles.serverTabActive : ''}`}
                 onClick={() => {
                   setActiveServerIndex(idx);
                   setActiveGroupIndex(0);
@@ -126,14 +101,14 @@ export default function EpisodeDirectory({
               </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Grouping & Search Bar (For 50+ episodes) */}
-      {totalEpisodes > GROUP_SIZE && (
-        <div className={styles.filterToolbar}>
+      {/* Filter toolbar if more than 50 episodes */}
+      {totalEpisodes > 50 && (
+        <div className={styles.filterBar}>
           {totalGroups > 1 && (
-            <div className={styles.groupTabs}>
+            <div className={styles.groupChips}>
               {Array.from({ length: totalGroups }).map((_, gIdx) => {
                 const start = gIdx * GROUP_SIZE + 1;
                 const end = Math.min((gIdx + 1) * GROUP_SIZE, filteredEpisodes.length);
@@ -141,68 +116,52 @@ export default function EpisodeDirectory({
                   <button
                     key={gIdx}
                     type="button"
-                    className={`${styles.groupTabBtn} ${activeGroupIndex === gIdx ? styles.groupTabBtnActive : ''}`}
+                    className={`${styles.groupChip} ${activeGroupIndex === gIdx ? styles.groupChipActive : ''}`}
                     onClick={() => setActiveGroupIndex(gIdx)}
                   >
-                    Tập {start} - {end}
+                    {start} - {end}
                   </button>
                 );
               })}
             </div>
           )}
 
-          <div className={styles.searchBox}>
+          <div className={styles.searchWrapper}>
             <i className="fas fa-search text-secondary" />
             <input
               type="text"
               className={styles.searchInput}
-              placeholder="Tìm tập nhanh..."
+              placeholder="Nhập số tập..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            {searchTerm && (
-              <button
-                type="button"
-                className={styles.clearSearchBtn}
-                onClick={() => setSearchTerm('')}
-              >
-                <i className="fas fa-times" />
-              </button>
-            )}
           </div>
         </div>
       )}
 
-      {/* Episode Grid */}
-      <div className={styles.episodeGrid}>
+      {/* Compact High-Density Episode Grid */}
+      <div className={styles.chipsGrid}>
         {displayedEpisodes.map((ep, idx) => {
           const epSlug = ep.slug || `tap-${ep.name}`;
           const href = `/movie/${movieSlug}/watch?ep=${encodeURIComponent(epSlug)}&server=${activeServerIndex}`;
+          const displayName = ep.name?.toLowerCase().startsWith('tập') ? ep.name : `Tập ${ep.name}`;
 
           return (
             <Link
               key={ep.slug || idx}
               href={href}
-              className={styles.episodeCard}
-              title={`Xem ${ep.name?.toLowerCase().startsWith('tập') ? ep.name : `Tập ${ep.name}`}`}
+              className={styles.chip}
+              title={`Xem ${displayName}`}
             >
-              <div className={styles.epCardInner}>
-                <span className={styles.epPlayIcon}>
-                  <i className="fas fa-play" />
-                </span>
-                <span className={styles.epNumber}>
-                  {ep.name?.toLowerCase().startsWith('tập') ? ep.name : `Tập ${ep.name}`}
-                </span>
-              </div>
+              {displayName}
             </Link>
           );
         })}
       </div>
 
       {displayedEpisodes.length === 0 && (
-        <div className={styles.emptyResults}>
-          <i className="fas fa-search-minus mb-2" />
-          <p>Không tìm thấy tập phim phù hợp với từ khóa &ldquo;{searchTerm}&rdquo;</p>
+        <div className={styles.emptyNotice}>
+          Không tìm thấy tập phim phù hợp với từ khóa &ldquo;{searchTerm}&rdquo;
         </div>
       )}
     </section>
