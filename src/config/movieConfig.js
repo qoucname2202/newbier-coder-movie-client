@@ -9,7 +9,21 @@ import {
   MOVIE_FALLBACK_DEFAULTS
 } from './movieFallbackConfig';
 
-export * from './movieFallbackConfig';
+export {
+  HERO_FALLBACK_BACKDROPS,
+  LOCAL_DEFAULT_BACKDROP,
+  LOCAL_DEFAULT_POSTER,
+  MOVIE_FALLBACK_DEFAULTS,
+  resolveMovieBackdrop,
+  resolveMovieSubTitle,
+  resolveMovieCategories,
+  resolveMovieYear,
+  resolveMovieQuality,
+  normalizeHeroMovie,
+  resolveMovieActors,
+  resolveMovieDirectors
+} from './movieFallbackConfig';
+
 
 /**
  * Movie configuration object.

@@ -6,17 +6,21 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { MOVIE_CONFIG } from '@/config/movieConfig';
 import {
-  MOVIE_CONFIG,
   resolveMovieBackdrop,
   resolveMovieSubTitle,
   resolveMovieCategories,
   resolveMovieQuality,
   resolveMovieYear,
+  resolveMovieActors,
+  resolveMovieDirectors,
   LOCAL_DEFAULT_BACKDROP,
   LOCAL_DEFAULT_POSTER,
   MOVIE_FALLBACK_DEFAULTS
-} from '@/config/movieConfig';
+} from '@/config/movieFallbackConfig';
+
+
 import { mockMovies } from '@/mock/mockMovies';
 
 const API_BASE = MOVIE_CONFIG.apiBaseUrl;
@@ -50,21 +54,10 @@ export const normalizeMovieDetail = (raw, slug = '') => {
         }
       ];
 
-  // Resolve actors
-  let actorsList = [];
-  if (Array.isArray(m.actor) && m.actor.length > 0) {
-    actorsList = m.actor.map((a) => (typeof a === 'string' ? { name: a, role: 'Diễn viên' } : a));
-  } else if (typeof m.actor === 'string' && m.actor.trim() !== '') {
-    actorsList = m.actor.split(',').map((name) => ({ name: name.trim(), role: 'Diễn viên' }));
-  }
+  // Resolve actors & directors defensively
+  const actorsList = resolveMovieActors(m);
+  const directorsList = resolveMovieDirectors(m);
 
-  // Resolve directors
-  let directorsList = [];
-  if (Array.isArray(m.director) && m.director.length > 0) {
-    directorsList = m.director.map((d) => (typeof d === 'string' ? { name: d, role: 'Đạo diễn' } : d));
-  } else if (typeof m.director === 'string' && m.director.trim() !== '') {
-    directorsList = m.director.split(',').map((name) => ({ name: name.trim(), role: 'Đạo diễn' }));
-  }
 
   return {
     ...m,

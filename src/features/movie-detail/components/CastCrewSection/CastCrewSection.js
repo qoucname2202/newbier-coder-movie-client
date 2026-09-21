@@ -4,42 +4,48 @@ import styles from './CastCrewSection.module.css';
 
 /**
  * @file CastCrewSection.js
- * @description Cast and crew showcase ready to render actors & directors
- * as soon as the API provides them, with elegant fallback when empty.
+ * @description Compact, high-density Cast & Crew showcase.
+ * Features artist squircle avatars, prominent names, and character roles.
  *
  * @param {Object} props
- * @param {Array<Object>} [props.actors=[]] - Array of actor objects { name, role, avatar_url, slug }.
- * @param {Array<Object>} [props.directors=[]] - Array of director objects { name, role, avatar_url, slug }.
+ * @param {Array<Object>} [props.actors=[]] - Array of actor objects.
+ * @param {Array<Object>} [props.directors=[]] - Array of director objects.
  */
 export default function CastCrewSection({
   actors = [],
   directors = []
 }) {
   const combined = [
-    ...directors.map((d) => ({ ...d, role: d.role || 'Đạo diễn' })),
-    ...actors.map((a) => ({ ...a, role: a.role || 'Diễn viên' }))
+    ...directors.filter((d) => d.name && !d.name.includes('Đang cập nhật')).map((d) => ({ ...d, role: d.role || 'Đạo diễn' })),
+    ...actors.filter((a) => a.name && !a.name.includes('Đang cập nhật')).map((a) => ({ ...a, role: a.role || 'Diễn viên' }))
   ];
 
   if (combined.length === 0) {
     return (
-      <div className={styles.castCrewContainer}>
+      <section className={styles.castCrewContainer} aria-label="Diễn viên & đoàn làm phim">
         <div className={styles.headerRow}>
-          <i className="fas fa-users text-danger" />
-          <h3 className={styles.sectionTitle}>Diễn Viên & Đoàn Làm Phim</h3>
+          <div className={styles.titleGroup}>
+            <i className="fas fa-users text-danger me-2" />
+            <h3 className={styles.sectionTitle}>Diễn Viên & Đoàn Làm Phim</h3>
+          </div>
+          <span className={styles.countBadge}>Dàn diễn viên</span>
         </div>
-        <div className={styles.emptyCastPlaceholder}>
-          <i className="fas fa-info-circle text-warning" />
-          <span>Danh sách diễn viên và đoàn làm phim đang được cập nhật từ hệ thống dữ liệu.</span>
+        <div className={styles.emptyNotice}>
+          <i className="fas fa-clapperboard text-secondary me-2" />
+          <span>Danh sách nghệ sĩ và diễn viên lồng tiếng đang được đồng bộ hóa từ hệ thống dữ liệu.</span>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className={styles.castCrewContainer}>
+    <section className={styles.castCrewContainer} aria-label="Diễn viên & đoàn làm phim">
       <div className={styles.headerRow}>
-        <i className="fas fa-users text-danger" />
-        <h3 className={styles.sectionTitle}>Diễn Viên & Đoàn Làm Phim</h3>
+        <div className={styles.titleGroup}>
+          <i className="fas fa-users text-danger me-2" />
+          <h3 className={styles.sectionTitle}>Diễn Viên & Đoàn Làm Phim</h3>
+        </div>
+        <span className={styles.countBadge}>{combined.length} nghệ sĩ</span>
       </div>
 
       <div className={styles.castRail}>
@@ -50,8 +56,8 @@ export default function CastCrewSection({
           const initial = name.charAt(0).toUpperCase();
           const slug = person.slug || '';
 
-          const content = (
-            <>
+          const cardContent = (
+            <div className={styles.actorCard} title={`${name} (${role})`}>
               <div className={styles.avatarWrapper}>
                 {avatar ? (
                   <img
@@ -60,17 +66,22 @@ export default function CastCrewSection({
                     className={styles.avatarImg}
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.nextElementSibling) {
+                        e.currentTarget.nextElementSibling.style.display = 'flex';
+                      }
                     }}
                   />
-                ) : (
-                  <span className={styles.avatarMonogram}>{initial}</span>
-                )}
+                ) : null}
+                <div
+                  className={styles.avatarPlaceholder}
+                  style={{ display: avatar ? 'none' : 'flex' }}
+                >
+                  <span>{initial}</span>
+                </div>
               </div>
-              <h4 className={styles.actorName} title={name}>
-                {name}
-              </h4>
+              <span className={styles.actorName}>{name}</span>
               <span className={styles.actorRole}>{role}</span>
-            </>
+            </div>
           );
 
           if (slug) {
@@ -78,20 +89,20 @@ export default function CastCrewSection({
               <Link
                 key={slug || idx}
                 href={`/performer/${encodeURIComponent(slug)}`}
-                className={styles.actorCard}
+                className={styles.castLink}
               >
-                {content}
+                {cardContent}
               </Link>
             );
           }
 
           return (
-            <div key={name || idx} className={styles.actorCard}>
-              {content}
+            <div key={idx} className={styles.castLink}>
+              {cardContent}
             </div>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }
