@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { LOCAL_DEFAULT_BACKDROP, LOCAL_DEFAULT_POSTER } from '@/config/movieConfig';
 import styles from './MovieHeroHeader.module.css';
 
@@ -10,7 +11,7 @@ import styles from './MovieHeroHeader.module.css';
  *
  * @param {Object} props
  * @param {Object} props.movie - Normalized movie detail object.
- * @param {Function} [props.onPlayNow] - Callback to scroll to player and play.
+ * @param {Function} [props.onPlayNow] - Callback to start watching.
  * @param {Function} [props.onPlayTrailer] - Callback to open trailer modal.
  * @param {boolean} [props.isFavorite=false] - Favorite status.
  * @param {Function} [props.onToggleFavorite] - Toggle favorite callback.
@@ -22,7 +23,9 @@ export default function MovieHeroHeader({
   isFavorite = false,
   onToggleFavorite
 }) {
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
+
 
   if (!movie) return null;
 
@@ -132,7 +135,13 @@ export default function MovieHeroHeader({
             <button
               type="button"
               className={styles.btnPlayNow}
-              onClick={onPlayNow}
+              onClick={() => {
+                if (onPlayNow) {
+                  onPlayNow();
+                } else if (movie?.slug) {
+                  router.push(`/movie/${movie.slug}/watch`);
+                }
+              }}
               id="btn-movie-play-now"
             >
               <i className="fas fa-play" />

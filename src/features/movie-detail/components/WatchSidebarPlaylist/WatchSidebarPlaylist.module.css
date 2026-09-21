@@ -1,0 +1,282 @@
+/**
+ * @file WatchSidebarPlaylist.module.css
+ * @description Styling for the Cinema Watch Page side playlist.
+ */
+
+.sidebarContainer {
+  background: rgba(18, 22, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 640px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Header */
+.playlistHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.headerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.playlistTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.activeEpBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #8b949e;
+  margin-top: 3px;
+}
+
+.livePulseDot {
+  width: 6px;
+  height: 6px;
+  background: #e50914;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #e50914;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(229, 9, 20, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(229, 9, 20, 0);
+  }
+}
+
+.totalBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* Server Row */
+.serverRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.serverLabel {
+  font-size: 0.78rem;
+  color: #8b949e;
+  font-weight: 600;
+}
+
+.serverChips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.serverChip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.serverChip:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.serverChipActive {
+  background: rgba(229, 9, 20, 0.2);
+  border-color: #e50914;
+  color: #ffffff;
+}
+
+/* Search */
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0 10px;
+  margin-bottom: 14px;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.82rem;
+  padding: 8px 6px;
+  outline: none;
+  width: 100%;
+}
+
+.searchInput::placeholder {
+  color: #6e7681;
+}
+
+.clearBtn {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* Scroll List */
+.scrollList {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.scrollList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.episodesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+}
+
+.epButton {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #cbd5e1;
+  width: 100%;
+}
+
+.epButton:hover {
+  background: rgba(229, 9, 20, 0.12);
+  border-color: rgba(229, 9, 20, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.epButtonActive {
+  background: #e50914 !important;
+  border-color: #e50914 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.35);
+}
+
+.epText {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Playing Equalizer Animation */
+.playingBars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.bar {
+  width: 2px;
+  background: #ffffff;
+  border-radius: 1px;
+  animation: equalize 1s infinite alternate ease-in-out;
+}
+
+.bar:nth-child(1) {
+  height: 5px;
+  animation-delay: 0.1s;
+}
+
+.bar:nth-child(2) {
+  height: 11px;
+  animation-delay: 0.3s;
+}
+
+.bar:nth-child(3) {
+  height: 7px;
+  animation-delay: 0.2s;
+}
+
+@keyframes equalize {
+  0% {
+    height: 3px;
+  }
+  100% {
+    height: 12px;
+  }
+}
+
+.noResults {
+  text-align: center;
+  padding: 24px 8px;
+  color: #8b949e;
+  font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .sidebarContainer {
+    max-height: 420px;
+    margin-top: 20px;
+  }
+}

@@ -1,0 +1,341 @@
+/**
+ * @file EpisodeDirectory.module.css
+ * @description Styling for Episode Directory on the Movie Detail page.
+ */
+
+.directoryContainer {
+  background: rgba(18, 22, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 32px 28px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  margin-top: 40px;
+}
+
+/* Header */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.headerTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.iconCircle {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.sectionTitle {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.sectionSubtitle {
+  font-size: 0.88rem;
+  color: #8b949e;
+  margin: 4px 0 0 0;
+}
+
+.totalBadge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e50914;
+  background: rgba(229, 9, 20, 0.1);
+  border: 1px solid rgba(229, 9, 20, 0.25);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* Single Movie Card */
+.singleMovieCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, rgba(28, 34, 46, 0.85), rgba(18, 22, 30, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px 28px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.singleMovieInfo {
+  max-width: 680px;
+}
+
+.singleBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffb703;
+  background: rgba(255, 183, 3, 0.12);
+  border: 1px solid rgba(255, 183, 3, 0.3);
+  padding: 3px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.singleTitle {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+}
+
+.singleDesc {
+  font-size: 0.9rem;
+  color: #a0aec0;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.btnWatchSingle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 28px;
+  background: linear-gradient(135deg, #e50914 0%, #b80710 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(229, 9, 20, 0.35);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.btnWatchSingle:hover {
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(229, 9, 20, 0.5);
+}
+
+/* Server Row */
+.serverRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.serverLabel {
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.serverList {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.serverBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.serverBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.serverBtnActive {
+  background: rgba(229, 9, 20, 0.18);
+  border-color: #e50914;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.25);
+}
+
+/* Filter Toolbar (Tabs + Search) */
+.filterToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.groupTabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.groupTabBtn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #8b949e;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.groupTabBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.groupTabBtnActive {
+  background: #e50914;
+  border-color: #e50914;
+  color: #ffffff;
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0 12px;
+  width: 220px;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.85rem;
+  padding: 8px 8px 8px 6px;
+  outline: none;
+  width: 100%;
+}
+
+.searchInput::placeholder {
+  color: #6e7681;
+}
+
+.clearSearchBtn {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Episode Grid */
+.episodeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.episodeCard {
+  display: block;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.episodeCard:hover {
+  background: rgba(229, 9, 20, 0.12);
+  border-color: rgba(229, 9, 20, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(229, 9, 20, 0.2);
+}
+
+.epCardInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.epPlayIcon {
+  font-size: 0.72rem;
+  color: #e50914;
+  opacity: 0.8;
+  transition: transform 0.2s ease;
+}
+
+.episodeCard:hover .epPlayIcon {
+  transform: scale(1.2);
+  opacity: 1;
+}
+
+.epNumber {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e6edf3;
+  transition: color 0.2s ease;
+}
+
+.episodeCard:hover .epNumber {
+  color: #ffffff;
+}
+
+.emptyResults {
+  text-align: center;
+  padding: 32px 16px;
+  color: #8b949e;
+  font-size: 0.92rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .directoryContainer {
+    padding: 24px 18px;
+  }
+
+  .episodeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 8px;
+  }
+
+  .searchBox {
+    width: 100%;
+  }
+
+  .filterToolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btnWatchSingle {
+    width: 100%;
+  }
+}

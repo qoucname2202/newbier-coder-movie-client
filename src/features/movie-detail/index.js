@@ -14,10 +14,13 @@ export { default as ShareButton } from './components/ShareButton';
 export { default as MovieHeroHeader } from './components/MovieHeroHeader/MovieHeroHeader';
 export { default as MoviePlayerSection } from './components/MoviePlayerSection/MoviePlayerSection';
 export { default as EpisodeSelector } from './components/EpisodeSelector/EpisodeSelector';
+export { default as EpisodeDirectory } from './components/EpisodeDirectory/EpisodeDirectory';
+export { default as WatchSidebarPlaylist } from './components/WatchSidebarPlaylist/WatchSidebarPlaylist';
 export { default as CastCrewSection } from './components/CastCrewSection/CastCrewSection';
 export { default as MovieMetaBento } from './components/MovieMetaBento/MovieMetaBento';
 export { default as MovieCommentsSection } from './components/MovieCommentsSection/MovieCommentsSection';
 
 // Hooks
 export { useMovieDetail } from './hooks/useMovieDetail';
+
 
