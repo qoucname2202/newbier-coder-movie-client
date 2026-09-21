@@ -194,39 +194,62 @@
   border-color: #e50914;
 }
 
-.utilityRow {
+.btnWatchTrailer {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f0f6fc;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
 }
 
-.btnUtility {
-  flex: 1;
+.btnWatchTrailer:hover {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.5);
+  color: #ffffff;
+}
+
+.dualActionRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.btnSecondaryAction {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #cbd5e1;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 7px 8px;
+  padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.btnUtility:hover {
+.btnSecondaryAction:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
 
-.btnUtilityActive {
-  background: rgba(229, 9, 20, 0.15);
-  border-color: rgba(229, 9, 20, 0.4);
+.btnSecondaryActive {
+  background: rgba(229, 9, 20, 0.18);
+  border-color: rgba(229, 9, 20, 0.45);
   color: #ffffff;
 }
+
 
 /* Right Column: Title & Facts */
 .rightCol {

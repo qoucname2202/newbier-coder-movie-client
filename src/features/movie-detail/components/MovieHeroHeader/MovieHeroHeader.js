@@ -166,41 +166,43 @@ export default function MovieHeroHeader({
                 </button>
               )}
 
-              {/* Utility Row: Trailer, Favorite, Share */}
-              <div className={styles.utilityRow}>
-                {movie.trailer_url && onPlayTrailer && (
-                  <button
-                    type="button"
-                    className={styles.btnUtility}
-                    onClick={() => onPlayTrailer(movie)}
-                    title="Xem trailer"
-                  >
-                    <i className="fas fa-film text-danger" />
-                    <span>Trailer</span>
-                  </button>
-                )}
-
+              {/* Trailer button full width if available */}
+              {onPlayTrailer && (
                 <button
                   type="button"
-                  className={`${styles.btnUtility} ${isFavorite ? styles.btnUtilityActive : ''}`}
+                  className={styles.btnWatchTrailer}
+                  onClick={() => onPlayTrailer(movie)}
+                  title="Xem trailer chính thức"
+                >
+                  <i className="fas fa-play-circle text-danger me-2" />
+                  <span>Xem Trailer</span>
+                </button>
+              )}
+
+              {/* Symmetrical 50/50 Dual Action Row: Theo dõi & Chia sẻ */}
+              <div className={styles.dualActionRow}>
+                <button
+                  type="button"
+                  className={`${styles.btnSecondaryAction} ${isFavorite ? styles.btnSecondaryActive : ''}`}
                   onClick={onToggleFavorite}
                   title={isFavorite ? 'Bỏ theo dõi' : 'Thêm vào yêu thích'}
                 >
-                  <i className={isFavorite ? 'fas fa-heart text-danger' : 'far fa-heart'} />
-                  <span>{isFavorite ? 'Đã lưu' : 'Theo dõi'}</span>
+                  <i className={isFavorite ? 'fas fa-heart text-danger me-1' : 'far fa-heart me-1'} />
+                  <span>{isFavorite ? 'Đã Lưu' : 'Theo Dõi'}</span>
                 </button>
 
                 <button
                   type="button"
-                  className={styles.btnUtility}
+                  className={styles.btnSecondaryAction}
                   onClick={handleShare}
                   title="Sao chép liên kết"
                 >
-                  <i className={copied ? 'fas fa-check text-success' : 'fas fa-share-alt'} />
-                  <span>{copied ? 'Đã chép' : 'Chia sẻ'}</span>
+                  <i className={copied ? 'fas fa-check text-success me-1' : 'fas fa-share-alt me-1'} />
+                  <span>{copied ? 'Đã Chép' : 'Chia Sẻ'}</span>
                 </button>
               </div>
             </div>
+
           </div>
 
           {/* Right Column: Structured Movie Facts & Synopsis */}
