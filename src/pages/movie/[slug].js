@@ -1,9 +1,9 @@
 /**
  * @file pages/movie/[slug].js
- * @description Cinema-grade Movie Detail & Streaming Player Page.
- * Orchestrates widescreen backdrop hero header, responsive iframe player stage,
- * smart episode pagination selector, cast & crew showcase, bento metadata grid,
- * community discussion, and related film recommendations.
+ * @description Cinema-grade Movie Detail & Information Discovery Page.
+ * Orchestrates widescreen backdrop hero header, interactive episode directory,
+ * bento metadata grid, cast & crew showcase, community discussion,
+ * and related film recommendations.
  */
 
 import React, { useState, useCallback } from 'react';
@@ -11,8 +11,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import {
   MovieHeroHeader,
-  MoviePlayerSection,
-  EpisodeSelector,
+  EpisodeDirectory,
   CastCrewSection,
   MovieMetaBento,
   MovieCommentsSection,
@@ -24,7 +23,7 @@ import BackToTop from '@/components/UI/BackToTop';
 import styles from '@/styles/MovieDetailPage.module.css';
 
 /**
- * Main Movie Detail & Watch Page Component
+ * Main Movie Detail Page Component
  * @param {Object} props
  * @param {string} [props.initialSlug] - Slug provided via getServerSideProps
  * @returns {JSX.Element}
@@ -37,12 +36,6 @@ export default function MovieDetailPage({ initialSlug }) {
     movie,
     loading,
     error,
-    currentServerIndex,
-    currentEpisodeIndex,
-    activeServer,
-    activeEpisode,
-    setCurrentServerIndex,
-    setCurrentEpisodeIndex,
     isFavorite,
     favoriteLoading,
     toggleFavorite,
@@ -54,22 +47,19 @@ export default function MovieDetailPage({ initialSlug }) {
 
   const [activeTrailerMovie, setActiveTrailerMovie] = useState(null);
 
-  // Smooth scroll down to video player when user clicks "Xem Phim Ngay"
+  // Navigate directly to dedicated Watch Page when user clicks "Xem Phim Ngay"
   const handlePlayNow = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      const playerEl = document.getElementById('movie-streaming-player');
-      if (playerEl) {
-        playerEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    if (slug) {
+      router.push(`/movie/${slug}/watch`);
     }
-  }, []);
+  }, [router, slug]);
 
   // Open trailer modal
   const handleOpenTrailer = useCallback((targetMovie) => {
     setActiveTrailerMovie(targetMovie || movie);
   }, [movie]);
 
-  // Loading skeleton screen
+  // Loading screen
   if (loading && !movie) {
     return (
       <div className={styles.loadingContainer}>
@@ -101,8 +91,8 @@ export default function MovieDetailPage({ initialSlug }) {
     );
   }
 
-  const pageTitle = movie ? `${movie.name} - Xem Phim HD Online | MovieStreaming` : 'MovieStreaming';
-  const pageDescription = movie?.content?.slice(0, 160) || 'Xem phim trực tuyến miễn phí chất lượng cao với tốc độ nhanh nhất.';
+  const pageTitle = movie ? `${movie.name} - Thông Tin Phim HD | MovieStreaming` : 'MovieStreaming';
+  const pageDescription = movie?.content?.slice(0, 160) || 'Xem thông tin phim, trailer, dàn diễn viên và đánh giá chi tiết.';
 
   return (
     <div className={styles.movieDetailWrapper}>
@@ -127,27 +117,12 @@ export default function MovieDetailPage({ initialSlug }) {
 
       {/* 2. Main Content Flow Container */}
       <div className={styles.mainContentContainer}>
-        {/* Streaming Video Player */}
-        <MoviePlayerSection
-          movie={movie}
+        {/* Episode Directory / Episode Cards */}
+        <EpisodeDirectory
+          movieSlug={slug}
           servers={movie.episodes}
-          currentServerIndex={currentServerIndex}
-          onSelectServer={setCurrentServerIndex}
-          activeEpisode={activeEpisode}
-          currentEpisodeIndex={currentEpisodeIndex}
-          onSelectEpisode={setCurrentEpisodeIndex}
+          movieType={movie.type}
         />
-
-        {/* Smart Episode Pagination Selector */}
-        {activeServer?.server_data?.length > 1 && (
-          <div className={styles.sectionSpacing}>
-            <EpisodeSelector
-              episodes={activeServer.server_data}
-              currentIndex={currentEpisodeIndex}
-              onSelectEpisode={setCurrentEpisodeIndex}
-            />
-          </div>
-        )}
 
         {/* Bento Specifications & Synopsis Overview */}
         <div className={styles.sectionSpacing}>
