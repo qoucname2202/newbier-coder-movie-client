@@ -7,8 +7,15 @@
   background-color: #07090e;
   color: #f0f6fc;
   min-height: 100vh;
+  padding-top: 74px;
   padding-bottom: 72px;
   overflow-x: hidden;
+}
+
+@media (max-width: 991px) {
+  .watchPageWrapper {
+    padding-top: 66px;
+  }
 }
 
 /* Breadcrumb Bar */
@@ -236,6 +243,7 @@
   align-items: center;
   justify-content: center;
   gap: 20px;
+  padding-top: 80px;
 }
 
 .spinner {
@@ -263,7 +271,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 80px 20px 40px;
 }
 
 .errorCard {
