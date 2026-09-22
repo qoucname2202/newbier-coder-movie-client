@@ -11,96 +11,116 @@ import styles from '@/styles/MovieCategory.module.css';
 /**
  * Custom Next Arrow for Slider
  */
-const NextArrow = ({ onClick }) => (
-  <button
-    type="button"
-    className="slick-custom-arrow slick-custom-next"
-    onClick={onClick}
-    aria-label="Xem tiếp"
-  >
-    <i className="fas fa-chevron-right" />
-    <style jsx>{`
-      .slick-custom-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        right: -8px;
-        z-index: 10;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: rgba(15, 18, 24, 0.88);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-      }
-      .slick-custom-arrow:hover {
-        background: #e50914;
-        border-color: #e50914;
-        transform: translateY(-50%) scale(1.12);
-        box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
-      }
-      @media (max-width: 768px) {
+const NextArrow = ({ className, onClick }) => {
+  const isDisabled = className?.includes('slick-disabled');
+  return (
+    <button
+      type="button"
+      className={`slick-custom-arrow slick-custom-next ${isDisabled ? 'slick-disabled' : ''}`}
+      onClick={onClick}
+      disabled={isDisabled}
+      aria-label="Xem tiếp"
+    >
+      <i className="fas fa-chevron-right" />
+      <style jsx>{`
         .slick-custom-arrow {
-          display: none !important;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          right: -10px;
+          z-index: 10;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(15, 18, 24, 0.92);
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(8px);
         }
-      }
-    `}</style>
-  </button>
-);
+        .slick-custom-arrow:hover:not(:disabled) {
+          background: #e50914;
+          border-color: #e50914;
+          transform: translateY(-50%) scale(1.1);
+          box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
+        }
+        .slick-custom-arrow:disabled,
+        .slick-custom-arrow.slick-disabled {
+          opacity: 0 !important;
+          pointer-events: none !important;
+          visibility: hidden !important;
+        }
+        @media (max-width: 768px) {
+          .slick-custom-arrow {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </button>
+  );
+};
 
 /**
  * Custom Prev Arrow for Slider
  */
-const PrevArrow = ({ onClick }) => (
-  <button
-    type="button"
-    className="slick-custom-arrow slick-custom-prev"
-    onClick={onClick}
-    aria-label="Quay lại"
-  >
-    <i className="fas fa-chevron-left" />
-    <style jsx>{`
-      .slick-custom-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        left: -8px;
-        z-index: 10;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: rgba(15, 18, 24, 0.88);
-        color: #ffffff;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.25s ease;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-      }
-      .slick-custom-arrow:hover {
-        background: #e50914;
-        border-color: #e50914;
-        transform: translateY(-50%) scale(1.12);
-        box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
-      }
-      @media (max-width: 768px) {
+const PrevArrow = ({ className, onClick }) => {
+  const isDisabled = className?.includes('slick-disabled');
+  return (
+    <button
+      type="button"
+      className={`slick-custom-arrow slick-custom-prev ${isDisabled ? 'slick-disabled' : ''}`}
+      onClick={onClick}
+      disabled={isDisabled}
+      aria-label="Quay lại"
+    >
+      <i className="fas fa-chevron-left" />
+      <style jsx>{`
         .slick-custom-arrow {
-          display: none !important;
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          left: -10px;
+          z-index: 10;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(15, 18, 24, 0.92);
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(8px);
         }
-      }
-    `}</style>
-  </button>
-);
+        .slick-custom-arrow:hover:not(:disabled) {
+          background: #e50914;
+          border-color: #e50914;
+          transform: translateY(-50%) scale(1.1);
+          box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
+        }
+        .slick-custom-arrow:disabled,
+        .slick-custom-arrow.slick-disabled {
+          opacity: 0 !important;
+          pointer-events: none !important;
+          visibility: hidden !important;
+        }
+        @media (max-width: 768px) {
+          .slick-custom-arrow {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </button>
+  );
+};
 
 /**
  * @file MovieSection.js
@@ -159,42 +179,42 @@ export default function MovieSection({
   const isGrid = layout === 'grid';
   const isHorizontal = variant === 'horizontal';
 
-  // Vertical Card Carousel Settings
+  // Vertical Card Carousel Settings: Fixed 5 cards per pack/page on desktop
   const verticalSettings = {
     dots: false,
     infinite: false,
-    speed: 400,
-    slidesToShow: mounted && isMobile ? 1.85 : 5.5,
-    slidesToScroll: 1,
-    swipeToSlide: true,
+    speed: 450,
+    slidesToShow: mounted && isMobile ? 2 : 5,
+    slidesToScroll: mounted && isMobile ? 2 : 5,
+    swipeToSlide: false,
     draggable: true,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
     responsive: [
       {
         breakpoint: 1200,
-        settings: { slidesToShow: 4.5, slidesToScroll: 2 }
+        settings: { slidesToShow: 5, slidesToScroll: 5 }
       },
       {
         breakpoint: 992,
-        settings: { slidesToShow: 3.5, slidesToScroll: 2 }
+        settings: { slidesToShow: 4, slidesToScroll: 4 }
       },
       {
         breakpoint: 768,
-        settings: { slidesToShow: 2.3, slidesToScroll: 1, arrows: false }
+        settings: { slidesToShow: 3, slidesToScroll: 3, arrows: false }
       },
       {
         breakpoint: 576,
-        settings: { slidesToShow: 1.85, slidesToScroll: 1, arrows: false }
+        settings: { slidesToShow: 2, slidesToScroll: 2, arrows: false }
       },
       {
         breakpoint: 400,
-        settings: { slidesToShow: 1.6, slidesToScroll: 1, arrows: false }
+        settings: { slidesToShow: 2, slidesToScroll: 2, arrows: false }
       }
     ]
   };
 
-  // Horizontal Card Carousel Settings (Top 10)
+  // Horizontal Card Carousel Settings (Top 10 - Giữ nguyên trải nghiệm như cũ)
   const horizontalSettings = {
     dots: false,
     infinite: false,
