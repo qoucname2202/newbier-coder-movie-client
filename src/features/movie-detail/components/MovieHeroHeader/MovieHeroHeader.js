@@ -102,7 +102,7 @@ export default function MovieHeroHeader({
       {/* Subtle Atmospheric Backdrop Banner */}
       <div className={styles.backdropLayer}>
         <img
-          src={movie.backdrop_url || LOCAL_DEFAULT_BACKDROP}
+          src={movie.backdrop_url || movie.thumb_url || movie.poster_url || LOCAL_DEFAULT_BACKDROP}
           alt=""
           className={styles.backdropImg}
           onError={(e) => {
