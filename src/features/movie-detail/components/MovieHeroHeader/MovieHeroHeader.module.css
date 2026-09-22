@@ -145,6 +145,13 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: #161b22;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.posterWrapper:hover {
+  transform: translateY(-4px);
+  border-color: rgba(229, 9, 20, 0.5);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(229, 9, 20, 0.25);
 }
 
 .posterImg {
@@ -152,6 +159,79 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.35s ease;
+}
+
+.posterWrapper:hover .posterImg {
+  transform: scale(1.05);
+}
+
+/* Play button overlay: hover red circular trailer button like outer cards */
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(13, 17, 23, 0.4);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.posterWrapper:hover .playOverlay {
+  opacity: 1;
+}
+
+.playCircle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #e50914;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 24px rgba(229, 9, 20, 0.85);
+  transform: scale(0.85);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.posterWrapper:hover .playCircle {
+  transform: scale(1);
+}
+
+.playCircle:hover {
+  background: #f40612;
+  transform: scale(1.12) !important;
+  box-shadow: 0 0 30px rgba(229, 9, 20, 1);
+}
+
+.playCircle:active {
+  transform: scale(0.92) !important;
+}
+
+@media (max-width: 768px) {
+  .playOverlay {
+    opacity: 1;
+    background: transparent;
+    pointer-events: auto;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 8px;
+  }
+  .playCircle {
+    width: 42px;
+    height: 42px;
+    transform: scale(1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75);
+  }
 }
 
 .qualityBadge {
@@ -166,6 +246,7 @@
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  z-index: 4;
 }
 
 .ratingBadge {
@@ -180,6 +261,7 @@
   padding: 2px 8px;
   border-radius: 4px;
   backdrop-filter: blur(6px);
+  z-index: 4;
 }
 
 /* Action Buttons below poster */
@@ -232,28 +314,6 @@
   background: rgba(229, 9, 20, 0.22);
   color: #ffffff;
   border-color: #e50914;
-}
-
-.btnWatchTrailer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f0f6fc;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
-}
-
-.btnWatchTrailer:hover {
-  background: rgba(229, 9, 20, 0.15);
-  border-color: rgba(229, 9, 20, 0.5);
-  color: #ffffff;
 }
 
 .dualActionRow {

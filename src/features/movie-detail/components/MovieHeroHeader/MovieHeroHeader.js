@@ -147,6 +147,32 @@ export default function MovieHeroHeader({
                   {ratingVal}
                 </span>
               )}
+
+              {/* Hover Play Overlay with Red Trailer Trigger Button like outer cards */}
+              {onPlayTrailer && (
+                <div className={styles.playOverlay}>
+                  <button
+                    type="button"
+                    className={styles.playCircle}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onPlayTrailer(movie);
+                    }}
+                    aria-label={`Xem trailer ${movie?.name}`}
+                    title="Xem trailer"
+                  >
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Common Action Buttons directly under Poster */}
@@ -183,19 +209,6 @@ export default function MovieHeroHeader({
                 >
                   <i className="fas fa-play me-2" />
                   <span>Xem Phim</span>
-                </button>
-              )}
-
-              {/* Trailer button full width if available */}
-              {onPlayTrailer && (
-                <button
-                  type="button"
-                  className={styles.btnWatchTrailer}
-                  onClick={() => onPlayTrailer(movie)}
-                  title="Xem trailer chính thức"
-                >
-                  <i className="fas fa-play-circle text-danger me-2" />
-                  <span>Xem Trailer</span>
                 </button>
               )}
 
