@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 
 /**
  * @file TrailerModal.js
- * @description Universal cinematic trailer video modal player supporting direct YouTube IDs,
- * YouTube URLs, Dailymotion, TMDB automatic lookup, and graceful fallback actions.
+ * @description Pure cinematic trailer video modal player.
+ * Streamlined per team review: removes redundant movie headers, footers,
+ * and metadata tags, focusing 100% on the widescreen video player with
+ * a floating exit button, backdrop-click, and ESC dismissal.
  *
  * @param {Object} props
  * @param {Object|null} props.movie - Movie object to play trailer for. If null, modal is closed.
@@ -15,13 +16,9 @@ export default function TrailerModal({ movie, onClose }) {
   const [loading, setLoading] = useState(false);
   const [fallbackSearchUrl, setFallbackSearchUrl] = useState('');
 
-  // Extract clean movie attributes safely
   const movieTitle = movie?.title || movie?.name || movie?.origin_name || 'Trailer Phim';
   const originTitle = movie?.origin_name && movie?.origin_name !== movieTitle ? movie?.origin_name : '';
-  const movieSlug = movie?.slug || '';
-  const movieYear = movie?.year || '';
   const moviePoster = movie?.backdrop_url || movie?.poster_url || movie?.thumb_url || '';
-  const movieQuality = movie?.quality || 'HD';
 
   useEffect(() => {
     if (!movie) {
@@ -160,7 +157,6 @@ export default function TrailerModal({ movie, onClose }) {
           }
         }
 
-        // 4. Default: No direct embed found, show elegant fallback stage
         if (isSubscribed) {
           setLoading(false);
         }
@@ -194,34 +190,18 @@ export default function TrailerModal({ movie, onClose }) {
       aria-label={`Trailer phim ${movieTitle}`}
     >
       <div className="trailer-modal-box">
-        {/* Modal Header */}
-        <div className="trailer-modal-header">
-          <div className="d-flex align-items-center gap-2 flex-grow-1 overflow-hidden me-2">
-            <span className="trailer-badge">TRAILER</span>
-            <div className="d-flex flex-column overflow-hidden">
-              <h3 className="trailer-movie-title mb-0" title={movieTitle}>
-                {movieTitle}
-              </h3>
-              {originTitle && (
-                <span className="trailer-movie-subtitle" title={originTitle}>
-                  {originTitle}
-                </span>
-              )}
-            </div>
-          </div>
+        {/* Sole Exit / Close Button */}
+        <button
+          type="button"
+          className="trailer-close-btn"
+          onClick={onClose}
+          aria-label="Đóng trailer"
+          title="Đóng (Esc)"
+        >
+          <i className="fas fa-times" />
+        </button>
 
-          <button
-            type="button"
-            className="trailer-close-btn"
-            onClick={onClose}
-            aria-label="Đóng trailer"
-            title="Đóng (Esc)"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Video Player Area */}
+        {/* Pure 16:9 Video Player Area */}
         <div className="trailer-video-wrap">
           {loading ? (
             <div className="trailer-loading-state">
@@ -237,7 +217,6 @@ export default function TrailerModal({ movie, onClose }) {
               className="trailer-iframe"
             />
           ) : (
-            /* Modern Fallback Stage when no direct embed is available */
             <div className="trailer-fallback-stage">
               {moviePoster && (
                 <img
@@ -254,12 +233,11 @@ export default function TrailerModal({ movie, onClose }) {
                 </div>
                 <h4 className="fallback-heading">Xem Trailer: {movieTitle}</h4>
                 <p className="fallback-subtext">
-                  Trailer chính thức chưa được nhúng trực tiếp. Bạn có thể mở xem trực tiếp trên YouTube
-                  hoặc thưởng thức phim ngay tại trang chi tiết.
+                  Trailer chưa thể phát trực tiếp tại đây. Bạn có thể mở xem trực tiếp trên YouTube.
                 </p>
 
-                <div className="d-flex align-items-center justify-content-center gap-2 mt-3 flex-wrap">
-                  {fallbackSearchUrl && (
+                {fallbackSearchUrl && (
+                  <div className="mt-3">
                     <a
                       href={fallbackSearchUrl}
                       target="_blank"
@@ -269,38 +247,10 @@ export default function TrailerModal({ movie, onClose }) {
                       <i className="fab fa-youtube" />
                       <span>Xem trên YouTube ↗</span>
                     </a>
-                  )}
-                  {movieSlug && (
-                    <Link
-                      href={`/movie/${movieSlug}`}
-                      className="btn-watch-movie"
-                      onClick={onClose}
-                    >
-                      <span>Vào xem phim ngay</span>
-                    </Link>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Modal Footer */}
-        <div className="trailer-modal-footer">
-          <div className="d-flex align-items-center gap-2">
-            {movieYear && <span className="trailer-meta-tag">{movieYear}</span>}
-            {movieQuality && <span className="trailer-meta-tag">{movieQuality}</span>}
-          </div>
-
-          {movieSlug && (
-            <Link
-              href={`/movie/${movieSlug}`}
-              className="trailer-footer-link"
-              onClick={onClose}
-            >
-              <span>Xem phim</span>
-              <span className="arrow">→</span>
-            </Link>
           )}
         </div>
       </div>
@@ -309,87 +259,52 @@ export default function TrailerModal({ movie, onClose }) {
         .modal-backdrop-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.88);
-          backdrop-filter: blur(10px);
+          background: rgba(0, 0, 0, 0.9);
+          backdrop-filter: blur(12px);
           display: flex;
           justify-content: center;
           align-items: center;
           z-index: 9999;
-          padding: 16px;
-          animation: modalFadeIn 0.22s ease-out;
+          padding: 24px 20px;
+          animation: modalFadeIn 0.2s ease-out;
         }
 
         .trailer-modal-box {
-          background: #0d1117;
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          border-radius: 14px;
+          position: relative;
           width: 100%;
-          max-width: 920px;
-          overflow: hidden;
-          box-shadow: 0 25px 65px rgba(0, 0, 0, 0.95), 0 0 35px rgba(229, 9, 20, 0.2);
-          animation: modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .trailer-modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 12px 18px;
-          background: #090c10;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .trailer-badge {
-          background: #e50914;
-          color: white;
-          font-size: 0.7rem;
-          font-weight: 800;
-          padding: 2px 7px;
-          border-radius: 4px;
-          letter-spacing: 0.05em;
-          box-shadow: 0 2px 8px rgba(229, 9, 20, 0.5);
-          flex-shrink: 0;
-        }
-
-        .trailer-movie-title {
-          font-size: 1.05rem;
-          font-weight: 700;
-          color: #ffffff;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .trailer-movie-subtitle {
-          font-size: 0.78rem;
-          color: #94a3b8;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          max-width: 960px;
+          animation: modalSlideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .trailer-close-btn {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: #cbd5e1;
-          width: 32px;
-          height: 32px;
+          position: absolute;
+          top: -18px;
+          right: -18px;
+          z-index: 30;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
+          background: #161b22;
+          border: 2px solid rgba(255, 255, 255, 0.25);
+          color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: 0.85rem;
-          font-weight: 700;
-          transition: all 0.2s ease;
-          flex-shrink: 0;
+          font-size: 1.05rem;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .trailer-close-btn:hover {
           background: #e50914;
           border-color: #e50914;
           color: #ffffff;
-          transform: scale(1.08);
+          transform: scale(1.12);
+        }
+
+        .trailer-close-btn:active {
+          transform: scale(0.96);
         }
 
         .trailer-video-wrap {
@@ -397,7 +312,10 @@ export default function TrailerModal({ movie, onClose }) {
           width: 100%;
           aspect-ratio: 16 / 9;
           background: #000000;
+          border-radius: 12px;
           overflow: hidden;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(0, 0, 0, 0.75);
         }
 
         .trailer-iframe {
@@ -521,66 +439,6 @@ export default function TrailerModal({ movie, onClose }) {
           box-shadow: 0 6px 18px rgba(229, 9, 20, 0.6);
         }
 
-        .btn-watch-movie {
-          background: rgba(255, 255, 255, 0.1);
-          color: #f1f5f9;
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          padding: 8px 16px;
-          border-radius: 6px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          text-decoration: none;
-          transition: all 0.2s ease;
-        }
-
-        .btn-watch-movie:hover {
-          background: rgba(255, 255, 255, 0.18);
-          color: #ffffff;
-          transform: translateY(-2px);
-        }
-
-        .trailer-modal-footer {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 10px 18px;
-          background: #090c10;
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .trailer-meta-tag {
-          font-size: 0.72rem;
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.06);
-          padding: 2px 7px;
-          border-radius: 4px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .trailer-footer-link {
-          font-size: 0.82rem;
-          color: #38bdf8;
-          text-decoration: none;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          font-weight: 600;
-          transition: all 0.2s ease;
-        }
-
-        .trailer-footer-link:hover {
-          color: #7dd3fc;
-          text-decoration: underline;
-        }
-
-        .trailer-footer-link .arrow {
-          transition: transform 0.2s ease;
-        }
-
-        .trailer-footer-link:hover .arrow {
-          transform: translateX(3px);
-        }
-
         @keyframes modalFadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -597,15 +455,14 @@ export default function TrailerModal({ movie, onClose }) {
           }
         }
 
-        @media (max-width: 576px) {
-          .trailer-movie-title {
+        @media (max-width: 768px) {
+          .trailer-close-btn {
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
             font-size: 0.95rem;
-          }
-          .trailer-modal-header {
-            padding: 10px 14px;
-          }
-          .trailer-modal-footer {
-            padding: 8px 14px;
+            background: rgba(0, 0, 0, 0.7);
           }
         }
       `}</style>
