@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { LOCAL_DEFAULT_BACKDROP, LOCAL_DEFAULT_POSTER } from '@/config/movieConfig';
@@ -75,7 +75,27 @@ export default function MovieHeroHeader({
   }
 
   const synopsis = movie.content || 'Nội dung bộ phim đang được cập nhật.';
-  const isLongSynopsis = synopsis.length > 240;
+  const synopsisRef = useRef(null);
+  const [hasOverflow, setHasOverflow] = useState(() => synopsis.length > 180);
+
+  useEffect(() => {
+    const el = synopsisRef.current;
+    if (!el) return;
+
+    const checkOverflow = () => {
+      if (!synopsisExpanded && el) {
+        // scrollHeight > clientHeight indicates the text is truly clamped
+        setHasOverflow(el.scrollHeight > el.clientHeight + 4);
+      }
+    };
+
+    const t = setTimeout(checkOverflow, 40);
+    window.addEventListener('resize', checkOverflow);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', checkOverflow);
+    };
+  }, [synopsis, synopsisExpanded]);
 
   return (
     <section className={styles.heroWrapper} aria-label="Thông tin chi tiết phim">
@@ -299,16 +319,22 @@ export default function MovieHeroHeader({
                 <i className="fas fa-file-alt text-danger me-2" />
                 Nội dung phim
               </h3>
-              <p className={`${styles.synopsisParagraph} ${!synopsisExpanded && isLongSynopsis ? styles.synopsisClamped : ''}`}>
+              <p
+                ref={synopsisRef}
+                className={`${styles.synopsisParagraph} ${!synopsisExpanded && hasOverflow ? styles.synopsisClamped : ''}`}
+              >
                 {synopsis}
               </p>
-              {isLongSynopsis && (
+              {hasOverflow && (
                 <button
                   type="button"
                   className={styles.btnToggleSynopsis}
                   onClick={() => setSynopsisExpanded((prev) => !prev)}
+                  aria-expanded={synopsisExpanded}
+                  title={synopsisExpanded ? 'Thu gọn nội dung' : 'Xem toàn bộ nội dung'}
                 >
-                  {synopsisExpanded ? 'Thu gọn' : 'Xem toàn bộ nội dung »'}
+                  <i className={`fas ${synopsisExpanded ? 'fa-chevron-up' : 'fa-chevron-down'}`} />
+                  <span>{synopsisExpanded ? 'Thu gọn nội dung' : 'Xem toàn bộ nội dung'}</span>
                 </button>
               )}
             </div>

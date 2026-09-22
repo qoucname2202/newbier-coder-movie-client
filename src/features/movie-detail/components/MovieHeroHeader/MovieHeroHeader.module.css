@@ -392,31 +392,48 @@
 
 .synopsisParagraph {
   font-size: 0.88rem;
-  line-height: 1.6;
+  line-height: 1.65;
   color: #a0aec0;
   margin: 0;
+  transition: all 0.25s ease;
 }
 
 .synopsisClamped {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  mask-image: linear-gradient(180deg, #000 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 65%, transparent 100%);
 }
 
 .btnToggleSynopsis {
-  background: transparent;
-  border: none;
-  color: #e50914;
-  font-size: 0.82rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #ff4d58;
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 6px 0 0 0;
+  padding: 5px 12px;
+  margin-top: 10px;
   cursor: pointer;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btnToggleSynopsis:hover {
-  text-decoration: underline;
+  background: rgba(229, 9, 20, 0.14);
+  border-color: rgba(229, 9, 20, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btnToggleSynopsis:active {
+  transform: translateY(0);
 }
 
 /* Responsive */
