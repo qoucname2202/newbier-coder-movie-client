@@ -192,7 +192,7 @@ export default function FeaturedCarousel3D({ movies = [], loading = false, onPla
             const cardHeight = windowWidth < 480 ? 320 : windowWidth < 768 ? 400 : 510;
 
             // Always prioritize high-resolution poster_url over low-res thumb_url
-            const posterSrc = movie.poster_url || movie.thumb_url || '/placeholder.jpg';
+            const posterSrc = movie.poster_url || movie.thumb_url || '/img/placeholder-poster.svg';
 
             return (
               <div
@@ -230,6 +230,10 @@ export default function FeaturedCarousel3D({ movies = [], loading = false, onPla
                     alt={movie.name}
                     className="poster-card-img"
                     loading={isCenter ? 'eager' : 'lazy'}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = '/img/placeholder-poster.svg';
+                    }}
                   />
 
                   {/* 100% Full-Coverage Vignette Overlay */}

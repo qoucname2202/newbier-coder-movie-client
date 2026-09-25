@@ -23,6 +23,11 @@ import {
 import { TrailerModal } from "@/features/movie-detail";
 import BackToTop from "@/components/UI/BackToTop";
 import { useAuth } from "@/utils/auth";
+import {
+  HOME_SECTION_ORDER,
+  HOME_SECTIONS,
+  t
+} from "@/config/homeSectionsConfig";
 
 /**
  * Main Home page component.
@@ -112,6 +117,121 @@ export default function Home() {
     setActiveTrailerMovie(null);
   };
 
+  // =========================================================================
+  // CORE SECTION REGISTRY & PIPELINE [LOCKED: DO NOT MODIFY]
+  // All behaviors (cardSize, badge, limit, order, text) are centrally configured in:
+  // src/config/homeSectionsConfig.js
+  // =========================================================================
+  const renderSection = (sectionId) => {
+    const config = HOME_SECTIONS[sectionId] || {};
+
+    switch (sectionId) {
+      case 'hero':
+        return (
+          <HeroBanner
+            key="hero"
+            movies={featuredMovies}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'carousel_3d':
+        return (
+          <FeaturedCarousel3D
+            key="carousel_3d"
+            movies={featuredMovies}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'recommended':
+        return (
+          <TopRecommendedSection
+            key="recommended"
+            movies={topMovies}
+            cardSize={config.cardSize}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'top10':
+        return (
+          <TrendingTop10Section
+            key="top10"
+            movies={mostViewedMovies}
+            cardSize={config.cardSize}
+            badge={config.badge}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'country':
+        return (
+          <CountryMoviesSection
+            key="country"
+            cardSize={config.cardSize}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'big_slide':
+        return (
+          <BigSlideBanner
+            key="big_slide"
+            badge={config.badge}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'animation':
+        return (
+          <AnimationMoviesSection
+            key="animation"
+            cardSize={config.cardSize}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'latest':
+        return (
+          <LatestMoviesGridSection
+            key="latest"
+            movies={latestMovies}
+            cardSize={config.cardSize}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'radar':
+        if (!config.enabled) return null;
+        return (
+          <TrendingRadarSection
+            key="radar"
+            enabled={config.enabled}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'community':
+        if (!config.enabled) return null;
+        return (
+          <CommunityCommentSection
+            key="community"
+            enabled={config.enabled}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+      case 'upcoming':
+        if (!upcomingLoaded || upcomingMovies.length === 0) return null;
+        return (
+          <div key="upcoming" className="home-lazy-section">
+            <UpcomingMoviesSection
+              movies={upcomingMovies}
+              cardSize={config.cardSize}
+              onPlayTrailer={handlePlayTrailer}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       <Head>
@@ -123,91 +243,18 @@ export default function Home() {
       </Head>
 
       <div className="home-container bg-black text-white">
-        {/* Full-bleed cinematic hero spotlight */}
-        <HeroBanner
-          movies={featuredMovies}
-          onPlayTrailer={handlePlayTrailer}
-        />
+        {/* Full-bleed header sections (Hero Spotlight & 3D Carousel) */}
+        {HOME_SECTION_ORDER.filter((id) => ['hero', 'carousel_3d'].includes(id)).map(renderSection)}
 
-        {/* 3D Rotating Featured Carousel */}
-        <FeaturedCarousel3D
-          movies={featuredMovies}
-          loading={loading}
-          onPlayTrailer={handlePlayTrailer}
-        />
-
-        {/* Main movie section rails: easily customizable via props */}
+        {/* Dynamic section rails inside Container (order determined by HOME_SECTION_ORDER) */}
         <div className="container-fluid mt-4 px-3 px-lg-4">
-          {/* Section 1: Recommended Movies */}
-          <TopRecommendedSection
-            movies={topMovies}
-            cardSize="md"
-            loading={loading}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 2: TOP 10 Widescreen */}
-          <TrendingTop10Section
-            movies={mostViewedMovies}
-            cardSize="md"
-            loading={loading}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 3: K-Drama & C-Drama */}
-          <CountryMoviesSection
-            cardSize="md"
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Special Feature: RoPhim-style Big Slide Widescreen Banner */}
-          <BigSlideBanner
-            onPlayTrailer={handlePlayTrailer}
-            badge="ANIME SPOTLIGHT"
-          />
-
-          {/* Section 5: Animation & Anime Highlights Rail */}
-          <AnimationMoviesSection
-            cardSize="md"
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 6: Latest Movies (Single-Row Rail) */}
-          <LatestMoviesGridSection
-            movies={latestMovies}
-            cardSize="md"
-            loading={loading}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 7: Cinema Trending Radar & Genre Pulse */}
-          <TrendingRadarSection
-            enabled={true}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 8: Standalone Community Discussion & Real-time Live Buzz (Toggleable) */}
-          <CommunityCommentSection
-            enabled={true}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 9: Upcoming Movies (Lazy-loaded dynamically on scroll) */}
-          {upcomingLoaded && upcomingMovies.length > 0 && (
-            <div className="home-lazy-section">
-              <UpcomingMoviesSection
-                movies={upcomingMovies}
-                cardSize="md"
-                onPlayTrailer={handlePlayTrailer}
-              />
-            </div>
-          )}
+          {HOME_SECTION_ORDER.filter((id) => !['hero', 'carousel_3d'].includes(id)).map(renderSection)}
 
           {/* Infinite Scroll & Lazy Loading Status Indicator */}
           {(upcomingLoading || loadingMore) && (
             <div className="home-infinite-loader">
               <div className="infinite-spinner" />
-              <span className="infinite-loader-text">Đang tải thêm nội dung...</span>
+              <span className="infinite-loader-text">{t('infiniteLoading')}</span>
             </div>
           )}
 
@@ -220,7 +267,7 @@ export default function Home() {
           {!hasMore && upcomingLoaded && !upcomingLoading && !loadingMore && (
             <div className="home-end-indicator">
               <span className="end-line" />
-              <span className="end-text">Đã hiển thị toàn bộ nội dung</span>
+              <span className="end-text">{t('allLoaded')}</span>
               <span className="end-line" />
             </div>
           )}

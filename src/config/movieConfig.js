@@ -33,8 +33,8 @@ export const MOVIE_CONFIG = {
   // Flag indicating whether to use mock data for instantaneous and stable UI rendering
   useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA !== 'false',
 
-  // Base API URL for movie services
-  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'https://core-movie-service.onrender.com/api/v1',
+  // Base API URL for movie services - strictly read from environment variables to prevent leaking server addresses
+  apiBaseUrl: (process.env.NEXT_PUBLIC_CORE_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, ''),
 
   // Hero banner configurations
   hero: {

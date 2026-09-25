@@ -19,13 +19,15 @@ export const HERO_FALLBACK_BACKDROPS = [
 
 /**
  * Local fallback backdrop stored inside the repository public assets.
+ * Meticulously designed OS-style missing image / media placeholder (16:9).
  */
-export const LOCAL_DEFAULT_BACKDROP = '/img/background/movies-wall.jpg';
+export const LOCAL_DEFAULT_BACKDROP = '/img/placeholder-backdrop.svg';
 
 /**
  * Local fallback poster stored inside the repository public assets.
+ * Meticulously designed OS-style missing image / media placeholder (2:3).
  */
-export const LOCAL_DEFAULT_POSTER = '/img/Phim.png';
+export const LOCAL_DEFAULT_POSTER = '/img/placeholder-poster.svg';
 
 /**
  * Standard default values when backend attributes are null, undefined, or empty strings.
@@ -50,10 +52,10 @@ export const MOVIE_FALLBACK_DEFAULTS = {
 
 /**
  * Safely resolves the best available backdrop or poster URL for a movie.
- * Hierarchy: backdrop_url -> poster_url -> thumb_url -> index-based CDN backdrop -> local default.
+ * Hierarchy: backdrop_url -> poster_url -> thumb_url -> OS-style placeholder SVG.
  *
  * @param {Object} [movie] - Raw movie object from backend API.
- * @param {number} [fallbackIndex=0] - Index used to select diverse backdrops for carousel slides.
+ * @param {number} [fallbackIndex=0] - Index parameter preserved for signature compatibility.
  * @returns {string} Validated image URL.
  */
 export const resolveMovieBackdrop = (movie, fallbackIndex = 0) => {
@@ -74,9 +76,8 @@ export const resolveMovieBackdrop = (movie, fallbackIndex = 0) => {
     return movie.thumb_url.trim();
   }
 
-  // 4. Elegant CDN Cinema Backdrop fallback
-  const cdnIndex = Math.abs(fallbackIndex) % HERO_FALLBACK_BACKDROPS.length;
-  return HERO_FALLBACK_BACKDROPS[cdnIndex] || LOCAL_DEFAULT_BACKDROP;
+  // 4. Default OS-style missing image SVG placeholder
+  return LOCAL_DEFAULT_BACKDROP;
 };
 
 /**

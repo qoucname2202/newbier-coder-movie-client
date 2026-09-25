@@ -1,34 +1,50 @@
 /**
  * @file useHomeData.js
  * @description Centralized data management hook for the Homepage.
- * Initializes instantly with high-quality mock data to prevent white flash,
- * then fetches real data asynchronously from backend API with robust fallbacks.
+ * Seamlessly integrates with HOME_SECTIONS to provide zero-flicker instant render,
+ * clean state updates, and resilient fallbacks.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { mockMovies } from '@/mock/mockMovies';
-import { MOVIE_CONFIG, normalizeHeroMovie } from '@/config/movieConfig';
+import {
+  normalizeHeroMovie,
+  resolveMovieBackdrop,
+  LOCAL_DEFAULT_POSTER
+} from '@/config/movieConfig';
+import { HOME_SECTIONS } from '@/config/homeSectionsConfig';
+import movieService from '@/API/services/movieService';
 import upcomingMovieService from '@/API/services/upcomingMovieService';
-
-const API_BASE = MOVIE_CONFIG.apiBaseUrl;
 
 /**
  * Normalizes movie data from various backend API formats into standard schema.
  * @param {Object} movie - Raw movie object from API.
+ * @param {number} [index=0] - Item index for diversified fallback backdrops.
  * @returns {Object} Normalized movie object.
  */
-const normalizeMovie = (movie) => {
+const normalizeMovie = (movie, index = 0) => {
   if (!movie) return null;
+  const poster = movie.poster_url && typeof movie.poster_url === 'string' && movie.poster_url.trim() !== ''
+    ? (movie.poster_url.startsWith('http') ? movie.poster_url : movie.poster_url)
+    : (movie.thumb_url && typeof movie.thumb_url === 'string' && movie.thumb_url.trim() !== ''
+        ? movie.thumb_url
+        : LOCAL_DEFAULT_POSTER);
+  const thumb = movie.thumb_url && typeof movie.thumb_url === 'string' && movie.thumb_url.trim() !== ''
+    ? (movie.thumb_url.startsWith('http') ? movie.thumb_url : movie.thumb_url)
+    : poster;
+
   return {
     ...movie,
-    _id: movie._id || movie.id || '',
-    thumb_url: movie.thumb_url?.startsWith('http') ? movie.thumb_url : `${movie.thumb_url || ''}`,
-    poster_url: movie.poster_url?.startsWith('http') ? movie.poster_url : `${movie.poster_url || ''}`,
-    backdrop_url: movie.backdrop_url || movie.poster_url || movie.thumb_url || MOVIE_CONFIG.ui.defaultBackdrop
+    _id: movie._id || movie.id || `movie-${index}`,
+    name: movie.name || 'Phim Đang Cập Nhật',
+    poster_url: poster,
+    thumb_url: thumb,
+    backdrop_url: resolveMovieBackdrop(movie, index)
   };
 };
 
 export const useHomeData = () => {
+  // Instant initial states preventing white-flash
   const [featuredMovies, setFeaturedMovies] = useState(() =>
     mockMovies.slice(0, 5).map((m, idx) => normalizeHeroMovie(m, idx))
   );
@@ -54,7 +70,41 @@ export const useHomeData = () => {
   }, []);
 
   /**
-   * Fetches latest movies with pagination for the homepage grid and hero spotlight.
+   * Fetches hero spotlight movies via HOME_SECTIONS bundle.
+   */
+  const fetchHeroMovies = useCallback(async () => {
+    try {
+      const fallback = mockMovies.slice(0, HOME_SECTIONS.hero.limit);
+      const movies = await HOME_SECTIONS.hero.load(fallback);
+      if (isMountedRef.current && movies.length > 0) {
+        setFeaturedMovies(movies.map((m, idx) => normalizeHeroMovie(m, idx)));
+      }
+    } catch {
+      // Fallback is gracefully handled inside HOME_SECTIONS.hero.load
+    }
+  }, []);
+
+  /**
+   * Fetches Top 10 movies via HOME_SECTIONS bundle.
+   */
+  const fetchTop10Movies = useCallback(async () => {
+    try {
+      const fallback = mockMovies.slice(0, HOME_SECTIONS.top10.limit);
+      const movies = await HOME_SECTIONS.top10.load(fallback);
+      if (isMountedRef.current && movies.length > 0) {
+        const normalized = movies.map((m, idx) => ({
+          ...normalizeMovie(m, idx),
+          rank: idx + 1
+        }));
+        setMostViewedMovies(normalized);
+      }
+    } catch {
+      // Fallback is gracefully handled inside HOME_SECTIONS.top10.load
+    }
+  }, []);
+
+  /**
+   * Fetches latest movies with pagination for the homepage grid.
    */
   const fetchLatestMovies = useCallback(async (pageNumber = 1, isLoadMore = false) => {
     try {
@@ -64,38 +114,20 @@ export const useHomeData = () => {
         setLoading(true);
       }
 
-      const res = await fetch(`${API_BASE}/movies?page=${pageNumber}&limit=24`);
-      if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
-
-      const result = await res.json();
-      // Support both Fastify Enterprise envelope (responseData.data or responseData) and legacy (data.movies or movies)
-      const rawMovies =
-        result?.responseData?.data ||
-        (Array.isArray(result?.responseData) ? result.responseData : null) ||
-        result?.data?.movies ||
-        result?.movies ||
-        [];
+      const rawMovies = await movieService.getMoviesPage(pageNumber, 24);
 
       if (rawMovies.length > 0 && isMountedRef.current) {
-        const normalized = rawMovies.map(normalizeMovie);
+        const normalized = rawMovies.map((m, idx) => normalizeMovie(m, idx));
 
         if (pageNumber === 1) {
-          // Set featured hero spotlight using defensive normalizer with resilient cinema backdrops
-          setFeaturedMovies(rawMovies.slice(0, 5).map((m, idx) => normalizeHeroMovie(m, idx)));
-          setTopMovies(normalized.slice(5, 17));
+          setTopMovies(normalized.slice(0, 12));
           setLatestMovies(normalized);
         } else {
           setLatestMovies((prev) => [...prev, ...normalized]);
         }
-
-        const pagination = result?.responseData || result?.data?.pagination || result?.pagination;
-        if (pagination && pagination.page >= pagination.totalPages) {
-          setHasMore(false);
-        }
       }
-    } catch (error) {
-      // Backend not running or network issue: keep safe mock data
-      console.warn('[useHomeData] Backend API unavailable or cold starting, utilizing robust mock fallback.', error.message);
+    } catch {
+      // Retain existing state silently
     } finally {
       if (isMountedRef.current) {
         setLoading(false);
@@ -105,52 +137,27 @@ export const useHomeData = () => {
   }, []);
 
   /**
-   * Fetches top most viewed movies.
-   */
-  const fetchMostViewed = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_BASE}/movie-views/most-viewed?days=7&limit=10&sort=createdAt`);
-      if (!res.ok) throw new Error('Failed to fetch most viewed');
-
-      const result = await res.json();
-      const raw = result?.data?.movies || result?.movies || [];
-
-      if (raw.length > 0 && isMountedRef.current) {
-        setMostViewedMovies(raw.map(normalizeMovie));
-      }
-    } catch (err) {
-      // Keep mockMovies slice
-    }
-  }, []);
-
-  /**
-   * Lazily loads upcoming movies on demand with a 2-second visual loading buffer
-   * and a 10-second watchdog timeout to stop if no data is found.
+   * Lazily loads upcoming movies on demand with a deliberate loading buffer.
    */
   const loadUpcoming = useCallback(async () => {
     if (upcomingLoaded || upcomingLoading) return;
     setUpcomingLoading(true);
 
     const startTime = Date.now();
-    const MIN_LOADING_TIME = 2000; // 2 seconds deliberate loading buffer before rendering
-    const MAX_TIMEOUT = 10000; // 10 seconds maximum watchdog timeout
+    const MIN_LOADING_TIME = 1500;
+    const MAX_TIMEOUT = 8000;
 
     let timeoutTriggered = false;
     const timeoutTimer = setTimeout(() => {
       timeoutTriggered = true;
-      console.warn('[useHomeData] 10s timeout reached searching for upcoming movies. Stopping.');
     }, MAX_TIMEOUT);
 
     try {
       const result = await upcomingMovieService.getUpcomingMovies(1, 15);
       clearTimeout(timeoutTimer);
 
-      if (timeoutTriggered) {
-        // If 10s exceeded, stop and do not render
-        return;
-      }
+      if (timeoutTriggered) return;
 
-      // Ensure at least 2 seconds before rendering
       const elapsed = Date.now() - startTime;
       if (elapsed < MIN_LOADING_TIME) {
         await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME - elapsed));
@@ -161,7 +168,7 @@ export const useHomeData = () => {
       } else if (isMountedRef.current) {
         setUpcomingMovies(mockMovies.slice(2, 10).map(normalizeMovie));
       }
-    } catch (err) {
+    } catch {
       clearTimeout(timeoutTimer);
       const elapsed = Date.now() - startTime;
       if (elapsed < MIN_LOADING_TIME) {
@@ -179,71 +186,32 @@ export const useHomeData = () => {
     }
   }, [upcomingLoaded, upcomingLoading]);
 
-  // Initial fetch on mount (only essential above-the-fold content)
+  // Initial fetch on mount (Hero spotlight, Top 10 rail, and latest movies)
   useEffect(() => {
+    fetchHeroMovies();
+    fetchTop10Movies();
     fetchLatestMovies(1, false);
-    fetchMostViewed();
-  }, [fetchLatestMovies, fetchMostViewed]);
+  }, [fetchHeroMovies, fetchTop10Movies, fetchLatestMovies]);
 
   /**
-   * Loads the next batch of movies with a 2-second visual buffer
-   * and stops permanently if 10s timeout is reached or no more movies exist.
+   * Loads the next batch of movies for infinite scrolling.
    */
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
 
-    const startTime = Date.now();
-    const MIN_LOADING_TIME = 2000; // 2 seconds loading buffer
-    const MAX_TIMEOUT = 10000; // 10 seconds timeout
-
-    let timeoutTriggered = false;
-    const timeoutTimer = setTimeout(() => {
-      timeoutTriggered = true;
-      if (isMountedRef.current) {
-        setHasMore(false); // Stop permanently after 10s
-      }
-      console.warn('[useHomeData] 10s timeout reached for loadMore. Halting calls.');
-    }, MAX_TIMEOUT);
-
     try {
       const nextPage = page + 1;
-      const res = await fetch(`${API_BASE}/movies?page=${nextPage}&limit=24`);
-      clearTimeout(timeoutTimer);
+      const rawMovies = await movieService.getMoviesPage(nextPage, 24);
 
-      if (timeoutTriggered) return;
-
-      const elapsed = Date.now() - startTime;
-      if (elapsed < MIN_LOADING_TIME) {
-        await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME - elapsed));
-      }
-
-      if (!res.ok) throw new Error('API failed');
-
-      const result = await res.json();
-      const rawMovies = result?.data?.movies || result?.movies || [];
-
-      if (rawMovies.length > 0 && isMountedRef.current) {
-        const normalized = rawMovies.map(normalizeMovie);
+      if (rawMovies && rawMovies.length > 0 && isMountedRef.current) {
+        const normalized = rawMovies.map((m, idx) => normalizeMovie(m, idx));
         setLatestMovies((prev) => [...prev, ...normalized]);
         setPage(nextPage);
-
-        const pagination = result?.data?.pagination || result?.pagination;
-        if (pagination && pagination.currentPage >= pagination.totalPages) {
-          setHasMore(false);
-        }
       } else if (isMountedRef.current) {
-        // No more movies found: stop permanently!
         setHasMore(false);
       }
-    } catch (error) {
-      clearTimeout(timeoutTimer);
-      const elapsed = Date.now() - startTime;
-      if (elapsed < MIN_LOADING_TIME) {
-        await new Promise((resolve) => setTimeout(resolve, MIN_LOADING_TIME - elapsed));
-      }
-
-      // If backend is unavailable or error: stop permanently to prevent infinite loops!
+    } catch {
       if (isMountedRef.current) {
         setHasMore(false);
       }
@@ -267,7 +235,10 @@ export const useHomeData = () => {
     loadingMore,
     hasMore,
     page,
-    loadMore
+    loadMore,
+    fetchHeroMovies,
+    fetchTop10Movies,
+    fetchMostViewed: fetchTop10Movies
   };
 };
 
