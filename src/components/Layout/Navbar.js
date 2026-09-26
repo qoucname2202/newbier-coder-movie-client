@@ -31,6 +31,7 @@ import searchSuggestionService from "../../API/services/searchSuggestionService"
 import FeedbackForm from "../Feedback/FeedbackForm";
 import movieService, { safeFetchJson, extractMovieList } from "@/API/services/movieService";
 import { LOCAL_DEFAULT_POSTER } from "@/config/movieFallbackConfig";
+import { TMDB_CONFIG } from "@/config/systemConfig";
 
 const GENRE_DROPDOWN_ITEMS = [
   { name: 'Hành Động', slug: 'hanh-dong' },
@@ -175,9 +176,6 @@ const Navbar = () => {
     return () => window.removeEventListener('resize', updateIndicator);
   }, [router.pathname, router.query]);
 
-  // Live search fetcher for movies and actors
-  const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '5739ebb7d66fa1dd775f806325ab4067';
-
   const fetchLiveSearch = async (queryText) => {
     const q = (queryText || '').trim();
     setSearchDropdownLoading(true);
@@ -187,7 +185,7 @@ const Navbar = () => {
         // When empty, show latest spotlight movies and top popular performers
         const [latestMovies, tmdbActors] = await Promise.all([
           movieService.getHeroMovies(5).catch(() => []),
-          fetch(`https://api.themoviedb.org/3/person/popular?api_key=${TMDB_KEY}&language=vi-VN&page=1`)
+          fetch(`${TMDB_CONFIG.baseUrl}/person/popular?api_key=${TMDB_CONFIG.apiKey}&language=vi-VN&page=1`)
             .then(res => res.ok ? res.json() : { results: [] })
             .then(data => (data.results || []).slice(0, 4))
             .catch(() => [])
@@ -206,7 +204,7 @@ const Navbar = () => {
                 .then(extractMovieList);
             })
             .catch(() => []),
-          fetch(`https://api.themoviedb.org/3/search/person?api_key=${TMDB_KEY}&query=${encodeURIComponent(q)}&language=vi-VN&page=1`)
+          fetch(`${TMDB_CONFIG.baseUrl}/search/person?api_key=${TMDB_CONFIG.apiKey}&query=${encodeURIComponent(q)}&language=vi-VN&page=1`)
             .then(res => res.ok ? res.json() : { results: [] })
             .then(data => (data.results || []).slice(0, 4))
             .catch(() => [])
@@ -465,7 +463,7 @@ const Navbar = () => {
                   <div className="search-items-list">
                     {searchActorsResult.map((actor) => {
                       const actorAvatar = actor.profile_path
-                        ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                        ? TMDB_CONFIG.getImageUrl(actor.profile_path, 'w185', '/img/avatar.png')
                         : '/img/avatar.png';
                       const actorName = actor.name || actor.original_name || 'Diễn viên';
                       const actorRole = actor.known_for_department === 'Acting'

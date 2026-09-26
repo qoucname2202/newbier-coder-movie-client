@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { TMDB_CONFIG, YOUTUBE_CONFIG } from '@/config/systemConfig';
 
 /**
  * @file TrailerModal.js
@@ -58,12 +59,12 @@ export default function TrailerModal({ movie, onClose }) {
     if (rawTrailer) {
       const ytId = extractYouTubeId(rawTrailer);
       if (ytId) {
-        setTrailerEmbedUrl(`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&modestbranding=1`);
+        setTrailerEmbedUrl(YOUTUBE_CONFIG.getEmbedUrl(ytId));
         setLoading(false);
         return () => window.removeEventListener('keydown', handleKeyDown);
       }
 
-      // Check if it's already an embed link (e.g. Dailymotion embed or Vimeo)
+      // Check if it's already an embed link (e.g. Vimeo or custom player)
       if (typeof rawTrailer === 'string' && rawTrailer.includes('embed')) {
         const separator = rawTrailer.includes('?') ? '&' : '?';
         setTrailerEmbedUrl(`${rawTrailer}${separator}autoplay=1`);
@@ -80,14 +81,13 @@ export default function TrailerModal({ movie, onClose }) {
     )}`;
     setFallbackSearchUrl(youtubeSearchQuery);
 
-    const tmdbApiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY || '5739ebb7d66fa1dd775f806325ab4067';
     const searchQuery = encodeURIComponent(originTitle || movieTitle);
 
     const fetchTrailerFromTMDB = async () => {
       try {
         // Search movie on TMDB
         const searchRes = await fetch(
-          `https://api.themoviedb.org/3/search/movie?query=${searchQuery}&api_key=${tmdbApiKey}&include_adult=false`
+          `${TMDB_CONFIG.baseUrl}/search/movie?query=${searchQuery}&api_key=${TMDB_CONFIG.apiKey}&include_adult=false`
         );
         if (!searchRes.ok) throw new Error('TMDB Search failed');
         const searchData = await searchRes.json();
@@ -97,14 +97,14 @@ export default function TrailerModal({ movie, onClose }) {
         // If not found in movies, check TV series
         if (!tmdbId && movie?.type === 'series') {
           const tvRes = await fetch(
-            `https://api.themoviedb.org/3/search/tv?query=${searchQuery}&api_key=${tmdbApiKey}&include_adult=false`
+            `${TMDB_CONFIG.baseUrl}/search/tv?query=${searchQuery}&api_key=${TMDB_CONFIG.apiKey}&include_adult=false`
           );
           if (tvRes.ok) {
             const tvData = await tvRes.json();
             tmdbId = tvData.results?.[0]?.id;
             if (tmdbId) {
               const tvVideosRes = await fetch(
-                `https://api.themoviedb.org/3/tv/${tmdbId}/videos?api_key=${tmdbApiKey}`
+                `${TMDB_CONFIG.baseUrl}/tv/${tmdbId}/videos?api_key=${TMDB_CONFIG.apiKey}`
               );
               if (tvVideosRes.ok) {
                 const tvVideos = await tvVideosRes.json();
@@ -113,7 +113,7 @@ export default function TrailerModal({ movie, onClose }) {
                     (v) => (v.type === 'Trailer' || v.type === 'Teaser') && v.site === 'YouTube'
                   ) || tvVideos.results?.[0];
                 if (trailer?.key && isSubscribed) {
-                  setTrailerEmbedUrl(`https://www.youtube.com/embed/${trailer.key}?autoplay=1&rel=0&modestbranding=1`);
+                  setTrailerEmbedUrl(YOUTUBE_CONFIG.getEmbedUrl(trailer.key));
                   setLoading(false);
                   return;
                 }
@@ -124,7 +124,7 @@ export default function TrailerModal({ movie, onClose }) {
 
         if (tmdbId) {
           const videosRes = await fetch(
-            `https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${tmdbApiKey}`
+            `${TMDB_CONFIG.baseUrl}/movie/${tmdbId}/videos?api_key=${TMDB_CONFIG.apiKey}`
           );
           if (videosRes.ok) {
             const videoData = await videosRes.json();
@@ -134,26 +134,10 @@ export default function TrailerModal({ movie, onClose }) {
               ) || videoData.results?.[0];
 
             if (trailer?.key && isSubscribed) {
-              setTrailerEmbedUrl(`https://www.youtube.com/embed/${trailer.key}?autoplay=1&rel=0&modestbranding=1`);
+              setTrailerEmbedUrl(YOUTUBE_CONFIG.getEmbedUrl(trailer.key));
               setLoading(false);
               return;
             }
-          }
-        }
-
-        // 3. Backup: search Dailymotion if TMDB yields no trailer
-        const dmRes = await fetch(
-          `https://api.dailymotion.com/videos?fields=id,title&search=${encodeURIComponent(
-            movieTitle + ' trailer'
-          )}&limit=1`
-        );
-        if (dmRes.ok) {
-          const dmData = await dmRes.json();
-          if (dmData.list && dmData.list.length > 0 && isSubscribed) {
-            const dmId = dmData.list[0].id;
-            setTrailerEmbedUrl(`https://www.dailymotion.com/embed/video/${dmId}?autoplay=1`);
-            setLoading(false);
-            return;
           }
         }
 

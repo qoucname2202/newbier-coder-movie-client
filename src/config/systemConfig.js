@@ -44,7 +44,42 @@ export const SYSTEM_CONFIG = {
     defaultBackdrop: LOCAL_DEFAULT_BACKDROP,
     heroAutoPlayInterval: parseInt(process.env.NEXT_PUBLIC_HERO_AUTOPLAY_INTERVAL || '6000', 10),
     heroDescLimit: parseInt(process.env.NEXT_PUBLIC_HERO_DESC_LIMIT || '220', 10)
+  },
+
+  // TMDB External API Configuration
+  tmdb: {
+    apiKey: process.env.NEXT_PUBLIC_TMDB_API_KEY || '5739ebb7d66fa1dd775f806325ab4067',
+    authToken: process.env.NEXT_PUBLIC_TMDB_AUTH_TOKEN || '',
+    baseUrl: (process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://api.themoviedb.org/3').replace(/\/+$/, ''),
+    imageBaseUrl: (process.env.NEXT_PUBLIC_TMDB_IMAGE_URL || 'https://image.tmdb.org/t/p').replace(/\/+$/, ''),
+    imageSizes: {
+      avatar: 'w185',
+      poster: 'w500',
+      backdrop: 'w1280',
+      original: 'original'
+    },
+    // Helper to get formatted TMDB image URL with fallback
+    getImageUrl: (path, size = 'w500', fallback = '/img/default-poster.jpg') => {
+      if (!path) return fallback;
+      if (path.startsWith('http')) return path;
+      const cleanPath = path.startsWith('/') ? path : `/${path}`;
+      const base = (process.env.NEXT_PUBLIC_TMDB_IMAGE_URL || 'https://image.tmdb.org/t/p').replace(/\/+$/, '');
+      return `${base}/${size}${cleanPath}`;
+    }
+  },
+
+  // YouTube Configuration
+  youtube: {
+    embedBaseUrl: 'https://www.youtube.com/embed',
+    watchBaseUrl: 'https://www.youtube.com/watch?v=',
+    getEmbedUrl: (videoKey, params = 'autoplay=1&rel=0&modestbranding=1') => {
+      if (!videoKey) return '';
+      return `https://www.youtube.com/embed/${videoKey}?${params}`;
+    }
   }
 };
+
+export const TMDB_CONFIG = SYSTEM_CONFIG.tmdb;
+export const YOUTUBE_CONFIG = SYSTEM_CONFIG.youtube;
 
 export default SYSTEM_CONFIG;

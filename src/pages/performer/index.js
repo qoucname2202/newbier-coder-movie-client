@@ -3,15 +3,12 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { FaSearch, FaUserCircle, FaStar } from 'react-icons/fa';
 import Skeleton from '@/components/UI/Skeleton';
+import { TMDB_CONFIG } from '@/config/systemConfig';
 
 export default function PerformerListPage() {
   const [performers, setPerformers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY || '5739ebb7d66fa1dd775f806325ab4067';
-  const baseUrl = process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://api.themoviedb.org/3';
-  const imageBase = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL || 'https://image.tmdb.org/t/p/w500';
 
   useEffect(() => {
     let isSubscribed = true;
@@ -20,8 +17,8 @@ export default function PerformerListPage() {
       setLoading(true);
       try {
         const endpoint = searchTerm.trim()
-          ? `${baseUrl}/search/person?api_key=${apiKey}&query=${encodeURIComponent(searchTerm.trim())}&language=vi-VN`
-          : `${baseUrl}/person/popular?api_key=${apiKey}&language=vi-VN&page=1`;
+          ? `${TMDB_CONFIG.baseUrl}/search/person?api_key=${TMDB_CONFIG.apiKey}&query=${encodeURIComponent(searchTerm.trim())}&language=vi-VN`
+          : `${TMDB_CONFIG.baseUrl}/person/popular?api_key=${TMDB_CONFIG.apiKey}&language=vi-VN&page=1`;
 
         const res = await fetch(endpoint).then((r) => r.json()).catch(() => null);
         if (isSubscribed && res?.results) {
@@ -39,7 +36,7 @@ export default function PerformerListPage() {
       isSubscribed = false;
       clearTimeout(timer);
     };
-  }, [searchTerm, apiKey, baseUrl]);
+  }, [searchTerm]);
 
   return (
     <>
@@ -84,7 +81,7 @@ export default function PerformerListPage() {
         ) : performers.length > 0 ? (
           <div className="row g-3 g-lg-4">
             {performers.map((person) => {
-              const photo = person.profile_path ? `${imageBase}${person.profile_path}` : '/img/user-avatar.png';
+              const photo = TMDB_CONFIG.getImageUrl(person.profile_path, 'w500', '/img/user-avatar.png');
               const knownFor = person.known_for?.map((k) => k.title || k.name).filter(Boolean).slice(0, 2).join(', ');
 
               return (
