@@ -64,7 +64,6 @@ export default function MovieDetailPage({ initialSlug }) {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner} />
-        <p className={styles.loadingText}>Đang chuẩn bị không gian rạp chiếu...</p>
       </div>
     );
   }

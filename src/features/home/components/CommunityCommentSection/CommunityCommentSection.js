@@ -3,6 +3,7 @@ import Link from 'next/link';
 import SectionHeader from '@/components/common/MovieSection/SectionHeader';
 import commentService from '@/API/services/commentService';
 import { mockLiveBuzzComments } from '@/mock/mockComments';
+import { LOCAL_DEFAULT_BACKDROP } from '@/config/movieConfig';
 import styles from './CommunityCommentSection.module.css';
 
 /**
@@ -267,7 +268,7 @@ export default function CommunityCommentSection({ enabled = true }) {
           loading="lazy"
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg';
+            e.currentTarget.src = LOCAL_DEFAULT_BACKDROP;
           }}
         />
 
