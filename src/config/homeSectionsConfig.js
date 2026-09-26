@@ -11,6 +11,7 @@
  */
 
 import movieService from '@/API/services/movieService';
+import { SYSTEM_CONFIG } from './systemConfig';
 
 /**
  * Global Batch Loading Timing Configuration.
@@ -70,8 +71,8 @@ export const HOME_I18N = {
   }
 };
 
-// Current active locale (defaults to 'vi')
-export const CURRENT_LOCALE = process.env.NEXT_PUBLIC_LOCALE || 'vi';
+// Current active locale (synchronized with SYSTEM_CONFIG)
+export const CURRENT_LOCALE = SYSTEM_CONFIG.locale || 'vi';
 export const t = (key) => (HOME_I18N[CURRENT_LOCALE] || HOME_I18N.vi)[key] || key;
 
 /**
@@ -83,7 +84,7 @@ export const t = (key) => (HOME_I18N[CURRENT_LOCALE] || HOME_I18N.vi)[key] || ke
  * @returns {Promise<Array>}
  */
 export async function fetchFirstAvailable(steps = [], fallback = []) {
-  const mode = process.env.NEXT_PUBLIC_DATA_MODE || 'auto';
+  const mode = SYSTEM_CONFIG.dataMode || 'auto';
   if (mode === 'mock_only') return fallback;
 
   for (const step of steps) {
@@ -99,79 +100,78 @@ export async function fetchFirstAvailable(steps = [], fallback = []) {
 }
 
 /**
- * Section Bundles Registry.
- * Centralizes all behaviors, layout modes, props, limits, data loaders, and loading breakpoints.
- * 
- * Property explanation:
- * - enabled: boolean (true = active, false = hidden completely)
- * - isFullWidth: boolean (true = 100vw full bleed, false = container-fluid margin)
- * - minHeight: number (placeholder height before batch loads)
- * - delayMs: number (optional override for waiting time before revealing this batch)
- * - loadAfterScroll: boolean
- *     -> false: Loads in batch together with preceding sections (Tải kèm).
- *     -> true:  Sets a scroll breakpoint (Điểm dừng). Pauses loading until user scrolls to this position.
+ * Factory for creating Section Configurations with consistent schema defaults.
+ *
+ * @param {Object} options - Section configuration overrides
+ * @returns {Object} Standardized section definition
  */
-export const HOME_SECTIONS = {
-  // === BATCH 1: CRITICAL INITIAL VIEWPORT (Loaded immediately on page open) ===
-  hero: {
-    id: 'hero',
-    enabled: true,
-    isFullWidth: true,
-    minHeight: 520,
-    limit: 6,
-    loadAfterScroll: false, // Loads immediately
-    load: (mock = []) => fetchFirstAvailable([
-      () => movieService.getHeroMovies(6),
-      () => movieService.getMoviesPage(1, 6)
-    ], mock)
-  },
-
-  carousel_3d: {
-    id: 'carousel_3d',
-    enabled: true,
-    isFullWidth: true,
-    minHeight: 380,
-    loadAfterScroll: false // Loads in batch with hero
-  },
-
-  recommended: {
-    id: 'recommended',
+export function defineSection(options) {
+  return {
     enabled: true,
     isFullWidth: false,
     minHeight: 320,
     cardSize: 'md',
+    limit: 20,
+    loadAfterScroll: false,
+    delayMs: BATCH_LOADING_CONFIG.delayMs,
+    ...options
+  };
+}
+
+/**
+ * Section Bundles Registry.
+ * Centralizes all behaviors, layout modes, props, limits, data loaders, and loading breakpoints.
+ */
+export const HOME_SECTIONS = {
+  // === BATCH 1: CRITICAL INITIAL VIEWPORT (Loaded immediately on page open) ===
+  hero: defineSection({
+    id: 'hero',
+    isFullWidth: true,
+    minHeight: 520,
+    limit: 6,
+    loadAfterScroll: false,
+    load: (mock = []) => fetchFirstAvailable([
+      () => movieService.getHeroMovies(6),
+      () => movieService.getMoviesPage(1, 6)
+    ], mock)
+  }),
+
+  carousel_3d: defineSection({
+    id: 'carousel_3d',
+    isFullWidth: true,
+    minHeight: 380,
+    loadAfterScroll: false
+  }),
+
+  recommended: defineSection({
+    id: 'recommended',
+    minHeight: 320,
     limit: 12,
-    loadAfterScroll: false, // Loads in batch with hero
+    loadAfterScroll: false,
     load: (mock = []) => fetchFirstAvailable([
       () => movieService.getMoviesPage(1, 12)
     ], mock)
-  },
+  }),
 
-  top10: {
+  top10: defineSection({
     id: 'top10',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 280,
-    cardSize: 'md',
     limit: 10,
     badge: t('top10Badge'),
-    loadAfterScroll: false, // Loads in batch with hero
+    loadAfterScroll: false,
     load: (mock = []) => fetchFirstAvailable([
       () => movieService.getTrendingMovies(),
       () => movieService.getTopRatedMovies(),
       () => movieService.getMoviesPage(1, 10)
     ], mock)
-  },
+  }),
 
   // === BATCH 2: SCROLL BREAKPOINT 1 (Pauses until user scrolls past Batch 1) ===
-  country: {
+  country: defineSection({
     id: 'country',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 320,
-    cardSize: 'md',
-    loadAfterScroll: true, // BREAKPOINT 1: Pauses until scrolled to!
-    delayMs: 2000, // Tùy chỉnh thời gian đợi hiển thị: 2000ms (2 giây)
+    loadAfterScroll: true, // BREAKPOINT 1: Pauses until scrolled to
+    delayMs: 2000,
     rails: [
       {
         id: 'korean',
@@ -196,12 +196,10 @@ export const HOME_SECTIONS = {
         ], fallback)
       }
     ]
-  },
+  }),
 
-  big_slide: {
+  big_slide: defineSection({
     id: 'big_slide',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 360,
     title: t('bigSlideTitle'),
     badge: t('bigSlideBadge'),
@@ -214,14 +212,11 @@ export const HOME_SECTIONS = {
       () => movieService.getMoviesByCategory('hoat-hinh', 6),
       () => movieService.getHeroMovies(6)
     ], mock)
-  },
+  }),
 
-  animation: {
+  animation: defineSection({
     id: 'animation',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 320,
-    cardSize: 'md',
     title: t('animationTitle'),
     badge: t('animationBadge'),
     categorySlug: 'hoat-hinh',
@@ -231,53 +226,43 @@ export const HOME_SECTIONS = {
     load: (mock = []) => fetchFirstAvailable([
       () => movieService.getMoviesByCategory('hoat-hinh', 20)
     ], mock)
-  },
+  }),
 
   // === BATCH 3: SCROLL BREAKPOINT 2 (Pauses until user scrolls past Batch 2) ===
-  latest: {
+  latest: defineSection({
     id: 'latest',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 480,
-    cardSize: 'md',
     limit: 24,
-    loadAfterScroll: true, // BREAKPOINT 2: Pauses until scrolled to!
-    delayMs: 2000, // Tùy chỉnh thời gian đợi: 2 giây
+    loadAfterScroll: true, // BREAKPOINT 2: Pauses until scrolled to
+    delayMs: 2000,
     load: (page = 1, limit = 24) => movieService.getMoviesPage(page, limit)
-  },
+  }),
 
-  radar: {
+  radar: defineSection({
     id: 'radar',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 320,
     title: t('radarTitle'),
     defaultPeriod: 'week',
     defaultCategory: 'views',
     loadAfterScroll: false // Loads in batch with latest
-  },
+  }),
 
-  community: {
+  community: defineSection({
     id: 'community',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 320,
     title: t('communityTitle'),
     limit: 10,
     loadAfterScroll: false // Loads in batch with latest
-  },
+  }),
 
   // === BATCH 4: BOTTOM LAZY SECTION ===
-  upcoming: {
+  upcoming: defineSection({
     id: 'upcoming',
-    enabled: true,
-    isFullWidth: false,
     minHeight: 320,
-    cardSize: 'md',
     limit: 15,
-    loadAfterScroll: true, // 🛑 BREAKPOINT 3: Loads at bottom of page
-    delayMs: 2000 // Tùy chỉnh thời gian đợi: 2 giây
-  }
+    loadAfterScroll: true, // BREAKPOINT 3: Loads at bottom of page
+    delayMs: 2000
+  })
 };
 
 /**

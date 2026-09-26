@@ -1,8 +1,10 @@
 /**
  * @file movieConfig.js
  * @description Centralized configuration for movie pages, hero banners, and data providers.
+ * Backed by SYSTEM_CONFIG and movieFallbackConfig for unified system architecture.
  */
 
+import { SYSTEM_CONFIG } from './systemConfig';
 import {
   LOCAL_DEFAULT_BACKDROP,
   LOCAL_DEFAULT_POSTER,
@@ -24,26 +26,21 @@ export {
   resolveMovieDirectors
 } from './movieFallbackConfig';
 
-
 /**
  * Movie configuration object.
- * Reads environment variables with safe default fallbacks.
+ * Synchronized with global SYSTEM_CONFIG.
  */
 export const MOVIE_CONFIG = {
-  // Flag indicating whether to use mock data for instantaneous and stable UI rendering
-  useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA !== 'false',
+  useMockData: SYSTEM_CONFIG.useMockData,
+  apiBaseUrl: SYSTEM_CONFIG.apiBaseUrl,
+  dataMode: SYSTEM_CONFIG.dataMode,
 
-  // Base API URL for movie services - strictly read from environment variables to prevent leaking server addresses
-  apiBaseUrl: (process.env.NEXT_PUBLIC_CORE_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, ''),
-
-  // Hero banner configurations
   hero: {
-    maxDescriptionLength: parseInt(process.env.NEXT_PUBLIC_HERO_DESC_LIMIT || '220', 10),
-    autoPlayInterval: parseInt(process.env.NEXT_PUBLIC_HERO_AUTOPLAY_INTERVAL || '6000', 10),
+    maxDescriptionLength: SYSTEM_CONFIG.ui.heroDescLimit,
+    autoPlayInterval: SYSTEM_CONFIG.ui.heroAutoPlayInterval,
     defaultYear: String(MOVIE_FALLBACK_DEFAULTS.year)
   },
 
-  // Category IDs and default titles
   categories: {
     new: {
       id: 'new',
@@ -62,11 +59,10 @@ export const MOVIE_CONFIG = {
     }
   },
 
-  // UI display defaults
   ui: {
     defaultPoster: LOCAL_DEFAULT_POSTER,
     defaultBackdrop: LOCAL_DEFAULT_BACKDROP,
-    itemsPerPage: 20
+    itemsPerPage: SYSTEM_CONFIG.ui.itemsPerPage
   }
 };
 
@@ -88,3 +84,4 @@ export const isMockModeActive = () => {
   return MOVIE_CONFIG.useMockData;
 };
 
+export default MOVIE_CONFIG;
