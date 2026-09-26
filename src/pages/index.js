@@ -22,6 +22,7 @@ import {
 } from "@/features/home";
 import { TrailerModal } from "@/features/movie-detail";
 import BackToTop from "@/components/UI/BackToTop";
+import Skeleton from "@/components/UI/Skeleton";
 import { useAuth } from "@/utils/auth";
 import {
   HOME_SECTION_ORDER,
@@ -56,7 +57,7 @@ function BatchScrollSentinel({ onTrigger, delayMs = 2000 }) {
           }, delayMs);
         }
       },
-      { rootMargin: '100px 0px', threshold: 0.05 }
+      { rootMargin: '300px 0px', threshold: 0.05 }
     );
 
     observer.observe(el);
@@ -66,16 +67,36 @@ function BatchScrollSentinel({ onTrigger, delayMs = 2000 }) {
   return (
     <div
       ref={ref}
-      className="container-fluid text-center py-5"
-      style={{ minHeight: '120px' }}
+      className="container-fluid px-3 px-lg-4 py-4 section-layout-frame"
+      style={{ minHeight: '340px' }}
     >
-      <div className="d-flex align-items-center justify-content-center gap-3">
-        <div className="spinner-border text-danger" role="status" style={{ width: '1.8rem', height: '1.8rem' }}>
-          <span className="visually-hidden">Loading next batch...</span>
+      <div className="d-flex align-items-center justify-content-between mb-3 px-1">
+        <div className="d-flex align-items-center gap-2">
+          <Skeleton width="4px" height="22px" borderRadius="3px" />
+          <Skeleton width="200px" height="24px" borderRadius="4px" />
         </div>
-        <span className="text-secondary" style={{ fontSize: '0.95rem', fontWeight: 500 }}>
-          {/* {t('infiniteLoading')} */}
-        </span>
+        <div className="d-flex align-items-center gap-2">
+          <div className="spinner-border text-danger spinner-border-sm" role="status" />
+          <span className="text-secondary small">Đang chuẩn bị nội dung...</span>
+        </div>
+      </div>
+      <div className="d-flex gap-2 gap-sm-3 overflow-hidden py-1">
+        {[...Array(5)].map((_, i) => (
+          <div key={`sentinel-skel-${i}`} style={{ flex: '0 0 calc(20% - 0.8rem)', minWidth: 0 }}>
+            <div className="card h-100 bg-dark border-0 rounded-3 overflow-hidden">
+              <div style={{ aspectRatio: '2 / 3', width: '100%', overflow: 'hidden' }}>
+                <Skeleton height="100%" width="100%" borderRadius="8px" />
+              </div>
+              <div className="p-2">
+                <Skeleton height="16px" width="85%" />
+                <div className="mt-2 d-flex justify-content-between">
+                  <Skeleton height="13px" width="45%" />
+                  <Skeleton height="13px" width="30%" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -210,6 +231,7 @@ export default function Home() {
         content = (
           <HeroBanner
             movies={featuredMovies}
+            loading={loading}
             onPlayTrailer={handlePlayTrailer}
           />
         );
@@ -261,6 +283,7 @@ export default function Home() {
             viewAllHref={config.viewAllHref}
             autoPlayInterval={config.autoPlayInterval}
             movies={animeSpotlightMovies}
+            loading={loading}
             onPlayTrailer={handlePlayTrailer}
           />
         );
@@ -324,11 +347,22 @@ export default function Home() {
 
     if (!content) return null;
 
-    // Wrap in standard layout container if not full-width
+    // Wrap in standard layout container with layout preservation
+    const minHeightPx = config.minHeight || 320;
     return config.isFullWidth ? (
-      <div key={sectionId} className="w-100">{content}</div>
+      <div
+        key={sectionId}
+        className="w-100 section-layout-frame"
+        style={{ minHeight: `${minHeightPx}px` }}
+      >
+        {content}
+      </div>
     ) : (
-      <div key={sectionId} className="container-fluid mt-4 px-3 px-lg-4">
+      <div
+        key={sectionId}
+        className="container-fluid mt-4 px-3 px-lg-4 section-layout-frame"
+        style={{ minHeight: `${minHeightPx}px` }}
+      >
         {content}
       </div>
     );
@@ -421,6 +455,20 @@ export default function Home() {
           padding: 0;
           width: 100%;
           overflow-x: hidden;
+        }
+
+        .section-layout-frame {
+          contain-intrinsic-size: auto 320px;
+          animation: fadeInFrame 0.35s ease-out;
+        }
+
+        @keyframes fadeInFrame {
+          from {
+            opacity: 0.85;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         .bottom-scroll-sentinel {

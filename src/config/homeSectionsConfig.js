@@ -84,7 +84,7 @@ export const t = (key) => (HOME_I18N[CURRENT_LOCALE] || HOME_I18N.vi)[key] || ke
  * @returns {Promise<Array>}
  */
 export async function fetchFirstAvailable(steps = [], fallback = []) {
-  const mode = SYSTEM_CONFIG.dataMode || 'auto';
+  const mode = SYSTEM_CONFIG.dataMode || 'api_only';
   if (mode === 'mock_only') return fallback;
 
   for (const step of steps) {

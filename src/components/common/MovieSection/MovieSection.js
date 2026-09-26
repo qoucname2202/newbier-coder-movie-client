@@ -320,34 +320,76 @@ export default function MovieSection({
           )}
         </div>
       ) : (
-        /* 2. CAROUSEL SLIDER MODE (Original react-slick) */
-        <div className={styles.sliderContainer}>
-          <Slider
-            ref={sliderRef}
-            key={`carousel-${variant}-${mounted ? (isMobile ? 'm' : 'd') : 's'}`}
-            {...currentSettings}
-          >
-            {movies.map((movie, index) => (
+        /* 2. CAROUSEL SLIDER MODE (Original react-slick with Preserved Skeleton Rail) */
+        loading && (!movies || movies.length === 0) ? (
+          <div className="movie-rail-skeleton-track d-flex gap-2 gap-sm-3 overflow-hidden py-1">
+            {[...Array(mounted && isMobile ? 2 : (isHorizontal ? 4 : 5))].map((_, i) => (
               <div
-                key={movie._id || movie.slug || index}
-                className={styles.sliderItem}
+                key={`rail-skel-${i}`}
+                style={{
+                  flex: isHorizontal
+                    ? (mounted && isMobile ? '0 0 75%' : '0 0 calc(28.5% - 0.75rem)')
+                    : (mounted && isMobile ? '0 0 calc(50% - 0.5rem)' : '0 0 calc(20% - 0.8rem)'),
+                  minWidth: 0
+                }}
               >
                 {isHorizontal ? (
-                  <MovieCardHorizontal
-                    movie={movie}
-                    rank={index + 1}
-                    onPlayTrailer={onPlayTrailer}
-                  />
+                  <div className="card h-100 bg-dark border-0 rounded-3 overflow-hidden">
+                    <Skeleton height="175px" borderRadius="8px" />
+                    <div className="p-2">
+                      <Skeleton height="18px" width="80%" />
+                      <div className="mt-2 d-flex gap-2">
+                        <Skeleton height="14px" width="40%" />
+                        <Skeleton height="14px" width="30%" />
+                      </div>
+                    </div>
+                  </div>
                 ) : (
-                  <MovieCardVertical
-                    movie={movie}
-                    onPlayTrailer={onPlayTrailer}
-                  />
+                  <div className="card h-100 bg-dark border-0 rounded-3 overflow-hidden">
+                    <div style={{ aspectRatio: '2 / 3', width: '100%', overflow: 'hidden' }}>
+                      <Skeleton height="100%" width="100%" borderRadius="8px" />
+                    </div>
+                    <div className="p-2">
+                      <Skeleton height="16px" width="85%" />
+                      <div className="mt-2 d-flex justify-content-between">
+                        <Skeleton height="13px" width="45%" />
+                        <Skeleton height="13px" width="30%" />
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
-          </Slider>
-        </div>
+          </div>
+        ) : (
+          <div className={styles.sliderContainer}>
+            <Slider
+              ref={sliderRef}
+              key={`carousel-${variant}-${mounted ? (isMobile ? 'm' : 'd') : 's'}`}
+              {...currentSettings}
+            >
+              {movies.map((movie, index) => (
+                <div
+                  key={movie._id || movie.slug || index}
+                  className={styles.sliderItem}
+                >
+                  {isHorizontal ? (
+                    <MovieCardHorizontal
+                      movie={movie}
+                      rank={index + 1}
+                      onPlayTrailer={onPlayTrailer}
+                    />
+                  ) : (
+                    <MovieCardVertical
+                      movie={movie}
+                      onPlayTrailer={onPlayTrailer}
+                    />
+                  )}
+                </div>
+              ))}
+            </Slider>
+          </div>
+        )
       )}
 
       <style jsx global>{`
