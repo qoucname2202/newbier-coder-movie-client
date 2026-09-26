@@ -9,7 +9,7 @@ export const BigSlideBannerSkeleton = ({ title = "Tiêu Điểm Anime" }) => (
     {title && (
       <SectionHeader
         title={title}
-        badge="ĐỘC BẢN"
+        // badge="ĐỘC BẢN"
         viewAllHref="/the-loai/hoat-hinh"
         viewAllText="Xem tất cả anime"
       />
@@ -134,7 +134,7 @@ export default function BigSlideBanner({
       {title && (
         <SectionHeader
           title={title}
-          badge="ĐỘC BẢN"
+          // badge="ĐỘC BẢN"
           viewAllHref={viewAllHref}
           viewAllText="Xem tất cả anime"
         />

@@ -2,62 +2,37 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { 
   FaSearch, 
-  FaComment, 
   FaBars, 
   FaTimes, 
-  FaHome, 
   FaFilm, 
   FaTv, 
   FaHeart, 
   FaBookmark, 
   FaHistory, 
   FaSignOutAlt,
-  FaBell, 
   FaUserCircle, 
-  FaPlay, 
-  FaEye, 
-  FaTrash, 
   FaTimesCircle, 
-  FaLightbulb,
-  FaChevronDown,
-  FaCalendarAlt,
-  FaGlobe,
-  FaCompass
+  FaChevronDown
 } from "react-icons/fa";
 import { useRouter } from "next/router";
 import { useAuth } from "../../utils/auth";
 import searchHistoryService from "../../API/services/searchHistoryService";
-import searchSuggestionService from "../../API/services/searchSuggestionService";
 import FeedbackForm from "../Feedback/FeedbackForm";
 import movieService, { safeFetchJson, extractMovieList } from "@/API/services/movieService";
 import { LOCAL_DEFAULT_POSTER } from "@/config/movieFallbackConfig";
 import { TMDB_CONFIG } from "@/config/systemConfig";
+import { 
+  MAIN_NAV_ITEMS, 
+  USER_NAV_ITEMS, 
+  NAVBAR_SEARCH_CONFIG 
+} from "@/config/navigationConfig";
 
-const GENRE_DROPDOWN_ITEMS = [
-  { name: 'Hành Động', slug: 'hanh-dong' },
-  { name: 'Cổ Trang', slug: 'co-trang' },
-  { name: 'Tình Cảm', slug: 'tinh-cam' },
-  { name: 'Kinh Dị', slug: 'kinh-di' },
-  { name: 'Hài Hước', slug: 'hai-huoc' },
-  { name: 'Hoạt Hình & Anime', slug: 'hoat-hinh' },
-  { name: 'Viễn Tưởng', slug: 'khoa-hoc-vien-tuong' },
-  { name: 'Tâm Lý', slug: 'tam-ly' },
-  { name: 'Võ Thuật', slug: 'vo-thuat' },
-  { name: 'Phiêu Lưu', slug: 'phieu-luu' },
-  { name: 'Chiến Tranh', slug: 'chien-tranh' },
-  { name: 'Thần Thoại', slug: 'than-thoai' }
-];
-
-const COUNTRY_DROPDOWN_ITEMS = [
-  { name: 'Hàn Quốc', slug: 'han-quoc', badge: 'K-Drama' },
-  { name: 'Trung Quốc', slug: 'trung-quoc', badge: 'C-Drama' },
-  { name: 'Âu Mỹ', slug: 'au-my', badge: 'Hollywood' },
-  { name: 'Nhật Bản', slug: 'nhat-ban', badge: 'J-Drama' },
-  { name: 'Thái Lan', slug: 'thai-lan', badge: 'T-Drama' },
-  { name: 'Việt Nam', slug: 'viet-nam', badge: 'V-Cinema' },
-  { name: 'Hồng Kông', slug: 'hong-kong', badge: 'HK-Cinema' },
-  { name: 'Đài Loan', slug: 'dai-loan', badge: 'TW-Drama' }
-];
+const USER_ICONS = {
+  user: <FaUserCircle className="me-2 text-primary" />,
+  heart: <FaHeart className="me-2 text-danger" />,
+  bookmark: <FaBookmark className="me-2 text-warning" />,
+  history: <FaHistory className="me-2 text-info" />
+};
 
 const getAvatarUrl = (user) => {
   if (!user) return "/img/avatar.png";
@@ -184,10 +159,10 @@ const Navbar = () => {
       if (!q) {
         // When empty, show latest spotlight movies and top popular performers
         const [latestMovies, tmdbActors] = await Promise.all([
-          movieService.getHeroMovies(5).catch(() => []),
+          movieService.getHeroMovies(NAVBAR_SEARCH_CONFIG.movieLimit).catch(() => []),
           fetch(`${TMDB_CONFIG.baseUrl}/person/popular?api_key=${TMDB_CONFIG.apiKey}&language=vi-VN&page=1`)
             .then(res => res.ok ? res.json() : { results: [] })
-            .then(data => (data.results || []).slice(0, 4))
+            .then(data => (data.results || []).slice(0, NAVBAR_SEARCH_CONFIG.actorLimit))
             .catch(() => [])
         ]);
 
@@ -196,7 +171,7 @@ const Navbar = () => {
       } else {
         // Query both backend movies and TMDB person search
         const [moviesResp, tmdbActors] = await Promise.all([
-          safeFetchJson(`/movies?search=${encodeURIComponent(q)}&limit=6`, {}, null)
+          safeFetchJson(`/movies?search=${encodeURIComponent(q)}&limit=${NAVBAR_SEARCH_CONFIG.movieLimit}`, {}, null)
             .then(res => {
               const list = extractMovieList(res);
               if (Array.isArray(list) && list.length > 0) return list;
@@ -206,7 +181,7 @@ const Navbar = () => {
             .catch(() => []),
           fetch(`${TMDB_CONFIG.baseUrl}/search/person?api_key=${TMDB_CONFIG.apiKey}&query=${encodeURIComponent(q)}&language=vi-VN&page=1`)
             .then(res => res.ok ? res.json() : { results: [] })
-            .then(data => (data.results || []).slice(0, 4))
+            .then(data => (data.results || []).slice(0, NAVBAR_SEARCH_CONFIG.actorLimit))
             .catch(() => [])
         ]);
 
@@ -231,7 +206,7 @@ const Navbar = () => {
 
     searchDebounceRef.current = setTimeout(() => {
       fetchLiveSearch(newQuery);
-    }, 250);
+    }, NAVBAR_SEARCH_CONFIG.debounceMs);
   };
 
   const handleSearch = (e) => {
@@ -625,196 +600,121 @@ const Navbar = () => {
             </button>
           </div>
 
-          {/* EXACT NAVBAR ATTRIBUTES IN SPECIFIED ORDER */}
+          {/* EXACT NAVBAR ATTRIBUTES IN SPECIFIED ORDER (FROM NAVIGATION_CONFIG) */}
           <ul className="navbar-nav align-items-lg-center mx-auto" ref={navRef}>
-            {/* 1. Chủ Đề (Dropdown) */}
-            <li
-              className={`nav-item dropdown-wrapper ${isGenreActive() ? 'active' : ''}`}
-              ref={genresDropdownRef}
-              onMouseEnter={() => setShowGenresDropdown(true)}
-              onMouseLeave={() => setShowGenresDropdown(false)}
-            >
-              <button
-                type="button"
-                className={`nav-link nav-link-btn ${isGenreActive() ? 'active' : ''}`}
-                onClick={() => setShowGenresDropdown(!showGenresDropdown)}
-                aria-expanded={showGenresDropdown}
-              >
-                <span>Chủ Đề</span>
-                <FaChevronDown className={`chevron-icon ms-1 ${showGenresDropdown ? 'rotate-180' : ''}`} />
-              </button>
+            {MAIN_NAV_ITEMS.map((navItem) => {
+              if (navItem.type === 'dropdown') {
+                const isGenres = navItem.dropdownType === 'genres';
+                const isOpen = isGenres ? showGenresDropdown : showCountriesDropdown;
+                const setIsOpen = isGenres ? setShowGenresDropdown : setShowCountriesDropdown;
+                const ref = isGenres ? genresDropdownRef : countriesDropdownRef;
+                const active = navItem.matchPrefix ? router.pathname.startsWith(navItem.matchPrefix) : false;
 
-              {/* Desktop Genres Popover */}
-              {showGenresDropdown && (
-                <div className="custom-dropdown-popover genres-popover animate-fade-in d-none d-lg-block">
-                  <div className="popover-header">
-                    <span className="popover-title">Chủ Đề & Thể Loại</span>
-                  </div>
-                  <div className="genres-grid">
-                    {GENRE_DROPDOWN_ITEMS.map((item) => (
-                      <Link
-                        key={item.slug}
-                        href={`/the-loai/${item.slug}`}
-                        className="genre-item-link"
-                        onClick={() => setShowGenresDropdown(false)}
-                      >
-                        <span className="genre-dot" />
-                        <span className="genre-label">{item.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
+                return (
+                  <li
+                    key={navItem.id}
+                    className={`nav-item dropdown-wrapper ${active ? 'active' : ''}`}
+                    ref={ref}
+                    onMouseEnter={() => setIsOpen(true)}
+                    onMouseLeave={() => setIsOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      className={`nav-link nav-link-btn ${active ? 'active' : ''}`}
+                      onClick={() => setIsOpen(!isOpen)}
+                      aria-expanded={isOpen}
+                    >
+                      <span>{navItem.label}</span>
+                      <FaChevronDown className={`chevron-icon ms-1 ${isOpen ? 'rotate-180' : ''}`} />
+                    </button>
 
-              {/* Mobile Collapsible Submenu */}
-              <div className="d-lg-none">
-                {showGenresDropdown && (
-                  <div className="mobile-submenu">
-                    {GENRE_DROPDOWN_ITEMS.map((item) => (
-                      <Link
-                        key={item.slug}
-                        href={`/the-loai/${item.slug}`}
-                        className="mobile-sublink"
-                        onClick={closeMenu}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </li>
+                    {/* Desktop Popover */}
+                    {isOpen && (
+                      <div className={`custom-dropdown-popover ${isGenres ? 'genres-popover' : 'countries-popover'} animate-fade-in d-none d-lg-block`}>
+                        <div className="popover-header">
+                          <span className="popover-title">{isGenres ? 'Chủ Đề & Thể Loại' : 'Quốc Gia Sản Xuất'}</span>
+                        </div>
+                        <div className={isGenres ? 'genres-grid' : 'countries-grid'}>
+                          {navItem.items.map((subItem) => (
+                            <Link
+                              key={subItem.slug}
+                              href={subItem.href}
+                              className={isGenres ? 'genre-item-link' : 'country-item-link'}
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {isGenres ? (
+                                <>
+                                  <span className="genre-dot" />
+                                  <span className="genre-label">{subItem.name}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="country-label">{subItem.name}</span>
+                                  {subItem.badge && <span className="country-badge">{subItem.badge}</span>}
+                                </>
+                              )}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-            {/* 2. Duyệt tìm */}
-            <li className={`nav-item ${isActive('/search') ? 'active' : ''}`}>
-              <Link
-                href="/search"
-                className={`nav-link ${isActive('/search') ? 'active' : ''}`}
-                onClick={closeMenu}
-              >
-                Duyệt tìm
-              </Link>
-            </li>
+                    {/* Mobile Submenu */}
+                    <div className="d-lg-none">
+                      {isOpen && (
+                        <div className="mobile-submenu">
+                          {navItem.items.map((subItem) => (
+                            <Link
+                              key={subItem.slug}
+                              href={subItem.href}
+                              className="mobile-sublink"
+                              onClick={closeMenu}
+                            >
+                              <span>{subItem.name}</span>
+                              {subItem.badge && !isGenres && (
+                                <span className="country-badge-mobile ms-2">{subItem.badge}</span>
+                              )}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                );
+              }
 
-            {/* 3. Phim Lẻ */}
-            <li className={`nav-item ${isActive('/movies') ? 'active' : ''}`}>
-              <Link
-                href="/movies"
-                className={`nav-link ${isActive('/movies') ? 'active' : ''}`}
-                onClick={closeMenu}
-              >
-                Phim Lẻ
-              </Link>
-            </li>
+              // Regular link
+              const active = navItem.matchExact
+                ? router.pathname === navItem.href
+                : router.pathname.startsWith(navItem.href);
 
-            {/* 4. Phim Bộ */}
-            <li className={`nav-item ${isActive('/series') ? 'active' : ''}`}>
-              <Link
-                href="/series"
-                className={`nav-link ${isActive('/series') ? 'active' : ''}`}
-                onClick={closeMenu}
-              >
-                Phim Bộ
-              </Link>
-            </li>
-
-            {/* 5. Quốc gia (Dropdown) */}
-            <li
-              className={`nav-item dropdown-wrapper ${isCountryActive() ? 'active' : ''}`}
-              ref={countriesDropdownRef}
-              onMouseEnter={() => setShowCountriesDropdown(true)}
-              onMouseLeave={() => setShowCountriesDropdown(false)}
-            >
-              <button
-                type="button"
-                className={`nav-link nav-link-btn ${isCountryActive() ? 'active' : ''}`}
-                onClick={() => setShowCountriesDropdown(!showCountriesDropdown)}
-                aria-expanded={showCountriesDropdown}
-              >
-                <span>Quốc gia</span>
-                <FaChevronDown className={`chevron-icon ms-1 ${showCountriesDropdown ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Desktop Countries Popover */}
-              {showCountriesDropdown && (
-                <div className="custom-dropdown-popover countries-popover animate-fade-in d-none d-lg-block">
-                  <div className="popover-header">
-                    <span className="popover-title">Quốc Gia Sản Xuất</span>
-                  </div>
-                  <div className="countries-grid">
-                    {COUNTRY_DROPDOWN_ITEMS.map((item) => (
-                      <Link
-                        key={item.slug}
-                        href={`/quoc-gia/${item.slug}`}
-                        className="country-item-link"
-                        onClick={() => setShowCountriesDropdown(false)}
-                      >
-                        <span className="country-label">{item.name}</span>
-                        {item.badge && <span className="country-badge">{item.badge}</span>}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Mobile Collapsible Submenu */}
-              <div className="d-lg-none">
-                {showCountriesDropdown && (
-                  <div className="mobile-submenu">
-                    {COUNTRY_DROPDOWN_ITEMS.map((item) => (
-                      <Link
-                        key={item.slug}
-                        href={`/quoc-gia/${item.slug}`}
-                        className="mobile-sublink"
-                        onClick={closeMenu}
-                      >
-                        <span>{item.name}</span>
-                        {item.badge && <span className="country-badge-mobile ms-2">{item.badge}</span>}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </li>
-
-            {/* 6. Diễn Viên */}
-            <li className={`nav-item ${isActive('/performer') ? 'active' : ''}`}>
-              <Link
-                href="/performer"
-                className={`nav-link ${isActive('/performer') ? 'active' : ''}`}
-                onClick={closeMenu}
-              >
-                Diễn Viên
-              </Link>
-            </li>
-
-            {/* 7. Lịch Chiếu */}
-            <li className={`nav-item ${isActive('/lich-chieu') ? 'active' : ''}`}>
-              <Link
-                href="/lich-chieu"
-                className={`nav-link ${isActive('/lich-chieu') ? 'active' : ''}`}
-                onClick={closeMenu}
-              >
-                Lịch Chiếu
-              </Link>
-            </li>
+              return (
+                <li key={navItem.id} className={`nav-item ${active ? 'active' : ''}`}>
+                  <Link
+                    href={navItem.href}
+                    className={`nav-link ${active ? 'active' : ''}`}
+                    onClick={closeMenu}
+                  >
+                    {navItem.label}
+                  </Link>
+                </li>
+              );
+            })}
 
             {/* MOBILE ONLY USER DASHBOARD LINKS */}
             <li className="nav-item d-lg-none border-top border-secondary pt-3 mt-3">
               {isAuthenticated ? (
                 <>
-                  <Link href="/profile" className="nav-link text-light py-2" onClick={closeMenu}>
-                    <FaUserCircle className="me-2 text-danger" /> Hồ sơ cá nhân
-                  </Link>
-                  <Link href="/favorites" className="nav-link text-light py-2" onClick={closeMenu}>
-                    <FaHeart className="me-2 text-danger" /> Phim yêu thích
-                  </Link>
-                  <Link href="/watchlater" className="nav-link text-light py-2" onClick={closeMenu}>
-                    <FaBookmark className="me-2 text-warning" /> Xem sau
-                  </Link>
-                  <Link href="/history" className="nav-link text-light py-2" onClick={closeMenu}>
-                    <FaHistory className="me-2 text-info" /> Lịch sử xem
-                  </Link>
+                  {USER_NAV_ITEMS.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className="nav-link text-light py-2"
+                      onClick={closeMenu}
+                    >
+                      {USER_ICONS[item.iconType]} {item.label}
+                    </Link>
+                  ))}
                   <button
                     onClick={() => {
                       closeMenu();
@@ -914,18 +814,18 @@ const Navbar = () => {
                 </div>
               </div>
               <hr className="dropdown-divider my-2" />
-              <button className="dropdown-item" onClick={handleProfileClick}>
-                <FaUserCircle className="me-2 text-primary" /> Hồ sơ của tôi
-              </button>
-              <button className="dropdown-item" onClick={() => { setShowUserMenu(false); router.push('/favorites'); }}>
-                <FaHeart className="me-2 text-danger" /> Phim yêu thích
-              </button>
-              <button className="dropdown-item" onClick={() => { setShowUserMenu(false); router.push('/watchlater'); }}>
-                <FaBookmark className="me-2 text-warning" /> Danh sách xem sau
-              </button>
-              <button className="dropdown-item" onClick={() => { setShowUserMenu(false); router.push('/history'); }}>
-                <FaHistory className="me-2 text-info" /> Lịch sử xem
-              </button>
+              {USER_NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  className="dropdown-item"
+                  onClick={() => {
+                    setShowUserMenu(false);
+                    router.push(item.href);
+                  }}
+                >
+                  {USER_ICONS[item.iconType]} {item.label}
+                </button>
+              ))}
               <hr className="dropdown-divider my-2" />
               <button className="dropdown-item text-danger" onClick={handleLogout}>
                 <FaSignOutAlt className="me-2" /> Đăng xuất

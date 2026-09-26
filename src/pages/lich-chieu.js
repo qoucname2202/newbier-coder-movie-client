@@ -5,16 +5,8 @@ import { FaCalendarAlt, FaPlay, FaClock, FaCheckCircle } from 'react-icons/fa';
 import movieService from '@/API/services/movieService';
 import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
 import Skeleton from '@/components/UI/Skeleton';
-
-const DAYS_OF_WEEK = [
-  { id: 1, label: 'Thứ 2', short: 'T2' },
-  { id: 2, label: 'Thứ 3', short: 'T3' },
-  { id: 3, label: 'Thứ 4', short: 'T4' },
-  { id: 4, label: 'Thứ 5', short: 'T5' },
-  { id: 5, label: 'Thứ 6', short: 'T6' },
-  { id: 6, label: 'Thứ 7', short: 'T7' },
-  { id: 0, label: 'Chủ Nhật', short: 'CN' }
-];
+import { DAYS_OF_WEEK, SCHEDULE_CONFIG } from '@/config/scheduleConfig';
+import { SEO_CONFIG } from '@/config/seoConfig';
 
 export default function ReleaseSchedulePage() {
   const [selectedDay, setSelectedDay] = useState(new Date().getDay());
@@ -27,7 +19,7 @@ export default function ReleaseSchedulePage() {
     const fetchScheduleMovies = async () => {
       setLoading(true);
       try {
-        const list = await movieService.getMoviesPage(1, 24);
+        const list = await movieService.getMoviesPage(1, SCHEDULE_CONFIG.defaultLimit);
         if (isSubscribed) {
           // Distribute movies stably across days
           const filtered = list.filter((_, idx) => idx % 7 === selectedDay);
@@ -49,8 +41,8 @@ export default function ReleaseSchedulePage() {
   return (
     <>
       <Head>
-        <title>Lịch Chiếu Phim | MovieStreaming</title>
-        <meta name="description" content="Lịch chiếu phim mới cập nhật theo ngày trong tuần, theo dõi lịch phát sóng các bộ phim bộ và phim hoạt hình hot nhất." />
+        <title>{SEO_CONFIG.formatTitle(SCHEDULE_CONFIG.pageTitle)}</title>
+        <meta name="description" content={SCHEDULE_CONFIG.pageDescription} />
       </Head>
 
       <div className="container-fluid px-3 px-lg-5 py-4" style={{ minHeight: '80vh', paddingTop: '90px' }}>

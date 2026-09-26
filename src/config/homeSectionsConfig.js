@@ -39,7 +39,7 @@ export const HOME_I18N = {
     chineseRailBadge: 'C-DRAMA',
     bigSlideTitle: 'Tiêu Điểm Anime',
     bigSlideBadge: 'ANIME SPOTLIGHT',
-    animationTitle: 'Phim Hoạt Hình & Anime Đỉnh Cao',
+    animationTitle: 'Phim Hoạt Hình & Anime',
     animationBadge: 'ANIME & CARTOON',
     latestTitle: 'Phim Mới Cập Nhật',
     radarTitle: 'Radar Xu Hướng Thể Loại',

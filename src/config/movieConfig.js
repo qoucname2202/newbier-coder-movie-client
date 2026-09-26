@@ -44,17 +44,17 @@ export const MOVIE_CONFIG = {
   categories: {
     new: {
       id: 'new',
-      title: 'Phim mới cập nhật',
+      title: 'Phim mới',
       endpoint: 'movies/latest'
     },
     series: {
       id: 'series',
-      title: 'Phim bộ đặc sắc',
+      title: 'Phim bộ',
       endpoint: 'formats/series/movies'
     },
     single: {
       id: 'single',
-      title: 'Phim lẻ chiếu rạp',
+      title: 'Phim lẻ',
       endpoint: 'formats/single/movies'
     }
   },
