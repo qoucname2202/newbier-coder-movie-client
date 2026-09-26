@@ -168,7 +168,11 @@ export const HOME_SECTIONS = {
     isFullWidth: false,
     minHeight: 360,
     badge: t('bigSlideBadge'),
-    loadAfterScroll: false // Loads in batch with country
+    loadAfterScroll: false, // Loads in batch with country
+    load: (mock = []) => fetchFirstAvailable([
+      () => movieService.getMoviesByCategory('hoat-hinh', 6),
+      () => movieService.getHeroMovies(6)
+    ], mock)
   },
 
   animation: {

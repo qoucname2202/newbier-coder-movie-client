@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { mockMovies } from '@/mock/mockMovies';
+import { mockMovies, mockAnimationMovies } from '@/mock/mockMovies';
 import {
   normalizeHeroMovie,
   resolveMovieBackdrop,
@@ -53,6 +53,7 @@ export const useHomeData = () => {
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [upcomingLoading, setUpcomingLoading] = useState(false);
   const [upcomingLoaded, setUpcomingLoaded] = useState(false);
+  const [animeSpotlightMovies, setAnimeSpotlightMovies] = useState(() => mockAnimationMovies);
   const [latestMovies, setLatestMovies] = useState(() => mockMovies);
 
   const [loading, setLoading] = useState(false);
@@ -186,12 +187,32 @@ export const useHomeData = () => {
     }
   }, [upcomingLoaded, upcomingLoading]);
 
-  // Initial fetch on mount (Hero spotlight, Top 10 rail, and latest movies)
+  /**
+   * Fetches Anime Spotlight movies via HOME_SECTIONS bundle.
+   */
+  const fetchBigSlideMovies = useCallback(async () => {
+    try {
+      const fallback = mockAnimationMovies.slice(0, HOME_SECTIONS.big_slide?.limit || 6);
+      const movies = await HOME_SECTIONS.big_slide?.load(fallback);
+      if (isMountedRef.current && Array.isArray(movies) && movies.length > 0) {
+        if (movies.length < 4) {
+          setAnimeSpotlightMovies([...movies, ...mockAnimationMovies.slice(movies.length)]);
+        } else {
+          setAnimeSpotlightMovies(movies);
+        }
+      }
+    } catch {
+      // Fallback handled gracefully
+    }
+  }, []);
+
+  // Initial fetch on mount (Hero spotlight, Top 10 rail, anime spotlight, and latest movies)
   useEffect(() => {
     fetchHeroMovies();
     fetchTop10Movies();
+    fetchBigSlideMovies();
     fetchLatestMovies(1, false);
-  }, [fetchHeroMovies, fetchTop10Movies, fetchLatestMovies]);
+  }, [fetchHeroMovies, fetchTop10Movies, fetchBigSlideMovies, fetchLatestMovies]);
 
   /**
    * Loads the next batch of movies for infinite scrolling.
@@ -230,6 +251,7 @@ export const useHomeData = () => {
     upcomingLoading,
     upcomingLoaded,
     loadUpcoming,
+    animeSpotlightMovies,
     latestMovies,
     loading,
     loadingMore,
@@ -238,6 +260,7 @@ export const useHomeData = () => {
     loadMore,
     fetchHeroMovies,
     fetchTop10Movies,
+    fetchBigSlideMovies,
     fetchMostViewed: fetchTop10Movies
   };
 };

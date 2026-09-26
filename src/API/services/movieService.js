@@ -115,10 +115,107 @@ const movieService = {
     safeFetchMovieList('/movies', undefined, { signal }),
 
   /**
-   * Fetches movies by category.
+   * Fetches movies by country slug (e.g. 'han-quoc', 'trung-quoc') with multi-tier fallback:
+   * 1. Direct country slug endpoint: `/countries/${encodeURIComponent(slug)}/movies`
+   * 2. Search query fallback: `/movies/search?q=${keyword}`
+   * 3. General movies page with client-side country tag filter
    */
-  getMoviesByCategory: (categoryId, signal) =>
-    safeFetchMovieList(`/movies/category/${categoryId}`, undefined, { signal }),
+  getMoviesByCountry: async (countrySlug, limit = 20, signal) => {
+    if (!countrySlug) return [];
+
+    const slugVariants = {
+      'han-quoc': ['hàn-quốc', 'han-quoc'],
+      'trung-quoc': ['trung-quốc', 'trung-quoc'],
+      'nhat-ban': ['nhật-bản', 'nhat-ban'],
+      'au-my': ['âu-mỹ', 'au-my'],
+      'viet-nam': ['việt-nam', 'viet-nam']
+    };
+
+    const searchKeywordMap = {
+      'han-quoc': 'han',
+      'hàn-quốc': 'han',
+      'trung-quoc': 'trung',
+      'trung-quốc': 'trung',
+      'nhat-ban': 'nhat',
+      'nhật-bản': 'nhat'
+    };
+
+    const variants = slugVariants[countrySlug] || [countrySlug];
+
+    // Tier 1: Query backend /countries/{slug}/movies
+    for (const v of variants) {
+      const list = await safeFetchMovieList(`/countries/${encodeURIComponent(v)}/movies`, limit, { signal });
+      if (Array.isArray(list) && list.length > 0) return list;
+    }
+
+    // Tier 2: Search keyword fallback
+    const keyword = searchKeywordMap[countrySlug];
+    if (keyword) {
+      const searchList = await safeFetchMovieList(`/movies/search?q=${encodeURIComponent(keyword)}`, limit, { signal });
+      if (Array.isArray(searchList) && searchList.length > 0) return searchList;
+    }
+
+    // Tier 3: Fetch general movies and filter client-side
+    const all = await safeFetchMovieList('/movies?page=1&limit=50', undefined, { signal });
+    if (Array.isArray(all) && all.length > 0) {
+      const filtered = all.filter((m) => {
+        const countryList = m.country || m.countries || [];
+        return countryList.some?.((c) => {
+          const s = (c.slug || '').toLowerCase();
+          const n = (c.name || '').toLowerCase();
+          return s.includes(countrySlug) || n.includes(countrySlug.split('-')[0]);
+        });
+      });
+      if (filtered.length > 0) {
+        return typeof limit === 'number' ? filtered.slice(0, limit) : filtered;
+      }
+    }
+
+    return [];
+  },
+
+  /**
+   * Fetches movies by category slug (e.g. 'hoat-hinh', 'hanh-dong') with multi-tier fallback:
+   * 1. Direct category slug endpoint: `/categories/${encodeURIComponent(slug)}/movies`
+   * 2. Search query fallback: `/movies/search?q=${keyword}`
+   * 3. Legacy endpoint fallback: `/movies/category/${slug}`
+   */
+  getMoviesByCategory: async (categorySlug, limit = 20, signal) => {
+    if (!categorySlug) return [];
+
+    const slugVariants = {
+      'hoat-hinh': ['hoạt-hình', 'hoat-hinh'],
+      'hanh-dong': ['hành-động', 'hanh-dong'],
+      'tinh-cam': ['tình-cảm', 'tinh-cam'],
+      'kinh-di': ['kinh-dị', 'kinh-di'],
+      'hai-huoc': ['phim-hài', 'hài-hước', 'hai-huoc'],
+      'co-trang': ['cổ-trang', 'co-trang']
+    };
+
+    const searchKeywordMap = {
+      'hoat-hinh': 'hoat',
+      'hoạt-hình': 'hoat',
+      'anime': 'anime'
+    };
+
+    const variants = slugVariants[categorySlug] || [categorySlug];
+
+    // Tier 1: Query backend /categories/{slug}/movies
+    for (const v of variants) {
+      const list = await safeFetchMovieList(`/categories/${encodeURIComponent(v)}/movies`, limit, { signal });
+      if (Array.isArray(list) && list.length > 0) return list;
+    }
+
+    // Tier 2: Search keyword fallback
+    const keyword = searchKeywordMap[categorySlug];
+    if (keyword) {
+      const searchList = await safeFetchMovieList(`/movies/search?q=${encodeURIComponent(keyword)}`, limit, { signal });
+      if (Array.isArray(searchList) && searchList.length > 0) return searchList;
+    }
+
+    // Tier 3: Legacy endpoint fallback
+    return safeFetchMovieList(`/movies/category/${categorySlug}`, limit, { signal });
+  },
 
   /**
    * Fetches full movie details by slug.

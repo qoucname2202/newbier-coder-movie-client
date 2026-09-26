@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { MovieSection } from '@/components/common/MovieSection';
 import { mockAnimationMovies } from '@/mock/mockMovies';
-import { MOVIE_CONFIG } from '@/config/movieConfig';
-
-const API_BASE = MOVIE_CONFIG.apiBaseUrl;
+import movieService from '@/API/services/movieService';
 
 /**
  * @file AnimationMoviesSection.js
  * @description Preset rail component for Anime & Animation blockbusters.
- * Uses unified single-row carousel powered by MovieSection.
+ * Uses unified single-row carousel powered by MovieSection with resilient API service fetching.
  *
  * @param {Object} props
  * @param {'sm'|'md'|'lg'} [props.cardSize='md'] - Card size preset.
@@ -27,17 +25,19 @@ export default function AnimationMoviesSection({
     const fetchAnimationMovies = async () => {
       try {
         setLoading(true);
-        // Try fetching animation/anime category or search
-        const res = await fetch(`${API_BASE}/movies?category=hoat-hinh&page=1&limit=20`);
-        if (!res.ok) throw new Error('Failed to fetch animation movies');
-        const data = await res.json();
-        const movies = data?.data?.movies || data?.movies || [];
+        const movies = await movieService.getMoviesByCategory('hoat-hinh', 20);
 
-        if (movies.length > 0 && isSubscribed) {
-          setAnimationMovies(movies);
+        if (Array.isArray(movies) && movies.length > 0 && isSubscribed) {
+          // If less than 6 items returned from search, blend with high-res mock data for a full aesthetic rail
+          if (movies.length < 6) {
+            const combined = [...movies, ...mockAnimationMovies.slice(movies.length)];
+            setAnimationMovies(combined);
+          } else {
+            setAnimationMovies(movies);
+          }
         }
-      } catch (err) {
-        // Fallback gracefully to high-res mock data
+      } catch {
+        // Fallback gracefully retains verified mock data
       } finally {
         if (isSubscribed) setLoading(false);
       }

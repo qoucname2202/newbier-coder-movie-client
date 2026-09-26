@@ -96,6 +96,7 @@ export default function Home() {
     upcomingLoaded,
     loadUpcoming,
     latestMovies,
+    animeSpotlightMovies,
     loading,
     loadingMore,
     hasMore,
@@ -255,6 +256,7 @@ export default function Home() {
         content = (
           <BigSlideBanner
             badge={config.badge}
+            movies={animeSpotlightMovies}
             onPlayTrailer={handlePlayTrailer}
           />
         );
