@@ -16,7 +16,11 @@ import styles from './CommunityCommentSection.module.css';
  * @param {Object} props
  * @param {boolean} [props.enabled=true] - Switch to toggle the section on/off.
  */
-export default function CommunityCommentSection({ enabled = true }) {
+export default function CommunityCommentSection({
+  enabled = true,
+  title = "Cộng Đồng Thảo Luận",
+  limit = 10
+}) {
   if (!enabled) return null;
 
   const [weekComments, setWeekComments] = useState([]);
@@ -35,7 +39,7 @@ export default function CommunityCommentSection({ enabled = true }) {
     let isSubscribed = true;
     const fetchWeek = async () => {
       try {
-        const data = await commentService.getTopComments({ period: 'week', limit: 10 });
+        const data = await commentService.getTopComments({ period: 'week', limit });
         if (isSubscribed && data?.comments) {
           setWeekComments(data.comments);
         }
@@ -47,7 +51,7 @@ export default function CommunityCommentSection({ enabled = true }) {
     return () => {
       isSubscribed = false;
     };
-  }, []);
+  }, [limit]);
 
   // Fetch Top Monthly or All-time Comments (Rail 2)
   useEffect(() => {

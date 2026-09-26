@@ -1,44 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { MovieSection } from '@/components/common/MovieSection';
 import { mockKoreanMovies, mockChineseMovies } from '@/mock/mockMovies';
-import movieService from '@/API/services/movieService';
+
+const DEFAULT_MOCK_MAP = {
+  korean: mockKoreanMovies,
+  chinese: mockChineseMovies
+};
 
 /**
  * @file CountryMoviesSection.js
- * @description Preset component for Country Drama rails (Korean & Chinese).
- * Powered by MovieSection base component with multi-tier resilient API fetching.
+ * @description Dynamic, config-driven component for Country Drama rails.
+ * Completely decoupled: rail titles, badges, links, and data loaders are defined in homeSectionsConfig.
  *
  * @param {Object} props
  * @param {'sm'|'md'|'lg'} [props.cardSize='md'] - Card size preset.
+ * @param {Array<Object>} [props.rails] - Custom rails definition array from config.
  * @param {Function} [props.onPlayTrailer] - Trailer playback callback.
  */
 export default function CountryMoviesSection({
   cardSize = 'md',
+  rails = [],
   onPlayTrailer
 }) {
-  const [koreanMovies, setKoreanMovies] = useState(mockKoreanMovies);
-  const [chineseMovies, setChineseMovies] = useState(mockChineseMovies);
+  const [railData, setRailData] = useState(() => {
+    const initial = {};
+    rails.forEach((rail) => {
+      initial[rail.id] = DEFAULT_MOCK_MAP[rail.id] || [];
+    });
+    return initial;
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let isSubscribed = true;
 
-    const fetchCountryMovies = async () => {
+    const fetchAllRails = async () => {
       try {
         setLoading(true);
 
-        const [krList, cnList] = await Promise.all([
-          movieService.getMoviesByCountry('han-quoc', 20),
-          movieService.getMoviesByCountry('trung-quoc', 20)
-        ]);
+        const results = await Promise.all(
+          rails.map(async (rail) => {
+            const fallback = DEFAULT_MOCK_MAP[rail.id] || [];
+            if (typeof rail.load === 'function') {
+              const data = await rail.load(fallback);
+              return { id: rail.id, data };
+            }
+            return { id: rail.id, data: fallback };
+          })
+        );
 
         if (isSubscribed) {
-          if (Array.isArray(krList) && krList.length > 0) {
-            setKoreanMovies(krList);
-          }
-          if (Array.isArray(cnList) && cnList.length > 0) {
-            setChineseMovies(cnList);
-          }
+          const updated = {};
+          results.forEach(({ id, data }) => {
+            if (Array.isArray(data) && data.length > 0) {
+              updated[id] = data;
+            }
+          });
+          setRailData((prev) => ({ ...prev, ...updated }));
         }
       } catch {
         // Safe fallback retains initial verified mock data
@@ -47,40 +65,29 @@ export default function CountryMoviesSection({
       }
     };
 
-    fetchCountryMovies();
+    fetchAllRails();
 
     return () => {
       isSubscribed = false;
     };
-  }, []);
+  }, [rails]);
 
   return (
     <div className="movie-country-rails">
-      {/* Korean Drama Rail */}
-      <MovieSection
-        title="Phim Hàn Quốc Mới"
-        badge="K-DRAMA"
-        viewAllHref="/quoc-gia/han-quoc"
-        layout="rail"
-        variant="vertical"
-        cardSize={cardSize}
-        movies={koreanMovies}
-        loading={loading}
-        onPlayTrailer={onPlayTrailer}
-      />
-
-      {/* Chinese Drama Rail */}
-      <MovieSection
-        title="Phim Trung Quốc Mới"
-        badge="C-DRAMA"
-        viewAllHref="/quoc-gia/trung-quoc"
-        layout="rail"
-        variant="vertical"
-        cardSize={cardSize}
-        movies={chineseMovies}
-        loading={loading}
-        onPlayTrailer={onPlayTrailer}
-      />
+      {rails.map((rail) => (
+        <MovieSection
+          key={rail.id}
+          title={rail.title}
+          badge={rail.badge}
+          viewAllHref={rail.viewAllHref}
+          layout="rail"
+          variant="vertical"
+          cardSize={cardSize}
+          movies={railData[rail.id] || []}
+          loading={loading}
+          onPlayTrailer={onPlayTrailer}
+        />
+      ))}
     </div>
   );
 }

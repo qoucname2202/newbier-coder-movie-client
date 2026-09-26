@@ -18,11 +18,18 @@ import styles from './TrendingRadarSection.module.css';
  * @param {Function} [props.onPlayTrailer] - Callback to play trailer modal
  * @param {boolean} [props.enabled=true] - Toggle visibility
  */
-export default function TrendingRadarSection({ onPlayTrailer, enabled = true }) {
+export default function TrendingRadarSection({
+  onPlayTrailer,
+  enabled = true,
+  title = "Radar Xu Hướng Thể Loại",
+  badge = "CHỈ SỐ ĐIỆN ẢNH",
+  defaultPeriod = 'week',
+  defaultCategory = 'views'
+}) {
   if (!enabled) return null;
 
-  const [period, setPeriod] = useState('week'); // 'week' or 'month'
-  const [activeCategory, setActiveCategory] = useState('views'); // 'views', 'favorite', 'discussed'
+  const [period, setPeriod] = useState(defaultPeriod);
+  const [activeCategory, setActiveCategory] = useState(defaultCategory);
   const [isTop10Open, setIsTop10Open] = useState(false);
   const [radarData, setRadarData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -82,8 +89,8 @@ export default function TrendingRadarSection({ onPlayTrailer, enabled = true }) 
       {/* Standard Section Header matching website cinema rails */}
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
         <SectionHeader
-          title="Bảng Xếp Hạng Xu Hướng"
-          badge="CHỈ SỐ ĐIỆN ẢNH"
+          title={title}
+          badge={badge}
         />
 
         {/* Minimalist Timeframe Switcher */}

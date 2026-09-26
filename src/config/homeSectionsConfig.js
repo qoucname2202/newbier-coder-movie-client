@@ -32,8 +32,14 @@ export const HOME_I18N = {
     top10Title: 'Phim Được Xem Nhiều Nhất',
     top10Badge: 'TOP 10',
     countryTitle: 'Phim Hàn Quốc & Trung Quốc Đặc Sắc',
+    koreanRailTitle: 'Phim Hàn Quốc Mới',
+    koreanRailBadge: 'K-DRAMA',
+    chineseRailTitle: 'Phim Trung Quốc Mới',
+    chineseRailBadge: 'C-DRAMA',
+    bigSlideTitle: 'Tiêu Điểm Anime',
     bigSlideBadge: 'ANIME SPOTLIGHT',
     animationTitle: 'Phim Hoạt Hình & Anime Đỉnh Cao',
+    animationBadge: 'ANIME & CARTOON',
     latestTitle: 'Phim Mới Cập Nhật',
     radarTitle: 'Radar Xu Hướng Thể Loại',
     communityTitle: 'Cộng Đồng Thảo Luận Trực Tuyến',
@@ -47,8 +53,14 @@ export const HOME_I18N = {
     top10Title: 'Most Viewed Movies',
     top10Badge: 'TOP 10',
     countryTitle: 'K-Drama & C-Drama Highlights',
+    koreanRailTitle: 'Trending Korean Drama',
+    koreanRailBadge: 'K-DRAMA',
+    chineseRailTitle: 'Trending Chinese Drama',
+    chineseRailBadge: 'C-DRAMA',
+    bigSlideTitle: 'Anime Spotlight',
     bigSlideBadge: 'ANIME SPOTLIGHT',
     animationTitle: 'Animation & Anime Showcase',
+    animationBadge: 'ANIME & CARTOON',
     latestTitle: 'Recently Added Movies',
     radarTitle: 'Genre Trending Radar',
     communityTitle: 'Live Community Discussion',
@@ -159,7 +171,31 @@ export const HOME_SECTIONS = {
     minHeight: 320,
     cardSize: 'md',
     loadAfterScroll: true, // BREAKPOINT 1: Pauses until scrolled to!
-    delayMs: 2000 // Tùy chỉnh thời gian đợi hiển thị: 2000ms (2 giây)
+    delayMs: 2000, // Tùy chỉnh thời gian đợi hiển thị: 2000ms (2 giây)
+    rails: [
+      {
+        id: 'korean',
+        countrySlug: 'han-quoc',
+        limit: 20,
+        title: t('koreanRailTitle'),
+        badge: t('koreanRailBadge'),
+        viewAllHref: '/quoc-gia/han-quoc',
+        load: (fallback = []) => fetchFirstAvailable([
+          () => movieService.getMoviesByCountry('han-quoc', 20)
+        ], fallback)
+      },
+      {
+        id: 'chinese',
+        countrySlug: 'trung-quoc',
+        limit: 20,
+        title: t('chineseRailTitle'),
+        badge: t('chineseRailBadge'),
+        viewAllHref: '/quoc-gia/trung-quoc',
+        load: (fallback = []) => fetchFirstAvailable([
+          () => movieService.getMoviesByCountry('trung-quoc', 20)
+        ], fallback)
+      }
+    ]
   },
 
   big_slide: {
@@ -167,7 +203,12 @@ export const HOME_SECTIONS = {
     enabled: true,
     isFullWidth: false,
     minHeight: 360,
+    title: t('bigSlideTitle'),
     badge: t('bigSlideBadge'),
+    categorySlug: 'hoat-hinh',
+    limit: 6,
+    autoPlayInterval: 7000,
+    viewAllHref: '/the-loai/hoat-hinh',
     loadAfterScroll: false, // Loads in batch with country
     load: (mock = []) => fetchFirstAvailable([
       () => movieService.getMoviesByCategory('hoat-hinh', 6),
@@ -181,7 +222,15 @@ export const HOME_SECTIONS = {
     isFullWidth: false,
     minHeight: 320,
     cardSize: 'md',
-    loadAfterScroll: false // Loads in batch with country
+    title: t('animationTitle'),
+    badge: t('animationBadge'),
+    categorySlug: 'hoat-hinh',
+    limit: 20,
+    viewAllHref: '/the-loai/hoat-hinh',
+    loadAfterScroll: false, // Loads in batch with country
+    load: (mock = []) => fetchFirstAvailable([
+      () => movieService.getMoviesByCategory('hoat-hinh', 20)
+    ], mock)
   },
 
   // === BATCH 3: SCROLL BREAKPOINT 2 (Pauses until user scrolls past Batch 2) ===
@@ -202,6 +251,9 @@ export const HOME_SECTIONS = {
     enabled: true,
     isFullWidth: false,
     minHeight: 320,
+    title: t('radarTitle'),
+    defaultPeriod: 'week',
+    defaultCategory: 'views',
     loadAfterScroll: false // Loads in batch with latest
   },
 
@@ -210,6 +262,8 @@ export const HOME_SECTIONS = {
     enabled: true,
     isFullWidth: false,
     minHeight: 320,
+    title: t('communityTitle'),
+    limit: 10,
     loadAfterScroll: false // Loads in batch with latest
   },
 

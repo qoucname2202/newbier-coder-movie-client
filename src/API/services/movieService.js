@@ -5,6 +5,10 @@
  */
 
 import { MOVIE_CONFIG } from '@/config/movieConfig';
+import {
+  resolveCountryTaxonomy,
+  resolveCategoryTaxonomy
+} from '@/config/taxonomyConfig';
 
 /**
  * Resolves API Base URL from centralized movieConfig (strictly via environment).
@@ -116,31 +120,15 @@ const movieService = {
 
   /**
    * Fetches movies by country slug (e.g. 'han-quoc', 'trung-quoc') with multi-tier fallback:
-   * 1. Direct country slug endpoint: `/countries/${encodeURIComponent(slug)}/movies`
-   * 2. Search query fallback: `/movies/search?q=${keyword}`
+   * 1. Query registered backend slug variants from taxonomyConfig
+   * 2. Search query fallback from taxonomyConfig
    * 3. General movies page with client-side country tag filter
    */
   getMoviesByCountry: async (countrySlug, limit = 20, signal) => {
     if (!countrySlug) return [];
 
-    const slugVariants = {
-      'han-quoc': ['hàn-quốc', 'han-quoc'],
-      'trung-quoc': ['trung-quốc', 'trung-quoc'],
-      'nhat-ban': ['nhật-bản', 'nhat-ban'],
-      'au-my': ['âu-mỹ', 'au-my'],
-      'viet-nam': ['việt-nam', 'viet-nam']
-    };
-
-    const searchKeywordMap = {
-      'han-quoc': 'han',
-      'hàn-quốc': 'han',
-      'trung-quoc': 'trung',
-      'trung-quốc': 'trung',
-      'nhat-ban': 'nhat',
-      'nhật-bản': 'nhat'
-    };
-
-    const variants = slugVariants[countrySlug] || [countrySlug];
+    const meta = resolveCountryTaxonomy(countrySlug);
+    const variants = meta?.backendSlugs || [countrySlug];
 
     // Tier 1: Query backend /countries/{slug}/movies
     for (const v of variants) {
@@ -149,7 +137,7 @@ const movieService = {
     }
 
     // Tier 2: Search keyword fallback
-    const keyword = searchKeywordMap[countrySlug];
+    const keyword = meta?.searchKeyword;
     if (keyword) {
       const searchList = await safeFetchMovieList(`/movies/search?q=${encodeURIComponent(keyword)}`, limit, { signal });
       if (Array.isArray(searchList) && searchList.length > 0) return searchList;
@@ -176,29 +164,15 @@ const movieService = {
 
   /**
    * Fetches movies by category slug (e.g. 'hoat-hinh', 'hanh-dong') with multi-tier fallback:
-   * 1. Direct category slug endpoint: `/categories/${encodeURIComponent(slug)}/movies`
-   * 2. Search query fallback: `/movies/search?q=${keyword}`
+   * 1. Query registered backend slug variants from taxonomyConfig
+   * 2. Search query fallback from taxonomyConfig
    * 3. Legacy endpoint fallback: `/movies/category/${slug}`
    */
   getMoviesByCategory: async (categorySlug, limit = 20, signal) => {
     if (!categorySlug) return [];
 
-    const slugVariants = {
-      'hoat-hinh': ['hoạt-hình', 'hoat-hinh'],
-      'hanh-dong': ['hành-động', 'hanh-dong'],
-      'tinh-cam': ['tình-cảm', 'tinh-cam'],
-      'kinh-di': ['kinh-dị', 'kinh-di'],
-      'hai-huoc': ['phim-hài', 'hài-hước', 'hai-huoc'],
-      'co-trang': ['cổ-trang', 'co-trang']
-    };
-
-    const searchKeywordMap = {
-      'hoat-hinh': 'hoat',
-      'hoạt-hình': 'hoat',
-      'anime': 'anime'
-    };
-
-    const variants = slugVariants[categorySlug] || [categorySlug];
+    const meta = resolveCategoryTaxonomy(categorySlug);
+    const variants = meta?.backendSlugs || [categorySlug];
 
     // Tier 1: Query backend /categories/{slug}/movies
     for (const v of variants) {
@@ -207,7 +181,7 @@ const movieService = {
     }
 
     // Tier 2: Search keyword fallback
-    const keyword = searchKeywordMap[categorySlug];
+    const keyword = meta?.searchKeyword;
     if (keyword) {
       const searchList = await safeFetchMovieList(`/movies/search?q=${encodeURIComponent(keyword)}`, limit, { signal });
       if (Array.isArray(searchList) && searchList.length > 0) return searchList;

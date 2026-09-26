@@ -248,6 +248,7 @@ export default function Home() {
         content = (
           <CountryMoviesSection
             cardSize={config.cardSize}
+            rails={config.rails}
             onPlayTrailer={handlePlayTrailer}
           />
         );
@@ -255,7 +256,10 @@ export default function Home() {
       case 'big_slide':
         content = (
           <BigSlideBanner
+            title={config.title}
             badge={config.badge}
+            viewAllHref={config.viewAllHref}
+            autoPlayInterval={config.autoPlayInterval}
             movies={animeSpotlightMovies}
             onPlayTrailer={handlePlayTrailer}
           />
@@ -265,6 +269,10 @@ export default function Home() {
         content = (
           <AnimationMoviesSection
             cardSize={config.cardSize}
+            title={config.title}
+            badge={config.badge}
+            viewAllHref={config.viewAllHref}
+            load={config.load}
             onPlayTrailer={handlePlayTrailer}
           />
         );
@@ -283,6 +291,9 @@ export default function Home() {
         content = (
           <TrendingRadarSection
             enabled={config.enabled}
+            title={config.title}
+            defaultPeriod={config.defaultPeriod}
+            defaultCategory={config.defaultCategory}
             onPlayTrailer={handlePlayTrailer}
           />
         );
@@ -291,6 +302,8 @@ export default function Home() {
         content = (
           <CommunityCommentSection
             enabled={config.enabled}
+            title={config.title}
+            limit={config.limit}
             onPlayTrailer={handlePlayTrailer}
           />
         );
