@@ -33,10 +33,9 @@ import {
 
 /**
  * Sentinel component placed between sequential section batches.
- * When scrolled into view, waits for the configured delayMs (default: 2000ms = 2s)
- * with a loading spinner before unlocking the next batch of sections.
+ * When scrolled into view, renders a rotating spinner before revealing the next batch.
  */
-function BatchScrollSentinel({ onTrigger, delayMs = 2000 }) {
+function BatchScrollSentinel({ onTrigger, delayMs = 800 }) {
   const ref = useRef(null);
   const isTriggeredRef = useRef(false);
 
@@ -51,13 +50,12 @@ function BatchScrollSentinel({ onTrigger, delayMs = 2000 }) {
           isTriggeredRef.current = true;
           observer.disconnect();
 
-          // Wait for the configured buffer delay (default: 2000ms / 2s)
           setTimeout(() => {
             onTrigger();
           }, delayMs);
         }
       },
-      { rootMargin: '300px 0px', threshold: 0.05 }
+      { rootMargin: '250px 0px', threshold: 0.05 }
     );
 
     observer.observe(el);
@@ -65,39 +63,8 @@ function BatchScrollSentinel({ onTrigger, delayMs = 2000 }) {
   }, [onTrigger, delayMs]);
 
   return (
-    <div
-      ref={ref}
-      className="container-fluid px-3 px-lg-4 py-4 section-layout-frame"
-      style={{ minHeight: '340px' }}
-    >
-      <div className="d-flex align-items-center justify-content-between mb-3 px-1">
-        <div className="d-flex align-items-center gap-2">
-          <Skeleton width="4px" height="22px" borderRadius="3px" />
-          <Skeleton width="200px" height="24px" borderRadius="4px" />
-        </div>
-        <div className="d-flex align-items-center gap-2">
-          <div className="spinner-border text-danger spinner-border-sm" role="status" />
-          <span className="text-secondary small">Đang chuẩn bị nội dung...</span>
-        </div>
-      </div>
-      <div className="d-flex gap-2 gap-sm-3 overflow-hidden py-1">
-        {[...Array(5)].map((_, i) => (
-          <div key={`sentinel-skel-${i}`} style={{ flex: '0 0 calc(20% - 0.8rem)', minWidth: 0 }}>
-            <div className="card h-100 bg-dark border-0 rounded-3 overflow-hidden">
-              <div style={{ aspectRatio: '2 / 3', width: '100%', overflow: 'hidden' }}>
-                <Skeleton height="100%" width="100%" borderRadius="8px" />
-              </div>
-              <div className="p-2">
-                <Skeleton height="16px" width="85%" />
-                <div className="mt-2 d-flex justify-content-between">
-                  <Skeleton height="13px" width="45%" />
-                  <Skeleton height="13px" width="30%" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div ref={ref} className="batch-spinner-container">
+      <div className="batch-spinner" role="status" aria-label="Đang tải nội dung..." />
     </div>
   );
 }
@@ -311,6 +278,7 @@ export default function Home() {
         );
         break;
       case 'radar':
+        if (!config.enabled) return null;
         content = (
           <TrendingRadarSection
             enabled={config.enabled}
@@ -322,6 +290,7 @@ export default function Home() {
         );
         break;
       case 'community':
+        if (!config.enabled) return null;
         content = (
           <CommunityCommentSection
             enabled={config.enabled}
@@ -332,6 +301,9 @@ export default function Home() {
         );
         break;
       case 'upcoming':
+        if (!config.enabled || (!upcomingLoading && (!upcomingMovies || upcomingMovies.length === 0))) {
+          return null;
+        }
         content = (
           <UpcomingMoviesSection
             movies={upcomingMovies}
@@ -347,13 +319,11 @@ export default function Home() {
 
     if (!content) return null;
 
-    // Wrap in standard layout container with layout preservation
-    const minHeightPx = config.minHeight || 320;
+    // Wrap in standard layout container without artificial empty min-height
     return config.isFullWidth ? (
       <div
         key={sectionId}
         className="w-100 section-layout-frame"
-        style={{ minHeight: `${minHeightPx}px` }}
       >
         {content}
       </div>
@@ -361,7 +331,6 @@ export default function Home() {
       <div
         key={sectionId}
         className="container-fluid mt-4 px-3 px-lg-4 section-layout-frame"
-        style={{ minHeight: `${minHeightPx}px` }}
       >
         {content}
       </div>
@@ -384,7 +353,7 @@ export default function Home() {
           const isUnlocked = unlockedBatches.has(batchIndex);
 
           if (!isUnlocked) {
-            // Render the trigger sentinel for the next batch in line
+            // Render the interactive load button for the next batch in line
             const isNextBatch = unlockedBatches.has(batchIndex - 1);
             if (!isNextBatch) return null;
 
@@ -458,17 +427,31 @@ export default function Home() {
         }
 
         .section-layout-frame {
-          contain-intrinsic-size: auto 320px;
           animation: fadeInFrame 0.35s ease-out;
         }
 
-        @keyframes fadeInFrame {
-          from {
-            opacity: 0.85;
-          }
-          to {
-            opacity: 1;
-          }
+        .section-layout-frame:empty {
+          display: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          min-height: 0 !important;
+        }
+
+        .batch-spinner-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px 0 28px;
+          width: 100%;
+        }
+
+        .batch-spinner {
+          width: 32px;
+          height: 32px;
+          border: 3px solid rgba(255, 255, 255, 0.15);
+          border-top-color: #e50914;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
         }
 
         .bottom-scroll-sentinel {

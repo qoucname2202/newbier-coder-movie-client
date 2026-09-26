@@ -45,6 +45,8 @@ export const HOME_I18N = {
     radarTitle: 'Radar Xu Hướng Thể Loại',
     communityTitle: 'Cộng Đồng Thảo Luận Trực Tuyến',
     upcomingTitle: 'Phim Sắp Chiếu Đáng Chờ Đợi',
+    loadMoreContent: 'Tải thêm nội dung',
+    loadingContent: 'Đang tải nội dung...',
     infiniteLoading: 'Đang tải thêm nội dung...',
     allLoaded: 'Đã hiển thị toàn bộ nội dung'
   },
@@ -66,6 +68,8 @@ export const HOME_I18N = {
     radarTitle: 'Genre Trending Radar',
     communityTitle: 'Live Community Discussion',
     upcomingTitle: 'Anticipated Upcoming Releases',
+    loadMoreContent: 'Load more content',
+    loadingContent: 'Loading content...',
     infiniteLoading: 'Loading more movies...',
     allLoaded: 'All content loaded'
   }
@@ -240,27 +244,30 @@ export const HOME_SECTIONS = {
 
   radar: defineSection({
     id: 'radar',
+    enabled: false,
     minHeight: 320,
     title: t('radarTitle'),
     defaultPeriod: 'week',
     defaultCategory: 'views',
-    loadAfterScroll: false // Loads in batch with latest
+    loadAfterScroll: false
   }),
 
   community: defineSection({
     id: 'community',
+    enabled: false,
     minHeight: 320,
     title: t('communityTitle'),
     limit: 10,
-    loadAfterScroll: false // Loads in batch with latest
+    loadAfterScroll: false
   }),
 
   // === BATCH 4: BOTTOM LAZY SECTION ===
   upcoming: defineSection({
     id: 'upcoming',
+    enabled: false,
     minHeight: 320,
     limit: 15,
-    loadAfterScroll: true, // BREAKPOINT 3: Loads at bottom of page
+    loadAfterScroll: true,
     delayMs: 2000
   })
 };
