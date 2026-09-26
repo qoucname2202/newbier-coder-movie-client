@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import MovieCarouselSection from './MovieCarouselSection';
-import { mockKoreanMovies, mockChineseMovies } from '../../mock/mockMovies';
 import { MOVIE_CONFIG } from '../../config/movieConfig';
 
 const API_BASE = MOVIE_CONFIG.apiBaseUrl;
@@ -10,9 +9,9 @@ const API_BASE = MOVIE_CONFIG.apiBaseUrl;
  * @description Standardized country rails for Korean (K-Drama) and Chinese (C-Drama) movies.
  */
 export default function MovieCountrySection({ onPlayTrailer }) {
-  const [koreanMovies, setKoreanMovies] = useState(mockKoreanMovies);
-  const [chineseMovies, setChineseMovies] = useState(mockChineseMovies);
-  const [loading, setLoading] = useState(false);
+  const [koreanMovies, setKoreanMovies] = useState([]);
+  const [chineseMovies, setChineseMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isSubscribed = true;

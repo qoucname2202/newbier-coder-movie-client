@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { MovieSection } from '@/components/common/MovieSection';
-import { mockAnimationMovies } from '@/mock/mockMovies';
 
 /**
  * @file AnimationMoviesSection.js
@@ -23,8 +22,8 @@ export default function AnimationMoviesSection({
   load,
   onPlayTrailer
 }) {
-  const [animationMovies, setAnimationMovies] = useState(mockAnimationMovies);
-  const [loading, setLoading] = useState(false);
+  const [animationMovies, setAnimationMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isSubscribed = true;
@@ -32,20 +31,13 @@ export default function AnimationMoviesSection({
     const fetchAnimationMovies = async () => {
       try {
         setLoading(true);
-        const loader = typeof load === 'function' ? load : HOME_SECTIONS.animation?.load;
-        const movies = loader ? await loader(mockAnimationMovies) : mockAnimationMovies;
+        const movies = typeof load === 'function' ? await load([]) : [];
 
-        if (Array.isArray(movies) && movies.length > 0 && isSubscribed) {
-          // If fewer items returned, blend with high-res mock data for a full aesthetic rail
-          if (movies.length < 6) {
-            const combined = [...movies, ...mockAnimationMovies.slice(movies.length)];
-            setAnimationMovies(combined);
-          } else {
-            setAnimationMovies(movies);
-          }
+        if (Array.isArray(movies) && isSubscribed) {
+          setAnimationMovies(movies);
         }
       } catch {
-        // Fallback gracefully retains verified mock data
+        if (isSubscribed) setAnimationMovies([]);
       } finally {
         if (isSubscribed) setLoading(false);
       }

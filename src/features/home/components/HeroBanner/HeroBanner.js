@@ -6,7 +6,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import styles from '@/styles/HeroBanner.module.css';
-import { mockMovies } from '@/mock/mockMovies';
 import {
   MOVIE_CONFIG,
   normalizeHeroMovie,
@@ -140,8 +139,8 @@ const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
  * @returns {JSX.Element} Rendered hero banner.
  */
 const HeroBanner = ({ movies = [], onPlayTrailer }) => {
-  // Use passed movies with fallback to mock data, normalized defensively
-  const rawList = movies && movies.length > 0 ? movies.slice(0, 5) : (mockMovies ? mockMovies.slice(0, 5) : []);
+  // Use passed movies normalized defensively
+  const rawList = movies && Array.isArray(movies) && movies.length > 0 ? movies.slice(0, 5) : [];
   const candidateMovies = rawList.map((m, idx) => normalizeHeroMovie(m, idx));
   const [currentIndex, setCurrentIndex] = useState(0);
 

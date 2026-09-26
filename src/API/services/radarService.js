@@ -1,11 +1,9 @@
 /**
  * @file radarService.js
  * @description API service for Cinema Trending Radar & Genre Pulse analytics.
- * Fully decoupled with automatic resilient fallback to mock data,
- * ensuring Frontend runs without disruption if Backend has not yet implemented the endpoints.
+ * Returns live data or clean empty structures without mock dependencies.
  */
 
-import { mockTrendingRadar } from '@/mock/mockTrendingRadar';
 import { safeFetchJson } from '@/API/services/movieService';
 
 export const radarService = {
@@ -18,6 +16,7 @@ export const radarService = {
    *   discussed: Array<Object>,
    *   favorite: Array<Object>,
    *   breakthrough: Array<Object>,
+   *   views: Array<Object>,
    *   genres: Array<Object>,
    *   period: string
    * }>}
@@ -41,17 +40,13 @@ export const radarService = {
       // Quietly handled
     }
 
-    // Graceful fallback to verified mock datasets
-    const fallbackData = mockTrendingRadar[period] || mockTrendingRadar.week;
-    const viewsList = fallbackData.views || fallbackData.breakthrough || [];
     return {
-      discussed: fallbackData.discussed,
-      favorite: fallbackData.favorite,
-      views: viewsList,
-      breakthrough: viewsList,
-      genres: fallbackData.genres,
-      period,
-      isFallback: true
+      discussed: [],
+      favorite: [],
+      views: [],
+      breakthrough: [],
+      genres: [],
+      period
     };
   },
 
@@ -76,11 +71,10 @@ export const radarService = {
         return items.slice(0, limit);
       }
     } catch {
-      // Handled via fallback
+      // Handled silently
     }
 
-    const { getTopRankingsGrid } = await import('@/mock/mockTrendingRadar');
-    return getTopRankingsGrid({ category, period, limit });
+    return [];
   }
 };
 

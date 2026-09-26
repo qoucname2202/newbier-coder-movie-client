@@ -6,7 +6,6 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { mockMovies, mockAnimationMovies } from '@/mock/mockMovies';
 import {
   normalizeHeroMovie,
   resolveMovieBackdrop,
@@ -44,19 +43,17 @@ const normalizeMovie = (movie, index = 0) => {
 };
 
 export const useHomeData = () => {
-  // Instant initial states preventing white-flash
-  const [featuredMovies, setFeaturedMovies] = useState(() =>
-    mockMovies.slice(0, 5).map((m, idx) => normalizeHeroMovie(m, idx))
-  );
-  const [topMovies, setTopMovies] = useState(() => mockMovies.slice(4, 12));
-  const [mostViewedMovies, setMostViewedMovies] = useState(() => mockMovies.slice(0, 10));
+  // Pure real API data states
+  const [featuredMovies, setFeaturedMovies] = useState([]);
+  const [topMovies, setTopMovies] = useState([]);
+  const [mostViewedMovies, setMostViewedMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [upcomingLoading, setUpcomingLoading] = useState(false);
   const [upcomingLoaded, setUpcomingLoaded] = useState(false);
-  const [animeSpotlightMovies, setAnimeSpotlightMovies] = useState(() => mockAnimationMovies);
-  const [latestMovies, setLatestMovies] = useState(() => mockMovies);
+  const [animeSpotlightMovies, setAnimeSpotlightMovies] = useState([]);
+  const [latestMovies, setLatestMovies] = useState([]);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -75,8 +72,7 @@ export const useHomeData = () => {
    */
   const fetchHeroMovies = useCallback(async () => {
     try {
-      const fallback = mockMovies.slice(0, HOME_SECTIONS.hero.limit);
-      const movies = await HOME_SECTIONS.hero.load(fallback);
+      const movies = await HOME_SECTIONS.hero.load([]);
       if (isMountedRef.current && movies.length > 0) {
         setFeaturedMovies(movies.map((m, idx) => normalizeHeroMovie(m, idx)));
       }
@@ -90,8 +86,7 @@ export const useHomeData = () => {
    */
   const fetchTop10Movies = useCallback(async () => {
     try {
-      const fallback = mockMovies.slice(0, HOME_SECTIONS.top10.limit);
-      const movies = await HOME_SECTIONS.top10.load(fallback);
+      const movies = await HOME_SECTIONS.top10.load([]);
       if (isMountedRef.current && movies.length > 0) {
         const normalized = movies.map((m, idx) => ({
           ...normalizeMovie(m, idx),
@@ -167,7 +162,7 @@ export const useHomeData = () => {
       if (result?.success && result.upcomingMovies?.length > 0 && isMountedRef.current) {
         setUpcomingMovies(result.upcomingMovies.map(normalizeMovie));
       } else if (isMountedRef.current) {
-        setUpcomingMovies(mockMovies.slice(2, 10).map(normalizeMovie));
+        setUpcomingMovies([]);
       }
     } catch {
       clearTimeout(timeoutTimer);
@@ -177,7 +172,7 @@ export const useHomeData = () => {
       }
 
       if (!timeoutTriggered && isMountedRef.current) {
-        setUpcomingMovies(mockMovies.slice(2, 10).map(normalizeMovie));
+        setUpcomingMovies([]);
       }
     } finally {
       if (isMountedRef.current) {
@@ -192,14 +187,9 @@ export const useHomeData = () => {
    */
   const fetchBigSlideMovies = useCallback(async () => {
     try {
-      const fallback = mockAnimationMovies.slice(0, HOME_SECTIONS.big_slide?.limit || 6);
-      const movies = await HOME_SECTIONS.big_slide?.load(fallback);
+      const movies = await HOME_SECTIONS.big_slide?.load([]);
       if (isMountedRef.current && Array.isArray(movies) && movies.length > 0) {
-        if (movies.length < 4) {
-          setAnimeSpotlightMovies([...movies, ...mockAnimationMovies.slice(movies.length)]);
-        } else {
-          setAnimeSpotlightMovies(movies);
-        }
+        setAnimeSpotlightMovies(movies);
       }
     } catch {
       // Fallback handled gracefully

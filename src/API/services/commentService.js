@@ -1,16 +1,9 @@
 /**
  * @file commentService.js
  * @description API service and contract client for Community Comments & Live Buzz.
- * Fully decoupled with automatic resilient fallback to mock data,
- * allowing Frontend to operate smoothly even if Backend has not yet implemented the endpoints.
+ * Returns live backend data or clean empty states without mock dependencies.
  */
 
-import {
-  mockTopCommentsWeek,
-  mockTopCommentsMonth,
-  mockTopCommentsAll,
-  mockLiveBuzzComments
-} from '@/mock/mockComments';
 import { safeFetchJson } from '@/API/services/movieService';
 
 export const commentService = {
@@ -21,7 +14,7 @@ export const commentService = {
    * @param {Object} [params]
    * @param {'week'|'month'|'all'} [params.period='week'] - Time scope filter
    * @param {number} [params.limit=6] - Number of comments to return
-   * @returns {Promise<{ comments: Array<Object>, total: number, period: string, isFallback?: boolean }>}
+   * @returns {Promise<{ comments: Array<Object>, total: number, period: string }>}
    */
   getTopComments: async ({ period = 'week', limit = 6 } = {}) => {
     try {
@@ -39,16 +32,10 @@ export const commentService = {
       // Quietly handled
     }
 
-    // Safe Fallback to Mock Data based on requested period
-    let fallbackData = mockTopCommentsWeek;
-    if (period === 'month') fallbackData = mockTopCommentsMonth;
-    if (period === 'all') fallbackData = mockTopCommentsAll;
-
     return {
-      comments: fallbackData.slice(0, limit),
-      total: fallbackData.length,
-      period,
-      isFallback: true
+      comments: [],
+      total: 0,
+      period
     };
   },
 
@@ -57,7 +44,7 @@ export const commentService = {
    *
    * @param {Object} [params]
    * @param {number} [params.limit=12] - Number of comments to stream
-   * @returns {Promise<{ comments: Array<Object>, isFallback?: boolean }>}
+   * @returns {Promise<{ comments: Array<Object> }>}
    */
   getLiveBuzzComments: async ({ limit = 12 } = {}) => {
     try {
@@ -74,8 +61,7 @@ export const commentService = {
     }
 
     return {
-      comments: mockLiveBuzzComments.slice(0, limit),
-      isFallback: true
+      comments: []
     };
   }
 };

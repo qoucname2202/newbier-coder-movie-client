@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { MovieSection } from '@/components/common/MovieSection';
-import { mockKoreanMovies, mockChineseMovies } from '@/mock/mockMovies';
-
-const DEFAULT_MOCK_MAP = {
-  korean: mockKoreanMovies,
-  chinese: mockChineseMovies
-};
 
 /**
  * @file CountryMoviesSection.js
  * @description Dynamic, config-driven component for Country Drama rails.
  * Completely decoupled: rail titles, badges, links, and data loaders are defined in homeSectionsConfig.
+ * Pure real API data handling with zero mock dependency.
  *
  * @param {Object} props
  * @param {'sm'|'md'|'lg'} [props.cardSize='md'] - Card size preset.
@@ -22,14 +17,8 @@ export default function CountryMoviesSection({
   rails = [],
   onPlayTrailer
 }) {
-  const [railData, setRailData] = useState(() => {
-    const initial = {};
-    rails.forEach((rail) => {
-      initial[rail.id] = DEFAULT_MOCK_MAP[rail.id] || [];
-    });
-    return initial;
-  });
-  const [loading, setLoading] = useState(false);
+  const [railData, setRailData] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isSubscribed = true;
@@ -40,26 +29,25 @@ export default function CountryMoviesSection({
 
         const results = await Promise.all(
           rails.map(async (rail) => {
-            const fallback = DEFAULT_MOCK_MAP[rail.id] || [];
             if (typeof rail.load === 'function') {
-              const data = await rail.load(fallback);
-              return { id: rail.id, data };
+              const data = await rail.load([]);
+              return { id: rail.id, data: Array.isArray(data) ? data : [] };
             }
-            return { id: rail.id, data: fallback };
+            return { id: rail.id, data: [] };
           })
         );
 
         if (isSubscribed) {
           const updated = {};
           results.forEach(({ id, data }) => {
-            if (Array.isArray(data) && data.length > 0) {
-              updated[id] = data;
-            }
+            updated[id] = data;
           });
-          setRailData((prev) => ({ ...prev, ...updated }));
+          setRailData(updated);
         }
       } catch {
-        // Safe fallback retains initial verified mock data
+        if (isSubscribed) {
+          setRailData({});
+        }
       } finally {
         if (isSubscribed) setLoading(false);
       }

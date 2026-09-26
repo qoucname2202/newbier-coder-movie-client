@@ -28,13 +28,11 @@ export const SYSTEM_CONFIG = {
   ).replace(/\/+$/, ''),
 
   // Data fetching strategy mode:
-  // - 'auto': Calls live API first, falls back gracefully to mock if empty/failed
   // - 'api_only': Strict live API, empty array if failed
-  // - 'mock_only': Disables live network requests, uses local mock directly
-  dataMode: process.env.NEXT_PUBLIC_DATA_MODE || 'auto',
+  dataMode: process.env.NEXT_PUBLIC_DATA_MODE || 'api_only',
 
-  // Flag indicating whether to use mock data for instantaneous rendering
-  useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA !== 'false',
+  // Flag indicating whether to use mock data
+  useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true',
 
   // Global HTTP Request Timeout in milliseconds
   networkTimeoutMs: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '8000', 10),

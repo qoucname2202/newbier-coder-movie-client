@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { mockTrendingRadar } from '@/mock/mockTrendingRadar';
 import radarService from '@/API/services/radarService';
 import styles from './RadarTop10Modal.module.css';
 
@@ -70,17 +69,11 @@ export default function RadarTop10Modal({
         const radar = await radarService.getTrendingRadar({ period });
         if (isSubscribed) {
           const list = (radar && radar[category]) || [];
-          if (list.length > 0) {
-            setMovieList(list.slice(0, 10));
-          } else {
-            const fallback = mockTrendingRadar[period]?.[category] || [];
-            setMovieList(fallback.slice(0, 10));
-          }
+          setMovieList(list.slice(0, 10));
         }
-      } catch (err) {
+      } catch {
         if (isSubscribed) {
-          const fallback = mockTrendingRadar[period]?.[category] || [];
-          setMovieList(fallback.slice(0, 10));
+          setMovieList([]);
         }
       } finally {
         if (isSubscribed) setLoading(false);

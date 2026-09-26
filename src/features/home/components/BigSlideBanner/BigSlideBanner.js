@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { mockAnimationMovies } from '@/mock/mockMovies';
 import SectionHeader from '@/components/common/MovieSection/SectionHeader';
 import styles from './BigSlideBanner.module.css';
 
@@ -25,7 +24,7 @@ export default function BigSlideBanner({
   viewAllHref = "/the-loai/hoat-hinh",
   autoPlayInterval = 7000
 }) {
-  const displayMovies = movies && movies.length > 0 ? movies : mockAnimationMovies;
+  const displayMovies = Array.isArray(movies) ? movies : [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
