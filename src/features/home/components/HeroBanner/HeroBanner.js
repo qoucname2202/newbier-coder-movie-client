@@ -5,13 +5,102 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Skeleton from '@/components/UI/Skeleton';
 import styles from '@/styles/HeroBanner.module.css';
-import { mockMovies } from '@/mock/mockMovies';
 import {
   MOVIE_CONFIG,
   normalizeHeroMovie,
   LOCAL_DEFAULT_BACKDROP
 } from '@/config/movieConfig';
+
+/**
+ * Skeleton component preserving exact 100vh / 680px hero bounding box while loading.
+ */
+export const HeroBannerSkeleton = () => {
+  return (
+    <section className={styles.heroBanner} aria-label="Đang tải phim tiêu điểm" style={{ pointerEvents: 'none' }}>
+      {/* Background Media Placeholder with shimmer */}
+      <div className={styles.heroImage} style={{ background: '#0d1117' }}>
+        <div
+          className="skeleton-loading"
+          style={{
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(90deg, #111827 0%, #1c2738 50%, #111827 100%)',
+            backgroundSize: '200% 100%',
+            animation: 'skeleton-loading 1.8s infinite ease-in-out'
+          }}
+        />
+        <div className={styles.overlay} />
+      </div>
+
+      {/* Main Two-Column Container */}
+      <div className={styles.heroContainer}>
+        {/* Left Column: Movie Details Placeholder */}
+        <div className={styles.heroDetails}>
+          {/* Badge silhouettes */}
+          <div className={styles.badgeGroup} style={{ gap: '0.6rem', display: 'flex' }}>
+            <Skeleton width="90px" height="26px" borderRadius="4px" />
+            <Skeleton width="55px" height="26px" borderRadius="4px" />
+            <Skeleton width="110px" height="26px" borderRadius="4px" />
+          </div>
+
+          {/* Title silhouette */}
+          <div style={{ margin: '1.2rem 0 0.8rem 0' }}>
+            <Skeleton width="65%" height="48px" borderRadius="6px" />
+          </div>
+
+          {/* Subtitle silhouette */}
+          <div style={{ marginBottom: '1.2rem' }}>
+            <Skeleton width="40%" height="22px" borderRadius="4px" />
+          </div>
+
+          {/* Meta detail row */}
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.4rem' }}>
+            <Skeleton width="60px" height="18px" borderRadius="4px" />
+            <Skeleton width="80px" height="18px" borderRadius="4px" />
+            <Skeleton width="70px" height="18px" borderRadius="4px" />
+          </div>
+
+          {/* Description lines */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '2rem', maxWidth: '620px' }}>
+            <Skeleton width="100%" height="16px" borderRadius="4px" />
+            <Skeleton width="90%" height="16px" borderRadius="4px" />
+            <Skeleton width="75%" height="16px" borderRadius="4px" />
+          </div>
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <Skeleton width="150px" height="46px" borderRadius="24px" />
+            <Skeleton width="130px" height="46px" borderRadius="24px" />
+            <Skeleton width="46px" height="46px" borderRadius="50%" />
+          </div>
+        </div>
+
+        {/* Right Dock Placeholder */}
+        <aside className={styles.spotlightDock} aria-hidden="true">
+          <div className={styles.dockTrack}>
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={`dock-skel-${i}`}
+                style={{
+                  width: '90px',
+                  height: '52px',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  background: '#161f2e',
+                  border: '1px solid rgba(255, 255, 255, 0.08)'
+                }}
+              >
+                <Skeleton width="100%" height="100%" />
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+    </section>
+  );
+};
 
 /**
  * Truncates text to a specified maximum length with ellipsis.
@@ -139,9 +228,9 @@ const SpotlightDock = ({ movies, currentIndex, onSelect }) => {
  * @param {Function} [props.onPlayTrailer] - Callback to open trailer modal.
  * @returns {JSX.Element} Rendered hero banner.
  */
-const HeroBanner = ({ movies = [], onPlayTrailer }) => {
-  // Use passed movies with fallback to mock data, normalized defensively
-  const rawList = movies && movies.length > 0 ? movies.slice(0, 5) : (mockMovies ? mockMovies.slice(0, 5) : []);
+const HeroBanner = ({ movies = [], loading = false, onPlayTrailer }) => {
+  // Use passed movies normalized defensively
+  const rawList = movies && Array.isArray(movies) && movies.length > 0 ? movies.slice(0, 5) : [];
   const candidateMovies = rawList.map((m, idx) => normalizeHeroMovie(m, idx));
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -174,7 +263,9 @@ const HeroBanner = ({ movies = [], onPlayTrailer }) => {
     setCurrentIndex(index);
   };
 
-  if (!activeMovie) return null;
+  if (loading || !activeMovie) {
+    return <HeroBannerSkeleton />;
+  }
 
   const seriesStatusText = resolveSeriesStatus(activeMovie);
 

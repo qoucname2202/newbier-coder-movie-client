@@ -24,25 +24,6 @@ if (typeof window !== 'undefined') {
   checkApiConnection().then(isConnected => {
     if (!isConnected) {
       console.warn('⚠️ API server is not available at:', API_URL);
-      setTimeout(() => {
-        if (document.querySelector('.api-error-warning')) return;
-        const warning = document.createElement('div');
-        warning.className = 'api-error-warning';
-        warning.innerHTML = `
-          <div style="position: fixed; bottom: 20px; right: 20px; background: #ff5252; color: white;
-                      padding: 15px; border-radius: 5px; z-index: 9999; max-width: 350px; box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
-            <div style="font-weight: bold; margin-bottom: 5px;">Lỗi kết nối máy chủ</div>
-            <div>Không thể kết nối tới máy chủ API tại ${API_URL}.</div>
-            <div style="margin-top: 10px; font-size: 13px;">
-              Lưu ý: Nếu bạn đang chạy máy chủ cục bộ, hãy đảm bảo rằng nó đang chạy và lắng nghe cổng 5000.
-            </div>
-            <button onclick="this.parentNode.remove()" style="background: rgba(255,255,255,0.3); border: none; color: white; padding: 5px 10px; margin-top: 10px; border-radius: 3px; cursor: pointer;">
-              Đóng
-            </button>
-          </div>
-        `;
-        document.body.appendChild(warning);
-      }, 2000);
     }
   });
 }

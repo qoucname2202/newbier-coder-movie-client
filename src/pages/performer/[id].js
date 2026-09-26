@@ -6,6 +6,7 @@ import Image from 'next/image';
 import axios from 'axios';
 import { Container, Row, Col, Card, Spinner, Alert, Badge } from 'react-bootstrap';
 import styles from '@/styles/Performer.module.css';
+import { TMDB_CONFIG } from '@/config/systemConfig';
 
 const PerformerDetail = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ const PerformerDetail = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [debug, setDebug] = useState({});  // For debugging API responses
 
-  const imageBaseUrl = process.env.NEXT_PUBLIC_TMDB_IMAGE_URL || 'https://image.tmdb.org/t/p/w500';
+  const imageBaseUrl = `${TMDB_CONFIG.imageBaseUrl}/w500`;
   const placeholderImage = '/img/default-poster.jpg';
   const profilePlaceholder = '/img/user-avatar.png';
 
@@ -29,9 +30,9 @@ const PerformerDetail = () => {
       setLoading(true);
       setError(null);
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_TMDB_BASE_URL || 'https://api.themoviedb.org/3';
-        const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-        const authToken = process.env.NEXT_PUBLIC_TMDB_AUTH_TOKEN;
+        const baseUrl = TMDB_CONFIG.baseUrl;
+        const apiKey = TMDB_CONFIG.apiKey;
+        const authToken = TMDB_CONFIG.authToken;
 
         const debugInfo = {
           id,

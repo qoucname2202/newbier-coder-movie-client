@@ -1,9 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Skeleton from '@/components/UI/Skeleton';
 import SectionHeader from '@/components/common/MovieSection/SectionHeader';
 import radarService from '@/API/services/radarService';
 import RadarTop10Modal from './RadarTop10Modal';
 import styles from './TrendingRadarSection.module.css';
+
+export const TrendingRadarSkeleton = ({ title = "Radar Xu Hướng Thể Loại", badge = "CHỈ SỐ ĐIỆN ẢNH" }) => (
+  <section className={styles.radarSection} id="cinema-trending-radar" aria-label="Đang tải radar">
+    <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+      <SectionHeader title={title} badge={badge} />
+      <div className="d-flex gap-2">
+        <Skeleton width="80px" height="32px" borderRadius="4px" />
+        <Skeleton width="80px" height="32px" borderRadius="4px" />
+      </div>
+    </div>
+    <div className="row g-3 g-lg-4">
+      <div className="col-12 col-xl-8">
+        <div className="card bg-dark border-0 p-3 rounded-3" style={{ minHeight: '380px' }}>
+          <div className="d-flex gap-2 mb-3">
+            <Skeleton width="90px" height="30px" borderRadius="4px" />
+            <Skeleton width="110px" height="30px" borderRadius="4px" />
+            <Skeleton width="90px" height="30px" borderRadius="4px" />
+          </div>
+          <div className="row g-3">
+            <div className="col-12 col-md-5">
+              <Skeleton height="300px" borderRadius="8px" />
+            </div>
+            <div className="col-12 col-md-7 d-flex flex-column gap-3 justify-content-center">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={`radar-row-${i}`} className="d-flex align-items-center gap-3 p-2 bg-black rounded-2">
+                  <Skeleton width="28px" height="28px" borderRadius="4px" />
+                  <Skeleton width="48px" height="64px" borderRadius="4px" />
+                  <div className="flex-grow-1">
+                    <Skeleton width="70%" height="16px" />
+                    <Skeleton width="40%" height="12px" className="mt-1" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="col-12 col-xl-4">
+        <div className="card bg-dark border-0 p-3 rounded-3" style={{ minHeight: '380px' }}>
+          <Skeleton width="140px" height="22px" borderRadius="4px" className="mb-3" />
+          <div className="d-flex flex-column gap-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={`genre-skel-${i}`}>
+                <div className="d-flex justify-content-between mb-1">
+                  <Skeleton width="100px" height="14px" />
+                  <Skeleton width="40px" height="14px" />
+                </div>
+                <Skeleton width="100%" height="6px" borderRadius="3px" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
 
 /**
  * @file TrendingRadarSection.js
@@ -18,11 +75,18 @@ import styles from './TrendingRadarSection.module.css';
  * @param {Function} [props.onPlayTrailer] - Callback to play trailer modal
  * @param {boolean} [props.enabled=true] - Toggle visibility
  */
-export default function TrendingRadarSection({ onPlayTrailer, enabled = true }) {
+export default function TrendingRadarSection({
+  onPlayTrailer,
+  enabled = true,
+  title = "Radar Xu Hướng Thể Loại",
+  badge = "CHỈ SỐ ĐIỆN ẢNH",
+  defaultPeriod = 'week',
+  defaultCategory = 'views'
+}) {
   if (!enabled) return null;
 
-  const [period, setPeriod] = useState('week'); // 'week' or 'month'
-  const [activeCategory, setActiveCategory] = useState('views'); // 'views', 'favorite', 'discussed'
+  const [period, setPeriod] = useState(defaultPeriod);
+  const [activeCategory, setActiveCategory] = useState(defaultCategory);
   const [isTop10Open, setIsTop10Open] = useState(false);
   const [radarData, setRadarData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,13 +141,21 @@ export default function TrendingRadarSection({ onPlayTrailer, enabled = true }) 
     return <span className={`${styles.deltaBadge} ${badgeClass}`}>{symbol}</span>;
   };
 
+  if (loading && !championMovie && trendingGenres.length === 0) {
+    return <TrendingRadarSkeleton title={title} badge={badge} />;
+  }
+
+  if (!loading && !championMovie && trendingGenres.length === 0) {
+    return null;
+  }
+
   return (
     <section className={styles.radarSection} id="cinema-trending-radar">
       {/* Standard Section Header matching website cinema rails */}
       <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
         <SectionHeader
-          title="Bảng Xếp Hạng Xu Hướng"
-          badge="CHỈ SỐ ĐIỆN ẢNH"
+          title={title}
+          badge={badge}
         />
 
         {/* Minimalist Timeframe Switcher */}

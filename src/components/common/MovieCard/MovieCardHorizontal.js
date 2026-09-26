@@ -26,7 +26,7 @@ const MovieCardHorizontal = ({
   className = ""
 }) => {
   const [imgSrc, setImgSrc] = useState(
-    movie?.backdrop_url || movie?.poster_url || movie?.thumb_url || '/placeholder.jpg'
+    movie?.backdrop_url || movie?.poster_url || movie?.thumb_url || '/img/placeholder-backdrop.svg'
   );
 
   if (!movie) return null;
@@ -63,7 +63,7 @@ const MovieCardHorizontal = ({
           alt={movie?.name || 'Banner phim'}
           className={styles.wideBackdropImg}
           loading="lazy"
-          onError={() => setImgSrc(movie?.thumb_url || '/placeholder.jpg')}
+          onError={() => setImgSrc('/img/placeholder-backdrop.svg')}
         />
 
         {/* Bottom Ambient Vignette Gradient */}

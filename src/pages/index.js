@@ -4,7 +4,7 @@
  * Powered by unified Base & Preset components sharing the same behavior and visual form.
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Head from "next/head";
 import {
   HeroBanner,
@@ -22,7 +22,52 @@ import {
 } from "@/features/home";
 import { TrailerModal } from "@/features/movie-detail";
 import BackToTop from "@/components/UI/BackToTop";
+import Skeleton from "@/components/UI/Skeleton";
 import { useAuth } from "@/utils/auth";
+import {
+  HOME_SECTION_ORDER,
+  HOME_SECTIONS,
+  BATCH_LOADING_CONFIG,
+  t
+} from "@/config/homeSectionsConfig";
+
+/**
+ * Sentinel component placed between sequential section batches.
+ * When scrolled into view, renders a rotating spinner before revealing the next batch.
+ */
+function BatchScrollSentinel({ onTrigger, delayMs = 800 }) {
+  const ref = useRef(null);
+  const isTriggeredRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isTriggeredRef.current) {
+          isTriggeredRef.current = true;
+          observer.disconnect();
+
+          setTimeout(() => {
+            onTrigger();
+          }, delayMs);
+        }
+      },
+      { rootMargin: '250px 0px', threshold: 0.05 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [onTrigger, delayMs]);
+
+  return (
+    <div ref={ref} className="batch-spinner-container">
+      <div className="batch-spinner" role="status" aria-label="Đang tải nội dung..." />
+    </div>
+  );
+}
 
 /**
  * Main Home page component.
@@ -39,6 +84,7 @@ export default function Home() {
     upcomingLoaded,
     loadUpcoming,
     latestMovies,
+    animeSpotlightMovies,
     loading,
     loadingMore,
     hasMore,
@@ -49,52 +95,76 @@ export default function Home() {
   const bottomSentinelRef = useRef(null);
   const isBusyRef = useRef(false);
 
-  // Controlled infinite scroll & lazy loading with 2s loading buffer & loop prevention
+  // Group sections into sequential batches based on loadAfterScroll breakpoints
+  const sectionBatches = useMemo(() => {
+    const list = [];
+    let currentBatch = [];
+
+    HOME_SECTION_ORDER.forEach((sectionId) => {
+      const config = HOME_SECTIONS[sectionId] || {};
+      if (config.enabled === false) return;
+
+      // When loadAfterScroll is true, start a new deferred batch
+      if (config.loadAfterScroll && currentBatch.length > 0) {
+        list.push(currentBatch);
+        currentBatch = [];
+      }
+      currentBatch.push(sectionId);
+    });
+
+    if (currentBatch.length > 0) {
+      list.push(currentBatch);
+    }
+
+    return list;
+  }, []);
+
+  // Batch 0 (above-the-fold content) is always unlocked immediately on page mount
+  const [unlockedBatches, setUnlockedBatches] = useState(new Set([0]));
+
+  // Auto-trigger upcoming fetch when the batch containing 'upcoming' is unlocked
+  const isUpcomingUnlocked = useMemo(() => {
+    return sectionBatches.some(
+      (batch, idx) => unlockedBatches.has(idx) && batch.includes('upcoming')
+    );
+  }, [sectionBatches, unlockedBatches]);
+
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (isUpcomingUnlocked && !upcomingLoaded && !upcomingLoading) {
+      loadUpcoming();
+    }
+  }, [isUpcomingUnlocked, upcomingLoaded, upcomingLoading, loadUpcoming]);
+
+  // Infinite scroll for bottom grid pagination
+  const isAllBatchesUnlocked = unlockedBatches.has(sectionBatches.length - 1);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isAllBatchesUnlocked) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (entry && entry.isIntersecting) {
-          // Prevent rapid concurrent requests or infinite loops
-          if (isBusyRef.current) return;
-
-          if (!upcomingLoaded && !upcomingLoading) {
-            isBusyRef.current = true;
-            loadUpcoming().finally(() => {
-              setTimeout(() => {
-                isBusyRef.current = false;
-              }, 1200);
-            });
-          } else if (upcomingLoaded && hasMore && !loadingMore) {
-            isBusyRef.current = true;
-            loadMore().finally(() => {
-              setTimeout(() => {
-                isBusyRef.current = false;
-              }, 1200);
-            });
-          }
+          if (isBusyRef.current || !hasMore || loadingMore) return;
+          isBusyRef.current = true;
+          loadMore().finally(() => {
+            setTimeout(() => {
+              isBusyRef.current = false;
+            }, 1200);
+          });
         }
       },
-      {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-      }
+      { rootMargin: '100px 0px', threshold: 0.1 }
     );
 
     const sentinel = bottomSentinelRef.current;
-    if (sentinel && (!upcomingLoaded || hasMore)) {
+    if (sentinel && hasMore) {
       observer.observe(sentinel);
     }
 
     return () => {
-      if (sentinel) {
-        observer.unobserve(sentinel);
-      }
+      if (sentinel) observer.unobserve(sentinel);
     };
-  }, [upcomingLoaded, upcomingLoading, loadUpcoming, hasMore, loadingMore, loadMore]);
+  }, [isAllBatchesUnlocked, hasMore, loadingMore, loadMore]);
 
   // Safeguard: Redirect if account is flagged as locked
   useEffect(() => {
@@ -112,6 +182,161 @@ export default function Home() {
     setActiveTrailerMovie(null);
   };
 
+  // =========================================================================
+  // CORE SECTION REGISTRY & PIPELINE [LOCKED: DO NOT MODIFY]
+  // All behaviors (cardSize, badge, limit, order, text, fullWidth, loadAfterScroll)
+  // are centrally configured in: src/config/homeSectionsConfig.js
+  // =========================================================================
+  const renderSection = (sectionId) => {
+    const config = HOME_SECTIONS[sectionId] || {};
+    if (config.enabled === false) return null;
+
+    let content = null;
+
+    switch (sectionId) {
+      case 'hero':
+        content = (
+          <HeroBanner
+            movies={featuredMovies}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'carousel_3d':
+        content = (
+          <FeaturedCarousel3D
+            movies={featuredMovies}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'recommended':
+        content = (
+          <TopRecommendedSection
+            movies={topMovies}
+            cardSize={config.cardSize}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'top10':
+        content = (
+          <TrendingTop10Section
+            movies={mostViewedMovies}
+            cardSize={config.cardSize}
+            badge={config.badge}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'country':
+        content = (
+          <CountryMoviesSection
+            cardSize={config.cardSize}
+            rails={config.rails}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'big_slide':
+        content = (
+          <BigSlideBanner
+            title={config.title}
+            badge={config.badge}
+            viewAllHref={config.viewAllHref}
+            autoPlayInterval={config.autoPlayInterval}
+            movies={animeSpotlightMovies}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'animation':
+        content = (
+          <AnimationMoviesSection
+            cardSize={config.cardSize}
+            title={config.title}
+            badge={config.badge}
+            viewAllHref={config.viewAllHref}
+            load={config.load}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'latest':
+        content = (
+          <LatestMoviesGridSection
+            movies={latestMovies}
+            cardSize={config.cardSize}
+            loading={loading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'radar':
+        if (!config.enabled) return null;
+        content = (
+          <TrendingRadarSection
+            enabled={config.enabled}
+            title={config.title}
+            defaultPeriod={config.defaultPeriod}
+            defaultCategory={config.defaultCategory}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'community':
+        if (!config.enabled) return null;
+        content = (
+          <CommunityCommentSection
+            enabled={config.enabled}
+            title={config.title}
+            limit={config.limit}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      case 'upcoming':
+        if (!config.enabled || (!upcomingLoading && (!upcomingMovies || upcomingMovies.length === 0))) {
+          return null;
+        }
+        content = (
+          <UpcomingMoviesSection
+            movies={upcomingMovies}
+            cardSize={config.cardSize}
+            loading={upcomingLoading}
+            onPlayTrailer={handlePlayTrailer}
+          />
+        );
+        break;
+      default:
+        return null;
+    }
+
+    if (!content) return null;
+
+    // Wrap in standard layout container without artificial empty min-height
+    return config.isFullWidth ? (
+      <div
+        key={sectionId}
+        className="w-100 section-layout-frame"
+      >
+        {content}
+      </div>
+    ) : (
+      <div
+        key={sectionId}
+        className="container-fluid mt-4 px-3 px-lg-4 section-layout-frame"
+      >
+        {content}
+      </div>
+    );
+  };
+
   return (
     <>
       <Head>
@@ -123,212 +348,164 @@ export default function Home() {
       </Head>
 
       <div className="home-container bg-black text-white">
-        {/* Full-bleed cinematic hero spotlight */}
-        <HeroBanner
-          movies={featuredMovies}
-          onPlayTrailer={handlePlayTrailer}
-        />
+        {/* Render sections sequentially by batches */}
+        {sectionBatches.map((batchSections, batchIndex) => {
+          const isUnlocked = unlockedBatches.has(batchIndex);
 
-        {/* 3D Rotating Featured Carousel */}
-        <FeaturedCarousel3D
-          movies={featuredMovies}
-          loading={loading}
-          onPlayTrailer={handlePlayTrailer}
-        />
+          if (!isUnlocked) {
+            // Render the interactive load button for the next batch in line
+            const isNextBatch = unlockedBatches.has(batchIndex - 1);
+            if (!isNextBatch) return null;
 
-        {/* Main movie section rails: easily customizable via props */}
-        <div className="container-fluid mt-4 px-3 px-lg-4">
-          {/* Section 1: Recommended Movies */}
-          <TopRecommendedSection
-            movies={topMovies}
-            cardSize="md"
-            loading={loading}
-            onPlayTrailer={handlePlayTrailer}
-          />
+            // Retrieve delayMs from next batch's first section or fallback to global config
+            const nextBatchFirstSectionId = batchSections[0];
+            const batchDelayMs = HOME_SECTIONS[nextBatchFirstSectionId]?.delayMs ?? BATCH_LOADING_CONFIG.delayMs;
 
-          {/* Section 2: TOP 10 Widescreen */}
-          <TrendingTop10Section
-            movies={mostViewedMovies}
-            cardSize="md"
-            loading={loading}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 3: K-Drama & C-Drama */}
-          <CountryMoviesSection
-            cardSize="md"
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Special Feature: RoPhim-style Big Slide Widescreen Banner */}
-          <BigSlideBanner
-            onPlayTrailer={handlePlayTrailer}
-            badge="ANIME SPOTLIGHT"
-          />
-
-          {/* Section 5: Animation & Anime Highlights Rail */}
-          <AnimationMoviesSection
-            cardSize="md"
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 6: Latest Movies (Single-Row Rail) */}
-          <LatestMoviesGridSection
-            movies={latestMovies}
-            cardSize="md"
-            loading={loading}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 7: Cinema Trending Radar & Genre Pulse */}
-          <TrendingRadarSection
-            enabled={true}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 8: Standalone Community Discussion & Real-time Live Buzz (Toggleable) */}
-          <CommunityCommentSection
-            enabled={true}
-            onPlayTrailer={handlePlayTrailer}
-          />
-
-          {/* Section 9: Upcoming Movies (Lazy-loaded dynamically on scroll) */}
-          {upcomingLoaded && upcomingMovies.length > 0 && (
-            <div className="home-lazy-section">
-              <UpcomingMoviesSection
-                movies={upcomingMovies}
-                cardSize="md"
-                onPlayTrailer={handlePlayTrailer}
+            return (
+              <BatchScrollSentinel
+                key={`sentinel-${batchIndex}`}
+                delayMs={batchDelayMs}
+                onTrigger={() => {
+                  setUnlockedBatches((prev) => new Set([...prev, batchIndex]));
+                }}
               />
-            </div>
-          )}
-
-          {/* Infinite Scroll & Lazy Loading Status Indicator */}
-          {(upcomingLoading || loadingMore) && (
-            <div className="home-infinite-loader">
-              <div className="infinite-spinner" />
-              <span className="infinite-loader-text">Đang tải thêm nội dung...</span>
-            </div>
-          )}
-
-          {/* Invisible Sentinel triggering fetch on scroll */}
-          {(!upcomingLoaded || hasMore) && (
-            <div ref={bottomSentinelRef} className="bottom-scroll-sentinel" />
-          )}
-
-          {/* End of content indicator when no more data exists */}
-          {!hasMore && upcomingLoaded && !upcomingLoading && !loadingMore && (
-            <div className="home-end-indicator">
-              <span className="end-line" />
-              <span className="end-text">Đã hiển thị toàn bộ nội dung</span>
-              <span className="end-line" />
-            </div>
-          )}
-        </div>
-
-        {/* Global Trailer Video Modal */}
-        <TrailerModal
-          movie={activeTrailerMovie}
-          onClose={handleCloseTrailer}
-        />
-
-        {/* Smooth Scroll to Top Button */}
-        <BackToTop />
-
-        <style jsx global>{`
-          body {
-            background-color: #0d1117;
-            color: #ffffff;
+            );
           }
 
-          .home-container {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            overflow-x: hidden;
-          }
+          return (
+            <React.Fragment key={`batch-${batchIndex}`}>
+              {batchSections.map(renderSection)}
+            </React.Fragment>
+          );
+        })}
 
-          .home-lazy-section {
-            animation: fadeInLazySection 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          }
+        {/* Infinite Scroll & Pagination Sentinel (Active after all batches are unlocked) */}
+        {isAllBatchesUnlocked && (
+          <div className="container-fluid mt-2 px-3 px-lg-4">
+            {loadingMore && (
+              <div className="home-infinite-loader">
+                <div className="infinite-spinner" />
+                <span className="infinite-loader-text">{t('infiniteLoading')}</span>
+              </div>
+            )}
 
-          @keyframes fadeInLazySection {
-            from {
-              opacity: 0;
-              transform: translateY(24px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
+            {hasMore && (
+              <div ref={bottomSentinelRef} className="bottom-scroll-sentinel" />
+            )}
 
-          .home-infinite-loader {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.85rem;
-            padding: 2.5rem 0 3.5rem;
-          }
-
-          .infinite-spinner {
-            width: 26px;
-            height: 26px;
-            border: 2.5px solid rgba(255, 255, 255, 0.12);
-            border-top-color: #e50914;
-            border-radius: 50%;
-            animation: spinLoader 0.75s linear infinite;
-          }
-
-          @keyframes spinLoader {
-            to {
-              transform: rotate(360deg);
-            }
-          }
-
-          .infinite-loader-text {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #94a3b8;
-            letter-spacing: 0.02em;
-          }
-
-          .bottom-scroll-sentinel {
-            width: 100%;
-            height: 40px;
-            pointer-events: none;
-            visibility: hidden;
-          }
-
-          .home-end-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            padding: 2.5rem 0 3.5rem;
-            color: #475569;
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-          }
-
-          .end-line {
-            width: 60px;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.08);
-          }
-        `}</style>
+            {!hasMore && (
+              <div className="home-end-indicator">
+                <span className="end-line" />
+                <span className="end-text">{t('allLoaded')}</span>
+                <span className="end-line" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Global Trailer Video Modal */}
+      <TrailerModal
+        movie={activeTrailerMovie}
+        onClose={handleCloseTrailer}
+      />
+
+      {/* Smooth Scroll to Top Button */}
+      <BackToTop />
+
+      <style jsx global>{`
+        body {
+          background-color: #0d1117;
+          color: #ffffff;
+        }
+
+        .home-container {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          overflow-x: hidden;
+        }
+
+        .section-layout-frame {
+          animation: fadeInFrame 0.35s ease-out;
+        }
+
+        .section-layout-frame:empty {
+          display: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          min-height: 0 !important;
+        }
+
+        .batch-spinner-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px 0 28px;
+          width: 100%;
+        }
+
+        .batch-spinner {
+          width: 32px;
+          height: 32px;
+          border: 3px solid rgba(255, 255, 255, 0.15);
+          border-top-color: #e50914;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        .bottom-scroll-sentinel {
+          height: 30px;
+          margin-top: 10px;
+          pointer-events: none;
+        }
+
+        .home-infinite-loader {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          padding: 28px 0;
+          margin: 16px 0;
+        }
+
+        .infinite-spinner {
+          width: 24px;
+          height: 24px;
+          border: 3px solid rgba(255, 255, 255, 0.15);
+          border-top-color: #e50914;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .infinite-loader-text {
+          font-size: 0.95rem;
+          color: #94a3b8;
+          font-weight: 500;
+        }
+
+        .home-end-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          padding: 36px 0 48px;
+          color: #64748b;
+          font-size: 0.875rem;
+        }
+
+        .end-line {
+          width: 80px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      `}</style>
     </>
   );
-}
-
-/**
- * Static props fetching to avoid unnecessary server-side rendering bottlenecks.
- * @returns {Promise<{ props: Object }>} Empty static props object.
- */
-export async function getStaticProps() {
-  return {
-    props: {}
-  };
 }

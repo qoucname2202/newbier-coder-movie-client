@@ -1,8 +1,52 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { mockAnimationMovies } from '@/mock/mockMovies';
+import Skeleton from '@/components/UI/Skeleton';
 import SectionHeader from '@/components/common/MovieSection/SectionHeader';
 import styles from './BigSlideBanner.module.css';
+
+export const BigSlideBannerSkeleton = ({ title = "Tiêu Điểm Anime" }) => (
+  <section className={styles.bigSlideSection} aria-label="Đang tải anime tiêu điểm">
+    {title && (
+      <SectionHeader
+        title={title}
+        // badge="ĐỘC BẢN"
+        viewAllHref="/the-loai/hoat-hinh"
+        viewAllText="Xem tất cả anime"
+      />
+    )}
+    <div
+      className={styles.bigSlideContainer}
+      style={{
+        minHeight: '360px',
+        background: '#111827',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        position: 'relative'
+      }}
+    >
+      <Skeleton height="360px" width="100%" borderRadius="12px" />
+      <div
+        className={styles.contentBox}
+        style={{
+          position: 'absolute',
+          bottom: '2rem',
+          left: '2rem',
+          zIndex: 3,
+          maxWidth: '500px'
+        }}
+      >
+        <Skeleton width="120px" height="24px" borderRadius="4px" />
+        <div style={{ margin: '1rem 0' }}>
+          <Skeleton width="340px" height="36px" borderRadius="6px" />
+        </div>
+        <div style={{ display: 'flex', gap: '0.8rem' }}>
+          <Skeleton width="130px" height="42px" borderRadius="20px" />
+          <Skeleton width="110px" height="42px" borderRadius="20px" />
+        </div>
+      </div>
+    </div>
+  </section>
+);
 
 /**
  * @file BigSlideBanner.js
@@ -11,6 +55,7 @@ import styles from './BigSlideBanner.module.css';
  *
  * @param {Object} props
  * @param {Array<Object>} [props.movies] - List of movies to showcase.
+ * @param {boolean} [props.loading=false] - Loading state
  * @param {Function} [props.onPlayTrailer] - Callback to open the trailer modal.
  * @param {string} [props.title="Tiêu Điểm Anime"] - Section header title.
  * @param {string} [props.badge="ANIME SPOTLIGHT"] - Top badge label.
@@ -19,13 +64,14 @@ import styles from './BigSlideBanner.module.css';
  */
 export default function BigSlideBanner({
   movies = [],
+  loading = false,
   onPlayTrailer,
   title = "Tiêu Điểm Anime",
   badge = "ANIME SPOTLIGHT",
   viewAllHref = "/the-loai/hoat-hinh",
   autoPlayInterval = 7000
 }) {
-  const displayMovies = movies && movies.length > 0 ? movies : mockAnimationMovies;
+  const displayMovies = Array.isArray(movies) ? movies : [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -70,6 +116,10 @@ export default function BigSlideBanner({
     setProgress(0);
   };
 
+  if (loading && !currentMovie) {
+    return <BigSlideBannerSkeleton title={title} />;
+  }
+
   if (!currentMovie) return null;
 
   const movieRating = currentMovie.rating ? Number(currentMovie.rating).toFixed(1) : '8.5';
@@ -84,7 +134,7 @@ export default function BigSlideBanner({
       {title && (
         <SectionHeader
           title={title}
-          badge="ĐỘC BẢN"
+          // badge="ĐỘC BẢN"
           viewAllHref={viewAllHref}
           viewAllText="Xem tất cả anime"
         />

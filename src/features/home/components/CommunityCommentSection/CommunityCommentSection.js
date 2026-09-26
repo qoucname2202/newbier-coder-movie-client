@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import SectionHeader from '@/components/common/MovieSection/SectionHeader';
 import commentService from '@/API/services/commentService';
-import { mockLiveBuzzComments } from '@/mock/mockComments';
+import { LOCAL_DEFAULT_BACKDROP } from '@/config/movieConfig';
 import styles from './CommunityCommentSection.module.css';
 
 /**
@@ -10,18 +10,22 @@ import styles from './CommunityCommentSection.module.css';
  * @description Unified, space-efficient community discussion section.
  * - Left (col-xl-9): Two horizontal rails for Top Weekly and Top Monthly/All-time comments,
  *   featuring impressive movie backdrop cards with 2-line preview and fixed cadence.
- * - Right (col-xl-3): YouTube-style vertical Live Chat stream with scroll loader and pulsating dot.
+ * - Right (col-xl-3): Vertical Live Chat stream with scroll loader and pulsating dot.
  *
  * @param {Object} props
  * @param {boolean} [props.enabled=true] - Switch to toggle the section on/off.
  */
-export default function CommunityCommentSection({ enabled = true }) {
+export default function CommunityCommentSection({
+  enabled = true,
+  title = "Cộng Đồng Thảo Luận",
+  limit = 10
+}) {
   if (!enabled) return null;
 
   const [weekComments, setWeekComments] = useState([]);
   const [monthComments, setMonthComments] = useState([]);
   const [monthPeriod, setMonthPeriod] = useState('month'); // 'month' or 'all'
-  const [liveMessages, setLiveMessages] = useState(mockLiveBuzzComments);
+  const [liveMessages, setLiveMessages] = useState([]);
   const [loadingMoreLive, setLoadingMoreLive] = useState(false);
   const [showReturnToLatest, setShowReturnToLatest] = useState(false);
   const [isReloadingLive, setIsReloadingLive] = useState(false);
@@ -34,11 +38,11 @@ export default function CommunityCommentSection({ enabled = true }) {
     let isSubscribed = true;
     const fetchWeek = async () => {
       try {
-        const data = await commentService.getTopComments({ period: 'week', limit: 10 });
+        const data = await commentService.getTopComments({ period: 'week', limit });
         if (isSubscribed && data?.comments) {
           setWeekComments(data.comments);
         }
-      } catch (err) {
+      } catch {
         // Fallback handled silently
       }
     };
@@ -46,7 +50,7 @@ export default function CommunityCommentSection({ enabled = true }) {
     return () => {
       isSubscribed = false;
     };
-  }, []);
+  }, [limit]);
 
   // Fetch Top Monthly or All-time Comments (Rail 2)
   useEffect(() => {
@@ -57,7 +61,7 @@ export default function CommunityCommentSection({ enabled = true }) {
         if (isSubscribed && data?.comments) {
           setMonthComments(data.comments);
         }
-      } catch (err) {
+      } catch {
         // Fallback handled silently
       }
     };
@@ -67,142 +71,37 @@ export default function CommunityCommentSection({ enabled = true }) {
     };
   }, [monthPeriod]);
 
-  // Periodic incoming live chat messages (simulating YouTube Live)
+  // Fetch Live Buzz Comments
   useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      const incomingPool = [
-        {
-          _id: `live-${Date.now()}`,
-          movie_name: "Dune: Phần Hai",
-          movie_slug: "dune-hanh-tinh-cat-phan-hai",
-          user_name: "Quốc Anh",
-          snippet: "Cảnh cưỡi sâu cát cuốn quá!",
-          time_ago: "Vừa xong"
-        },
-        {
-          _id: `live-${Date.now() + 1}`,
-          movie_name: "Arcane Season 2",
-          movie_slug: "arcane-lien-minh-huyen-thoai",
-          user_name: "Thùy Trang",
-          snippet: "Jinx tập này tội thực sự 😢",
-          time_ago: "Vừa xong"
-        },
-        {
-          _id: `live-${Date.now() + 2}`,
-          movie_name: "Khóa Chặt Cửa Nào Suzume",
-          movie_slug: "khoa-chat-cua-nao-suzume",
-          user_name: "Huy Hoàng",
-          snippet: "Nhạc phim nghe mãi không chán.",
-          time_ago: "Vừa xong"
-        },
-        {
-          _id: `live-${Date.now() + 3}`,
-          movie_name: "Nữ Hoàng Nước Mắt",
-          movie_slug: "nu-hoang-nuoc-mat",
-          user_name: "Mỹ Duyên",
-          snippet: "Tập mới khóc hết nước mắt 😭",
-          time_ago: "Vừa xong"
+    let isSubscribed = true;
+    const fetchLive = async () => {
+      try {
+        const data = await commentService.getLiveBuzzComments({ limit: 12 });
+        if (isSubscribed && data?.comments) {
+          setLiveMessages(data.comments);
         }
-      ];
-
-      const nextMsg = incomingPool[index % incomingPool.length];
-      index += 1;
-
-      setLiveMessages((prev) => [nextMsg, ...prev.slice(0, 30)]);
-    }, 6500);
-
-    return () => clearInterval(interval);
+      } catch {
+        // Handled silently
+      }
+    };
+    fetchLive();
+    return () => {
+      isSubscribed = false;
+    };
   }, []);
 
-  const [historyPageIndex, setHistoryPageIndex] = useState(0);
-
-  // Pool of realistic historical comments for infinite history loading
-  const historyPool = [
-    [
-      {
-        movie_name: "Tên Cậu Là Gì?",
-        movie_slug: "ten-cau-la-gi-your-name",
-        user_name: "Minh Tuấn",
-        snippet: "Xem lại lần thứ n vẫn nguyên cảm xúc ban đầu.",
-        time_ago: "25 phút trước"
-      },
-      {
-        movie_name: "Ký Sinh Trùng",
-        movie_slug: "ky-sinh-trung-parasite",
-        user_name: "Đức Trọng",
-        snippet: "Từng khung hình ẩn dụ quá xuất sắc!",
-        time_ago: "35 phút trước"
-      }
-    ],
-    [
-      {
-        movie_name: "Lâu Đài Bay Howl",
-        movie_slug: "lau-dai-bay-cua-phap-su-howl",
-        user_name: "Thùy Linh",
-        snippet: "Âm nhạc Joe Hisaishi nghe mãi không thấy chán.",
-        time_ago: "50 phút trước"
-      },
-      {
-        movie_name: "Oppenheimer",
-        movie_slug: "oppenheimer",
-        user_name: "Hoàng Long",
-        snippet: "Phân cảnh thử nghiệm bom Trinity nín thở từng giây.",
-        time_ago: "1 giờ trước"
-      }
-    ],
-    [
-      {
-        movie_name: "Avatar: Dòng Chảy Nước",
-        movie_slug: "avatar-dong-chay-cua-nuoc",
-        user_name: "Văn Hùng",
-        snippet: "Kỹ xảo thế giới đại dương Pandora quá chân thực!",
-        time_ago: "2 giờ trước"
-      },
-      {
-        movie_name: "Trò Chơi Vương Quyền",
-        movie_slug: "game-of-thrones",
-        user_name: "Bảo Trâm",
-        snippet: "Cày lại từ mùa 1 vẫn thấy cuốn không dứt ra được.",
-        time_ago: "3 giờ trước"
-      }
-    ]
-  ];
-
-  // Handle Scroll in Live Chat: show return-to-latest button and load history when scrolling down
+  // Handle Scroll in Live Chat: show return-to-latest button when scrolled down
   const handleLiveScroll = (e) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-
-    // Show return-to-latest button when scrolled down away from top (scrollTop > 50)
+    const { scrollTop } = e.target;
     if (scrollTop > 50) {
       setShowReturnToLatest(true);
     } else {
       setShowReturnToLatest(false);
     }
-
-    // Load older comments when scrolling down near bottom (find historical comments)
-    if (
-      scrollTop + clientHeight >= scrollHeight - 20 &&
-      !loadingMoreLive
-    ) {
-      setLoadingMoreLive(true);
-      setTimeout(() => {
-        setLiveMessages((prev) => {
-          const batchToLoad = historyPool[historyPageIndex % historyPool.length].map((item, idx) => ({
-            ...item,
-            _id: `live-hist-${Date.now()}-${idx}`
-          }));
-          return [...prev, ...batchToLoad];
-        });
-        setHistoryPageIndex((prevIndex) => prevIndex + 1);
-        setLoadingMoreLive(false);
-      }, 600);
-    }
   };
 
-  // Scroll to top (where latest comments reside) and reload/refresh the stream
+  // Scroll to top and reload live messages
   const handleReturnToLatestAndReload = async () => {
-    // 1. Scroll smoothly to top
     if (feedRef.current) {
       feedRef.current.scrollTo({
         top: 0,
@@ -211,17 +110,14 @@ export default function CommunityCommentSection({ enabled = true }) {
     }
     setShowReturnToLatest(false);
 
-    // 2. Reload latest live comments
     setIsReloadingLive(true);
     try {
-      const data = await commentService.getLiveBuzzComments({ limit: 8 });
+      const data = await commentService.getLiveBuzzComments({ limit: 12 });
       if (data?.comments) {
         setLiveMessages(data.comments);
-        setHistoryPageIndex(0);
       }
-    } catch (err) {
-      setLiveMessages(mockLiveBuzzComments);
-      setHistoryPageIndex(0);
+    } catch {
+      // Handled silently
     } finally {
       setTimeout(() => {
         setIsReloadingLive(false);
@@ -267,7 +163,7 @@ export default function CommunityCommentSection({ enabled = true }) {
           loading="lazy"
           onError={(e) => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg';
+            e.currentTarget.src = LOCAL_DEFAULT_BACKDROP;
           }}
         />
 
@@ -348,6 +244,10 @@ export default function CommunityCommentSection({ enabled = true }) {
       </Link>
     );
   };
+
+  if (!enabled || (weekComments.length === 0 && monthComments.length === 0 && liveMessages.length === 0)) {
+    return null;
+  }
 
   return (
     <section className={styles.commentSection} id="community-comments">

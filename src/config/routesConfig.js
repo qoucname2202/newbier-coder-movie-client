@@ -14,6 +14,7 @@ export const ROUTES = {
   PREMIUM: '/premium',
   PROFILE: '/profile',
   NO_ACCESS: '/noaccess',
+  NOT_FOUND: '/404',
   AUTH_PREFIX: '/auth/',
   ADMIN_PREFIX: '/admin/',
   ACCOUNT_PREFIX: '/account/',
@@ -30,6 +31,7 @@ export const DEFAULT_AD_EXCLUDED_PATHS = [
   ROUTES.ACCOUNT_PREFIX,
   ROUTES.PAYMENT_PREFIX,
   ROUTES.NO_ACCESS,
+  ROUTES.NOT_FOUND,
   ROUTES.PROFILE,
   ROUTES.PREMIUM,
   ROUTES.SEARCH

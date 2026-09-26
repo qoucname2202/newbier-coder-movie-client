@@ -1,28 +1,9 @@
-import { mockMovies } from '../../mock/mockMovies';
-
 /**
  * @file upcomingMovieService.js
- * @description Service for fetching upcoming movies with safe offline fallback to mock data.
+ * @description Service for fetching upcoming movies directly from API with clean empty states.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
-/**
- * Generates formatted fallback upcoming movies from mock dataset.
- * @returns {Array<Object>}
- */
-const getFallbackUpcomingMovies = () => {
-  return (mockMovies || []).slice(2, 7).map((movie, index) => {
-    const futureDate = new Date(Date.now() + (index + 2) * 86400000);
-    return {
-      ...movie,
-      release_date: futureDate.toISOString(),
-      formattedReleaseDate: futureDate.toLocaleDateString('vi-VN'),
-      daysUntilRelease: index + 2,
-      countdownText: `Ra mắt sau ${index + 2} ngày`
-    };
-  });
-};
+const API_URL = process.env.NEXT_PUBLIC_CORE_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const upcomingMovieService = {
   /**
@@ -45,9 +26,9 @@ const upcomingMovieService = {
 
       if (!response || !response.ok) {
         return {
-          success: true,
-          upcomingMovies: getFallbackUpcomingMovies(),
-          pagination: { currentPage: 1, totalPages: 1, totalCount: 5 }
+          success: false,
+          upcomingMovies: [],
+          pagination: { currentPage: 1, totalPages: 1, totalCount: 0 }
         };
       }
 
@@ -94,15 +75,15 @@ const upcomingMovieService = {
       }
 
       return {
-        success: true,
-        upcomingMovies: getFallbackUpcomingMovies(),
-        pagination: { currentPage: 1, totalPages: 1, totalCount: 5 }
+        success: false,
+        upcomingMovies: [],
+        pagination: { currentPage: 1, totalPages: 1, totalCount: 0 }
       };
     } catch {
       return {
-        success: true,
-        upcomingMovies: getFallbackUpcomingMovies(),
-        pagination: { currentPage: 1, totalPages: 1, totalCount: 5 }
+        success: false,
+        upcomingMovies: [],
+        pagination: { currentPage: 1, totalPages: 1, totalCount: 0 }
       };
     }
   },
@@ -116,8 +97,7 @@ const upcomingMovieService = {
     try {
       const response = await fetch(`${API_URL}/admin/upcoming-movies/${movieId}`).catch(() => null);
       if (!response || !response.ok) {
-        const fallback = getFallbackUpcomingMovies()[0] || null;
-        return { success: !!fallback, upcomingMovie: fallback };
+        return { success: false, upcomingMovie: null };
       }
       const data = await response.json().catch(() => null);
 
@@ -138,8 +118,7 @@ const upcomingMovieService = {
 
       return { success: false, upcomingMovie: null };
     } catch {
-      const fallback = getFallbackUpcomingMovies()[0] || null;
-      return { success: !!fallback, upcomingMovie: fallback };
+      return { success: false, upcomingMovie: null };
     }
   },
 
@@ -152,14 +131,12 @@ const upcomingMovieService = {
     try {
       const response = await fetch(`${API_URL}/upcoming-movies/${slug}`).catch(() => null);
       if (!response || !response.ok) {
-        const fallback = (mockMovies || []).find(m => m.slug === slug) || getFallbackUpcomingMovies()[0] || null;
-        return { success: !!fallback, movie: fallback };
+        return { success: false, movie: null };
       }
       const data = await response.json().catch(() => null);
-      return data || { success: false };
+      return data || { success: false, movie: null };
     } catch {
-      const fallback = (mockMovies || []).find(m => m.slug === slug) || getFallbackUpcomingMovies()[0] || null;
-      return { success: !!fallback, movie: fallback };
+      return { success: false, movie: null };
     }
   },
 
@@ -177,13 +154,13 @@ const upcomingMovieService = {
       ).catch(() => null);
 
       if (!response || !response.ok) {
-        return { success: true, upcomingMovies: getFallbackUpcomingMovies() };
+        return { success: false, upcomingMovies: [] };
       }
 
       const data = await response.json().catch(() => null);
-      return data || { success: true, upcomingMovies: getFallbackUpcomingMovies() };
+      return data || { success: false, upcomingMovies: [] };
     } catch {
-      return { success: true, upcomingMovies: getFallbackUpcomingMovies() };
+      return { success: false, upcomingMovies: [] };
     }
   }
 };

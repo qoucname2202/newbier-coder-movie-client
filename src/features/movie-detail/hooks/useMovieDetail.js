@@ -21,8 +21,6 @@ import {
 } from '@/config/movieFallbackConfig';
 
 
-import { mockMovies } from '@/mock/mockMovies';
-
 const API_BASE = MOVIE_CONFIG.apiBaseUrl;
 
 /**
@@ -36,23 +34,8 @@ export const normalizeMovieDetail = (raw, slug = '') => {
 
   const m = raw.responseData || raw.data || raw;
 
-  // Ensure episodes structure exists
-  const episodes = Array.isArray(m.episodes) && m.episodes.length > 0
-    ? m.episodes
-    : [
-        {
-          server_name: '#Server 1 (VIP)',
-          server_data: [
-            {
-              name: '1',
-              slug: 'tap-1',
-              filename: 'tap-1',
-              link_embed: m.trailer_url || 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-              link_m3u8: ''
-            }
-          ]
-        }
-      ];
+  // Normalize episodes structure
+  const episodes = Array.isArray(m.episodes) ? m.episodes : [];
 
   // Resolve actors & directors defensively
   const actorsList = resolveMovieActors(m);
@@ -142,11 +125,9 @@ export const useMovieDetail = (slug) => {
         setMovie(normalized);
       }
     } catch (err) {
-      console.warn('[useMovieDetail] Fetch failed, falling back to local dataset:', err.message);
       if (isMountedRef.current) {
-        // Fallback matching slug in mock or first mock movie
-        const matched = mockMovies.find((m) => m.slug === slug) || mockMovies[0];
-        setMovie(normalizeMovieDetail(matched, slug));
+        setError('Không tìm thấy thông tin phim hoặc phim đã bị xóa.');
+        setMovie(null);
       }
     } finally {
       if (isMountedRef.current) {
@@ -170,13 +151,12 @@ export const useMovieDetail = (slug) => {
           return;
         }
       }
-      // Fallback to other mock movies
       if (isMountedRef.current) {
-        setRelatedMovies(mockMovies.filter((m) => m.slug !== slug).slice(0, 10));
+        setRelatedMovies([]);
       }
     } catch {
       if (isMountedRef.current) {
-        setRelatedMovies(mockMovies.filter((m) => m.slug !== slug).slice(0, 10));
+        setRelatedMovies([]);
       }
     }
   }, [slug]);

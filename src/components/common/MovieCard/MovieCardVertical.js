@@ -22,7 +22,7 @@ const MovieCardVertical = ({
   className = ""
 }) => {
   const [imgSrc, setImgSrc] = useState(
-    movie?.thumb_url || movie?.poster_url || '/placeholder.jpg'
+    movie?.poster_url || movie?.thumb_url || '/img/placeholder-poster.svg'
   );
 
   if (!movie) return null;
@@ -52,7 +52,7 @@ const MovieCardVertical = ({
           alt={movie?.name || 'Poster phim'}
           className={styles.posterImg}
           loading="lazy"
-          onError={() => setImgSrc('/placeholder.jpg')}
+          onError={() => setImgSrc('/img/placeholder-poster.svg')}
         />
 
         {/* Top Badges: IMDb rating & resolution */}

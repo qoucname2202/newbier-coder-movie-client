@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { MovieSection } from '@/components/common/MovieSection';
-import { mockAnimationMovies } from '@/mock/mockMovies';
-import { MOVIE_CONFIG } from '@/config/movieConfig';
-
-const API_BASE = MOVIE_CONFIG.apiBaseUrl;
 
 /**
  * @file AnimationMoviesSection.js
  * @description Preset rail component for Anime & Animation blockbusters.
- * Uses unified single-row carousel powered by MovieSection.
+ * Completely config-driven via section props from homeSectionsConfig.
  *
  * @param {Object} props
  * @param {'sm'|'md'|'lg'} [props.cardSize='md'] - Card size preset.
+ * @param {string} [props.title] - Section title
+ * @param {string} [props.badge] - Badge label
+ * @param {string} [props.viewAllHref] - Target URL for view all link
+ * @param {Function} [props.load] - Custom loader function from config
  * @param {Function} [props.onPlayTrailer] - Trailer playback callback.
  */
 export default function AnimationMoviesSection({
   cardSize = 'md',
+  title = 'Phim Hoạt Hình & Anime Đỉnh Cao',
+  badge = 'ANIME & CARTOON',
+  viewAllHref = '/the-loai/hoat-hinh',
+  load,
   onPlayTrailer
 }) {
-  const [animationMovies, setAnimationMovies] = useState(mockAnimationMovies);
-  const [loading, setLoading] = useState(false);
+  const [animationMovies, setAnimationMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isSubscribed = true;
@@ -27,17 +31,13 @@ export default function AnimationMoviesSection({
     const fetchAnimationMovies = async () => {
       try {
         setLoading(true);
-        // Try fetching animation/anime category or search
-        const res = await fetch(`${API_BASE}/movies?category=hoat-hinh&page=1&limit=20`);
-        if (!res.ok) throw new Error('Failed to fetch animation movies');
-        const data = await res.json();
-        const movies = data?.data?.movies || data?.movies || [];
+        const movies = typeof load === 'function' ? await load([]) : [];
 
-        if (movies.length > 0 && isSubscribed) {
+        if (Array.isArray(movies) && isSubscribed) {
           setAnimationMovies(movies);
         }
-      } catch (err) {
-        // Fallback gracefully to high-res mock data
+      } catch {
+        if (isSubscribed) setAnimationMovies([]);
       } finally {
         if (isSubscribed) setLoading(false);
       }
@@ -48,13 +48,13 @@ export default function AnimationMoviesSection({
     return () => {
       isSubscribed = false;
     };
-  }, []);
+  }, [load]);
 
   return (
     <MovieSection
-      title="Phim Hoạt Hình & Anime Đỉnh Cao"
-      badge="ANIME & CARTOON"
-      viewAllHref="/the-loai/hoat-hinh"
+      title={title}
+      badge={badge}
+      viewAllHref={viewAllHref}
       layout="rail"
       variant="vertical"
       cardSize={cardSize}

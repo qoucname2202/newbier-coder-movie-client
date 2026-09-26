@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" width="100%" height="100%">
+  <defs>
+    <!-- Dark Cinematic Background Gradient -->
+    <radialGradient id="posterBg" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#181e2b"/>
+      <stop offset="55%" stop-color="#0d1017"/>
+      <stop offset="100%" stop-color="#06070a"/>
+    </radialGradient>
+
+    <!-- Ambient Center Flare -->
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#e50914" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#e50914" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Metallic Edge Gradient -->
+    <linearGradient id="frameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.6"/>
+      <stop offset="50%" stop-color="#475569" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#64748b" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <!-- Red Slash Gradient -->
+    <linearGradient id="slashGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#f87171"/>
+    </linearGradient>
+
+    <!-- Depth Shadow -->
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="24" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="600" height="900" fill="url(#posterBg)"/>
+  <rect width="600" height="900" fill="url(#centerGlow)"/>
+
+  <!-- 35mm Cinema Film Sprockets (Running along Left and Right edges) -->
+  <g fill="#ffffff" opacity="0.05">
+    <!-- Left Sprocket Track -->
+    <rect x="22" y="30" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="70" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="110" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="150" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="190" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="230" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="270" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="310" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="350" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="390" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="430" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="470" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="510" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="550" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="590" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="630" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="670" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="710" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="750" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="790" width="22" height="15" rx="3.5"/>
+    <rect x="22" y="830" width="22" height="15" rx="3.5"/>
+
+    <!-- Right Sprocket Track -->
+    <rect x="556" y="30" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="70" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="110" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="150" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="190" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="230" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="270" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="310" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="350" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="390" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="430" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="470" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="510" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="550" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="590" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="630" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="670" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="710" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="750" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="790" width="22" height="15" rx="3.5"/>
+    <rect x="556" y="830" width="22" height="15" rx="3.5"/>
+  </g>
+
+  <!-- Thin Film Frame Boundary Lines -->
+  <line x1="60" y1="20" x2="60" y2="880" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+  <line x1="540" y1="20" x2="540" y2="880" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- HEROIC PROMINENT BROKEN IMAGE EMBLEM -->
+  <g filter="url(#softGlow)" transform="translate(135, 305)">
+    <!-- Photo Frame (W: 330, H: 250, R: 28) -->
+    <rect
+      x="0"
+      y="0"
+      width="330"
+      height="250"
+      rx="28"
+      fill="#0f1420"
+      fill-opacity="0.7"
+      stroke="url(#frameGrad)"
+      stroke-width="3"
+    />
+
+    <!-- Sun / Moon in Landscape -->
+    <circle cx="85" cy="78" r="22" fill="#ffffff" fill-opacity="0.18"/>
+
+    <!-- Mountain Ridges / Landscape Silhouette -->
+    <!-- Back Mountain -->
+    <path
+      d="M 150 248 L 225 155 L 295 248 Z"
+      fill="#ffffff"
+      fill-opacity="0.07"
+    />
+    <!-- Front Mountain -->
+    <path
+      d="M 20 248 L 115 135 L 205 248 Z"
+      fill="#ffffff"
+      fill-opacity="0.13"
+    />
+
+    <!-- Dark Clearance Slit for the Diagonal Slash -->
+    <line
+      x1="-20"
+      y1="270"
+      x2="350"
+      y2="-20"
+      stroke="#0b0e14"
+      stroke-width="16"
+      stroke-linecap="round"
+    />
+
+    <!-- Iconic OS Diagonal Missing Media Slash -->
+    <line
+      x1="-20"
+      y1="270"
+      x2="350"
+      y2="-20"
+      stroke="url(#slashGrad)"
+      stroke-width="4.5"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>
