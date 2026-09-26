@@ -58,6 +58,7 @@
   font-size: 0.78rem;
   color: #8b949e;
   margin-top: 3px;
+  line-height: 1;
 }
 
 .livePulseDot {
@@ -67,6 +68,8 @@
   border-radius: 50%;
   box-shadow: 0 0 6px #e50914;
   animation: pulse 1.5s infinite;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 @keyframes pulse {
@@ -193,36 +196,55 @@
 }
 
 .epButton {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 10px 6px;
+  padding: 9px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: #cbd5e1;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #e2e8f0;
   width: 100%;
 }
 
+.epPlayIcon {
+  font-size: 0.65rem;
+  color: #cbd5e1;
+  margin-right: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
 .epButton:hover {
-  background: rgba(229, 9, 20, 0.12);
-  border-color: rgba(229, 9, 20, 0.4);
+  background: rgba(229, 9, 20, 0.16);
+  border-color: rgba(229, 9, 20, 0.45);
   color: #ffffff;
   transform: translateY(-1px);
 }
 
+.epButton:hover .epPlayIcon {
+  color: #ffffff;
+  transform: scale(1.15);
+}
+
 .epButtonActive {
-  background: #e50914 !important;
+  background: linear-gradient(135deg, #e50914 0%, #b80710 100%) !important;
   border-color: #e50914 !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.35);
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.45);
+}
+
+.epButtonActive .epText {
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .epText {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   white-space: nowrap;
 }

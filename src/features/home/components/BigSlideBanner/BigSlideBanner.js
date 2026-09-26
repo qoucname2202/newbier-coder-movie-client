@@ -175,13 +175,13 @@ export default function BigSlideBanner({
               <span className={styles.ratingText}>
                 <i className="fas fa-star" /> {movieRating}
               </span>
-              <span className={styles.metaDot}>•</span>
+              <span className={styles.metaDot} aria-hidden="true" />
               <span>{movieYear}</span>
-              <span className={styles.metaDot}>•</span>
+              <span className={styles.metaDot} aria-hidden="true" />
               <span>{movieTime}</span>
-              <span className={styles.metaDot}>•</span>
+              <span className={styles.metaDot} aria-hidden="true" />
               <span className={styles.qualityTag}>{movieQuality}</span>
-              <span className={styles.metaDot}>•</span>
+              <span className={styles.metaDot} aria-hidden="true" />
               <span className={styles.langText}>{movieLang}</span>
             </div>
 

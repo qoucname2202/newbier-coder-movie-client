@@ -203,18 +203,55 @@ export default function MovieWatchPage({ initialSlug }) {
             {/* Video Info Header below Player */}
             <div className={styles.videoMetaHeader}>
               <div className={styles.metaTitleGroup}>
-                <h1 className={styles.movieMainTitle}>
-                  {movie.name} <span className={styles.highlightEp}>- {epTitle}</span>
-                </h1>
-                <p className={styles.movieSubTitle}>{movie.origin_name}</p>
+                <div className={styles.titleBadgeRow}>
+                  <h1 className={styles.movieMainTitle}>
+                    {movie.name}
+                  </h1>
+                  <span className={styles.epHighlightPill}>
+                    <span className={styles.epPillDot} />
+                    {epTitle}
+                  </span>
+                </div>
+
+                {movie.origin_name && (
+                  <p className={styles.movieSubTitle}>{movie.origin_name}</p>
+                )}
 
                 <div className={styles.tagRow}>
                   <span className={styles.qualityTag}>{movie.quality || 'Full HD'}</span>
-                  {movie.year && <span className={styles.infoPill}>{movie.year}</span>}
-                  {movie.time && <span className={styles.infoPill}>{movie.time}</span>}
-                  <span className={styles.infoPill}>
-                    {activeServer?.server_name || 'Server 1'}
-                  </span>
+
+                  {movie.year && (
+                    <>
+                      <span className={styles.metaDot} aria-hidden="true" />
+                      <span className={styles.infoText}>{movie.year}</span>
+                    </>
+                  )}
+
+                  {movie.time && (
+                    <>
+                      <span className={styles.metaDot} aria-hidden="true" />
+                      <span className={styles.infoText}>{movie.time}</span>
+                    </>
+                  )}
+
+                  {movie.episode_total && (
+                    <>
+                      <span className={styles.metaDot} aria-hidden="true" />
+                      <span className={styles.infoText}>
+                        {movie.episode_current || epTitle} / {movie.episode_total}
+                      </span>
+                    </>
+                  )}
+
+                  {activeServer?.server_name && (
+                    <>
+                      <span className={styles.metaDot} aria-hidden="true" />
+                      <span className={styles.serverPill}>
+                        <i className="fas fa-server me-1" />
+                        {activeServer.server_name}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
 

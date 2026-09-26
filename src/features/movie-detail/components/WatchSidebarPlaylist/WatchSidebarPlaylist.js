@@ -128,7 +128,7 @@ export default function WatchSidebarPlaylist({
                     <span className={styles.bar} />
                   </span>
                 ) : (
-                  <i className="fas fa-play text-muted me-1" style={{ fontSize: '0.65rem' }} />
+                  <i className={`fas fa-play ${styles.epPlayIcon}`} aria-hidden="true" />
                 )}
                 <span className={styles.epText}>{epLabel}</span>
               </button>

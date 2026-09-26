@@ -110,7 +110,7 @@ const MovieCardHorizontal = ({
               </span>
             )}
             <span>{movie?.year || new Date().getFullYear()}</span>
-            <span>•</span>
+            <span className={styles.metaDot} aria-hidden="true" />
             <span className="text-truncate" style={{ maxWidth: '140px' }}>
               {movie?.origin_name || (movie?.type === 'series' ? 'Phim bộ' : 'Phim lẻ')}
             </span>
