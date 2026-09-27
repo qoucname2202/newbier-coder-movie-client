@@ -30,7 +30,10 @@ export default function MoviePlayerSection({
   const currentEpisodes = currentServer?.server_data || [];
   const totalEpisodes = currentEpisodes.length;
 
-  const streamEmbedUrl = activeEpisode?.link_embed || activeEpisode?.link_m3u8 || '';
+  // Prioritize self-hosted cinema player with pixel-perfect timeline and seek buttons
+  const streamEmbedUrl = activeEpisode?.link_m3u8
+    ? `/player.html?url=${encodeURIComponent(activeEpisode.link_m3u8)}&title=${encodeURIComponent(movie?.name || '')}&ep=${encodeURIComponent(activeEpisode?.name || '')}`
+    : (activeEpisode?.link_embed || '');
 
   const handlePrevEpisode = () => {
     if (currentEpisodeIndex > 0) {
