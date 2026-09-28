@@ -67,8 +67,8 @@ export function saveWatchProgress(slug, data) {
         detail: { slug, payload }
       })
     );
-  } catch (err) {
-    console.warn('[watchProgress] Failed to save progress:', err?.message);
+  } catch {
+    // Silent fallback
   }
 }
 

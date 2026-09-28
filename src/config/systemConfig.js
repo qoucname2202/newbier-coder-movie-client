@@ -24,7 +24,7 @@ export const SYSTEM_CONFIG = {
   apiBaseUrl: (
     process.env.NEXT_PUBLIC_CORE_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
-    'https://core-movie-service.onrender.com/api/v1'
+    ''
   ).replace(/\/+$/, ''),
 
   // Data fetching strategy mode:

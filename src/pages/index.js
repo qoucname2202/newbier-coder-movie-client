@@ -30,6 +30,7 @@ import {
   BATCH_LOADING_CONFIG,
   t
 } from "@/config/homeSectionsConfig";
+import { getDashboardDataForISR } from "@/utils/dashboardSnapshot";
 
 /**
  * Sentinel component placed between sequential section batches.
@@ -73,7 +74,7 @@ function BatchScrollSentinel({ onTrigger, delayMs = 800 }) {
  * Main Home page component.
  * @returns {JSX.Element} Rendered homepage layout.
  */
-export default function Home() {
+export default function Home({ initialSnapshot }) {
   const { isAuthenticated, isAccountLocked } = useAuth();
   const {
     featuredMovies,
@@ -89,7 +90,7 @@ export default function Home() {
     loadingMore,
     hasMore,
     loadMore
-  } = useHomeData();
+  } = useHomeData(initialSnapshot);
 
   const [activeTrailerMovie, setActiveTrailerMovie] = useState(null);
   const bottomSentinelRef = useRef(null);
@@ -508,4 +509,28 @@ export default function Home() {
       `}</style>
     </>
   );
+}
+
+/**
+ * Incremental Static Regeneration (ISR) - Option 1
+ * Pre-renders the dashboard statically and revalidates in the background every 180 seconds.
+ * 100% of visiting users receive cached static HTML/JSON without querying the database!
+ */
+export async function getStaticProps() {
+  try {
+    const initialSnapshot = await getDashboardDataForISR();
+    return {
+      props: {
+        initialSnapshot: initialSnapshot || null
+      },
+      revalidate: 180 // Auto-revalidates in background every 3 minutes
+    };
+  } catch {
+    return {
+      props: {
+        initialSnapshot: null
+      },
+      revalidate: 60
+    };
+  }
 }

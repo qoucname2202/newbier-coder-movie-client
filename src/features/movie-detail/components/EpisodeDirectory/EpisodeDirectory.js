@@ -129,7 +129,7 @@ export default function EpisodeDirectory({
       {savedProgress && savedProgress.epName && (
         <div className={styles.resumeBanner}>
           <div className={styles.resumeInfo}>
-            <span>Tập bạn đang xem dở:</span>
+            <span>Bạn đang xem:</span>
             <span className={styles.resumeEpHighlight}>
               {savedProgress.epName.toLowerCase().startsWith('tập')
                 ? savedProgress.epName

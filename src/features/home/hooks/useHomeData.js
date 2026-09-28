@@ -42,18 +42,36 @@ const normalizeMovie = (movie, index = 0) => {
   };
 };
 
-export const useHomeData = () => {
-  // Pure real API data states
-  const [featuredMovies, setFeaturedMovies] = useState([]);
-  const [topMovies, setTopMovies] = useState([]);
-  const [mostViewedMovies, setMostViewedMovies] = useState([]);
+export const useHomeData = (initialSnapshot = null) => {
+  // Pure real API data states initialized from ISR snapshot when available
+  const [featuredMovies, setFeaturedMovies] = useState(() =>
+    initialSnapshot?.featuredMovies?.length > 0
+      ? initialSnapshot.featuredMovies.map((m, idx) => normalizeHeroMovie(m, idx))
+      : []
+  );
+  const [topMovies, setTopMovies] = useState(() =>
+    initialSnapshot?.topMovies?.length > 0
+      ? initialSnapshot.topMovies.map((m, idx) => normalizeMovie(m, idx))
+      : []
+  );
+  const [mostViewedMovies, setMostViewedMovies] = useState(() =>
+    initialSnapshot?.mostViewedMovies?.length > 0
+      ? initialSnapshot.mostViewedMovies.map((m, idx) => ({ ...normalizeMovie(m, idx), rank: m.rank || idx + 1 }))
+      : []
+  );
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [upcomingLoading, setUpcomingLoading] = useState(false);
   const [upcomingLoaded, setUpcomingLoaded] = useState(false);
-  const [animeSpotlightMovies, setAnimeSpotlightMovies] = useState([]);
-  const [latestMovies, setLatestMovies] = useState([]);
+  const [animeSpotlightMovies, setAnimeSpotlightMovies] = useState(() =>
+    initialSnapshot?.animeSpotlightMovies || []
+  );
+  const [latestMovies, setLatestMovies] = useState(() =>
+    initialSnapshot?.latestMovies?.length > 0
+      ? initialSnapshot.latestMovies.map((m, idx) => normalizeMovie(m, idx))
+      : []
+  );
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !initialSnapshot?.featuredMovies?.length);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -196,13 +214,15 @@ export const useHomeData = () => {
     }
   }, []);
 
-  // Initial fetch on mount (Hero spotlight, Top 10 rail, anime spotlight, and latest movies)
+  // Initial fetch on mount: ONLY triggered if initialSnapshot is not provided or empty (saves 100% initial queries)
   useEffect(() => {
-    fetchHeroMovies();
-    fetchTop10Movies();
-    fetchBigSlideMovies();
-    fetchLatestMovies(1, false);
-  }, [fetchHeroMovies, fetchTop10Movies, fetchBigSlideMovies, fetchLatestMovies]);
+    if (!initialSnapshot?.featuredMovies?.length) {
+      fetchHeroMovies();
+      fetchTop10Movies();
+      fetchBigSlideMovies();
+      fetchLatestMovies(1, false);
+    }
+  }, [initialSnapshot, fetchHeroMovies, fetchTop10Movies, fetchBigSlideMovies, fetchLatestMovies]);
 
   /**
    * Loads the next batch of movies for infinite scrolling.

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "snapshot": "node scripts/generate-snapshot.mjs"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^9.5.1",

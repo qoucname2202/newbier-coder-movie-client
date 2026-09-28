@@ -19,6 +19,7 @@ import {
   LOCAL_DEFAULT_POSTER,
   MOVIE_FALLBACK_DEFAULTS
 } from '@/config/movieFallbackConfig';
+import { getClientSnapshot } from '@/utils/dashboardSnapshot';
 
 
 const API_BASE = MOVIE_CONFIG.apiBaseUrl;
@@ -126,6 +127,18 @@ export const useMovieDetail = (slug) => {
       }
     } catch (err) {
       if (isMountedRef.current) {
+        try {
+          const snapshot = await getClientSnapshot();
+          const cachedMovie = snapshot?.moviesDetail?.[slug];
+          if (cachedMovie) {
+            const normalized = normalizeMovieDetail(cachedMovie, slug);
+            setMovie(normalized);
+            setError(null);
+            return;
+          }
+        } catch {
+          // ignore
+        }
         setError('Không tìm thấy thông tin phim hoặc phim đã bị xóa.');
         setMovie(null);
       }
@@ -177,8 +190,8 @@ export const useMovieDetail = (slug) => {
           return;
         }
       }
-    } catch (err) {
-      console.warn('[useMovieDetail] Comments fetch failed:', err.message);
+    } catch {
+      // Quiet fail on comments fetch
     } finally {
       if (isMountedRef.current) {
         setCommentsLoading(false);

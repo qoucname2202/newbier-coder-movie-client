@@ -3,7 +3,7 @@
  * @description Service for fetching upcoming movies directly from API with clean empty states.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_CORE_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = (process.env.NEXT_PUBLIC_CORE_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, '');
 
 const upcomingMovieService = {
   /**
