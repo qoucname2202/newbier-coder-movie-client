@@ -190,7 +190,6 @@ export default function TrailerModal({ movie, onClose }) {
           {loading ? (
             <div className="trailer-loading-state">
               <div className="trailer-spinner" />
-              {/* <p className="mt-3 text-white-50">Đang tìm trailer phim...</p> */}
             </div>
           ) : trailerEmbedUrl ? (
             <iframe

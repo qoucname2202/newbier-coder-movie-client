@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { LOCAL_DEFAULT_BACKDROP, LOCAL_DEFAULT_POSTER } from '@/config/movieConfig';
+import { getWatchProgress } from '@/utils/watchProgress';
 import styles from './MovieHeroHeader.module.css';
 
 /**
@@ -26,6 +27,15 @@ export default function MovieHeroHeader({
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [synopsisExpanded, setSynopsisExpanded] = useState(false);
+  const [savedProgress, setSavedProgress] = useState(null);
+
+  useEffect(() => {
+    if (!movie?.slug) return;
+    const progress = getWatchProgress(movie.slug);
+    if (progress && progress.epSlug) {
+      setSavedProgress(progress);
+    }
+  }, [movie?.slug]);
 
   if (!movie) return null;
 
@@ -52,6 +62,9 @@ export default function MovieHeroHeader({
   // URL routes
   const watchFirstUrl = `/movie/${movie.slug}/watch?ep=${encodeURIComponent(firstEpSlug)}`;
   const watchLatestUrl = `/movie/${movie.slug}/watch?ep=${encodeURIComponent(latestEpSlug)}`;
+  const watchResumeUrl = savedProgress?.epSlug
+    ? `/movie/${movie.slug}/watch?ep=${encodeURIComponent(savedProgress.epSlug)}&server=${savedProgress.serverIndex || 0}`
+    : watchFirstUrl;
 
   // Formatted metadata
   const categories = movie.category || [];
@@ -179,36 +192,62 @@ export default function MovieHeroHeader({
             <div className={styles.actionButtonGroup}>
               {isSeries ? (
                 <>
-                  <button
-                    type="button"
-                    className={styles.btnWatchPrimary}
-                    onClick={() => router.push(watchFirstUrl)}
-                    title="Xem từ tập 1"
-                  >
-                    <i className="fas fa-play me-2" />
-                    <span>Xem Từ Đầu</span>
-                  </button>
+                  {savedProgress && savedProgress.episodeIndex > 0 ? (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.btnWatchPrimary}
+                        onClick={() => router.push(watchResumeUrl)}
+                        title={`Tiếp tục xem ${savedProgress.epName}`}
+                      >
+                        <i className="fas fa-play me-2" />
+                        <span>Tiếp Tục ({savedProgress.epName?.toLowerCase().startsWith('tập') ? savedProgress.epName : `Tập ${savedProgress.epName}`})</span>
+                      </button>
 
-                  {totalEpisodesCount > 1 && (
-                    <button
-                      type="button"
-                      className={styles.btnWatchSecondary}
-                      onClick={() => router.push(watchLatestUrl)}
-                      title={`Xem tập ${latestEpName}`}
-                    >
-                      <i className="fas fa-forward me-2" />
-                      <span>Tập Mới Nhất ({latestEpName})</span>
-                    </button>
+                      <button
+                        type="button"
+                        className={styles.btnWatchSecondary}
+                        onClick={() => router.push(watchFirstUrl)}
+                        title="Xem lại từ tập 1"
+                      >
+                        <i className="fas fa-redo me-2" />
+                        <span>Xem Từ Đầu</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.btnWatchPrimary}
+                        onClick={() => router.push(watchFirstUrl)}
+                        title="Xem từ tập 1"
+                      >
+                        <i className="fas fa-play me-2" />
+                        <span>Xem Từ Đầu</span>
+                      </button>
+
+                      {totalEpisodesCount > 1 && (
+                        <button
+                          type="button"
+                          className={styles.btnWatchSecondary}
+                          onClick={() => router.push(watchLatestUrl)}
+                          title={`Xem tập ${latestEpName}`}
+                        >
+                          <i className="fas fa-forward me-2" />
+                          <span>Tập Mới Nhất ({latestEpName})</span>
+                        </button>
+                      )}
+                    </>
                   )}
                 </>
               ) : (
                 <button
                   type="button"
                   className={styles.btnWatchPrimary}
-                  onClick={() => router.push(watchFirstUrl)}
+                  onClick={() => router.push(watchResumeUrl)}
                 >
                   <i className="fas fa-play me-2" />
-                  <span>Xem Phim</span>
+                  <span>{savedProgress ? 'Tiếp Tục Xem' : 'Xem Phim'}</span>
                 </button>
               )}
 

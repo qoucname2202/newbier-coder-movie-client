@@ -1,14 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { getWatchProgress } from '@/utils/watchProgress';
 import styles from './EpisodeDirectory.module.css';
 
-const GROUP_SIZE = 100;
+const GROUP_SIZE = 25;
 
 /**
  * @file EpisodeDirectory.js
  * @description Compact, high-density episode directory modeled after Asian streaming
  * platforms (AnimeVietSub, RoPhim). Displays a clean grid of compact episode chips
- * grouped by server with zero bloat and instant navigation.
+ * grouped by server with zero bloat, resume banner, and instant navigation.
  *
  * @param {Object} props
  * @param {string} props.movieSlug - Movie slug for navigation.
@@ -23,10 +24,26 @@ export default function EpisodeDirectory({
   const [activeServerIndex, setActiveServerIndex] = useState(0);
   const [activeGroupIndex, setActiveGroupIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [savedProgress, setSavedProgress] = useState(null);
 
   const currentServer = servers[activeServerIndex] || servers[0] || null;
   const rawEpisodes = currentServer?.server_data || [];
   const totalEpisodes = rawEpisodes.length;
+
+  // Check saved progress from localStorage on client mount
+  useEffect(() => {
+    if (!movieSlug) return;
+    const progress = getWatchProgress(movieSlug);
+    if (progress) {
+      setSavedProgress(progress);
+      if (typeof progress.serverIndex === 'number' && progress.serverIndex < servers.length) {
+        setActiveServerIndex(progress.serverIndex);
+      }
+      if (typeof progress.episodeIndex === 'number' && progress.episodeIndex >= 0) {
+        setActiveGroupIndex(Math.floor(progress.episodeIndex / GROUP_SIZE));
+      }
+    }
+  }, [movieSlug, servers.length]);
 
   // Single movie check: If single movie with only 1 episode, render a clean compact single-source row
   const isSeries = movieType === 'series' || totalEpisodes > 1;
@@ -46,7 +63,7 @@ export default function EpisodeDirectory({
 
   // Sliced episodes for current group
   const displayedEpisodes = useMemo(() => {
-    if (searchTerm.trim()) return filteredEpisodes;
+    if (searchTerm.trim()) return filteredEpisodes.slice(0, 100);
     const start = activeGroupIndex * GROUP_SIZE;
     return filteredEpisodes.slice(start, start + GROUP_SIZE);
   }, [filteredEpisodes, activeGroupIndex, searchTerm]);
@@ -73,12 +90,16 @@ export default function EpisodeDirectory({
     );
   }
 
+  // Target resume episode link
+  const resumeHref = savedProgress?.epSlug
+    ? `/movie/${movieSlug}/watch?ep=${encodeURIComponent(savedProgress.epSlug)}&server=${savedProgress.serverIndex || 0}`
+    : `/movie/${movieSlug}/watch`;
+
   return (
     <section className={styles.container} aria-label="Danh sách tập phim">
       {/* Header bar */}
       <div className={styles.headerBar}>
         <div className={styles.headerTitleWrap}>
-          <i className="fas fa-list text-danger me-2" />
           <h3 className={styles.headerTitle}>Danh Sách Tập</h3>
           <span className={styles.epCountBadge}>({totalEpisodes} tập)</span>
         </div>
@@ -104,34 +125,58 @@ export default function EpisodeDirectory({
         )}
       </div>
 
-      {/* Filter toolbar if more than 50 episodes */}
-      {totalEpisodes > 50 && (
+      {/* Resume Watch Banner if user has watched before */}
+      {savedProgress && savedProgress.epName && (
+        <div className={styles.resumeBanner}>
+          <div className={styles.resumeInfo}>
+            <span>Tập bạn đang xem dở:</span>
+            <span className={styles.resumeEpHighlight}>
+              {savedProgress.epName.toLowerCase().startsWith('tập')
+                ? savedProgress.epName
+                : `Tập ${savedProgress.epName}`}
+            </span>
+          </div>
+
+          <Link href={resumeHref} className={styles.btnResumePlay}>
+            Tiếp tục xem ngay
+          </Link>
+        </div>
+      )}
+
+      {/* Filter toolbar if more than 25 episodes */}
+      {totalEpisodes > 25 && (
         <div className={styles.filterBar}>
-          {totalGroups > 1 && (
-            <div className={styles.groupChips}>
-              {Array.from({ length: totalGroups }).map((_, gIdx) => {
-                const start = gIdx * GROUP_SIZE + 1;
-                const end = Math.min((gIdx + 1) * GROUP_SIZE, filteredEpisodes.length);
-                return (
-                  <button
-                    key={gIdx}
-                    type="button"
-                    className={`${styles.groupChip} ${activeGroupIndex === gIdx ? styles.groupChipActive : ''}`}
-                    onClick={() => setActiveGroupIndex(gIdx)}
-                  >
-                    {start} - {end}
-                  </button>
-                );
-              })}
+          {totalGroups > 1 && !searchTerm.trim() && (
+            <div className={styles.groupSelectWrap}>
+              <select
+                className={styles.groupDropdownSelect}
+                value={activeGroupIndex}
+                onChange={(e) => setActiveGroupIndex(Number(e.target.value))}
+                aria-label="Chọn khoảng tập"
+              >
+                {Array.from({ length: totalGroups }).map((_, gIdx) => {
+                  const start = gIdx * GROUP_SIZE + 1;
+                  const end = Math.min((gIdx + 1) * GROUP_SIZE, filteredEpisodes.length);
+                  const isCurrentSavedGroup =
+                    savedProgress &&
+                    typeof savedProgress.episodeIndex === 'number' &&
+                    Math.floor(savedProgress.episodeIndex / GROUP_SIZE) === gIdx;
+
+                  return (
+                    <option key={`opt-${gIdx}`} value={gIdx}>
+                      Tập {start} - {end} {isCurrentSavedGroup ? '• (Đang xem dở)' : ''}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
           )}
 
           <div className={styles.searchWrapper}>
-            <i className="fas fa-search text-secondary" />
             <input
               type="text"
               className={styles.searchInput}
-              placeholder="Nhập số tập..."
+              placeholder="Tìm số tập..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -145,13 +190,14 @@ export default function EpisodeDirectory({
           const epSlug = ep.slug || `tap-${ep.name}`;
           const href = `/movie/${movieSlug}/watch?ep=${encodeURIComponent(epSlug)}&server=${activeServerIndex}`;
           const displayName = ep.name?.toLowerCase().startsWith('tập') ? ep.name : `Tập ${ep.name}`;
+          const isResumeEp = savedProgress && (savedProgress.epSlug === ep.slug || savedProgress.epName === ep.name);
 
           return (
             <Link
               key={ep.slug || idx}
               href={href}
-              className={styles.chip}
-              title={`Xem ${displayName}`}
+              className={`${styles.chip} ${isResumeEp ? styles.chipResume : ''}`}
+              title={isResumeEp ? `Tiếp tục xem ${displayName}` : `Xem ${displayName}`}
             >
               {displayName}
             </Link>

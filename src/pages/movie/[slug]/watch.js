@@ -17,6 +17,7 @@ import {
 } from '@/features/movie-detail';
 import { MovieSection } from '@/components/common/MovieSection';
 import BackToTop from '@/components/UI/BackToTop';
+import { getWatchProgress, saveWatchProgress } from '@/utils/watchProgress';
 import styles from '@/styles/MovieWatchPage.module.css';
 
 /**
@@ -50,9 +51,9 @@ export default function MovieWatchPage({ initialSlug }) {
 
   const [shareCopied, setShareCopied] = useState(false);
 
-  // Sync route query (?ep=... & ?server=...) to active episode/server
+  // Sync route query (?ep=... & ?server=...) to active episode/server OR restore saved watch progress
   useEffect(() => {
-    if (!router.isReady || !activeServer?.server_data) return;
+    if (!router.isReady || !activeServer?.server_data || activeServer.server_data.length === 0) return;
 
     const { ep, server } = router.query;
 
@@ -70,8 +71,53 @@ export default function MovieWatchPage({ initialSlug }) {
       if (epIndex !== -1 && epIndex !== currentEpisodeIndex) {
         setCurrentEpisodeIndex(epIndex);
       }
+    } else {
+      // If no explicit ?ep= in query, check saved watch progress so it doesn't always default to episode 1!
+      const saved = getWatchProgress(slug);
+      if (saved) {
+        let savedIndex = -1;
+        if (saved.epSlug) {
+          savedIndex = activeServer.server_data.findIndex(
+            (item) => item.slug === saved.epSlug || item.name === saved.epName
+          );
+        }
+        if (savedIndex === -1 && typeof saved.episodeIndex === 'number' && saved.episodeIndex < activeServer.server_data.length) {
+          savedIndex = saved.episodeIndex;
+        }
+
+        if (savedIndex > 0) {
+          setCurrentEpisodeIndex(savedIndex);
+          const targetEp = activeServer.server_data[savedIndex];
+          if (targetEp?.slug) {
+            router.replace(
+              {
+                pathname: `/movie/${slug}/watch`,
+                query: {
+                  ep: targetEp.slug,
+                  server: currentServerIndex
+                }
+              },
+              undefined,
+              { shallow: true }
+            );
+          }
+        }
+      }
     }
-  }, [router.isReady, router.query, activeServer, currentServerIndex, currentEpisodeIndex, movie?.episodes, setCurrentEpisodeIndex, setCurrentServerIndex]);
+  }, [router.isReady, router.query, activeServer, currentServerIndex, currentEpisodeIndex, movie?.episodes, setCurrentEpisodeIndex, setCurrentServerIndex, slug]);
+
+  // Persist watch progress whenever active episode changes
+  useEffect(() => {
+    if (!slug || !activeEpisode) return;
+    saveWatchProgress(slug, {
+      serverIndex: currentServerIndex,
+      episodeIndex: currentEpisodeIndex,
+      epSlug: activeEpisode.slug,
+      epName: activeEpisode.name,
+      movieName: movie?.name,
+      posterUrl: movie?.poster_url
+    });
+  }, [slug, currentServerIndex, currentEpisodeIndex, activeEpisode, movie?.name, movie?.poster_url]);
 
   // Handle episode change and update URL query smoothly without full reload
   const handleSelectEpisode = useCallback((epIndex) => {
