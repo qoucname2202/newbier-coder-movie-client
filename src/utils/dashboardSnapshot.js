@@ -3,39 +3,71 @@
  * @description Centralized Snapshot & ISR Data Manager for Dashboard & Movies.
  * Supports Next.js ISR (Incremental Static Regeneration), local static snapshot fallback,
  * and resilient offline/cold-start streaming data resolution.
+ * Toggleable via NEXT_PUBLIC_ENABLE_HOMEPAGE_SNAPSHOT environment variable.
  */
 
-let snapshotJson = null;
-try {
-  snapshotJson = require('../../public/data/dashboard-snapshot.json');
-} catch {
-  snapshotJson = {
-    version: '1.0',
-    generatedAt: null,
-    dashboard: {
-      featuredMovies: [],
-      topMovies: [],
-      mostViewedMovies: [],
-      latestMovies: [],
-      animeSpotlightMovies: []
-    },
-    moviesDetail: {}
-  };
+/**
+ * Checks whether homepage snapshot / ISR caching mechanism is enabled.
+ * Controlled via NEXT_PUBLIC_ENABLE_HOMEPAGE_SNAPSHOT in .env.local
+ * @returns {boolean}
+ */
+export function isHomepageSnapshotEnabled() {
+  const envVal = process.env.NEXT_PUBLIC_ENABLE_HOMEPAGE_SNAPSHOT ?? process.env.ENABLE_HOMEPAGE_SNAPSHOT;
+  return envVal === 'true';
+}
+
+const DEFAULT_SNAPSHOT_STRUCTURE = {
+  version: '1.0',
+  generatedAt: null,
+  dashboard: {
+    featuredMovies: [],
+    topMovies: [],
+    mostViewedMovies: [],
+    latestMovies: [],
+    animeSpotlightMovies: []
+  },
+  moviesDetail: {}
+};
+
+let cachedSnapshot = null;
+
+function loadSnapshotFromDisk() {
+  if (cachedSnapshot) return cachedSnapshot;
+  if (!isHomepageSnapshotEnabled()) return null;
+
+  if (typeof window === 'undefined') {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const snapshotPath = path.join(process.cwd(), 'public', 'data', 'dashboard-snapshot.json');
+      if (fs.existsSync(snapshotPath)) {
+        cachedSnapshot = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'));
+        return cachedSnapshot;
+      }
+    } catch {
+      // Fallback cleanly
+    }
+  }
+
+  return null;
 }
 
 /**
  * Returns static pre-built snapshot fallback
  */
 export function getLocalSnapshot() {
-  return snapshotJson || null;
+  if (!isHomepageSnapshotEnabled()) return null;
+  return loadSnapshotFromDisk() || DEFAULT_SNAPSHOT_STRUCTURE;
 }
 
 /**
  * Fetches snapshot via HTTP (works in client browser or edge)
  */
 export async function getClientSnapshot() {
+  if (!isHomepageSnapshotEnabled()) return null;
+
   if (typeof window === 'undefined') {
-    return snapshotJson;
+    return loadSnapshotFromDisk();
   }
 
   try {
@@ -46,9 +78,9 @@ export async function getClientSnapshot() {
       return await res.json();
     }
   } catch {
-    // Silent fallback to bundled snapshot
+    // Silent fallback
   }
-  return snapshotJson;
+  return null;
 }
 
 /**
@@ -56,9 +88,14 @@ export async function getClientSnapshot() {
  * Strictly reads API_BASE from environment variables without hardcoded fallbacks.
  * Attempts to load fresh data from API with a safe timeout;
  * falls back to pre-built snapshot if backend is asleep or unreachable.
+ * If NEXT_PUBLIC_ENABLE_HOMEPAGE_SNAPSHOT is false, returns null immediately.
  */
 export async function getDashboardDataForISR() {
-  const fallback = snapshotJson;
+  if (!isHomepageSnapshotEnabled()) {
+    return null;
+  }
+
+  const fallback = loadSnapshotFromDisk() || DEFAULT_SNAPSHOT_STRUCTURE;
   const API_BASE = (process.env.NEXT_PUBLIC_CORE_API_URL || process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, '');
 
   if (API_BASE) {
@@ -112,8 +149,8 @@ export async function getDashboardDataForISR() {
     }
   }
 
-  // Fallback to pre-built snapshot
-  if (fallback?.dashboard) {
+  // Fallback to pre-built snapshot if available and enabled
+  if (fallback?.dashboard && fallback?.generatedAt) {
     return {
       ...fallback.dashboard,
       moviesDetail: fallback.moviesDetail || {},

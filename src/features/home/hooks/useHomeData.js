@@ -43,35 +43,38 @@ const normalizeMovie = (movie, index = 0) => {
 };
 
 export const useHomeData = (initialSnapshot = null) => {
-  // Pure real API data states initialized from ISR snapshot when available
+  const isSnapshotEnabled = process.env.NEXT_PUBLIC_ENABLE_HOMEPAGE_SNAPSHOT === 'true';
+  const effectiveSnapshot = isSnapshotEnabled ? initialSnapshot : null;
+
+  // Pure real API data states initialized from ISR snapshot when available & enabled
   const [featuredMovies, setFeaturedMovies] = useState(() =>
-    initialSnapshot?.featuredMovies?.length > 0
-      ? initialSnapshot.featuredMovies.map((m, idx) => normalizeHeroMovie(m, idx))
+    effectiveSnapshot?.featuredMovies?.length > 0
+      ? effectiveSnapshot.featuredMovies.map((m, idx) => normalizeHeroMovie(m, idx))
       : []
   );
   const [topMovies, setTopMovies] = useState(() =>
-    initialSnapshot?.topMovies?.length > 0
-      ? initialSnapshot.topMovies.map((m, idx) => normalizeMovie(m, idx))
+    effectiveSnapshot?.topMovies?.length > 0
+      ? effectiveSnapshot.topMovies.map((m, idx) => normalizeMovie(m, idx))
       : []
   );
   const [mostViewedMovies, setMostViewedMovies] = useState(() =>
-    initialSnapshot?.mostViewedMovies?.length > 0
-      ? initialSnapshot.mostViewedMovies.map((m, idx) => ({ ...normalizeMovie(m, idx), rank: m.rank || idx + 1 }))
+    effectiveSnapshot?.mostViewedMovies?.length > 0
+      ? effectiveSnapshot.mostViewedMovies.map((m, idx) => ({ ...normalizeMovie(m, idx), rank: m.rank || idx + 1 }))
       : []
   );
   const [upcomingMovies, setUpcomingMovies] = useState([]);
   const [upcomingLoading, setUpcomingLoading] = useState(false);
   const [upcomingLoaded, setUpcomingLoaded] = useState(false);
   const [animeSpotlightMovies, setAnimeSpotlightMovies] = useState(() =>
-    initialSnapshot?.animeSpotlightMovies || []
+    effectiveSnapshot?.animeSpotlightMovies || []
   );
   const [latestMovies, setLatestMovies] = useState(() =>
-    initialSnapshot?.latestMovies?.length > 0
-      ? initialSnapshot.latestMovies.map((m, idx) => normalizeMovie(m, idx))
+    effectiveSnapshot?.latestMovies?.length > 0
+      ? effectiveSnapshot.latestMovies.map((m, idx) => normalizeMovie(m, idx))
       : []
   );
 
-  const [loading, setLoading] = useState(() => !initialSnapshot?.featuredMovies?.length);
+  const [loading, setLoading] = useState(() => !effectiveSnapshot?.featuredMovies?.length);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);

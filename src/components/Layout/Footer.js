@@ -91,7 +91,6 @@ const Footer = () => {
           background-color: #141414;
           color: #FFFFFF;
           padding: 50px 0 20px;
-          margin-top: 60px;
           border-top: 1px solid rgba(255, 255, 255, 0.1);
           width: 100%;
           position: relative;

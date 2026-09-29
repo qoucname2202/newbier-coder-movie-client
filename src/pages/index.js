@@ -517,6 +517,17 @@ export default function Home({ initialSnapshot }) {
  * 100% of visiting users receive cached static HTML/JSON without querying the database!
  */
 export async function getStaticProps() {
+  const isSnapshotEnabled = (process.env.NEXT_PUBLIC_ENABLE_HOMEPAGE_SNAPSHOT ?? process.env.ENABLE_HOMEPAGE_SNAPSHOT) === 'true';
+
+  if (!isSnapshotEnabled) {
+    return {
+      props: {
+        initialSnapshot: null
+      },
+      revalidate: 60
+    };
+  }
+
   try {
     const initialSnapshot = await getDashboardDataForISR();
     return {

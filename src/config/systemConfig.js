@@ -31,6 +31,9 @@ export const SYSTEM_CONFIG = {
   // - 'api_only': Strict live API, empty array if failed
   dataMode: process.env.NEXT_PUBLIC_DATA_MODE || 'api_only',
 
+  // Homepage Snapshot mechanism toggle
+  enableHomepageSnapshot: process.env.NEXT_PUBLIC_ENABLE_HOMEPAGE_SNAPSHOT === 'true',
+
   // Flag indicating whether to use mock data
   useMockData: process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true',
 
