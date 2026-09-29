@@ -5,7 +5,23 @@
  * and resilient offline/cold-start streaming data resolution.
  */
 
-import snapshotJson from '../../public/data/dashboard-snapshot.json';
+let snapshotJson = null;
+try {
+  snapshotJson = require('../../public/data/dashboard-snapshot.json');
+} catch {
+  snapshotJson = {
+    version: '1.0',
+    generatedAt: null,
+    dashboard: {
+      featuredMovies: [],
+      topMovies: [],
+      mostViewedMovies: [],
+      latestMovies: [],
+      animeSpotlightMovies: []
+    },
+    moviesDetail: {}
+  };
+}
 
 /**
  * Returns static pre-built snapshot fallback

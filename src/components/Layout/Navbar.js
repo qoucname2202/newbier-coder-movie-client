@@ -68,8 +68,10 @@ const Navbar = () => {
   // Navigation Dropdown States
   const [showGenresDropdown, setShowGenresDropdown] = useState(false);
   const [showCountriesDropdown, setShowCountriesDropdown] = useState(false);
+  const [lockedDropdown, setLockedDropdown] = useState(null); // 'genres' | 'countries' | null
   const [mobileGenresOpen, setMobileGenresOpen] = useState(false);
   const [mobileCountriesOpen, setMobileCountriesOpen] = useState(false);
+  const dropdownCloseTimeoutRef = useRef(null);
 
   // Dual Search Dropdown States
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
@@ -109,6 +111,55 @@ const Navbar = () => {
 
   const isGenreActive = () => router.pathname.startsWith('/the-loai');
   const isCountryActive = () => router.pathname.startsWith('/quoc-gia');
+
+  const handleDropdownMouseEnter = (type) => {
+    if (dropdownCloseTimeoutRef.current) {
+      clearTimeout(dropdownCloseTimeoutRef.current);
+    }
+    if (type === 'genres') {
+      setShowGenresDropdown(true);
+      if (lockedDropdown !== 'countries') setShowCountriesDropdown(false);
+    } else if (type === 'countries') {
+      setShowCountriesDropdown(true);
+      if (lockedDropdown !== 'genres') setShowGenresDropdown(false);
+    }
+  };
+
+  const handleDropdownMouseLeave = (type) => {
+    if (lockedDropdown === type) return; // Do not close if locked/clicked open
+    if (dropdownCloseTimeoutRef.current) {
+      clearTimeout(dropdownCloseTimeoutRef.current);
+    }
+    dropdownCloseTimeoutRef.current = setTimeout(() => {
+      if (type === 'genres') {
+        setShowGenresDropdown(false);
+      } else if (type === 'countries') {
+        setShowCountriesDropdown(false);
+      }
+    }, 380); // Smooth delay so menu does not disappear abruptly
+  };
+
+  const handleDropdownClick = (type) => {
+    if (dropdownCloseTimeoutRef.current) {
+      clearTimeout(dropdownCloseTimeoutRef.current);
+    }
+    if (lockedDropdown === type) {
+      // Toggle off / unlock
+      setLockedDropdown(null);
+      if (type === 'genres') setShowGenresDropdown(false);
+      if (type === 'countries') setShowCountriesDropdown(false);
+    } else {
+      // Pin / lock open
+      setLockedDropdown(type);
+      if (type === 'genres') {
+        setShowGenresDropdown(true);
+        setShowCountriesDropdown(false);
+      } else {
+        setShowCountriesDropdown(true);
+        setShowGenresDropdown(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -246,6 +297,7 @@ const Navbar = () => {
 
   // Outside click listener
   useEffect(() => {
+    // Outside click listener & Escape key handler
     const handleClickOutside = (event) => {
       const navbarCollapse = document.getElementById("navbarNav");
       const navbarToggler = document.querySelector(".navbar-toggler");
@@ -262,11 +314,13 @@ const Navbar = () => {
       // Genres dropdown click outside
       if (genresDropdownRef.current && !genresDropdownRef.current.contains(event.target)) {
         setShowGenresDropdown(false);
+        setLockedDropdown((prev) => (prev === 'genres' ? null : prev));
       }
 
       // Countries dropdown click outside
       if (countriesDropdownRef.current && !countriesDropdownRef.current.contains(event.target)) {
         setShowCountriesDropdown(false);
+        setLockedDropdown((prev) => (prev === 'countries' ? null : prev));
       }
 
       // User menu click outside
@@ -280,9 +334,22 @@ const Navbar = () => {
       }
     };
 
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowSearchDropdown(false);
+        setShowSearchInput(false);
+        setShowUserMenu(false);
+        setShowGenresDropdown(false);
+        setShowCountriesDropdown(false);
+        setLockedDropdown(null);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [showUserMenu, isMenuOpen]);
 
@@ -514,7 +581,8 @@ const Navbar = () => {
       )}
 
       <div className="container-fluid px-3 px-lg-5">
-        <div className="d-flex align-items-center">
+        {/* BRAND & TOGGLER (Always visible on desktop, hidden on mobile only when mobile search is active) */}
+        <div className={`d-flex align-items-center ${showSearchInput ? 'd-none d-lg-flex' : ''}`}>
           <button
             className="navbar-toggler border-0 d-lg-none p-0 me-2"
             type="button"
@@ -534,47 +602,15 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* MOBILE CONTROLS (SEARCH & AVATAR) */}
-        <div className="d-flex d-lg-none align-items-center ms-auto gap-2">
-          <div className="position-relative" ref={mobileSearchWrapperRef}>
-            {showSearchInput ? (
-              <form onSubmit={handleSearch} className="mobile-search-form d-flex align-items-center">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchInputChange}
-                  className="form-control mobile-search-input"
-                  placeholder="Tìm phim, diễn viên..."
-                  autoFocus
-                  ref={mobileSearchInputRef}
-                  onFocus={() => {
-                    setShowSearchDropdown(true);
-                    fetchLiveSearch(searchQuery);
-                  }}
-                />
-                <button
-                  type="button"
-                  className="btn btn-sm btn-icon-close text-secondary"
-                  onClick={() => {
-                    setShowSearchInput(false);
-                    setShowSearchDropdown(false);
-                  }}
-                >
-                  <FaTimes />
-                </button>
-              </form>
-            ) : (
-              <button
-                className="btn btn-link text-white p-1"
-                onClick={toggleSearchInput}
-                aria-label="Tìm kiếm"
-              >
-                <FaSearch className="fs-5" />
-              </button>
-            )}
-
-            {showSearchInput && renderDualSearchDropdown()}
-          </div>
+        {/* MOBILE CONTROLS (SEARCH & AVATAR) - Hidden when mobile search is open */}
+        <div className={`d-flex d-lg-none align-items-center ms-auto gap-2 ${showSearchInput ? 'd-none' : ''}`}>
+          <button
+            className="btn btn-link text-white p-2 mobile-search-trigger-btn"
+            onClick={toggleSearchInput}
+            aria-label="Mở tìm kiếm"
+          >
+            <FaSearch className="fs-5" />
+          </button>
 
           <div className="profile-avatar" onClick={handleAvatarClick} title="Tài khoản cá nhân">
             <img
@@ -587,6 +623,53 @@ const Navbar = () => {
             />
           </div>
         </div>
+
+        {/* MOBILE FULL-WIDTH SEARCH BAR (ACTIVE STATE) */}
+        {showSearchInput && (
+          <div className="mobile-search-fullbar d-flex d-lg-none align-items-center w-100" ref={mobileSearchWrapperRef}>
+            <button
+              type="button"
+              className="btn btn-link text-white p-2 me-1 mobile-search-back-btn"
+              onClick={() => {
+                setShowSearchInput(false);
+                setShowSearchDropdown(false);
+              }}
+              aria-label="Đóng tìm kiếm"
+            >
+              <FaTimes className="fs-5" />
+            </button>
+            <form onSubmit={handleSearch} className="mobile-search-box flex-grow-1 position-relative">
+              <FaSearch className="mobile-search-icon" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchInputChange}
+                className="mobile-search-input"
+                placeholder="Tìm phim, diễn viên..."
+                autoFocus
+                ref={mobileSearchInputRef}
+                onFocus={() => {
+                  setShowSearchDropdown(true);
+                  fetchLiveSearch(searchQuery);
+                }}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className="mobile-search-clear-btn"
+                  onClick={() => {
+                    setSearchQuery('');
+                    fetchLiveSearch('');
+                  }}
+                  aria-label="Xoá tìm kiếm"
+                >
+                  <FaTimesCircle />
+                </button>
+              )}
+            </form>
+            {renderDualSearchDropdown()}
+          </div>
+        )}
 
         {/* DESKTOP & MOBILE DRAWER NAVIGATION */}
         <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navbarNav">
@@ -606,22 +689,22 @@ const Navbar = () => {
               if (navItem.type === 'dropdown') {
                 const isGenres = navItem.dropdownType === 'genres';
                 const isOpen = isGenres ? showGenresDropdown : showCountriesDropdown;
-                const setIsOpen = isGenres ? setShowGenresDropdown : setShowCountriesDropdown;
                 const ref = isGenres ? genresDropdownRef : countriesDropdownRef;
-                const active = navItem.matchPrefix ? router.pathname.startsWith(navItem.matchPrefix) : false;
+                const isLocked = lockedDropdown === navItem.dropdownType;
+                const active = (navItem.matchPrefix ? router.pathname.startsWith(navItem.matchPrefix) : false) || isLocked;
 
                 return (
                   <li
                     key={navItem.id}
                     className={`nav-item dropdown-wrapper ${active ? 'active' : ''}`}
                     ref={ref}
-                    onMouseEnter={() => setIsOpen(true)}
-                    onMouseLeave={() => setIsOpen(false)}
+                    onMouseEnter={() => handleDropdownMouseEnter(navItem.dropdownType)}
+                    onMouseLeave={() => handleDropdownMouseLeave(navItem.dropdownType)}
                   >
                     <button
                       type="button"
                       className={`nav-link nav-link-btn ${active ? 'active' : ''}`}
-                      onClick={() => setIsOpen(!isOpen)}
+                      onClick={() => handleDropdownClick(navItem.dropdownType)}
                       aria-expanded={isOpen}
                     >
                       <span>{navItem.label}</span>
@@ -631,28 +714,21 @@ const Navbar = () => {
                     {/* Desktop Popover */}
                     {isOpen && (
                       <div className={`custom-dropdown-popover ${isGenres ? 'genres-popover' : 'countries-popover'} animate-fade-in d-none d-lg-block`}>
-                        <div className="popover-header">
-                          <span className="popover-title">{isGenres ? 'Chủ Đề & Thể Loại' : 'Quốc Gia Sản Xuất'}</span>
-                        </div>
                         <div className={isGenres ? 'genres-grid' : 'countries-grid'}>
                           {navItem.items.map((subItem) => (
                             <Link
                               key={subItem.slug}
                               href={subItem.href}
-                              className={isGenres ? 'genre-item-link' : 'country-item-link'}
-                              onClick={() => setIsOpen(false)}
+                              className="dropdown-grid-link"
+                              onClick={() => {
+                                setShowGenresDropdown(false);
+                                setShowCountriesDropdown(false);
+                                setLockedDropdown(null);
+                              }}
                             >
-                              {isGenres ? (
-                                <>
-                                  <span className="genre-dot" />
-                                  <span className="genre-label">{subItem.name}</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span className="country-label">{subItem.name}</span>
-                                  {subItem.badge && <span className="country-badge">{subItem.badge}</span>}
-                                </>
-                              )}
+                              <span className="dropdown-grid-label" title={subItem.name}>
+                                {subItem.name}
+                              </span>
                             </Link>
                           ))}
                         </div>
@@ -671,9 +747,6 @@ const Navbar = () => {
                               onClick={closeMenu}
                             >
                               <span>{subItem.name}</span>
-                              {subItem.badge && !isGenres && (
-                                <span className="country-badge-mobile ms-2">{subItem.badge}</span>
-                              )}
                             </Link>
                           ))}
                         </div>
@@ -902,40 +975,44 @@ const Navbar = () => {
           font-size: 14.5px;
           font-weight: 500;
           color: #cbd5e1 !important;
-          padding: 0.4rem 0.95rem !important;
-          border-radius: 9999px;
-          background: transparent;
+          padding: 0.45rem 0.85rem !important;
+          border-radius: 4px;
+          background: transparent !important;
           border: none;
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           text-decoration: none;
           white-space: nowrap;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: color 0.18s ease;
         }
 
         .nav-link:hover,
         .nav-link-btn:hover {
           color: #ffffff !important;
-          background: rgba(255, 255, 255, 0.07);
+          background: transparent !important;
         }
 
         .nav-link.active,
         .nav-link-btn.active {
           color: #ffffff !important;
           font-weight: 600;
-          background: rgba(229, 9, 20, 0.14);
+          background: transparent !important;
         }
 
         .chevron-icon {
           font-size: 10px;
           color: #94a3b8;
-          transition: transform 0.2s ease;
+          transition: transform 0.2s ease, color 0.18s ease;
+        }
+
+        .nav-link-btn:hover .chevron-icon {
+          color: #ffffff;
         }
 
         .rotate-180 {
           transform: rotate(180deg);
-          color: #e50914;
+          color: #e50914 !important;
         }
 
         /* Sliding Red Glowing Underline Indicator */
@@ -958,117 +1035,72 @@ const Navbar = () => {
         .custom-dropdown-popover {
           position: absolute;
           top: calc(100% + 8px);
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(13, 17, 24, 0.96);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          background: rgba(13, 17, 24, 0.98);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 14px;
-          padding: 12px;
-          box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
+          border-radius: 6px;
+          padding: 12px 14px;
+          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.15);
           z-index: 1050;
         }
 
-        .popover-header {
-          padding: 4px 8px 8px;
-          margin-bottom: 6px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .popover-title {
-          font-size: 11px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
-          color: #94a3b8;
-        }
-
-        /* Genres Popover */
+        /* Genres Popover - Expansive 4-column balanced grid */
         .genres-popover {
-          width: 320px;
+          width: 660px;
+          max-width: calc(100vw - 32px);
+          left: -40px;
+          transform: none;
         }
 
         .genres-grid {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 4px;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 4px 8px;
         }
 
-        .genre-item-link {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 7px 10px;
-          border-radius: 8px;
-          color: #e2e8f0;
-          text-decoration: none;
-          font-size: 13.5px;
-          font-weight: 500;
-          transition: background 0.15s ease, color 0.15s ease;
-        }
-
-        .genre-dot {
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          background: #64748b;
-          transition: background 0.15s ease, transform 0.15s ease;
-        }
-
-        .genre-item-link:hover {
-          background: rgba(229, 9, 20, 0.15);
-          color: #ffffff;
-        }
-
-        .genre-item-link:hover .genre-dot {
-          background: #e50914;
-          transform: scale(1.4);
-        }
-
-        /* Countries Popover */
+        /* Countries Popover - Expansive 3-column balanced grid */
         .countries-popover {
-          width: 300px;
+          width: 520px;
+          max-width: calc(100vw - 32px);
+          left: 50%;
+          transform: translateX(-50%);
         }
 
         .countries-grid {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 4px;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 4px 8px;
         }
 
-        .country-item-link {
+        .dropdown-grid-link {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 7px 10px;
-          border-radius: 8px;
-          color: #e2e8f0;
+          padding: 8px 12px;
+          border-radius: 4px;
+          color: #cbd5e1;
           text-decoration: none;
           font-size: 13.5px;
           font-weight: 500;
-          transition: background 0.15s ease, color 0.15s ease;
+          min-width: 0;
+          transition: color 0.15s ease, background 0.15s ease;
         }
 
-        .country-badge {
-          font-size: 10px;
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.06);
-          padding: 2px 5px;
-          border-radius: 4px;
-        }
-
-        .country-item-link:hover {
-          background: rgba(229, 9, 20, 0.15);
+        .dropdown-grid-link:hover {
           color: #ffffff;
+          background: rgba(255, 255, 255, 0.08);
         }
 
-        .country-item-link:hover .country-badge {
-          background: rgba(229, 9, 20, 0.35);
-          color: #ffffff;
+        .dropdown-grid-label {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: block;
+          width: 100%;
+          min-width: 0;
         }
 
-        /* Search Input Box */
+        /* Search Input Box - Permanently Wide & Consistent */
         .expanded-search-form {
           display: flex;
           align-items: center;
@@ -1078,26 +1110,31 @@ const Navbar = () => {
           display: flex;
           align-items: center;
           background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255, 255, 255, 0.14);
           border-radius: 9999px;
-          padding: 0.32rem 0.85rem;
-          width: 220px;
-          height: 36px;
+          padding: 0.36rem 0.95rem;
+          width: 340px;
+          height: 38px;
           backdrop-filter: blur(12px);
-          transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+          -webkit-backdrop-filter: blur(12px);
+          transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .expanded-search-box:hover {
+          background: rgba(255, 255, 255, 0.09);
+          border-color: rgba(255, 255, 255, 0.24);
         }
 
         .expanded-search-box:focus-within {
-          width: 280px;
-          background: rgba(13, 17, 23, 0.94);
-          border-color: rgba(229, 9, 20, 0.8);
-          box-shadow: 0 0 14px rgba(229, 9, 20, 0.3), 0 4px 18px rgba(0, 0, 0, 0.45);
+          background: rgba(13, 17, 23, 0.96);
+          border-color: rgba(229, 9, 20, 0.85);
+          box-shadow: 0 0 16px rgba(229, 9, 20, 0.32), 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
         .search-icon {
           color: #94a3b8;
-          font-size: 13px;
-          margin-right: 8px;
+          font-size: 13.5px;
+          margin-right: 9px;
           flex-shrink: 0;
           transition: color 0.25s ease;
         }
@@ -1110,31 +1147,32 @@ const Navbar = () => {
           background: transparent;
           border: none;
           color: #ffffff;
-          font-size: 13px;
+          font-size: 13.5px;
           width: 100%;
           outline: none;
         }
 
         .expanded-search-input::placeholder {
           color: #94a3b8;
-          font-size: 12.5px;
+          font-size: 13px;
         }
 
         .btn-clear-search {
           background: transparent;
           border: none;
           color: #64748b;
-          font-size: 14px;
+          font-size: 14.5px;
           cursor: pointer;
-          padding: 0;
+          padding: 2px 4px;
           display: flex;
           align-items: center;
           margin-left: 6px;
-          transition: color 0.2s ease;
+          transition: color 0.2s ease, transform 0.15s ease;
         }
 
         .btn-clear-search:hover {
           color: #ffffff;
+          transform: scale(1.1);
         }
 
         /* DUAL SEARCH DROPDOWN (MOVIES & ACTORS) */
@@ -1142,16 +1180,17 @@ const Navbar = () => {
           position: absolute;
           top: calc(100% + 10px);
           right: 0;
-          width: 390px;
-          max-height: 480px;
+          width: 440px;
+          max-width: min(440px, calc(100vw - 32px));
+          max-height: 520px;
           display: flex;
           flex-direction: column;
-          background: rgba(13, 17, 24, 0.96);
+          background: rgba(13, 17, 24, 0.97);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
           border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 16px;
-          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.15);
           overflow: hidden;
           z-index: 1060;
         }
@@ -1527,7 +1566,34 @@ const Navbar = () => {
           border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* Mobile Drawer Specifics */
+        /* Responsive Media Queries for Navbar & Search */
+        @media (min-width: 992px) and (max-width: 1199px) {
+          .nav-link,
+          .nav-link-btn {
+            font-size: 13.5px;
+            padding: 0.35rem 0.65rem !important;
+          }
+          .expanded-search-box {
+            width: 270px;
+          }
+          .navbar-logo {
+            width: 105px;
+          }
+        }
+
+        @media (min-width: 1200px) and (max-width: 1399px) {
+          .expanded-search-box {
+            width: 340px;
+          }
+        }
+
+        @media (min-width: 1400px) {
+          .expanded-search-box {
+            width: 380px;
+          }
+        }
+
+        /* Mobile Drawer & Mobile Search Specifics */
         @media (max-width: 991px) {
           .navbar-collapse {
             position: fixed;
@@ -1582,53 +1648,114 @@ const Navbar = () => {
             align-items: center;
           }
 
-          .country-badge-mobile {
-            font-size: 10px;
-            color: #94a3b8;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 2px 6px;
-            border-radius: 4px;
-          }
-
           .search-dual-dropdown {
             position: fixed;
-            top: 66px;
-            left: 12px;
-            right: 12px;
+            top: 64px;
+            left: 10px;
+            right: 10px;
             width: auto;
-            max-height: 75vh;
+            max-width: none;
+            max-height: calc(85vh - 64px);
+            border-radius: 14px;
           }
 
-          .mobile-search-form {
-            position: relative;
-            width: 180px;
+          .mobile-search-fullbar {
+            height: 48px;
+            padding: 0 2px;
+            gap: 6px;
+          }
+
+          .mobile-search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 9999px;
+            padding: 0.35rem 0.85rem;
+            height: 38px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.2s ease;
+          }
+
+          .mobile-search-box:focus-within {
+            background: rgba(13, 17, 24, 0.98);
+            border-color: rgba(229, 9, 20, 0.85);
+            box-shadow: 0 0 14px rgba(229, 9, 20, 0.35);
+          }
+
+          .mobile-search-icon {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-right: 8px;
+            flex-shrink: 0;
+          }
+
+          .mobile-search-box:focus-within .mobile-search-icon {
+            color: #e50914;
           }
 
           .mobile-search-input {
-            height: 32px;
-            font-size: 12.5px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border-radius: 9999px;
-            padding: 0.2rem 1.8rem 0.2rem 0.8rem;
-          }
-
-          .mobile-search-input:focus {
-            background: #0d1118;
-            border-color: #e50914;
-            color: #ffffff;
-            box-shadow: none;
-          }
-
-          .btn-icon-close {
-            position: absolute;
-            right: 4px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 2px;
             background: transparent;
             border: none;
+            color: #ffffff;
+            font-size: 13.5px;
+            width: 100%;
+            outline: none;
+          }
+
+          .mobile-search-input::placeholder {
+            color: #94a3b8;
+            font-size: 13px;
+          }
+
+          .mobile-search-back-btn {
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: #cbd5e1;
+            transition: background 0.15s ease, color 0.15s ease;
+          }
+
+          .mobile-search-back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+          }
+
+          .mobile-search-clear-btn {
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 2px 4px;
+            display: flex;
+            align-items: center;
+            margin-left: 6px;
+            transition: color 0.2s ease;
+          }
+
+          .mobile-search-clear-btn:hover {
+            color: #ffffff;
+          }
+
+          .mobile-search-trigger-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+          }
+
+          .mobile-search-trigger-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
           }
 
           .nav-indicator {
