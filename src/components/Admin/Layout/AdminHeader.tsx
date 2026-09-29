@@ -134,15 +134,34 @@ const AdminHeader = () => {
               aria-label="User menu"
             >
               <div className={styles.avatarWrapper}>
-                <Image 
-                  src="/img/avatar.png"
-                  alt="Admin Avatar"
-                  width={40}
-                  height={40}
+                <svg
+                  width={34}
+                  height={34}
+                  viewBox="0 0 36 36"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
                   className={styles.avatar}
-                />
+                  aria-label="Admin Avatar"
+                >
+                  <defs>
+                    <linearGradient id="adminAvatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#252d3d" />
+                      <stop offset="100%" stopColor="#0f141f" />
+                    </linearGradient>
+                    <linearGradient id="adminAvatarIconGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#cbd5e1" />
+                      <stop offset="100%" stopColor="#94a3b8" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="18" cy="18" r="17.5" fill="url(#adminAvatarGrad)" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1" />
+                  <circle cx="18" cy="13" r="5.25" fill="url(#adminAvatarIconGrad)" />
+                  <path
+                    d="M8.5 28.5C8.5 23.5 12.2 20.5 18 20.5C23.8 20.5 27.5 23.5 27.5 28.5C27.5 29.5 26.8 30 25.8 30H10.2C9.2 30 8.5 29.5 8.5 28.5Z"
+                    fill="url(#adminAvatarIconGrad)"
+                  />
+                </svg>
               </div>
-              <span className={styles.userName}>Admin</span>
+              <span className={styles.userName}>Administrator</span>
             </button>
 
             {showDropdown && (

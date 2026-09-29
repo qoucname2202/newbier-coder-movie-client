@@ -1,22 +1,23 @@
+/* Admin Sidebar Dark Styling */
 .sidebar {
-  background: #1a2433; /* Phù hợp với màu nền trong hình ảnh bạn chia sẻ */
+  background: #0e131d;
   min-height: 100vh;
   width: 250px;
   position: fixed;
   left: 0;
   top: 0;
   z-index: 100;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); 
+  transition: transform 0.25s ease;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .brand {
-  padding: 20px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  height: 70px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  height: 64px;
 }
 
 .brandImageWrapper {
@@ -26,75 +27,77 @@
 }
 
 .brandImage {
-  width: 35px;
-  height: 35px;
-  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
 }
 
 .brandText {
   color: #ffffff;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   margin: 0;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .nav {
-  padding: 16px 8px;
+  padding: 16px 10px;
 }
 
 .navItem {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  padding: 14px 16px;
-  color: rgba(255,255,255,0.85); /* Tăng opacity lên 0.85 để dễ đọc hơn */
-  border-radius: 8px;
-  transition: all 0.25s ease;
+  padding: 9px 12px;
+  color: #94a3b8;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
   text-decoration: none;
-  gap: 16px;
+  gap: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  border: 1px solid transparent;
 }
 
 .navLink:hover {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.05);
   color: #ffffff;
-  transform: translateX(5px);
 }
 
 .navLink.active {
-  background: #3182ce; /* Màu xanh giống hình ảnh bạn chia sẻ */
+  background: rgba(229, 9, 20, 0.12);
   color: #ffffff;
-  box-shadow: 0 4px 8px rgba(49, 130, 206, 0.3);
+  border-color: rgba(229, 9, 20, 0.25);
   font-weight: 600;
 }
 
 .navIcon {
-  font-size: 1.2rem;
-  min-width: 22px;
+  font-size: 1rem;
+  min-width: 20px;
   display: flex;
   justify-content: center;
-  color: #ffffff; /* Đảm bảo icon luôn có màu trắng */
+  color: inherit;
 }
 
 .navText {
-  font-size: 0.95rem;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  color: #ffffff; /* Đảm bảo text luôn có màu trắng */
-  opacity: 1 !important; /* Đảm bảo text không bị mờ */
-  display: block !important; /* Đảm bảo text luôn hiển thị */
-  visibility: visible !important; /* Đảm bảo text không bị ẩn */
+  font-size: 0.88rem;
+  letter-spacing: 0.2px;
+  color: inherit;
+  flex: 1;
 }
 
-/* Đảm bảo text hiển thị rõ ngay cả khi hover và active */
-.navLink:hover .navText,
-.navLink.active .navText {
-  color: #ffffff;
-  opacity: 1;
+.badge {
+  font-size: 0.7rem;
   font-weight: 600;
+  background: rgba(229, 9, 20, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  padding: 1px 6px;
+  border-radius: 9999px;
+  margin-left: auto;
 }
 
 @media (max-width: 768px) {
@@ -113,7 +116,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
     z-index: 99;
   }
   
