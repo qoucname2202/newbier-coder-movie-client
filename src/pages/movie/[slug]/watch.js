@@ -12,12 +12,14 @@ import { useRouter } from 'next/router';
 import {
   MoviePlayerSection,
   WatchSidebarPlaylist,
+  TrendingSidebar,
   MovieCommentsSection,
   useMovieDetail
 } from '@/features/movie-detail';
 import { MovieSection } from '@/components/common/MovieSection';
 import BackToTop from '@/components/UI/BackToTop';
 import { getWatchProgress, saveWatchProgress } from '@/utils/watchProgress';
+import { WATCH_CONFIG } from '@/config/watchConfig';
 import styles from '@/styles/MovieWatchPage.module.css';
 
 /**
@@ -200,18 +202,19 @@ export default function MovieWatchPage({ initialSlug }) {
     );
   }
 
+  const epPrefix = WATCH_CONFIG.labels.defaultEpisodePrefix;
   const epTitle = activeEpisode?.name
-    ? (activeEpisode.name.toLowerCase().startsWith('tập') ? activeEpisode.name : `Tập ${activeEpisode.name}`)
-    : 'Tập 1';
-  const pageTitle = `Xem phim ${movie.name} - ${epTitle} | MovieStreaming`;
+    ? (activeEpisode.name.toLowerCase().startsWith('tập') ? activeEpisode.name : `${epPrefix} ${activeEpisode.name}`)
+    : WATCH_CONFIG.labels.defaultEpisodeName;
+  const pageTitle = WATCH_CONFIG.seo.buildPageTitle(movie.name, epTitle);
 
   return (
     <div className={styles.watchPageWrapper}>
       <Head>
         <title>{pageTitle}</title>
-        <meta name="description" content={`Xem phim ${movie.name} ${epTitle} chất lượng cao trực tuyến miễn phí.`} />
+        <meta name="description" content={WATCH_CONFIG.seo.buildDescription(movie.name, epTitle)} />
         <meta property="og:title" content={pageTitle} />
-        <meta property="og:image" content={movie?.backdrop_url || movie?.poster_url || '/img/background/movies-wall.jpg'} />
+        <meta property="og:image" content={movie?.backdrop_url || movie?.poster_url || WATCH_CONFIG.seo.defaultBackdrop} />
       </Head>
 
       {/* Top Breadcrumb Bar */}
@@ -219,10 +222,10 @@ export default function MovieWatchPage({ initialSlug }) {
         <div className={styles.breadcrumbInner}>
           <Link href={`/movie/${slug}`} className={styles.backLink}>
             <i className="fas fa-arrow-left me-2" />
-            <span>Về trang thông tin phim</span>
+            <span>{WATCH_CONFIG.labels.backToMovieDetail}</span>
           </Link>
           <div className={styles.breadcrumbs}>
-            <Link href="/" className={styles.crumbItem}>Trang chủ</Link>
+            <Link href="/" className={styles.crumbItem}>{WATCH_CONFIG.labels.homeCrumb}</Link>
             <span className={styles.crumbDivider}>/</span>
             <Link href={`/movie/${slug}`} className={styles.crumbItem}>{movie.name}</Link>
             <span className={styles.crumbDivider}>/</span>
@@ -253,48 +256,43 @@ export default function MovieWatchPage({ initialSlug }) {
                   <h1 className={styles.movieMainTitle}>
                     {movie.name}
                   </h1>
-                  <span className={styles.epHighlightPill}>
-                    <span className={styles.epPillDot} />
-                    {epTitle}
-                  </span>
+                  <span className={styles.epSubtleTag}>{epTitle}</span>
                 </div>
 
-                {movie.origin_name && (
+                {movie.origin_name && movie.origin_name.trim().toLowerCase() !== movie.name.trim().toLowerCase() && (
                   <p className={styles.movieSubTitle}>{movie.origin_name}</p>
                 )}
 
                 <div className={styles.tagRow}>
-                  <span className={styles.qualityTag}>{movie.quality || 'Full HD'}</span>
+                  {movie.quality && movie.quality.trim() && (
+                    <span className={styles.qualityTag}>{movie.quality}</span>
+                  )}
 
                   {movie.year && (
                     <>
-                      <span className={styles.metaDot} aria-hidden="true" />
+                      {movie.quality && movie.quality.trim() && (
+                        <span className={styles.metaDot} aria-hidden="true" />
+                      )}
                       <span className={styles.infoText}>{movie.year}</span>
                     </>
                   )}
 
                   {movie.time && (
                     <>
-                      <span className={styles.metaDot} aria-hidden="true" />
+                      {(movie.year || (movie.quality && movie.quality.trim())) && (
+                        <span className={styles.metaDot} aria-hidden="true" />
+                      )}
                       <span className={styles.infoText}>{movie.time}</span>
                     </>
                   )}
 
                   {movie.episode_total && (
                     <>
-                      <span className={styles.metaDot} aria-hidden="true" />
+                      {(movie.time || movie.year || (movie.quality && movie.quality.trim())) && (
+                        <span className={styles.metaDot} aria-hidden="true" />
+                      )}
                       <span className={styles.infoText}>
-                        {movie.episode_current || epTitle} / {movie.episode_total}
-                      </span>
-                    </>
-                  )}
-
-                  {activeServer?.server_name && (
-                    <>
-                      <span className={styles.metaDot} aria-hidden="true" />
-                      <span className={styles.serverPill}>
-                        <i className="fas fa-server me-1" />
-                        {activeServer.server_name}
+                        {movie.episode_total} {WATCH_CONFIG.labels.totalEpisodesSuffix}
                       </span>
                     </>
                   )}
@@ -308,30 +306,39 @@ export default function MovieWatchPage({ initialSlug }) {
                   className={`${styles.actionBtn} ${isFavorite ? styles.actionBtnActive : ''}`}
                   onClick={toggleFavorite}
                   disabled={favoriteLoading}
-                  title="Yêu thích"
+                  title={WATCH_CONFIG.labels.favorite}
                 >
                   <i className={isFavorite ? 'fas fa-heart text-danger' : 'far fa-heart'} />
-                  <span>{isFavorite ? 'Đã lưu' : 'Yêu thích'}</span>
+                  <span>{isFavorite ? WATCH_CONFIG.labels.favorited : WATCH_CONFIG.labels.favorite}</span>
                 </button>
 
                 <button
                   type="button"
                   className={styles.actionBtn}
                   onClick={handleShare}
-                  title="Chia sẻ link xem"
+                  title={WATCH_CONFIG.labels.share}
                 >
                   <i className={shareCopied ? 'fas fa-check text-success' : 'fas fa-share-alt'} />
-                  <span>{shareCopied ? 'Đã sao chép' : 'Chia sẻ'}</span>
+                  <span>{shareCopied ? WATCH_CONFIG.labels.shareCopied : WATCH_CONFIG.labels.share}</span>
                 </button>
               </div>
             </div>
+
+            {/* Lowered Episode Playlist (below Player & Meta Header) */}
+            <WatchSidebarPlaylist
+              servers={movie.episodes}
+              currentServerIndex={currentServerIndex}
+              onSelectServer={handleSelectServer}
+              currentEpisodeIndex={currentEpisodeIndex}
+              onSelectEpisode={handleSelectEpisode}
+            />
 
             {/* Synopsis Peek */}
             {movie.content && (
               <div className={styles.synopsisCard}>
                 <h4 className={styles.synopsisHeading}>
                   <i className="fas fa-info-circle text-danger me-2" />
-                  Tóm tắt nội dung
+                  {WATCH_CONFIG.labels.synopsisTitle}
                 </h4>
                 <p className={styles.synopsisText}>{movie.content}</p>
               </div>
@@ -347,15 +354,9 @@ export default function MovieWatchPage({ initialSlug }) {
             </div>
           </div>
 
-          {/* Right Column: Live Side-deck Episode Playlist */}
+          {/* Right Column: Trending / Featured Top 10 by Day/Month/Year */}
           <div className={styles.playlistColumn}>
-            <WatchSidebarPlaylist
-              servers={movie.episodes}
-              currentServerIndex={currentServerIndex}
-              onSelectServer={handleSelectServer}
-              currentEpisodeIndex={currentEpisodeIndex}
-              onSelectEpisode={handleSelectEpisode}
-            />
+            <TrendingSidebar currentSlug={slug} />
           </div>
         </div>
 

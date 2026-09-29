@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import ServerVersionSelector from '@/features/movie-detail/components/ServerVersionSelector/ServerVersionSelector';
+import { WATCH_CONFIG } from '@/config/watchConfig';
 import styles from './MoviePlayerSection.module.css';
 
 /**
@@ -24,8 +26,6 @@ export default function MoviePlayerSection({
   currentEpisodeIndex = 0,
   onSelectEpisode
 }) {
-  const [isTheaterMode, setIsTheaterMode] = useState(false);
-
   const currentServer = servers[currentServerIndex] || null;
   const currentEpisodes = currentServer?.server_data || [];
   const totalEpisodes = currentEpisodes.length;
@@ -47,17 +47,15 @@ export default function MoviePlayerSection({
     }
   };
 
+  const handlePinEpisode = () => {
+    const el = document.getElementById('watch-playlist-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <section className={styles.playerSection} id="movie-streaming-player" aria-label="Trình phát video">
-      {/* Theater Mode Overlay */}
-      {isTheaterMode && (
-        <div
-          className={styles.theaterOverlay}
-          onClick={() => setIsTheaterMode(false)}
-          title="Bấm ra ngoài để tắt chế độ rạp chiếu"
-        />
-      )}
-
       <div className={styles.playerWrapper}>
         {/* 16:9 Video Stage */}
         <div className={styles.videoStage}>
@@ -80,27 +78,15 @@ export default function MoviePlayerSection({
 
         {/* Player Bottom Control Bar */}
         <div className={styles.playerControlBar}>
-          {/* Server Switcher */}
-          <div className={styles.serverSelection}>
-            <span className={styles.serverLabel}>
-              <i className="fas fa-server" /> Nguồn phát:
-            </span>
-            {servers.map((srv, sIdx) => {
-              const isActive = sIdx === currentServerIndex;
-              return (
-                <button
-                  key={srv.server_name || sIdx}
-                  type="button"
-                  className={`${styles.serverBtn} ${isActive ? styles.serverBtnActive : ''}`}
-                  onClick={() => onSelectServer(sIdx)}
-                >
-                  {srv.server_name || `#Server ${sIdx + 1}`}
-                </button>
-              );
-            })}
-          </div>
+          {/* Audio Version Switcher (Vietsub, Thuyết Minh with hover dropdown for multi-source) */}
+          {/* <ServerVersionSelector
+            servers={servers}
+            currentServerIndex={currentServerIndex}
+            onSelectServer={onSelectServer}
+            label={WATCH_CONFIG.labels.versionLabel}
+          /> */}
 
-          {/* Episode Nav & Theater Actions */}
+          {/* Episode Nav & Ghim tập Actions */}
           <div className={styles.playbackActions}>
             {totalEpisodes > 1 && (
               <>
@@ -109,10 +95,10 @@ export default function MoviePlayerSection({
                   className={styles.actionBtn}
                   onClick={handlePrevEpisode}
                   disabled={currentEpisodeIndex <= 0}
-                  title="Tập trước"
+                  title={WATCH_CONFIG.labels.prevEpisode}
                 >
                   <i className="fas fa-step-backward" />
-                  <span>Tập trước</span>
+                  <span>{WATCH_CONFIG.labels.prevEpisode}</span>
                 </button>
 
                 <button
@@ -120,9 +106,9 @@ export default function MoviePlayerSection({
                   className={styles.actionBtn}
                   onClick={handleNextEpisode}
                   disabled={currentEpisodeIndex >= totalEpisodes - 1}
-                  title="Tập tiếp theo"
+                  title={WATCH_CONFIG.labels.nextEpisode}
                 >
-                  <span>Tập tiếp</span>
+                  <span>{WATCH_CONFIG.labels.nextEpisode}</span>
                   <i className="fas fa-step-forward" />
                 </button>
               </>
@@ -130,12 +116,12 @@ export default function MoviePlayerSection({
 
             <button
               type="button"
-              className={`${styles.actionBtn} ${isTheaterMode ? styles.btnTheaterActive : ''}`}
-              onClick={() => setIsTheaterMode((prev) => !prev)}
-              title={isTheaterMode ? 'Bật đèn' : 'Tắt đèn (Rạp chiếu)'}
+              className={styles.actionBtn}
+              onClick={handlePinEpisode}
+              title={WATCH_CONFIG.labels.pinEpisodeTitle}
             >
-              <i className={isTheaterMode ? 'fas fa-lightbulb' : 'far fa-lightbulb'} />
-              <span>{isTheaterMode ? 'Bật đèn' : 'Tắt đèn'}</span>
+              <i className="fas fa-thumbtack text-danger" />
+              <span>{WATCH_CONFIG.labels.pinEpisodeText}</span>
             </button>
           </div>
         </div>

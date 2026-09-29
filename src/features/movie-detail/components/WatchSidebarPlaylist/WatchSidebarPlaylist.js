@@ -1,14 +1,19 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import ServerVersionSelector from '@/features/movie-detail/components/ServerVersionSelector/ServerVersionSelector';
+import { WATCH_CONFIG } from '@/config/watchConfig';
 import styles from './WatchSidebarPlaylist.module.css';
 
-// 25 episodes per group: compact, lightweight, zero scroll lag
-const GROUP_SIZE = 25;
+// Configurable episodes per group (default 24)
+const GROUP_SIZE = WATCH_CONFIG.episodesPerGroup;
 
 /**
  * @file WatchSidebarPlaylist.js
- * @description Minimalist, high-performance Cinema Watch Page Side Playlist.
- * Features 25-episode dropdown chunking for zero lag, clean single-line controls,
- * and eliminates duplicate episode indicators and redundant icons.
+ * @description Cinema Watch Page Episode Playlist Section (positioned below player).
+ * Features:
+ * - Direct Vietsub vs Thuyết Minh vs Lồng Tiếng version switcher with clean iconography.
+ * - Group chunking dropdown (1-25, 26-50...) for seamless navigation with no DOM bloat.
+ * - No episode search input (as requested).
+ * - Responsive grid layout with active episode auto-scroll.
  *
  * @param {Object} props
  * @param {Array<Object>} [props.servers=[]] - Array of episode servers.
@@ -24,8 +29,6 @@ export default function WatchSidebarPlaylist({
   currentEpisodeIndex = 0,
   onSelectEpisode
 }) {
-  const [searchTerm, setSearchTerm] = useState('');
-
   const currentServer = servers[currentServerIndex] || servers[0] || null;
   const episodes = currentServer?.server_data || [];
   const totalEpisodes = episodes.length;
@@ -39,34 +42,20 @@ export default function WatchSidebarPlaylist({
 
   // Automatically sync dropdown group whenever current episode changes
   useEffect(() => {
-    if (currentEpisodeIndex >= 0 && totalEpisodes > 0 && !searchTerm.trim()) {
+    if (currentEpisodeIndex >= 0 && totalEpisodes > 0) {
       const targetGroup = Math.floor(currentEpisodeIndex / GROUP_SIZE);
       setActiveGroupIndex(targetGroup);
     }
-  }, [currentEpisodeIndex, totalEpisodes, searchTerm]);
-
-  // Filter episodes if searching
-  const filteredEpisodes = useMemo(() => {
-    if (!searchTerm.trim()) return episodes;
-    const clean = searchTerm.trim().toLowerCase();
-    return episodes.filter(
-      (ep) =>
-        ep.name?.toLowerCase().includes(clean) ||
-        ep.slug?.toLowerCase().includes(clean)
-    );
-  }, [episodes, searchTerm]);
+  }, [currentEpisodeIndex, totalEpisodes]);
 
   const totalGroups = Math.ceil(episodes.length / GROUP_SIZE);
   const currentGroupOfActiveEp = Math.floor(currentEpisodeIndex / GROUP_SIZE);
 
   // Sliced episodes for current 25-item group
   const displayedEpisodes = useMemo(() => {
-    if (searchTerm.trim()) {
-      return filteredEpisodes.slice(0, 100);
-    }
     const start = activeGroupIndex * GROUP_SIZE;
     return episodes.slice(start, start + GROUP_SIZE);
-  }, [episodes, filteredEpisodes, activeGroupIndex, searchTerm]);
+  }, [episodes, activeGroupIndex]);
 
   // Auto-scroll active episode button into view
   useEffect(() => {
@@ -80,118 +69,83 @@ export default function WatchSidebarPlaylist({
   }, [currentEpisodeIndex, activeGroupIndex]);
 
   return (
-    <aside className={styles.sidebarContainer} aria-label="Danh sách phát tập phim">
-      {/* 1. Header: Clean title and total count */}
-      <div className={styles.playlistHeader}>
-        <h4 className={styles.playlistTitle}>Danh Sách</h4>
-        <span className={styles.totalBadge}>{totalEpisodes} tập</span>
-      </div>
-
-      {/* 2. Server Selector (If more than 1 server) */}
-      {servers.length > 1 && (
-        <div className={styles.serverRow}>
-          <span className={styles.serverLabel}>Nguồn:</span>
-          <div className={styles.serverChips}>
-            {servers.map((srv, idx) => (
-              <button
-                key={srv.server_name || idx}
-                type="button"
-                className={`${styles.serverChip} ${currentServerIndex === idx ? styles.serverChipActive : ''}`}
-                onClick={() => onSelectServer(idx)}
-              >
-                {srv.server_name || `Server ${idx + 1}`}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 3. Controls: Clean Dropdown Group Jump + Search (No redundant icons) */}
-      {(totalGroups > 1 || totalEpisodes > 12) && (
-        <div className={styles.filterRow}>
-          {totalGroups > 1 && !searchTerm.trim() ? (
-            <div className={styles.groupSelectWrap}>
-              <select
-                className={styles.groupSelect}
-                value={activeGroupIndex}
-                onChange={(e) => setActiveGroupIndex(Number(e.target.value))}
-                aria-label="Chọn khoảng tập"
-              >
-                {Array.from({ length: totalGroups }).map((_, gIdx) => {
-                  const start = gIdx * GROUP_SIZE + 1;
-                  const end = Math.min((gIdx + 1) * GROUP_SIZE, totalEpisodes);
-                  const isCurrent = gIdx === currentGroupOfActiveEp;
-                  return (
-                    <option key={gIdx} value={gIdx}>
-                      {start} - {end} {isCurrent ? '• (Đang xem)' : ''}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          ) : (
-            <div style={{ flex: 1 }} />
-          )}
-
-          {totalEpisodes > 12 && (
-            <div className={styles.searchWrapper}>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Tìm tập..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm && (
-                <button
-                  type="button"
-                  className={styles.clearBtn}
-                  onClick={() => setSearchTerm('')}
-                  title="Xóa tìm kiếm"
-                  aria-label="Xóa tìm kiếm"
-                >
-                  &times;
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* 4. Episode Grid (25 items per group = fast, zero lag, highlighted active episode) */}
-      <div className={styles.scrollList}>
-        <div className={styles.episodesGrid}>
-          {displayedEpisodes.map((ep, localIdx) => {
-            const actualIndex = searchTerm.trim()
-              ? episodes.findIndex((item) => item.slug === ep.slug || item.name === ep.name)
-              : activeGroupIndex * GROUP_SIZE + localIdx;
-
-            const isPlaying = actualIndex === currentEpisodeIndex;
-            const epLabel = ep.name?.toLowerCase().startsWith('tập')
-              ? ep.name
-              : `Tập ${ep.name || actualIndex + 1}`;
-
-            return (
-              <button
-                key={ep.slug || actualIndex}
-                ref={isPlaying ? activeBtnRef : null}
-                type="button"
-                className={`${styles.epButton} ${isPlaying ? styles.epButtonActive : ''}`}
-                onClick={() => onSelectEpisode(actualIndex)}
-                title={`Phát ${epLabel}`}
-              >
-                <span className={styles.epText}>{epLabel}</span>
-              </button>
-            );
-          })}
+    <section className={styles.playlistCard} id="watch-playlist-section" aria-label="Danh sách tập phim">
+      {/* 1. Header: Title, Total Badge, Group Dropdown */}
+      <div className={styles.headerRow}>
+        <div className={styles.titleGroup}>
+          <h3 className={styles.sectionTitle}>
+            <i className={`fas fa-layer-group ${styles.titleIcon}`} />
+            <span>{WATCH_CONFIG.labels.playlistTitle}</span>
+          </h3>
+          <span className={styles.totalBadge}>
+            {totalEpisodes} {WATCH_CONFIG.labels.totalEpisodesSuffix}
+          </span>
         </div>
 
-        {displayedEpisodes.length === 0 && (
-          <div className={styles.noResults}>
-            <p>Không tìm thấy tập &ldquo;{searchTerm}&rdquo;</p>
+        {/* Group Selector Dropdown (if more than 25 episodes) */}
+        {totalGroups > 1 && (
+          <div className={styles.groupSelectWrap}>
+            <select
+              className={styles.groupSelect}
+              value={activeGroupIndex}
+              onChange={(e) => setActiveGroupIndex(Number(e.target.value))}
+              aria-label="Chọn khoảng tập"
+            >
+              {Array.from({ length: totalGroups }).map((_, gIdx) => {
+                const start = gIdx * GROUP_SIZE + 1;
+                const end = Math.min((gIdx + 1) * GROUP_SIZE, totalEpisodes);
+                return (
+                  <option key={gIdx} value={gIdx}>
+                    Tập {start} - {end}
+                  </option>
+                );
+              })}
+            </select>
           </div>
         )}
       </div>
-    </aside>
+
+      {/* 2. Audio Version Selector (Vietsub vs Thuyết Minh with hover dropdown for multi-source) */}
+      <ServerVersionSelector
+        servers={servers}
+        currentServerIndex={currentServerIndex}
+        onSelectServer={onSelectServer}
+      />
+
+      {/* 3. Episodes Grid */}
+      <div className={styles.scrollList}>
+        {displayedEpisodes.length > 0 ? (
+          <div className={styles.episodesGrid}>
+            {displayedEpisodes.map((ep, localIdx) => {
+              const actualIndex = activeGroupIndex * GROUP_SIZE + localIdx;
+              const isPlaying = actualIndex === currentEpisodeIndex;
+              const epLabel = ep.name?.toLowerCase().startsWith('tập')
+                ? ep.name
+                : `Tập ${ep.name || actualIndex + 1}`;
+
+              return (
+                <button
+                  key={ep.slug || actualIndex}
+                  ref={isPlaying ? activeBtnRef : null}
+                  type="button"
+                  className={`${styles.epButton} ${isPlaying ? styles.epButtonActive : ''}`}
+                  onClick={() => onSelectEpisode(actualIndex)}
+                  title={`Phát ${epLabel}`}
+                >
+                  {isPlaying && (
+                    <i className={`fas fa-play ${styles.epPlayIcon}`} />
+                  )}
+                  <span className={styles.epText}>{epLabel}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className={styles.noEpisodesNotice}>
+            Không có tập phim nào trong danh sách máy chủ này.
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

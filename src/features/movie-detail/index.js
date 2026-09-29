@@ -16,6 +16,8 @@ export { default as MoviePlayerSection } from './components/MoviePlayerSection/M
 export { default as EpisodeSelector } from './components/EpisodeSelector/EpisodeSelector';
 export { default as EpisodeDirectory } from './components/EpisodeDirectory/EpisodeDirectory';
 export { default as WatchSidebarPlaylist } from './components/WatchSidebarPlaylist/WatchSidebarPlaylist';
+export { default as ServerVersionSelector } from './components/ServerVersionSelector/ServerVersionSelector';
+export { default as TrendingSidebar } from './components/TrendingSidebar/TrendingSidebar';
 export { default as CastCrewSection } from './components/CastCrewSection/CastCrewSection';
 export { default as MovieMetaBento } from './components/MovieMetaBento/MovieMetaBento';
 export { default as MovieCommentsSection } from './components/MovieCommentsSection/MovieCommentsSection';

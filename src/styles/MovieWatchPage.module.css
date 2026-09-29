@@ -90,7 +90,7 @@
 
 .cockpitLayout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 24px;
   align-items: start;
 }
@@ -141,28 +141,17 @@
   line-height: 1.25;
 }
 
-.epHighlightPill {
+.epSubtleTag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(229, 9, 20, 0.14);
-  border: 1px solid rgba(229, 9, 20, 0.35);
-  color: #ff5252;
-  font-size: 0.82rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  letter-spacing: 0.02em;
-}
-
-.epPillDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #e50914;
-  box-shadow: 0 0 6px #e50914;
-  display: inline-block;
-  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.01em;
 }
 
 .movieSubTitle {
@@ -175,6 +164,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 4px;
   flex-wrap: wrap;
   line-height: 1;
 }

@@ -61,7 +61,7 @@
 /* Control Bar Beneath Player */
 .playerControlBar {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
@@ -87,6 +87,13 @@
   margin-right: 2px;
 }
 
+.serverBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .serverBtn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -100,6 +107,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  user-select: none;
 }
 
 .serverBtn:hover {
@@ -113,6 +121,13 @@
   border-color: #e50914;
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(229, 9, 20, 0.4);
+}
+
+.serverBadge {
+  font-size: 0.7rem;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 5px;
+  border-radius: 4px;
 }
 
 .playbackActions {

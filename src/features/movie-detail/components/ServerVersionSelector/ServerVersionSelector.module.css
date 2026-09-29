@@ -1,0 +1,157 @@
+/**
+ * @file ServerVersionSelector.module.css
+ * @description Sleek audio version selector (Vietsub, Thuyết Minh) with hover dropdown for multi-source servers.
+ */
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.selectorLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 2px;
+}
+
+.labelIcon {
+  color: #e50914;
+  font-size: 0.88rem;
+}
+
+.btnGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Version Pill Wrapper (relative for absolute dropdown positioning) */
+.versionPillWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Main Version Button (Vietsub, Thuyết Minh, Lồng Tiếng) */
+.versionBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.versionBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.versionBtnActive {
+  background: linear-gradient(135deg, #e50914 0%, #b80710 100%) !important;
+  border-color: #e50914 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.4);
+}
+
+.trackIcon {
+  font-size: 0.84rem;
+}
+
+.chevronIcon {
+  font-size: 0.68rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Hover Dropdown Menu for Multiple Sources */
+.dropdownPopover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 175px;
+  background: rgba(13, 17, 24, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.15);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  animation: fadeIn 0.18s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownTitle {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 8px 2px;
+}
+
+.sourceOptionBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  transition: all 0.16s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.sourceOptionBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.sourceOptionBtnActive {
+  background: rgba(229, 9, 20, 0.18) !important;
+  border-color: rgba(229, 9, 20, 0.35) !important;
+  color: #ffffff !important;
+}
+
+.sourceCheckIcon {
+  color: #ff4757;
+  font-size: 0.72rem;
+}
