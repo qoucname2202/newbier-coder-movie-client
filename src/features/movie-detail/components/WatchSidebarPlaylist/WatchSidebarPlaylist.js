@@ -27,7 +27,8 @@ export default function WatchSidebarPlaylist({
   currentServerIndex = 0,
   onSelectServer,
   currentEpisodeIndex = 0,
-  onSelectEpisode
+  onSelectEpisode,
+  pinnedEpisodeIndex = -1
 }) {
   const currentServer = servers[currentServerIndex] || servers[0] || null;
   const episodes = currentServer?.server_data || [];
@@ -119,6 +120,7 @@ export default function WatchSidebarPlaylist({
             {displayedEpisodes.map((ep, localIdx) => {
               const actualIndex = activeGroupIndex * GROUP_SIZE + localIdx;
               const isPlaying = actualIndex === currentEpisodeIndex;
+              const isPinned = actualIndex === pinnedEpisodeIndex;
               const epLabel = ep.name?.toLowerCase().startsWith('tập')
                 ? ep.name
                 : `Tập ${ep.name || actualIndex + 1}`;
@@ -128,14 +130,17 @@ export default function WatchSidebarPlaylist({
                   key={ep.slug || actualIndex}
                   ref={isPlaying ? activeBtnRef : null}
                   type="button"
-                  className={`${styles.epButton} ${isPlaying ? styles.epButtonActive : ''}`}
+                  className={`${styles.epButton} ${isPlaying ? styles.epButtonActive : ''} ${isPinned ? styles.epButtonPinned : ''}`}
                   onClick={() => onSelectEpisode(actualIndex)}
-                  title={`Phát ${epLabel}`}
+                  title={`${epLabel}${isPinned ? ' (Đã ghim)' : ''}`}
                 >
                   {isPlaying && (
                     <i className={`fas fa-play ${styles.epPlayIcon}`} />
                   )}
                   <span className={styles.epText}>{epLabel}</span>
+                  {isPinned && (
+                    <i className={`fas fa-thumbtack ${isPlaying ? styles.epPinIconWhite : styles.epPinIcon}`} title="Tập đã ghim" />
+                  )}
                 </button>
               );
             })}

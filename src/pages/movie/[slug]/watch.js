@@ -18,7 +18,12 @@ import {
 } from '@/features/movie-detail';
 import { MovieSection } from '@/components/common/MovieSection';
 import BackToTop from '@/components/UI/BackToTop';
-import { getWatchProgress, saveWatchProgress } from '@/utils/watchProgress';
+import {
+  getWatchProgress,
+  saveWatchProgress,
+  getPinnedEpisode,
+  togglePinnedEpisode
+} from '@/utils/watchProgress';
 import { WATCH_CONFIG } from '@/config/watchConfig';
 import styles from '@/styles/MovieWatchPage.module.css';
 
@@ -52,6 +57,43 @@ export default function MovieWatchPage({ initialSlug }) {
   } = useMovieDetail(slug);
 
   const [shareCopied, setShareCopied] = useState(false);
+  const [pinnedEpisodeIndex, setPinnedEpisodeIndex] = useState(-1);
+
+  // Sync pinned episode from local storage
+  useEffect(() => {
+    if (!slug) return;
+    const pinned = getPinnedEpisode(slug);
+    if (pinned && typeof pinned.episodeIndex === 'number') {
+      setPinnedEpisodeIndex(pinned.episodeIndex);
+    } else {
+      setPinnedEpisodeIndex(-1);
+    }
+
+    const handlePinnedChange = (e) => {
+      if (e?.detail?.slug === slug) {
+        if (e.detail.data && typeof e.detail.data.episodeIndex === 'number') {
+          setPinnedEpisodeIndex(e.detail.data.episodeIndex);
+        } else {
+          setPinnedEpisodeIndex(-1);
+        }
+      }
+    };
+
+    window.addEventListener('pinnedEpisodeChanged', handlePinnedChange);
+    return () => window.removeEventListener('pinnedEpisodeChanged', handlePinnedChange);
+  }, [slug]);
+
+  // Toggle pinning current episode
+  const handleTogglePinEpisode = useCallback(() => {
+    if (!slug || !activeEpisode) return;
+    const isNowPinned = togglePinnedEpisode(slug, {
+      episodeIndex: currentEpisodeIndex,
+      epSlug: activeEpisode.slug,
+      epName: activeEpisode.name,
+      serverIndex: currentServerIndex
+    });
+    setPinnedEpisodeIndex(isNowPinned ? currentEpisodeIndex : -1);
+  }, [slug, activeEpisode, currentEpisodeIndex, currentServerIndex]);
 
   // Sync route query (?ep=... & ?server=...) to active episode/server OR restore saved watch progress
   useEffect(() => {
@@ -247,6 +289,8 @@ export default function MovieWatchPage({ initialSlug }) {
               activeEpisode={activeEpisode}
               currentEpisodeIndex={currentEpisodeIndex}
               onSelectEpisode={handleSelectEpisode}
+              isPinned={currentEpisodeIndex === pinnedEpisodeIndex}
+              onTogglePin={handleTogglePinEpisode}
             />
 
             {/* Video Info Header below Player */}
@@ -331,6 +375,7 @@ export default function MovieWatchPage({ initialSlug }) {
               onSelectServer={handleSelectServer}
               currentEpisodeIndex={currentEpisodeIndex}
               onSelectEpisode={handleSelectEpisode}
+              pinnedEpisodeIndex={pinnedEpisodeIndex}
             />
 
             {/* Synopsis Peek */}

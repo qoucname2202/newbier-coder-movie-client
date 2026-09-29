@@ -247,6 +247,24 @@
   font-size: 0.68rem;
 }
 
+.epButtonPinned {
+  border-color: rgba(229, 9, 20, 0.45);
+}
+
+.epPinIcon {
+  font-size: 0.68rem;
+  color: #ef4444;
+  margin-left: 3px;
+  flex-shrink: 0;
+}
+
+.epPinIconWhite {
+  font-size: 0.68rem;
+  color: #ffffff;
+  margin-left: 3px;
+  flex-shrink: 0;
+}
+
 .epText {
   font-size: 0.8rem;
   font-weight: 600;

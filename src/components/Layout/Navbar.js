@@ -11,6 +11,7 @@ import {
   FaHistory, 
   FaSignOutAlt,
   FaUserCircle, 
+  FaUserPlus,
   FaTimesCircle, 
   FaChevronDown
 } from "react-icons/fa";
@@ -34,12 +35,47 @@ const USER_ICONS = {
   history: <FaHistory className="me-2 text-info" />
 };
 
+/**
+ * Modern vector SVG Cinema Avatar matching the dark aesthetic.
+ * Replaces blurry or missing raster fallback images.
+ */
+export const CinemaAvatarSvg = ({ size = 32, className = '' }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 36 36"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={{ width: `${size}px`, height: `${size}px`, display: 'block', flexShrink: 0 }}
+    aria-label="Avatar"
+  >
+    <defs>
+      <linearGradient id="cinemaAvatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#252d3d" />
+        <stop offset="100%" stopColor="#0f141f" />
+      </linearGradient>
+      <linearGradient id="cinemaAvatarIconGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#e2e8f0" />
+        <stop offset="100%" stopColor="#94a3b8" />
+      </linearGradient>
+    </defs>
+    <circle cx="18" cy="18" r="17.5" fill="url(#cinemaAvatarGrad)" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1" />
+    <circle cx="18" cy="13" r="5.25" fill="url(#cinemaAvatarIconGrad)" />
+    <path
+      d="M8.5 28.5C8.5 23.5 12.2 20.5 18 20.5C23.8 20.5 27.5 23.5 27.5 28.5C27.5 29.5 26.8 30 25.8 30H10.2C9.2 30 8.5 29.5 8.5 28.5Z"
+      fill="url(#cinemaAvatarIconGrad)"
+    />
+  </svg>
+);
+
 const getAvatarUrl = (user) => {
-  if (!user) return "/img/avatar.png";
+  if (!user) return null;
 
-  let avatarUrl = user.avatar || user.image || "/img/avatar.png";
+  let avatarUrl = user.avatar || user.image;
+  if (!avatarUrl || avatarUrl === '/img/avatar.png') return null;
 
-  if (avatarUrl && avatarUrl.startsWith('/')) {
+  if (avatarUrl.startsWith('/')) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
     const baseWithoutApi = baseUrl.endsWith('/api')
       ? baseUrl.substring(0, baseUrl.length - 4)
@@ -55,6 +91,29 @@ const getAvatarUrl = (user) => {
   }
 
   return avatarUrl;
+};
+
+const UserAvatarDisplay = ({ user, size = 34, className = '' }) => {
+  const [imgError, setImgError] = useState(false);
+  const avatarUrl = getAvatarUrl(user);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.avatar, user?.image]);
+
+  if (avatarUrl && !imgError) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={user?.fullname || user?.name || 'User Avatar'}
+        className={`rounded-circle ${className}`}
+        style={{ width: `${size}px`, height: `${size}px`, objectFit: 'cover' }}
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+
+  return <CinemaAvatarSvg size={size} className={`rounded-circle ${className}`} />;
 };
 
 const Navbar = () => {
@@ -613,14 +672,7 @@ const Navbar = () => {
           </button>
 
           <div className="profile-avatar" onClick={handleAvatarClick} title="Tài khoản cá nhân">
-            <img
-              src={getAvatarUrl(user)}
-              alt="User Avatar"
-              className="rounded-circle avatar-small"
-              onError={(e) => {
-                e.currentTarget.src = "/img/avatar.png";
-              }}
-            />
+            <UserAvatarDisplay user={user} size={32} className="avatar-small" />
           </div>
         </div>
 
@@ -776,18 +828,17 @@ const Navbar = () => {
 
             {/* MOBILE ONLY USER DASHBOARD LINKS */}
             <li className="nav-item d-lg-none border-top border-secondary pt-3 mt-3">
+              <Link href="/history" className="nav-link text-light py-2" onClick={closeMenu}>
+                <FaHistory className="me-2 text-info" /> Lịch sử phim đã xem
+              </Link>
+              <Link href="/favorites" className="nav-link text-light py-2" onClick={closeMenu}>
+                <FaHeart className="me-2 text-danger" /> Phim yêu thích
+              </Link>
               {isAuthenticated ? (
                 <>
-                  {USER_NAV_ITEMS.map((item) => (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className="nav-link text-light py-2"
-                      onClick={closeMenu}
-                    >
-                      {USER_ICONS[item.iconType]} {item.label}
-                    </Link>
-                  ))}
+                  <Link href="/profile" className="nav-link text-light py-2" onClick={closeMenu}>
+                    <FaUserCircle className="me-2 text-primary" /> Hồ sơ của tôi
+                  </Link>
                   <button
                     onClick={() => {
                       closeMenu();
@@ -852,16 +903,9 @@ const Navbar = () => {
             <div
               className="profile-avatar position-relative"
               onClick={handleAvatarClick}
-              title={isAuthenticated ? (user?.fullname || user?.name || "Tài khoản cá nhân") : "Đăng nhập"}
+              title={isAuthenticated ? (user?.fullname || user?.name || "Tài khoản cá nhân") : "Tài khoản / Đăng nhập"}
             >
-              <img
-                src={getAvatarUrl(user)}
-                alt="User Avatar"
-                className="rounded-circle avatar-desktop"
-                onError={(e) => {
-                  e.currentTarget.src = "/img/avatar.png";
-                }}
-              />
+              <UserAvatarDisplay user={user} size={36} className="avatar-desktop" />
               {isAuthenticated && <div className="user-status-indicator" />}
             </div>
           </div>
@@ -874,45 +918,81 @@ const Navbar = () => {
           {isAuthenticated ? (
             <>
               <div className="user-info">
-                <img
-                  src={getAvatarUrl(user)}
-                  alt="User Avatar"
-                  className="rounded-circle me-2"
-                  style={{ width: '36px', height: '36px', objectFit: 'cover' }}
-                  onError={(e) => { e.currentTarget.src = "/img/avatar.png"; }}
-                />
+                <UserAvatarDisplay user={user} size={38} className="me-2" />
                 <div className="user-details">
                   <p className="user-name">{user?.fullname || user?.name || 'Thành viên'}</p>
                   <p className="user-email">{user?.email || 'Người dùng'}</p>
                 </div>
               </div>
               <hr className="dropdown-divider my-2" />
-              {USER_NAV_ITEMS.map((item) => (
-                <button
-                  key={item.id}
-                  className="dropdown-item"
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    router.push(item.href);
-                  }}
-                >
-                  {USER_ICONS[item.iconType]} {item.label}
-                </button>
-              ))}
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  setShowUserMenu(false);
+                  router.push('/history');
+                }}
+              >
+                <FaHistory className="me-2 text-info" /> Lịch sử phim đã xem
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  setShowUserMenu(false);
+                  router.push('/favorites');
+                }}
+              >
+                <FaHeart className="me-2 text-danger" /> Phim yêu thích
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  setShowUserMenu(false);
+                  router.push('/profile');
+                }}
+              >
+                <FaUserCircle className="me-2 text-primary" /> Hồ sơ của tôi
+              </button>
               <hr className="dropdown-divider my-2" />
               <button className="dropdown-item text-danger" onClick={handleLogout}>
                 <FaSignOutAlt className="me-2" /> Đăng xuất
               </button>
             </>
           ) : (
-            <div className="auth-links">
-              <Link href="/auth/login" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
-                Đăng nhập
+            <>
+              <div className="user-info">
+                <UserAvatarDisplay user={null} size={36} className="me-2" />
+                <div className="user-details">
+                  <p className="user-name">Khách xem phim</p>
+                  <p className="user-email">Lịch sử & Phim đã lưu</p>
+                </div>
+              </div>
+              <hr className="dropdown-divider my-2" />
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  setShowUserMenu(false);
+                  router.push('/history');
+                }}
+              >
+                <FaHistory className="me-2 text-info" /> Lịch sử phim đã xem
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => {
+                  setShowUserMenu(false);
+                  router.push('/favorites');
+                }}
+              >
+                <FaHeart className="me-2 text-danger" /> Phim yêu thích
+              </button>
+              <hr className="dropdown-divider my-2" />
+              <Link href="/auth/login" className="dropdown-item text-primary" onClick={() => setShowUserMenu(false)}>
+                <FaUserCircle className="me-2" /> Đăng nhập
               </Link>
-              <Link href="/auth/signup" className="dropdown-item" onClick={() => setShowUserMenu(false)}>
-                Đăng ký tài khoản
+              <Link href="/auth/signup" className="dropdown-item text-secondary" onClick={() => setShowUserMenu(false)}>
+                <FaUserPlus className="me-2" /> Đăng ký tài khoản
               </Link>
-            </div>
+            </>
           )}
         </div>
       )}

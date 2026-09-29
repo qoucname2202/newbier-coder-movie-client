@@ -24,7 +24,9 @@ export default function MoviePlayerSection({
   onSelectServer,
   activeEpisode,
   currentEpisodeIndex = 0,
-  onSelectEpisode
+  onSelectEpisode,
+  isPinned = false,
+  onTogglePin
 }) {
   const currentServer = servers[currentServerIndex] || null;
   const currentEpisodes = currentServer?.server_data || [];
@@ -47,10 +49,13 @@ export default function MoviePlayerSection({
     }
   };
 
-  const handlePinEpisode = () => {
+  const handlePinClick = () => {
+    if (onTogglePin) {
+      onTogglePin();
+    }
     const el = document.getElementById('watch-playlist-section');
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   };
 
@@ -116,12 +121,12 @@ export default function MoviePlayerSection({
 
             <button
               type="button"
-              className={styles.actionBtn}
-              onClick={handlePinEpisode}
-              title={WATCH_CONFIG.labels.pinEpisodeTitle}
+              className={`${styles.actionBtn} ${isPinned ? styles.actionBtnPinned : ''}`}
+              onClick={handlePinClick}
+              title={isPinned ? WATCH_CONFIG.labels.pinnedEpisodeTitle : WATCH_CONFIG.labels.pinEpisodeTitle}
             >
-              <i className="fas fa-thumbtack text-danger" />
-              <span>{WATCH_CONFIG.labels.pinEpisodeText}</span>
+              <i className={`fas fa-thumbtack ${isPinned ? 'text-danger' : ''}`} />
+              <span>{isPinned ? WATCH_CONFIG.labels.pinnedEpisodeText : WATCH_CONFIG.labels.pinEpisodeText}</span>
             </button>
           </div>
         </div>

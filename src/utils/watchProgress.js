@@ -105,3 +105,120 @@ export function removeWatchProgress(slug) {
     // Ignore errors
   }
 }
+
+/**
+ * Retrieves all recent watch records from localStorage.
+ * @returns {Array<Object>} List of recent watch items.
+ */
+export function getAllRecentWatches() {
+  if (!isBrowser()) return [];
+  try {
+    const raw = window.localStorage.getItem(RECENT_LIST_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Removes an entry from recent watch list and deletes its stored progress.
+ * @param {string} slug - Movie slug.
+ */
+export function removeRecentWatch(slug) {
+  if (!isBrowser() || !slug) return;
+  try {
+    removeWatchProgress(slug);
+    const list = getAllRecentWatches().filter((item) => item.slug !== slug);
+    window.localStorage.setItem(RECENT_LIST_KEY, JSON.stringify(list));
+    window.dispatchEvent(new CustomEvent('watchProgressUpdated', { detail: { slug, removed: true } }));
+  } catch {
+    // Ignore errors
+  }
+}
+
+/**
+ * Clears all recent watch history from localStorage.
+ */
+export function clearAllRecentWatches() {
+  if (!isBrowser()) return;
+  try {
+    const list = getAllRecentWatches();
+    list.forEach((item) => {
+      if (item.slug) {
+        removeWatchProgress(item.slug);
+      }
+    });
+    window.localStorage.removeItem(RECENT_LIST_KEY);
+    window.dispatchEvent(new CustomEvent('watchProgressUpdated', { detail: { clearedAll: true } }));
+  } catch {
+    // Ignore errors
+  }
+}
+
+const PINNED_PREFIX = 'movie_pinned_ep_';
+
+/**
+ * Retrieves the pinned episode for a movie slug.
+ * @param {string} slug - Movie slug.
+ * @returns {Object|null} Pinned episode details or null.
+ */
+export function getPinnedEpisode(slug) {
+  if (!isBrowser() || !slug) return null;
+  try {
+    const raw = window.localStorage.getItem(`${PINNED_PREFIX}${slug}`);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Sets the pinned episode for a movie slug.
+ * @param {string} slug - Movie slug.
+ * @param {Object} data - Pinned episode data (episodeIndex, epSlug, epName, serverIndex).
+ */
+export function setPinnedEpisode(slug, data) {
+  if (!isBrowser() || !slug) return;
+  try {
+    window.localStorage.setItem(`${PINNED_PREFIX}${slug}`, JSON.stringify(data));
+    window.dispatchEvent(new CustomEvent('pinnedEpisodeChanged', { detail: { slug, data } }));
+  } catch {
+    // Ignore errors
+  }
+}
+
+/**
+ * Removes the pinned episode for a movie slug.
+ * @param {string} slug - Movie slug.
+ */
+export function removePinnedEpisode(slug) {
+  if (!isBrowser() || !slug) return;
+  try {
+    window.localStorage.removeItem(`${PINNED_PREFIX}${slug}`);
+    window.dispatchEvent(new CustomEvent('pinnedEpisodeChanged', { detail: { slug, data: null } }));
+  } catch {
+    // Ignore errors
+  }
+}
+
+/**
+ * Toggles the pinned episode for a movie.
+ * If currently pinned to this episodeIndex, unpins it. Otherwise pins it.
+ * @param {string} slug - Movie slug.
+ * @param {Object} data - Pinned episode data.
+ * @returns {boolean} True if now pinned, false if unpinned.
+ */
+export function togglePinnedEpisode(slug, data) {
+  if (!isBrowser() || !slug) return false;
+  const current = getPinnedEpisode(slug);
+  if (current && current.episodeIndex === data.episodeIndex) {
+    removePinnedEpisode(slug);
+    return false;
+  }
+  setPinnedEpisode(slug, data);
+  return true;
+}
+

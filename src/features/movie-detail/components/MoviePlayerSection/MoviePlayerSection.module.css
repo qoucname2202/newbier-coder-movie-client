@@ -163,6 +163,17 @@
   cursor: not-allowed;
 }
 
+.actionBtnPinned {
+  background: rgba(229, 9, 20, 0.18) !important;
+  border-color: rgba(229, 9, 20, 0.55) !important;
+  color: #ffffff !important;
+}
+
+.actionBtnPinned:hover {
+  background: rgba(229, 9, 20, 0.28) !important;
+  border-color: rgba(229, 9, 20, 0.75) !important;
+}
+
 .btnTheaterActive {
   background: #f59e0b;
   border-color: #f59e0b;
