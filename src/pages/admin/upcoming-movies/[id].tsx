@@ -1,12 +1,13 @@
 // src/pages/admin/upcoming-movies/[id].tsx
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Card, Button, Row, Col, Alert, Spinner, Badge, Modal } from 'react-bootstrap';
+import { Spinner, Modal, Button } from 'react-bootstrap';
 import Link from 'next/link';
-import { FaEdit, FaTrash, FaArrowLeft, FaCalendarCheck } from 'react-icons/fa';
-import AdminLayout from '../../../components/Layout/AdminLayout';
-import { getUpcomingMovieById, releaseUpcomingMovie, deleteUpcomingMovie, UpcomingMovie } from '../../../services/admin/upcomingMovieService';
-import ReleasedMovieLink from '../../../components/Admin/UpcomingMovies/ReleasedMovieLink';
+import { FaEdit, FaTrash, FaArrowLeft, FaCalendarCheck, FaFilm } from 'react-icons/fa';
+import AdminLayout from '@/components/Layout/AdminLayout';
+import { getUpcomingMovieById, releaseUpcomingMovie, deleteUpcomingMovie, UpcomingMovie } from '@/services/admin/upcomingMovieService';
+import ReleasedMovieLink from '@/components/Admin/UpcomingMovies/ReleasedMovieLink';
+import styles from '@/styles/AdminUpcomingMovies.module.css';
 
 const UpcomingMovieDetail: React.FC = () => {
   const router = useRouter();
@@ -65,7 +66,6 @@ const UpcomingMovieDetail: React.FC = () => {
     try {
       const response = await releaseUpcomingMovie(id as string);
 
-      // Get the ID of the newly created regular movie
       if (response.data?.movie?._id) {
         setReleasedMovieId(response.data.movie._id);
         setShowSuccessModal(true);
@@ -79,206 +79,294 @@ const UpcomingMovieDetail: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string | Date) => {
+  const formatDate = (dateString: string | Date | undefined) => {
     if (!dateString) return 'Chưa cập nhật';
     return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="content-wrapper">
-          <div className="content-header">
-            <div className="container-fluid">
-              <h1 style={{ color: 'black' }}>Chi tiết phim sắp ra mắt</h1>
-            </div>
-          </div>
-          <div className="content">
-            <div className="container-fluid">
-              <div className="text-center py-5">
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Đang tải...</span>
-                </Spinner>
-              </div>
-            </div>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
     <AdminLayout>
-      <div className="content-wrapper">
-        <section className="content-header">
-          <div className="container-fluid">
-            <Row>
-              <Col>
-                <h1 style={{ color: 'black' }}>Chi tiết phim sắp ra mắt</h1>
-              </Col>
-            </Row>
-          </div>
-        </section>
+      <div className={styles.container}>
+        <div className="container-fluid px-3 px-md-4">
+          {/* Header Section */}
+          <section className={styles.headerSection}>
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div className="d-flex align-items-center gap-3">
+                <Link href="/admin/upcoming-movies" className={styles.viewReleasedBtn}>
+                  <FaArrowLeft className="me-1" /> Quay lại danh sách
+                </Link>
+                <h1 className={styles.headerTitle}>Chi tiết phim sắp ra mắt</h1>
+              </div>
+              {movie && (
+                <div className="d-flex align-items-center gap-2">
+                  <Link href={`/admin/upcoming-movies/edit/${id}`} className={styles.viewReleasedBtn}>
+                    <FaEdit className="me-1" style={{ color: '#fbbf24' }} /> Chỉnh sửa
+                  </Link>
+                  <button
+                    type="button"
+                    className={styles.viewReleasedBtn}
+                    onClick={() => setShowDeleteModal(true)}
+                    style={{ borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
+                  >
+                    <FaTrash className="me-1" /> Xóa
+                  </button>
+                  {!movie.is_released && (
+                    <button
+                      type="button"
+                      className={styles.addMovieBtn}
+                      onClick={() => setShowReleaseModal(true)}
+                      style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}
+                    >
+                      <FaCalendarCheck className="me-1" /> Phát hành
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
 
-        <section className="content">
-          <div className="container-fluid">
-            {error && (
-              <Alert variant="danger" className="mb-4">
-                {error}
-              </Alert>
-            )}
+          {/* Content */}
+          {loading ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" variant="danger" role="status" style={{ width: '2.5rem', height: '2.5rem' }}>
+                <span className="visually-hidden">Đang tải...</span>
+              </Spinner>
+              <p className="mt-3 text-muted" style={{ fontSize: '0.9rem' }}>Đang tải thông tin phim...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyText} style={{ color: '#f87171' }}>{error}</div>
+              <Link href="/admin/upcoming-movies" className={styles.viewReleasedBtn}>
+                <FaArrowLeft className="me-1" /> Quay lại danh sách
+              </Link>
+            </div>
+          ) : movie ? (
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>
+                  <FaFilm style={{ color: '#e50914' }} />
+                  {movie.name}
+                </h2>
+                <div>
+                  {movie.is_released ? (
+                    <span className={styles.badgeReleased}>Đã phát hành</span>
+                  ) : (
+                    <span className={styles.badgeCinema}>Chờ công chiếu</span>
+                  )}
+                </div>
+              </div>
 
-            <Link href="/admin/upcoming-movies" passHref>
-              <Button variant="secondary" className="mb-3">
-                <FaArrowLeft className="me-2" /> Quay lại danh sách
-              </Button>
-            </Link>
+              <div className={styles.cardBody}>
+                {id && <ReleasedMovieLink upcomingMovieId={id as string} />}
 
-            {movie && (
-              <Card>
-                <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                  <h3 className="card-title">Chi tiết phim: {movie.name}</h3>
-                  <div>
-                    <Link href={`/admin/upcoming-movies/edit/${id}`} passHref>
-                      <Button variant="warning" size="sm" className="me-2">
-                        <FaEdit className="me-1" /> Chỉnh sửa
-                      </Button>
-                    </Link>
-                    <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)} className="me-2">
-                      <FaTrash className="me-1" /> Xóa
-                    </Button>
-                    {!movie.is_released && (
-                      <Button variant="success" size="sm" onClick={() => setShowReleaseModal(true)}>
-                        <FaCalendarCheck className="me-1" /> Phát hành
-                      </Button>
-                    )}
-                  </div>
-                </Card.Header>
-                <Card.Body>
-                  <Row>
-                    <Col md={3}>
-                      <div className="text-center mb-4">
-                        {movie.thumb_url ? (
-                          <img
-                            src={movie.thumb_url}
-                            alt={movie.name}
-                            className="img-fluid rounded"
-                            style={{ maxHeight: '300px', objectFit: 'cover' }}
-                          />
-                        ) : (
-                          <div className="bg-secondary text-white d-flex justify-content-center align-items-center rounded" style={{ height: '300px' }}>
-                            Không có hình ảnh
-                          </div>
-                        )}
-                      </div>
-                    </Col>
-                    <Col md={9}>                      <h4 className="mb-3">{movie.name} {movie.is_released && <Badge bg="success">Đã phát hành</Badge>}</h4>
-                      <p className="text-muted">{movie.origin_name}</p>
-
-                      {movie.is_released && id && (
-                        <ReleasedMovieLink upcomingMovieId={id as string} />
+                <div className="row g-4 mt-1">
+                  {/* Poster Thumbnail */}
+                  <div className="col-12 col-md-4 col-lg-3">
+                    <div
+                      style={{
+                        background: '#0e131d',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        padding: '10px',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {movie.thumb_url || movie.poster_url ? (
+                        <img
+                          src={movie.thumb_url || movie.poster_url}
+                          alt={movie.name}
+                          style={{
+                            maxWidth: '100%',
+                            height: 'auto',
+                            maxHeight: '380px',
+                            borderRadius: '6px',
+                            objectFit: 'cover',
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            height: '240px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#64748b',
+                            fontSize: '0.9rem',
+                          }}
+                        >
+                          Không có hình ảnh
+                        </div>
                       )}
+                    </div>
 
-                      <Row>
-                        <Col md={6}>
-                          <div className="mb-3">
-                            <strong>Năm sản xuất:</strong> {movie.year}
-                          </div>
-                          <div className="mb-3">
-                            <strong>Thể loại:</strong> {movie.category?.map(c => c.name).join(', ') || 'Chưa cập nhật'}
-                          </div>
-                          <div className="mb-3">
-                            <strong>Quốc gia:</strong> {movie.country?.map(c => c.name).join(', ') || 'Chưa cập nhật'}
-                          </div>
-                          <div className="mb-3">
-                            <strong>Đạo diễn:</strong> {movie.director?.join(', ') || 'Chưa cập nhật'}
-                          </div>
-                        </Col>
-                        <Col md={6}>
-                          <div className="mb-3">
-                            <strong>Diễn viên:</strong> {movie.actor?.join(', ') || 'Chưa cập nhật'}
-                          </div>
-                          <div className="mb-3">
-                            <strong>Chất lượng:</strong> {movie.quality || 'Chưa cập nhật'}
-                          </div>
-                          <div className="mb-3">
-                            <strong>Ngôn ngữ:</strong> {movie.lang || 'Chưa cập nhật'}
-                          </div>
-                          <div className="mb-3">
-                            <strong>Ngày phát hành dự kiến:</strong> {formatDate(movie.release_date)}
-                          </div>
-                        </Col>
-                      </Row>
+                    <div className="mt-3 d-flex flex-wrap gap-2 justify-content-center">
+                      {movie.chieurap && <span className={styles.badgeCinema}>Chiếu rạp</span>}
+                      {movie.isHidden && <span className={styles.badgeHidden}>Đã ẩn</span>}
+                      {movie.quality && (
+                        <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: '#cbd5e1' }}>
+                          {movie.quality}
+                        </span>
+                      )}
+                      {movie.lang && (
+                        <span style={{ fontSize: '0.75rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: '#cbd5e1' }}>
+                          {movie.lang}
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-                      <div className="mt-4">
-                        <h5>Nội dung phim</h5>
-                        <div dangerouslySetInnerHTML={{ __html: movie.content || 'Chưa cập nhật nội dung' }} />
+                  {/* Metadata & Details */}
+                  <div className="col-12 col-md-8 col-lg-9">
+                    <div className="mb-4">
+                      <div style={{ fontSize: '1.4rem', fontWeight: 700, color: '#ffffff' }}>
+                        {movie.name}
                       </div>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
-            )}
-          </div>
-        </section>
+                      <div style={{ fontSize: '1rem', color: '#94a3b8', marginTop: '2px' }}>
+                        {movie.origin_name || 'Chưa có tên gốc'}
+                      </div>
+                    </div>
+
+                    {/* Metadata Grid */}
+                    <div
+                      style={{
+                        background: '#0e131d',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        padding: '18px 20px',
+                        marginBottom: '24px',
+                      }}
+                    >
+                      <div className="row g-3">
+                        <div className="col-12 col-sm-6">
+                          <div className={styles.metaItem} style={{ marginBottom: '8px' }}>
+                            <span className={styles.metaLabel}>Năm phát hành:</span>
+                            <span style={{ color: '#ffffff', fontWeight: 500 }}>{movie.year || '—'}</span>
+                          </div>
+                          <div className={styles.metaItem} style={{ marginBottom: '8px' }}>
+                            <span className={styles.metaLabel}>Ngày dự kiến:</span>
+                            <span style={{ color: '#ffffff', fontWeight: 500 }}>{formatDate(movie.release_date)}</span>
+                          </div>
+                          <div className={styles.metaItem} style={{ marginBottom: '8px' }}>
+                            <span className={styles.metaLabel}>Thể loại:</span>
+                            <span style={{ color: '#cbd5e1' }}>
+                              {movie.category?.map((c) => c.name).join(', ') || 'Chưa cập nhật'}
+                            </span>
+                          </div>
+                          <div className={styles.metaItem}>
+                            <span className={styles.metaLabel}>Quốc gia:</span>
+                            <span style={{ color: '#cbd5e1' }}>
+                              {movie.country?.map((c) => c.name).join(', ') || 'Chưa cập nhật'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="col-12 col-sm-6">
+                          <div className={styles.metaItem} style={{ marginBottom: '8px' }}>
+                            <span className={styles.metaLabel}>Đạo diễn:</span>
+                            <span style={{ color: '#cbd5e1' }}>{movie.director?.join(', ') || 'Chưa cập nhật'}</span>
+                          </div>
+                          <div className={styles.metaItem} style={{ marginBottom: '8px' }}>
+                            <span className={styles.metaLabel}>Diễn viên:</span>
+                            <span style={{ color: '#cbd5e1' }}>{movie.actor?.join(', ') || 'Chưa cập nhật'}</span>
+                          </div>
+                          <div className={styles.metaItem} style={{ marginBottom: '8px' }}>
+                            <span className={styles.metaLabel}>Định dạng / Loại:</span>
+                            <span style={{ color: '#cbd5e1' }}>{movie.type || 'Phim lẻ'}</span>
+                          </div>
+                          <div className={styles.metaItem}>
+                            <span className={styles.metaLabel}>Trạng thái:</span>
+                            <span style={{ color: '#cbd5e1' }}>{movie.status || 'Sắp ra mắt'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div>
+                      <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9', marginBottom: '10px' }}>
+                        Nội dung tóm tắt
+                      </h3>
+                      <div
+                        style={{
+                          background: '#0e131d',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(255, 255, 255, 0.06)',
+                          padding: '16px 20px',
+                          color: '#cbd5e1',
+                          fontSize: '0.9rem',
+                          lineHeight: 1.6,
+                        }}
+                        dangerouslySetInnerHTML={{ __html: movie.content || '<p class="text-muted mb-0">Chưa có nội dung miêu tả cho phim này.</p>' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
 
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+      {/* Delete Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Xác nhận xoá phim</Modal.Title>
+          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: 600 }}>Xác nhận xoá phim</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            Bạn có chắc chắn muốn xoá phim <strong>"{movie?.name}"</strong> không?
-            <br />
-            Hành động này không thể hoàn tác.
-          </p>
+          <div>
+            Bạn có chắc chắn muốn xoá phim <strong style={{ color: '#ffffff' }}>"{movie?.name}"</strong> không?
+            <div className="mt-2 text-muted" style={{ fontSize: '0.85rem' }}>
+              Hành động này sẽ xoá vĩnh viễn và không thể hoàn tác.
+            </div>
+          </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Hủy
+          <Button variant="outline-secondary" size="sm" onClick={() => setShowDeleteModal(false)}>
+            Hủy bỏ
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Xoá
+          <Button variant="danger" size="sm" onClick={handleDelete} style={{ backgroundColor: '#e50914', borderColor: '#e50914' }}>
+            Xác nhận xoá
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)}>
+      {/* Release Modal */}
+      <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Xác nhận phát hành phim</Modal.Title>
+          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: 600 }}>Xác nhận phát hành phim</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            Bạn có chắc chắn muốn chuyển phim <strong>"{movie?.name}"</strong> sang trạng thái đã phát hành không?
-          </p>
+          <div>
+            Bạn có chắc chắn muốn chuyển phim <strong style={{ color: '#ffffff' }}>"{movie?.name}"</strong> sang trạng thái đã phát hành không?
+          </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowReleaseModal(false)}>
-            Hủy
+          <Button variant="outline-secondary" size="sm" onClick={() => setShowReleaseModal(false)}>
+            Hủy bỏ
           </Button>
-          <Button variant="success" onClick={handleRelease}>
-            Phát hành
+          <Button variant="success" size="sm" onClick={handleRelease}>
+            Phát hành ngay
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
+      {/* Success Modal */}
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Phát hành phim thành công</Modal.Title>
+          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: 600, color: '#34d399' }}>Phát hành phim thành công</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            Phim <strong>"{movie?.name}"</strong> đã được chuyển sang trạng thái đã phát hành thành công!
-          </p>
+          <div>
+            Phim <strong style={{ color: '#ffffff' }}>"{movie?.name}"</strong> đã được tạo thành công trong danh sách phim chính thức!
+          </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => router.push('/admin/upcoming-movies')}>
-            Quay lại danh sách
+          <Button variant="outline-secondary" size="sm" onClick={() => router.push('/admin/upcoming-movies')}>
+            Về danh sách
           </Button>
           {releasedMovieId && (
             <Link href={`/admin/movies/edit/${releasedMovieId}`} passHref>
-              <Button variant="primary">
+              <Button variant="success" size="sm">
                 Xem phim đã phát hành
               </Button>
             </Link>

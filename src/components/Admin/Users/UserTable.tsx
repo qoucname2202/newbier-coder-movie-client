@@ -212,18 +212,23 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
 
   return (
     <>
-      <div className="user-filters mb-4 p-3">
+      <div className="user-filters mb-3 p-3">
         <div className="row align-items-center">
           <div className="col-md-6 mb-3 mb-md-0">
             <div className="input-group search-group">
               <div className="input-group-prepend">
-                <span className="input-group-text bg-transparent border-right-0">
-                  <FaSearch className="text-muted" />
+                <span className="input-group-text bg-transparent border-right-0" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                  <FaSearch style={{ color: '#64748b' }} />
                 </span>
               </div>
               <input
                 type="text"
-                className="form-control border-left-0 bg-light"
+                className="form-control border-left-0"
+                style={{
+                  backgroundColor: '#0e131d',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#f1f5f9'
+                }}
                 placeholder="Tìm theo tên hoặc email..."
                 value={searchQuery}
                 onChange={handleSearch}
@@ -233,12 +238,17 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           <div className="col-md-3 mb-3 mb-md-0">
             <div className="input-group">
               <div className="input-group-prepend">
-                <span className="input-group-text bg-transparent border-right-0">
-                  <FaFilter className="text-muted" />
+                <span className="input-group-text bg-transparent border-right-0" style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                  <FaFilter style={{ color: '#64748b' }} />
                 </span>
               </div>
               <select
-                className="form-control border-left-0 bg-light"
+                className="form-control border-left-0"
+                style={{
+                  backgroundColor: '#0e131d',
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#f1f5f9'
+                }}
                 onChange={handleFilterChange}
                 defaultValue="all"
               >
@@ -250,7 +260,7 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
             </div>
           </div>
           <div className="col-md-3 text-md-right">
-            <span className="badge bg-light text-dark p-2">
+            <span className="badge p-2" style={{ backgroundColor: '#141b29', color: '#94a3b8', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
               {filteredUsers.length} người dùng
             </span>
           </div>
@@ -438,18 +448,36 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
       />
 
       <style jsx>{`
+        .user-filters {
+          background-color: #111723;
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .user-table-container {
+          background-color: #111723;
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          overflow: hidden;
+        }
+
         .user-table {
           border-collapse: separate;
           border-spacing: 0;
+          color: #cbd5e1;
+          margin-bottom: 0;
         }
 
         .user-table thead th {
-          background-color: #f8f9fa;
+          background-color: #141b29;
           border-top: none;
-          border-bottom: 2px solid #dee2e6;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
           font-weight: 600;
-          color: #495057;
-          padding: 0.85rem;
+          font-size: 0.82rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: #94a3b8;
+          padding: 12px 16px;
         }
 
         .sortable-header {
@@ -459,45 +487,52 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
         }
 
         .sortable-header:hover {
-          background-color: #f1f1f1;
+          background-color: #182133;
+          color: #ffffff;
         }
 
         .user-table tbody tr {
-          transition: all 0.2s;
+          transition: background 0.12s ease;
           position: relative;
         }
 
+        .user-table tbody tr td {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          padding: 12px 16px;
+          vertical-align: middle;
+        }
+
         .user-table tbody tr:hover {
-          background-color: rgba(0, 123, 255, 0.03);
+          background-color: #151c2a;
         }
 
         .banned-user {
-          background-color: rgba(253, 237, 237, 0.4);
+          background-color: rgba(239, 68, 68, 0.06);
         }
 
         .banned-user:hover {
-          background-color: rgba(253, 237, 237, 0.6) !important;
+          background-color: rgba(239, 68, 68, 0.1) !important;
         }
 
         .banned-user td {
-          color: #6c757d;
+          color: #64748b;
         }
 
         .banned-user::after {
           content: "";
           position: absolute;
           left: 0;
-          width: 4px;
+          width: 3px;
           top: 0;
           bottom: 0;
-          background-color: #dc3545;
-          opacity: 0.7;
+          background-color: #ef4444;
+          opacity: 0.8;
         }
 
         .user-avatar {
           position: relative;
-          width: 40px;
-          height: 40px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           overflow: hidden;
           flex-shrink: 0;
@@ -515,60 +550,62 @@ const UserTable: React.FC<UserTableProps> = ({ users = [], onEdit, onDelete, onB
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #007bff;
-          color: white;
-          font-weight: bold;
-          font-size: 16px;
+          background-color: #1e293b;
+          color: #94a3b8;
+          font-weight: 600;
+          font-size: 14px;
         }
 
         .banned-badge {
           position: absolute;
           bottom: -2px;
           right: -2px;
-          width: 20px;
-          height: 20px;
+          width: 16px;
+          height: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #dc3545;
+          background-color: #ef4444;
           color: white;
-          font-size: 10px;
+          font-size: 8px;
           border-radius: 50%;
-          border: 2px solid white;
+          border: 1px solid #111723;
         }
 
         .empty-state {
-          padding: 2rem;
+          padding: 3rem;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
         }
 
-        .search-group {
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-          border-radius: 4px;
+        .empty-state h5 {
+          color: #f1f5f9 !important;
+          font-size: 1.05rem;
+          font-weight: 600;
+          margin-bottom: 4px;
+        }
+
+        .empty-state p {
+          color: #94a3b8 !important;
+          font-size: 0.88rem;
         }
 
         .search-group input, .search-group .input-group-text {
-          border-color: #eaeaea;
+          border-color: rgba(255, 255, 255, 0.1);
         }
 
         .btn-group .btn {
-          margin-right: 5px;
+          margin-right: 4px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
-          height: 32px;
+          width: 30px;
+          height: 30px;
           padding: 0;
-        }
-
-        .user-filters {
-          background-color: white;
-          border-radius: 0.5rem;
-          margin-bottom: 1rem;
-          box-shadow: 0 0 10px rgba(0,0,0,0.03);
+          border-radius: 6px;
+          border-color: rgba(255, 255, 255, 0.12);
         }
       `}</style>
     </>

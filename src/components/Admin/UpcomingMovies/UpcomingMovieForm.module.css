@@ -1,27 +1,29 @@
+/* UpcomingMovieForm.module.css - Dark Cinema Studio Theme */
+
 /* Form Structure and Layout */
 .formContainer {
-  background-color: rgba(18, 24, 40, 0.02);
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  background-color: #111723;
+  border-radius: 10px;
+  box-shadow: none;
   margin-bottom: 2rem;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
 }
 
 .formSection {
   margin-bottom: 24px;
   border-radius: 8px;
   overflow: hidden;
-  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #111723;
 }
 
 .formHeader {
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #3a0647 0%, #6a0572 100%);
-  color: white;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  padding: 14px 18px;
+  background-color: #141b29;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -34,37 +36,48 @@
 /* Error Alert */
 .errorAlert {
   border-left: 4px solid #e53e3e;
+  background-color: rgba(229, 62, 62, 0.12);
+  color: #feb2b2;
+  border-radius: 6px;
+  padding: 12px 16px;
   margin-bottom: 20px;
 }
 
 .errorIcon {
   margin-right: 8px;
-  color: #e53e3e;
+  color: #fc8181;
 }
 
 /* Form Elements */
 .formLabel {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #f1f5f9;
+  font-size: 0.88rem;
 }
 
 .formControl {
-  border: 1px solid #d1d5db;
+  background-color: #0e131d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
-  padding: 10px 14px;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 8px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   width: 100%;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  color: #f1f5f9;
 }
 
 .formControl:focus {
-  border-color: #6a0572;
-  box-shadow: 0 0 0 3px rgba(106, 5, 114, 0.2);
+  border-color: #e50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.15);
   outline: none;
+  color: #ffffff;
+  background-color: #0e131d;
+}
+
+.formControl::placeholder {
+  color: #64748b;
 }
 
 .formTextarea {
@@ -77,13 +90,12 @@
   max-height: 200px;
   overflow-y: auto;
   margin-bottom: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px;
   border-radius: 6px;
-  background-color: #f9fafb;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  background-color: #0e131d;
   scrollbar-width: thin;
-  scrollbar-color: #6a0572 #f9fafb;
+  scrollbar-color: #e50914 #0e131d;
 }
 
 .checkboxContainer::-webkit-scrollbar {
@@ -91,26 +103,30 @@
 }
 
 .checkboxContainer::-webkit-scrollbar-track {
-  background: #f9fafb;
+  background: #0e131d;
   border-radius: 6px;
 }
 
 .checkboxContainer::-webkit-scrollbar-thumb {
-  background-color: #6a0572;
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 6px;
 }
 
+.checkboxContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #e50914;
+}
+
 .checkboxItem {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
   padding: 6px 8px;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: background-color 0.15s ease;
 }
 
 .checkboxItem:hover {
-  background-color: #edf2f7;
+  background-color: rgba(255, 255, 255, 0.04);
 }
 
 .checkboxItem:last-child {
@@ -122,7 +138,8 @@
   align-items: center;
   margin-bottom: 0;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  color: #cbd5e1;
   user-select: none;
 }
 
@@ -133,10 +150,9 @@
 
 .inputGroup {
   display: flex;
-  margin-top: 10px;
+  margin-top: 8px;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .addInput {
@@ -145,79 +161,91 @@
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-right: none;
-  padding: 10px 14px;
+  padding: 8px 12px;
+  background-color: #0e131d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  font-size: 0.85rem;
+}
+
+.addInput:focus {
+  border-color: #e50914;
+  outline: none;
 }
 
 .addButton {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  background-color: #6a0572;
-  color: white;
-  padding: 0 16px;
-  border: none;
-  font-weight: 600;
-  transition: background-color 0.2s, transform 0.1s;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: none;
+  color: #ffffff;
+  padding: 0 14px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .addButton:hover {
-  background-color: #4a0350;
-}
-
-.addButton:active {
-  transform: scale(0.98);
+  background-color: #e50914;
+  border-color: #e50914;
+  color: #ffffff;
 }
 
 /* Tabs */
 .tabNav {
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  background-color: #f3f4f6;
+  background-color: #0e131d;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .tabItem {
   border: none;
-  margin-bottom: 8px;
   border-radius: 6px;
-  transition: all 0.2s;
   overflow: hidden;
 }
 
 .tabLink {
-  color: #4a5568;
+  color: #94a3b8;
   font-weight: 500;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 6px;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
+  cursor: pointer;
+  font-size: 0.88rem;
+  text-decoration: none;
 }
 
 .tabLink:hover {
-  background-color: #f7fafc;
-  color: #6a0572;
+  background-color: rgba(255, 255, 255, 0.04);
+  color: #f1f5f9;
 }
 
 .tabLinkActive {
-  background-color: #6a0572;
-  color: white;
+  background-color: #e50914 !important;
+  color: #ffffff !important;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.tabLinkActive:hover {
-  background-color: #6a0572;
-  color: white;
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  font-size: 0.88rem;
 }
 
 /* Image Previews */
 .mediaPreview {
   max-width: 100%;
   height: auto;
-  max-height: 150px;
+  max-height: 180px;
   border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   object-fit: contain;
 }
 
@@ -225,22 +253,15 @@
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
   object-fit: contain;
 }
 
-.imagePreview:hover {
-  transform: scale(1.02);
-}
-
 .previewPanel {
-  background-color: #f9fafb;
+  background-color: #0e131d;
   border-radius: 8px;
   padding: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-  border: 1px solid #e2e8f0;
+  margin-top: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   overflow: hidden;
 }
 
@@ -253,25 +274,29 @@
 
 .fileInput {
   flex: 1;
-  padding: 8px;
-  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px 0 0 6px;
-  background-color: #f9fafb;
+  background-color: #0e131d;
+  color: #cbd5e1;
+  font-size: 0.85rem;
 }
 
 .fileButton {
   border-radius: 0 6px 6px 0;
-  padding: 8px 15px;
-  background-color: #6a0572;
-  color: white;
-  border: none;
+  padding: 8px 14px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: none;
+  color: #ffffff;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.2s;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
 }
 
 .fileButton:hover {
-  background-color: #4a0350;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Form Actions */
@@ -280,50 +305,56 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 20px;
 }
 
 .submitButton {
-  background: linear-gradient(135deg, #6a0572 0%, #ab149e 100%);
-  border: none;
-  padding: 10px 24px;
+  background: #e50914;
+  border: 1px solid #e50914;
+  padding: 8px 24px;
   font-weight: 600;
   border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(106, 5, 114, 0.3);
-  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(229, 9, 20, 0.25);
+  transition: background-color 0.15s ease;
   color: white;
+  font-size: 0.88rem;
+  cursor: pointer;
 }
 
-.submitButton:hover {
-  background: linear-gradient(135deg, #4a0350 0%, #8a1080 100%);
-  box-shadow: 0 4px 8px rgba(106, 5, 114, 0.4);
-  transform: translateY(-1px);
+.submitButton:hover:not(:disabled) {
+  background: #c10711;
+  border-color: #c10711;
 }
 
-.submitButton:active {
-  transform: translateY(0);
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .cancelButton {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid #d1d5db;
-  padding: 10px 24px;
-  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 20px;
+  font-weight: 500;
   border-radius: 6px;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
+  font-size: 0.88rem;
+  cursor: pointer;
 }
 
 .cancelButton:hover {
-  background-color: #e5e7eb;
-  color: #1f2937;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 /* Preview Section */
 .previewSection {
-  background-color: #f9fafb;
+  background-color: #0e131d;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .previewImageContainer {
@@ -333,21 +364,22 @@
 }
 
 .noImage {
-  height: 200px;
+  height: 180px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #e5e7eb;
-  color: #6b7280;
+  background-color: #0e131d;
+  color: #64748b;
   border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
   margin-bottom: 16px;
 }
 
 .noImageText {
   margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #6b7280;
+  font-size: 0.85rem;
+  color: #64748b;
 }
 
 /* Date Picker Customization */
@@ -356,15 +388,128 @@
 }
 
 .datepickerInput {
-  border: 1px solid #d1d5db;
+  background-color: #0e131d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   width: 100%;
-  transition: all 0.2s;
+  color: #f1f5f9;
+  font-size: 0.88rem;
+  transition: border-color 0.15s ease;
 }
 
 .datepickerInput:focus {
-  border-color: #6a0572;
-  box-shadow: 0 0 0 3px rgba(106, 5, 114, 0.2);
+  border-color: #e50914;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.15);
+}
+
+/* Global Scoped Overrides inside .formContainer */
+.formContainer :global(.form-control),
+.formContainer :global(.form-select) {
+  background-color: #0e131d !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+  font-size: 0.88rem !important;
+  border-radius: 6px !important;
+}
+
+.formContainer :global(.form-control:focus),
+.formContainer :global(.form-select:focus) {
+  border-color: #e50914 !important;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.15) !important;
+  background-color: #0e131d !important;
+  color: #ffffff !important;
+}
+
+.formContainer :global(.form-label) {
+  color: #f1f5f9 !important;
+  font-weight: 500 !important;
+  font-size: 0.88rem !important;
+  margin-bottom: 6px !important;
+}
+
+.formContainer :global(.card) {
+  background-color: #111723 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.formContainer :global(.card-body) {
+  background-color: #111723 !important;
+  color: #cbd5e1 !important;
+}
+
+.formContainer :global(.btn-outline-primary) {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #cbd5e1 !important;
+  font-size: 0.88rem !important;
+  border-radius: 6px !important;
+}
+
+.formContainer :global(.btn-outline-primary:hover) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.formContainer :global(.form-check-input) {
+  background-color: #0e131d !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.formContainer :global(.form-check-input:checked) {
+  background-color: #e50914 !important;
+  border-color: #e50914 !important;
+}
+
+.formContainer :global(.form-check-label) {
+  color: #cbd5e1 !important;
+  font-size: 0.85rem !important;
+}
+
+/* Global DatePicker Dark Styling */
+:global(.react-datepicker) {
+  background-color: #111723 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+  font-family: inherit !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+:global(.react-datepicker__header) {
+  background-color: #141b29 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+:global(.react-datepicker__current-month),
+:global(.react-datepicker-time__header) {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+:global(.react-datepicker__day-name) {
+  color: #94a3b8 !important;
+}
+
+:global(.react-datepicker__day) {
+  color: #cbd5e1 !important;
+  border-radius: 4px !important;
+}
+
+:global(.react-datepicker__day:hover) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+:global(.react-datepicker__day--selected),
+:global(.react-datepicker__day--keyboard-selected) {
+  background-color: #e50914 !important;
+  color: #ffffff !important;
+}
+
+:global(.react-datepicker__day--outside-month) {
+  color: #475569 !important;
 }

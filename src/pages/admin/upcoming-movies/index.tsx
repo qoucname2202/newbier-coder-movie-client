@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from '@/styles/AdminUpcomingMovies.module.css';
-import { Table, Button, Spinner, Form, InputGroup, Row, Col, Card, Alert, Badge, Modal } from 'react-bootstrap';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaPaperPlane } from 'react-icons/fa';
+import { Spinner, Modal, Button } from 'react-bootstrap';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaPaperPlane, FaFilm, FaCalendarAlt } from 'react-icons/fa';
 import AdminLayout from '@/components/Layout/AdminLayout';
 import { getUpcomingMovies, deleteUpcomingMovie, releaseUpcomingMovie } from '@/services/admin/upcomingMovieService';
 import { UpcomingMovie } from '@/services/admin/upcomingMovieService';
@@ -82,6 +82,7 @@ const UpcomingMoviesPage: React.FC = () => {
       alert('Lỗi khi xóa phim sắp ra mắt');
     }
   };
+
   const confirmRelease = async () => {
     if (!selectedMovie?._id) return;
 
@@ -90,7 +91,6 @@ const UpcomingMoviesPage: React.FC = () => {
       setShowReleaseModal(false);
 
       if (response.data?.movie?._id) {
-        // If we get back the new movie ID, show it in the alert
         const newMovieId = response.data.movie._id;
         if (confirm(`Phim đã được chuyển sang trạng thái phát hành thành công! Bạn có muốn xem phim đã phát hành không?`)) {
           router.push(`/admin/movies/edit/${newMovieId}`);
@@ -107,237 +107,248 @@ const UpcomingMoviesPage: React.FC = () => {
     }
   };
 
-  const exportToCsv = () => {
-    // Implement CSV export functionality if needed
-    alert('Chức năng xuất CSV sẽ được phát triển sau');
-  };
-
   return (
     <AdminLayout>
-      <div className="content-wrapper">
-        <section className="content-header">
-          <div className="container-fluid">            <Row>              <Col>
-                <h1 style={{ color: '#000' }}>Quản lý Phim Sắp Ra Mắt</h1>
-              </Col>
-              <Col xs="auto">
-                <Link href="/admin/movies" passHref>
-                  <Button variant="outline-primary">
-                    Xem danh sách phim đã phát hành
-                  </Button>
+      <div className={styles.container}>
+        <div className="container-fluid px-3 px-md-4">
+          {/* Header Section */}
+          <section className={styles.headerSection}>
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div>
+                <h1 className={styles.headerTitle}>Quản lý Phim Sắp Ra Mắt</h1>
+              </div>
+              <div className={styles.headerActions}>
+                <Link href="/admin/movies" className={styles.viewReleasedBtn}>
+                  <FaFilm className="me-1" /> Danh sách phim đã phát hành
                 </Link>
-              </Col>
-            </Row>
-          </div>
-        </section>
+                <Link href="/admin/upcoming-movies/new" className={styles.addMovieBtn}>
+                  <FaPlus className="me-1" /> Thêm phim mới
+                </Link>
+              </div>
+            </div>
+          </section>
 
-        <section className="content">
-          <div className="container-fluid">
-            {error && (
-              <Alert variant="danger" className="mb-4">
-                {error}
-              </Alert>
-            )}
+          {/* Main Card */}
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <FaCalendarAlt style={{ color: '#e50914', fontSize: '1.1rem' }} />
+                Danh sách phim chờ công chiếu
+              </h2>
+            </div>
 
-            <Card className="mb-4">              <Card.Header className="bg-primary d-flex justify-content-between align-items-center">
-                <h3 className="card-title text-dark">Danh sách phim sắp ra mắt</h3>
-                <div>
-                  <Link href="/admin/upcoming-movies/new" passHref>
-                    <Button variant="success" size="sm" className="me-2">
-                      <FaPlus className="me-1" /> Thêm Phim
-                    </Button>
-                  </Link>
-                </div>
-              </Card.Header>
-              <Card.Body>
-                <Form onSubmit={handleSearch} className="mb-4">
-                  <Row>
-                    <Col md={6} lg={4}>
-                      <InputGroup>
-                        <Form.Control
-                          placeholder="Tìm kiếm phim..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                        <Button variant="outline-secondary" type="submit">
-                          <FaSearch />
-                        </Button>
-                      </InputGroup>
-                    </Col>
-                    <Col md={3} lg={2}>
-                      <Form.Select
-                        value={limit}
-                        onChange={(e) => setLimit(parseInt(e.target.value))}
-                        aria-label="Số lượng hiển thị"
-                      >
-                        <option value="10">10 phim</option>
-                        <option value="25">25 phim</option>
-                        <option value="50">50 phim</option>
-                        <option value="100">100 phim</option>
-                      </Form.Select>
-                    </Col>
-                  </Row>
-                </Form>
-
-                {loading ? (
-                  <div className="text-center p-5">
-                    <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Đang tải...</span>
-                    </Spinner>
+            <div className={styles.cardBody}>
+              {/* Toolbar */}
+              <div className={styles.toolbar}>
+                <form onSubmit={handleSearch} className={styles.searchForm}>
+                  <div className={styles.searchGroup}>
+                    <input
+                      type="text"
+                      className={styles.searchInput}
+                      placeholder="Tìm kiếm phim theo tên, tên gốc..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <button type="submit" className={styles.searchSubmitBtn} title="Tìm kiếm">
+                      <FaSearch />
+                    </button>
                   </div>
-                ) : upcomingMovies.length > 0 ? (
-                  <>
-                    <div className="table-responsive">
-                      <Table striped bordered hover className={styles['movie-table']}>
-                        <thead>                          <tr>
-                            <th className="text-center" style={{ width: "5%" }}>ID</th>
-                            <th style={{ width: "35%" }}>Tên phim</th>
-                            <th style={{ width: "30%" }}>Thông tin</th>
-                            <th className="text-center" style={{ width: "15%" }}>Ngày phát hành</th>
-                            <th className="text-center" style={{ width: "15%" }}>Thao tác</th>
-                          </tr>
-                        </thead>
-                        <tbody>                          {
-                        upcomingMovies.map((movie, index) => (
-                            <tr key={movie._id}>
-                              <td className="text-center">
-                                {(page - 1) * limit + index + 1}
-                              </td>
-                              <td>
-                                <strong>{movie.name}</strong>
-                                <div className="text-muted small">{movie.origin_name}</div>
+                </form>
+
+                <div className={styles.limitSelector}>
+                  <span style={{ fontSize: '0.84rem', color: '#94a3b8' }}>Hiển thị:</span>
+                  <select
+                    className={styles.selectInput}
+                    value={limit}
+                    onChange={(e) => {
+                      setLimit(parseInt(e.target.value));
+                      setPage(1);
+                    }}
+                    aria-label="Số lượng hiển thị"
+                  >
+                    <option value="10">10 phim / trang</option>
+                    <option value="25">25 phim / trang</option>
+                    <option value="50">50 phim / trang</option>
+                    <option value="100">100 phim / trang</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Table or Loading */}
+              {loading ? (
+                <div className="text-center py-5">
+                  <Spinner animation="border" variant="danger" role="status" style={{ width: '2.5rem', height: '2.5rem' }}>
+                    <span className="visually-hidden">Đang tải...</span>
+                  </Spinner>
+                  <p className="mt-3 text-muted" style={{ fontSize: '0.9rem' }}>Đang tải danh sách phim sắp ra mắt...</p>
+                </div>
+              ) : upcomingMovies.length > 0 ? (
+                <>
+                  <div className={styles.tableResponsive}>
+                    <table className={styles.movieTable}>
+                      <thead>
+                        <tr>
+                          <th className="text-center" style={{ width: "5%" }}>#</th>
+                          <th style={{ width: "35%" }}>Tên phim</th>
+                          <th style={{ width: "28%" }}>Thông tin chi tiết</th>
+                          <th className="text-center" style={{ width: "16%" }}>Ngày phát hành</th>
+                          <th className="text-center" style={{ width: "16%" }}>Thao tác</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {upcomingMovies.map((movie, index) => (
+                          <tr key={movie._id}>
+                            <td className={styles.idCol}>
+                              {(page - 1) * limit + index + 1}
+                            </td>
+                            <td>
+                              <div className={styles.movieTitle}>{movie.name}</div>
+                              <div className={styles.movieOriginName}>{movie.origin_name || '—'}</div>
+                              <div className={styles.badgesRow}>
                                 {movie.chieurap && (
-                                  <Badge bg="info" className="me-1 mt-1">Chiếu rạp</Badge>
+                                  <span className={styles.badgeCinema}>Chiếu rạp</span>
                                 )}
                                 {movie.isHidden && (
-                                  <Badge bg="secondary" className="me-1 mt-1">Đã ẩn</Badge>
+                                  <span className={styles.badgeHidden}>Đã ẩn</span>
                                 )}
                                 {movie.is_released && (
-                                  <Badge bg="success" className="me-1 mt-1">Đã phát hành</Badge>
+                                  <span className={styles.badgeReleased}>Đã phát hành</span>
                                 )}
-                              </td>
-                              <td>
-                                <div><strong>Năm:</strong> {movie.year}</div>
-                                <div>
-                                  <strong>Thể loại:</strong> {movie.category?.map(c => c.name).join(', ') || 'Không có'}
+                              </div>
+                            </td>
+                            <td>
+                              <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Năm:</span>
+                                <span>{movie.year || '—'}</span>
+                              </div>
+                              <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Thể loại:</span>
+                                <span>{movie.category?.map(c => c.name).join(', ') || 'Chưa cập nhật'}</span>
+                              </div>
+                              <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Quốc gia:</span>
+                                <span>{movie.country?.map(c => c.name).join(', ') || 'Chưa cập nhật'}</span>
+                              </div>
+                            </td>
+                            <td className="text-center">
+                              {movie.release_date ? (
+                                <div className={styles.releaseDateText}>
+                                  {new Date(movie.release_date).toLocaleDateString('vi-VN')}
                                 </div>
-                                <div>
-                                  <strong>Quốc gia:</strong> {movie.country?.map(c => c.name).join(', ') || 'Không có'}
-                                </div>
-                              </td>
-                              <td className="text-center">
-                                {movie.release_date ? (
-                                  <div>
-                                    {new Date(movie.release_date).toLocaleDateString('vi-VN')}
-                                  </div>
-                                ) : (
-                                  <span className="text-muted">Chưa cập nhật</span>
-                                )}
-                              </td>                              <td className="text-center">
-                                <div className={styles['action-buttons']}>
-                                  <Link href={`/admin/upcoming-movies/${movie._id}`} passHref>
-                                    <Button variant="outline-info" size="sm" title="Xem chi tiết" className={styles['action-btn']}>
-                                      <FaEye />
-                                    </Button>
-                                  </Link>
-                                  <Link href={`/admin/upcoming-movies/edit/${movie._id}`} passHref>
-                                    <Button variant="outline-warning" size="sm" title="Sửa" className={styles['action-btn']}>
-                                      <FaEdit />
-                                    </Button>
-                                  </Link>
-                                  <Button
-                                    variant="outline-danger"
-                                    size="sm"
-                                    title="Xóa"
-                                    className={styles['action-btn']}
-                                    onClick={() => handleDeleteClick(movie)}
+                              ) : (
+                                <span className={styles.releaseDateMuted}>Chưa xác định</span>
+                              )}
+                            </td>
+                            <td className="text-center">
+                              <div className={styles.actionButtons}>
+                                <Link
+                                  href={`/admin/upcoming-movies/${movie._id}`}
+                                  className={`${styles.actionBtn} ${styles.actionBtnView}`}
+                                  title="Xem chi tiết"
+                                >
+                                  <FaEye />
+                                </Link>
+                                <Link
+                                  href={`/admin/upcoming-movies/edit/${movie._id}`}
+                                  className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
+                                  title="Chỉnh sửa"
+                                >
+                                  <FaEdit />
+                                </Link>
+                                <button
+                                  type="button"
+                                  className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                                  title="Xóa phim"
+                                  onClick={() => handleDeleteClick(movie)}
+                                >
+                                  <FaTrash />
+                                </button>
+                                {!movie.is_released && (
+                                  <button
+                                    type="button"
+                                    className={`${styles.actionBtn} ${styles.actionBtnRelease}`}
+                                    title="Chuyển sang phát hành chính thức"
+                                    onClick={() => handleReleaseClick(movie)}
                                   >
-                                    <FaTrash />
-                                  </Button>
-                                  {!movie.is_released && (
-                                    <Button
-                                      variant="outline-success"
-                                      size="sm"
-                                      title="Chuyển sang phát hành"
-                                      className={styles['action-btn']}
-                                      onClick={() => handleReleaseClick(movie)}
-                                    >
-                                      <FaPaperPlane />
-                                    </Button>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </Table>
-                    </div>
-
-                    <div className="d-flex justify-content-between align-items-center">
-                      <div>
-                        Hiển thị {Math.min((page - 1) * limit + 1, totalMovies)} - {Math.min(page * limit, totalMovies)} trên tổng số {totalMovies} phim
-                      </div>
-                      <Pagination
-                        currentPage={page}
-                        totalPages={Math.ceil(totalMovies / limit)}
-                        onPageChange={handlePageChange}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center p-5">
-                    <p>Không có phim sắp ra mắt</p>
-                    <Link href="/admin/upcoming-movies/new" passHref>
-                      <Button variant="primary">
-                        <FaPlus className="me-1" /> Thêm phim sắp ra mắt
-                      </Button>
-                    </Link>
+                                    <FaPaperPlane />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                )}
-              </Card.Body>
-            </Card>
+
+                  <div className={styles.paginationRow}>
+                    <div className={styles.summaryText}>
+                      Hiển thị {Math.min((page - 1) * limit + 1, totalMovies)} - {Math.min(page * limit, totalMovies)} trên tổng số {totalMovies} phim
+                    </div>
+                    <Pagination
+                      currentPage={page}
+                      totalPages={Math.ceil(totalMovies / limit)}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyText}>
+                    {error ? error : 'Hiện tại chưa có phim sắp ra mắt nào trong danh sách.'}
+                  </div>
+                  <Link href="/admin/upcoming-movies/new" className={styles.addMovieBtn}>
+                    <FaPlus className="me-1" /> Thêm phim sắp ra mắt
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
-        </section>
+        </div>
       </div>
 
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+      {/* Delete Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Xác nhận xoá phim</Modal.Title>
+          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: 600 }}>Xác nhận xoá phim</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedMovie && (
-            <p>
-              Bạn có chắc chắn muốn xoá phim <strong>"{selectedMovie.name}"</strong> không?
-              <br />
-              Hành động này không thể hoàn tác.
-            </p>
+            <div>
+              Bạn có chắc chắn muốn xoá phim <strong style={{ color: '#ffffff' }}>"{selectedMovie.name}"</strong> không?
+              <div className="mt-2 text-muted" style={{ fontSize: '0.85rem' }}>
+                Hành động này sẽ xoá vĩnh viễn và không thể hoàn tác.
+              </div>
+            </div>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Hủy
+          <Button variant="outline-secondary" size="sm" onClick={() => setShowDeleteModal(false)}>
+            Hủy bỏ
           </Button>
-          <Button variant="danger" onClick={confirmDelete}>
-            Xoá
+          <Button variant="danger" size="sm" onClick={confirmDelete} style={{ backgroundColor: '#e50914', borderColor: '#e50914' }}>
+            Xác nhận xoá
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)}>
+      {/* Release Modal */}
+      <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Xác nhận phát hành phim</Modal.Title>
+          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: 600 }}>Xác nhận phát hành phim</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedMovie && (
-            <p>
-              Bạn có chắc chắn muốn chuyển phim <strong>"{selectedMovie.name}"</strong> sang trạng thái đã phát hành không?
-            </p>
+            <div>
+              Bạn có chắc chắn muốn chuyển phim <strong style={{ color: '#ffffff' }}>"{selectedMovie.name}"</strong> sang trạng thái đã phát hành chính thức không?
+            </div>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowReleaseModal(false)}>
-            Hủy
+          <Button variant="outline-secondary" size="sm" onClick={() => setShowReleaseModal(false)}>
+            Hủy bỏ
           </Button>
-          <Button variant="success" onClick={confirmRelease}>
+          <Button variant="success" size="sm" onClick={confirmRelease}>
             Phát hành
           </Button>
         </Modal.Footer>

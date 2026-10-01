@@ -492,7 +492,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
   const combinedStyles = {
     ...styles,
     ...ratingStyles,
-    ...(theme === 'dark' ? darkStyles : {})
+    ...darkStyles
   };
 
   return (
@@ -1806,7 +1806,7 @@ const MoviesAdmin = () => {
 
   const combinedStyles = {
     ...styles,
-    ...(theme === 'dark' ? darkStyles : {})
+    ...darkStyles
   };
 
   // const handleSort = (field: string) => {
@@ -1876,28 +1876,55 @@ const MoviesAdmin = () => {
       </header>
 
       <div className={combinedStyles.toolBar}>
-        <div className={combinedStyles.searchInput}>
-          <div className={combinedStyles.searchIcon}>
-            <FaSearch />
-          </div>
-          <input
-            type="text"
-            placeholder={isSearching && searchQuery.trim() ? "Tìm kiếm phim bằng Elasticsearch..." : "Tìm kiếm phim..."}
-            value={searchQuery}
-            onChange={handleSearch}
-            className={combinedStyles.input}
-          />
-          {isSearching && searchQuery.trim() && (
-            <div className={combinedStyles.searchBadge} title="Đang sử dụng Elasticsearch">
-              <FaBolt className={combinedStyles.esBadgeIcon} />
+        <div className={combinedStyles.toolBarHeader}>
+          <div className={combinedStyles.searchInput}>
+            <div className={combinedStyles.searchIcon}>
+              <FaSearch />
             </div>
-          )}
+            <input
+              type="text"
+              placeholder={isSearching && searchQuery.trim() ? "Tìm kiếm phim bằng Elasticsearch..." : "Tìm kiếm phim..."}
+              value={searchQuery}
+              onChange={handleSearch}
+              className={combinedStyles.input}
+            />
+            {isSearching && searchQuery.trim() && (
+              <div className={combinedStyles.searchBadge} title="Đang sử dụng Elasticsearch">
+                <FaBolt className={combinedStyles.esBadgeIcon} />
+              </div>
+            )}
+          </div>
+
+          <div className={combinedStyles.actionButtons}>
+            <button
+              className={combinedStyles.syncAllRatingsButton}
+              onClick={handleSyncAllRatings}
+              disabled={syncingAllRatings}
+              title="Đồng bộ đánh giá cho tất cả phim"
+            >
+              <FaSync className={syncingAllRatings ? combinedStyles.spinningIcon : ''} />
+              <span>{syncingAllRatings ? 'Đang đồng bộ...' : 'Đồng bộ đánh giá'}</span>
+            </button>
+
+            <button
+              className={combinedStyles.crawlButton}
+              onClick={() => setCrawlModalOpen(true)}
+              title="Crawl phim từ nguồn bên ngoài"
+            >
+              <FaDownload className={combinedStyles.crawlIcon} />
+              <span>Crawl Phim</span>
+            </button>
+
+            <button className={combinedStyles.addButton} onClick={handleAddMovie}>
+              <FaPlus />
+              <span>Thêm Phim Mới</span>
+            </button>
+          </div>
         </div>
 
         <div className={combinedStyles.filterControls}>
-        <div className={combinedStyles.filterSelect}>
+          <div className={combinedStyles.filterSelect}>
             <FaFilter className={combinedStyles.filterIcon} />
-
             <select
               id="categoryFilter"
               value={selectedCategory}
@@ -1981,31 +2008,8 @@ const MoviesAdmin = () => {
             title="Làm mới dữ liệu"
           >
             <FaSync />
-          </button>        </div>          <div className={combinedStyles.actionButtons}>
-            <button
-              className={`${combinedStyles.syncAllRatingsButton} ${combinedStyles.highlightedButton}`}
-              onClick={handleSyncAllRatings}
-              disabled={syncingAllRatings}
-              title="Đồng bộ đánh giá cho tất cả phim"
-            >
-              <FaStar className={combinedStyles.starIcon} /> <FaSync className={syncingAllRatings ? combinedStyles.spinningIcon : ''} />
-              <span>{syncingAllRatings ? 'Đang đồng bộ...' : 'Đồng bộ tất cả đánh giá'}</span>
-            </button>
-
-            <button
-              className={`${combinedStyles.crawlButton} ${combinedStyles.highlightedButton}`}
-              onClick={() => setCrawlModalOpen(true)}
-              title="Crawl phim từ nguồn bên ngoài"
-            >
-              <FaDownload className={combinedStyles.crawlIcon} />
-              <span>Crawl Phim</span>
-            </button>
-
-            <button className={combinedStyles.addButton} onClick={handleAddMovie}>
-              <FaPlus />
-              <span>Thêm Phim Mới</span>
-            </button>
-          </div>
+          </button>
+        </div>
       </div>
 
       <div className={combinedStyles.tableContainer}>
@@ -2021,18 +2025,25 @@ const MoviesAdmin = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={4} className="text-center py-4">
-                  <div className={combinedStyles.loadingSpinner}>
-                    Đang tải...
+                <td colSpan={4} className={combinedStyles.emptyTableRow}>
+                  <div className={combinedStyles.emptyStateContainer}>
+                    <FaSync className={`${combinedStyles.emptyStateIcon} ${combinedStyles.spinningIcon}`} />
+                    <div className={combinedStyles.emptyStateText}>Đang tải danh sách phim...</div>
                   </div>
                 </td>
               </tr>
             ) : movies.length === 0 ? (
-              <tr>                <td colSpan={4} className="text-center py-4">
-                  {isSearching && searchQuery.trim() ?
-                    'Không tìm thấy phim nào khớp với tìm kiếm Elasticsearch' :
-                    'Không tìm thấy phim nào'
-                  }
+              <tr>
+                <td colSpan={4} className={combinedStyles.emptyTableRow}>
+                  <div className={combinedStyles.emptyStateContainer}>
+                    <FaFilm className={combinedStyles.emptyStateIcon} />
+                    <div className={combinedStyles.emptyStateText}>
+                      {isSearching && searchQuery.trim() ?
+                        'Không tìm thấy phim nào khớp với tìm kiếm Elasticsearch' :
+                        'Không tìm thấy phim nào'
+                      }
+                    </div>
+                  </div>
                 </td>
               </tr>
             ): (

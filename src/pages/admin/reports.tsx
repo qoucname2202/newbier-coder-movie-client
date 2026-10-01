@@ -327,21 +327,22 @@ const ReportsPage = () => {
             Đã từ chối
           </button>
         </div>        {/* Filters */}
-        <div className={styles.filterContainer}>          <div className={styles.searchWrapper} style={{
-              position: 'relative',
-              flex: '1',
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              backgroundColor: '#fff'
-            }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px', color: '#666' }}>
+        <div className={styles.filterContainer} style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{
+            position: 'relative',
+            flex: '1',
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: '#0e131d',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '6px',
+            overflow: 'hidden'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', color: '#64748b' }}>
               <FaSearch />
-            </div>            <input
+            </div>
+            <input
               type="text"
-              className={styles.searchInput}
               placeholder="Tìm kiếm theo lý do, tên phim... (Enter để tìm)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -350,48 +351,56 @@ const ReportsPage = () => {
                   applyFilters();
                 }
               }}
-              title="Nhập từ khóa để tìm kiếm theo lý do báo cáo hoặc tên phim, nhấn Enter để tìm kiếm"
+              title="Nhập từ khóa để tìm kiếm, nhấn Enter để tìm kiếm"
               style={{
                 border: 'none',
-                padding: '10px 0',
+                padding: '8px 0',
                 flex: 1,
-                outline: 'none'
+                outline: 'none',
+                backgroundColor: 'transparent',
+                color: '#f1f5f9',
+                fontSize: '0.88rem'
               }}
             />
             <button
-              className={styles.searchButton}
               onClick={applyFilters}
               style={{
-                height: '100%',
-                padding: '0 15px',
-                background: '#f0f0f0',
+                height: '38px',
+                padding: '0 18px',
+                backgroundColor: '#e50914',
                 border: 'none',
-                borderLeft: '1px solid #ddd',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                color: '#333'
+                color: '#ffffff',
+                fontWeight: 600,
+                fontSize: '0.85rem',
+                transition: 'background-color 0.15s ease'
               }}
               title="Tìm kiếm"
             >
               Tìm
-            </button></div>
+            </button>
+          </div>
 
           <button
-            className={styles.resetButton}
             onClick={resetFilters}
             style={{
-              marginLeft: '10px',
+              height: '38px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              border: '1px solid #ddd',
-              padding: '10px 20px',
-              borderRadius: '4px',
-              backgroundColor: '#fff',
+              gap: '6px',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              padding: '0 16px',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
               cursor: 'pointer',
-              color: '#333'
+              color: '#cbd5e1',
+              fontSize: '0.85rem',
+              fontWeight: 500,
+              whiteSpace: 'nowrap',
+              transition: 'all 0.15s ease'
             }}
           >
             Reset

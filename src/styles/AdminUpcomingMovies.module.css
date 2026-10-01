@@ -1,46 +1,473 @@
-/* Admin Upcoming Movies CSS */
-.action-buttons {
+/* Admin Upcoming Movies - Dark Cinema Studio Theme */
+
+.container {
+  background-color: #0b0f17;
+  color: #f1f5f9;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.headerSection {
+  padding: 20px 0 16px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.headerTitle {
+  font-size: 1.5rem;
+  color: #ffffff;
+  border-left: 3px solid #e50914;
+  padding-left: 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.viewReleasedBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.viewReleasedBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.addMovieBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 6px;
+  background-color: #e50914;
+  border: 1px solid #e50914;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  box-shadow: 0 2px 6px rgba(229, 9, 20, 0.25);
+  white-space: nowrap;
+}
+
+.addMovieBtn:hover {
+  background-color: #c10711;
+  border-color: #c10711;
+  color: #ffffff;
+}
+
+/* Card Container */
+.card {
+  background-color: #111723;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  box-shadow: none;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: #141b29;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cardTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardBody {
+  padding: 20px;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.searchForm {
+  flex: 1 1 300px;
+  max-width: 450px;
+}
+
+.searchGroup {
+  display: flex;
+  position: relative;
+  width: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  height: 38px;
+  padding: 0 42px 0 14px;
+  background-color: #0e131d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: border-color 0.15s ease;
+}
+
+.searchInput:focus {
+  border-color: #e50914;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.15);
+}
+
+.searchInput::placeholder {
+  color: #64748b;
+}
+
+.searchSubmitBtn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 38px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.searchSubmitBtn:hover {
+  color: #f1f5f9;
+}
+
+.limitSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selectInput {
+  height: 38px;
+  padding: 0 28px 0 12px;
+  background-color: #0e131d;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.selectInput:focus {
+  border-color: #e50914;
+}
+
+/* Movie Table */
+.tableResponsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: #0e131d;
+  margin-bottom: 20px;
+}
+
+.movieTable {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: collapse;
+}
+
+.movieTable thead th {
+  background-color: #141b29;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.movieTable tbody td {
+  padding: 12px 14px;
+  color: #cbd5e1;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+  background-color: transparent;
+  font-size: 0.88rem;
+}
+
+.movieTable tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.movieTable tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.idCol {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.82rem;
+  color: #64748b;
+  text-align: center;
+  font-weight: 500;
+}
+
+.movieTitle {
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 2px;
+  font-size: 0.92rem;
+}
+
+.movieOriginName {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.badgesRow {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.badgeCinema {
+  display: inline-block;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border-radius: 4px;
+  background-color: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.badgeHidden {
+  display: inline-block;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border-radius: 4px;
+  background-color: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.badgeReleased {
+  display: inline-block;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border-radius: 4px;
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.metaItem {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.metaLabel {
+  color: #64748b;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.releaseDateText {
+  color: #f1f5f9;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.releaseDateMuted {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Action Buttons */
+.actionButtons {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 6px;
 }
 
-.action-btn {
-  margin: 0 3px;
-  padding: 6px 10px;
-  border-radius: 4px;
+.actionBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
-  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  text-decoration: none;
 }
 
-.action-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  opacity: 0.9;
+.actionBtnView:hover {
+  background-color: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
 }
 
-/* Hiệu ứng hover cho các hàng bảng */
-.movie-table tr {
-  transition: all 0.2s ease;
+.actionBtnEdit:hover {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
 }
 
-.movie-table tr:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+.actionBtnDelete:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
 }
 
-/* Đảm bảo header bảng có màu nền đẹp hơn */
-.movie-table thead th {
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
+.actionBtnRelease:hover {
+  background-color: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #34d399;
 }
 
-/* ID column */
-.id-column {
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-weight: 600;
+/* Pagination & Summary */
+.paginationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.summaryText {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.emptyText {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+/* Dark Modal styles */
+:global(.modal-content) {
+  background-color: #111723 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+  border-radius: 10px !important;
+}
+
+:global(.modal-header) {
+  background-color: #141b29 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  padding: 16px 20px !important;
+}
+
+:global(.modal-header .btn-close) {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+:global(.modal-body) {
+  padding: 20px !important;
+  color: #cbd5e1 !important;
+  font-size: 0.95rem !important;
+}
+
+:global(.modal-footer) {
+  background-color: #0e131d !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 12px 20px !important;
+}
+
+/* Dark Pagination overrides */
+:global(.pagination) {
+  margin: 0;
+  gap: 4px;
+}
+
+:global(.pagination .page-item .page-link) {
+  background-color: #0e131d !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #94a3b8 !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  font-size: 0.85rem !important;
+  transition: all 0.15s ease !important;
+}
+
+:global(.pagination .page-item .page-link:hover) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:global(.pagination .page-item.active .page-link) {
+  background-color: #e50914 !important;
+  border-color: #e50914 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+:global(.pagination .page-item.disabled .page-link) {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
 }

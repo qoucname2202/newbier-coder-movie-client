@@ -360,30 +360,23 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
         }
       }
 
-      // Direct fetch for debugging
       const testToken = localStorage.getItem('authToken') || localStorage.getItem('auth_token');
       if (!testToken) {
-        throw new Error('No authentication token found');
+        setSubscriptions([]);
+        setLoading(false);
+        return;
       }
 
-      const toastId = toast.loading('Đang tải dữ liệu...', {
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: false,
-        draggable: false
-      });
-
-      // Use direct fetch for debugging purposes
       const response = await fetch(`http://localhost:5000${endpoint}${statusFilter}`, {
         headers: {
           'Authorization': `Bearer ${testToken}`
         }
       });
 
-      toast.dismiss(toastId);
-
       if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+        setSubscriptions([]);
+        setLoading(false);
+        return;
       }
 
       // Convert response to JSON directly
@@ -844,48 +837,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
           </div>
         </section>
 
-        {/* Token debug info */}
-        {tokenInfo && (
-          <div className="container-fluid mb-3">
-            <div className={`card ${tokenInfo.expired ? 'border-danger' : (tokenInfo.exists ? 'border-info' : 'border-danger')}`}>
-              <div className="card-header">
-                <h5 className="mb-0">Authentication Info</h5>
-              </div>
-              <div className="card-body">
-                {tokenInfo.expired ? (
-                  <div>
-                    <p className="text-danger">Token has expired!</p>
-                    <button
-                      className="btn btn-danger"
-                      onClick={handleReLogin}
-                    >
-                      Re-login
-                    </button>
-                  </div>
-                ) : tokenInfo.exists ? (
-                  <p>Token exists: {tokenInfo.token}</p>
-                ) : (
-                  <p className="text-danger">{tokenInfo.message}</p>
-                )}
-                <button
-                  className="btn btn-sm btn-primary ml-2"
-                  onClick={() => {
-                    // Copy token between authToken and auth_token
-                    const authToken = localStorage.getItem('authToken');
-                    const auth_token = localStorage.getItem('auth_token');
 
-                    if (authToken) localStorage.setItem('auth_token', authToken);
-                    if (auth_token) localStorage.setItem('authToken', auth_token);
-
-                    window.location.reload();
-                  }}
-                >
-                  Sync token and retry
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         <section className="content">
           <div className="container-fluid">
@@ -1013,6 +965,60 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
           </div>
         </section>
       </div>
+
+      <style jsx>{`
+        :global(.card) {
+          background-color: #111723 !important;
+          border: 1px solid rgba(255, 255, 255, 0.07) !important;
+          border-radius: 10px !important;
+          color: #cbd5e1 !important;
+        }
+
+        :global(.card-header) {
+          background-color: #141b29 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+          color: #ffffff !important;
+        }
+
+        :global(.nav-tabs) {
+          border-bottom: none !important;
+        }
+
+        :global(.nav-tabs .nav-link) {
+          color: #94a3b8 !important;
+          border: none !important;
+          border-bottom: 2px solid transparent !important;
+          background: transparent !important;
+          padding: 12px 18px !important;
+          font-weight: 500 !important;
+          font-size: 0.88rem !important;
+        }
+
+        :global(.nav-tabs .nav-link.active) {
+          color: #ffffff !important;
+          border-bottom: 2px solid #e50914 !important;
+          background: rgba(229, 9, 20, 0.06) !important;
+          font-weight: 600 !important;
+        }
+
+        :global(.alert-info) {
+          background-color: rgba(59, 130, 246, 0.1) !important;
+          border: 1px solid rgba(59, 130, 246, 0.25) !important;
+          color: #93c5fd !important;
+        }
+
+        :global(.btn-outline-primary) {
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          color: #94a3b8 !important;
+          background-color: #0e131d !important;
+        }
+
+        :global(.btn-outline-primary:hover) {
+          background-color: #1e293b !important;
+          color: #ffffff !important;
+          border-color: rgba(255, 255, 255, 0.25) !important;
+        }
+      `}</style>
     </>
   );
 };

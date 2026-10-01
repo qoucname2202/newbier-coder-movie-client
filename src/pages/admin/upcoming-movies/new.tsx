@@ -1,10 +1,13 @@
 // src/pages/admin/upcoming-movies/new.tsx
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import AdminLayout from '@/components/Layout/AdminLayout';
 import UpcomingMovieForm from '@/components/Admin/UpcomingMovies/UpcomingMovieForm';
 import { createUpcomingMovie, UpcomingMovie } from '@/services/admin/upcomingMovieService';
 import { Alert } from 'react-bootstrap';
+import { FaArrowLeft } from 'react-icons/fa';
+import styles from '@/styles/AdminUpcomingMovies.module.css';
 
 const AddUpcomingMoviePage: React.FC = () => {
   const router = useRouter();
@@ -16,7 +19,7 @@ const AddUpcomingMoviePage: React.FC = () => {
     setError(null);
 
     try {
-      const response = await createUpcomingMovie(formData);
+      await createUpcomingMovie(formData);
       alert('Phim sắp ra mắt đã được tạo thành công!');
       router.push('/admin/upcoming-movies');
     } catch (error: any) {
@@ -34,33 +37,31 @@ const AddUpcomingMoviePage: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="content-wrapper">
-        <section className="content-header">
-          <div className="container-fluid">
-            <h1>Thêm Phim Sắp Ra Mắt</h1>
-          </div>
-        </section>
-
-        <section className="content">
-          <div className="container-fluid">
-            {error && (
-              <Alert variant="danger" className="mb-4">
-                {error}
-              </Alert>
-            )}
-
-            <div className="card card-primary">
-              <div className="card-header">
-                <h3 className="card-title">Nhập thông tin phim sắp ra mắt</h3>
+      <div className={styles.container}>
+        <div className="container-fluid px-3 px-md-4">
+          <section className={styles.headerSection}>
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div className="d-flex align-items-center gap-3">
+                <Link href="/admin/upcoming-movies" className={styles.viewReleasedBtn}>
+                  <FaArrowLeft className="me-1" /> Quay lại danh sách
+                </Link>
+                <h1 className={styles.headerTitle}>Thêm Phim Sắp Ra Mắt</h1>
               </div>
-              <UpcomingMovieForm
-                onSubmit={handleCreateUpcomingMovie}
-                isSubmitting={isSubmitting}
-                onCancel={() => router.push('/admin/upcoming-movies')}
-              />
             </div>
-          </div>
-        </section>
+          </section>
+
+          {error && (
+            <Alert variant="danger" className="mb-4" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#fca5a5' }}>
+              {error}
+            </Alert>
+          )}
+
+          <UpcomingMovieForm
+            onSubmit={handleCreateUpcomingMovie}
+            isSubmitting={isSubmitting}
+            onCancel={() => router.push('/admin/upcoming-movies')}
+          />
+        </div>
       </div>
     </AdminLayout>
   );

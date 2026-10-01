@@ -556,7 +556,7 @@ const AddMovie = () => {
           </h1>
           <ul className={styles.breadcrumb}>
             <li>
-              <Link href="/admin/dashboard">Dashboard</Link>
+              <Link href="/admin">Dashboard</Link>
             </li>
             <li>
               <Link href="/admin/movies">Quản lý phim</Link>

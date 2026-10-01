@@ -7,7 +7,8 @@ import {
   FaTrash,
   FaVideo,
   FaImage,
-  FaUndo
+  FaUndo,
+  FaBullhorn
 } from 'react-icons/fa';
 import adService from '@/API/services/adService';
 import { toast, ToastContainer } from 'react-toastify';
@@ -314,7 +315,7 @@ const AdvertisementPage = () => {
     <AdminLayout>
       <div className="container-fluid px-4">
         <div className="d-sm-flex align-items-center justify-content-between mb-4">
-          <h1 className="h3 mb-0 text-black fw-bold">Quản lý Quảng Cáo</h1>
+          <h1 className="h3 mb-0 text-white fw-bold">Quản lý Quảng Cáo</h1>
           <button
             className="btn btn-primary"
             onClick={() => handleOpenModal()}
@@ -387,7 +388,7 @@ const AdvertisementPage = () => {
             {/* Advertisements Table */}
             <div className="table-responsive">
               <table className="table table-bordered">
-                <thead className="table-light">
+                <thead>
                   <tr>
                     <th>Tên</th>
                     <th>Loại</th>
@@ -409,8 +410,16 @@ const AdvertisementPage = () => {
                     </tr>
                   ) : advertisements.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-4">
-                        Không có quảng cáo nào được tìm thấy
+                      <td colSpan={7} className="text-center py-5">
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '36px 0' }}>
+                          <FaBullhorn size={44} style={{ color: '#475569', marginBottom: '16px' }} />
+                          <div style={{ color: '#f1f5f9', fontWeight: 600, fontSize: '1.05rem', marginBottom: '6px' }}>
+                            Không có quảng cáo nào được tìm thấy
+                          </div>
+                          <p style={{ color: '#64748b', fontSize: '0.875rem', margin: 0 }}>
+                            Chưa có chiến dịch quảng cáo nào hoặc không có kết quả phù hợp với bộ lọc hiện tại.
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -426,8 +435,8 @@ const AdvertisementPage = () => {
                                 style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "4px" }}
                               />
                             ) : (
-                              <div className="bg-light d-flex align-items-center justify-content-center me-2"
-                                style={{ width: "40px", height: "40px", borderRadius: "4px" }}>
+                              <div className="d-flex align-items-center justify-content-center me-2" style={{ width: "40px", height: "40px", borderRadius: "4px", backgroundColor: "#1e293b", color: "#94a3b8" }}>
+
                                 {getTypeIcon(ad.type)}
                               </div>
                             )}
@@ -783,6 +792,141 @@ const AdvertisementPage = () => {
         pauseOnHover
         theme="colored"
       />
+      <style jsx>{`
+        :global(.card) {
+          background-color: #111723 !important;
+          border: 1px solid rgba(255, 255, 255, 0.07) !important;
+          border-radius: 10px !important;
+          color: #cbd5e1 !important;
+          box-shadow: none !important;
+        }
+
+        :global(.card-header) {
+          background-color: #141b29 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+          color: #ffffff !important;
+        }
+
+        :global(.card-header h6) {
+          color: #ffffff !important;
+        }
+
+        :global(.form-label) {
+          color: #94a3b8 !important;
+          font-size: 0.85rem !important;
+          margin-bottom: 4px !important;
+        }
+
+        :global(.form-select),
+        :global(.form-control) {
+          background-color: #0e131d !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          color: #f1f5f9 !important;
+          border-radius: 6px !important;
+          font-size: 0.88rem !important;
+        }
+
+        :global(.form-select:focus),
+        :global(.form-control:focus) {
+          border-color: #e50914 !important;
+          box-shadow: none !important;
+        }
+
+        :global(.table) {
+          --bs-table-bg: #111723 !important;
+          --bs-table-accent-bg: #111723 !important;
+          --bs-table-striped-bg: #111723 !important;
+          --bs-table-color: #cbd5e1 !important;
+          --bs-table-hover-bg: #151c2a !important;
+          --bs-table-hover-color: #f1f5f9 !important;
+          background-color: #111723 !important;
+          color: #cbd5e1 !important;
+          margin-bottom: 0 !important;
+        }
+
+        :global(.table tbody tr) {
+          background-color: #111723 !important;
+        }
+
+        :global(.table-bordered),
+        :global(.table-bordered th),
+        :global(.table-bordered td) {
+          border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+
+        :global(.btn-outline-secondary) {
+          color: #94a3b8 !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          background: transparent !important;
+        }
+
+        :global(.btn-outline-secondary:hover) {
+          color: #ffffff !important;
+          border-color: rgba(255, 255, 255, 0.25) !important;
+          background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        :global(.table-light),
+        :global(.table thead th) {
+          background-color: #141b29 !important;
+          color: #94a3b8 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+          border-top: none !important;
+          font-size: 0.82rem !important;
+          font-weight: 600 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.04em !important;
+          padding: 12px 16px !important;
+        }
+
+        :global(.table tbody td) {
+          background-color: #111723 !important;
+          color: #cbd5e1 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+          padding: 12px 16px !important;
+          vertical-align: middle !important;
+          border-left: none !important;
+          border-right: none !important;
+        }
+
+        :global(.table tbody tr:hover),
+        :global(.table tbody tr:hover td) {
+          background-color: #151c2a !important;
+          color: #f1f5f9 !important;
+        }
+
+        :global(.modal-content) {
+          background-color: #111723 !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          border-radius: 12px !important;
+          color: #cbd5e1 !important;
+        }
+
+        :global(.modal-header) {
+          background-color: #141b29 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+          color: #ffffff !important;
+          padding: 16px 20px !important;
+        }
+
+        :global(.modal-footer) {
+          background-color: #0e131d !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+          padding: 12px 20px !important;
+        }
+
+        :global(.btn-primary) {
+          background-color: #e50914 !important;
+          border: none !important;
+          border-radius: 6px !important;
+          font-weight: 500 !important;
+          transition: background-color 0.15s ease !important;
+        }
+
+        :global(.btn-primary:hover) {
+          background-color: #c10711 !important;
+        }
+      `}</style>
     </AdminLayout>
   );
 };
