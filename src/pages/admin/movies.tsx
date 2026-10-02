@@ -2254,6 +2254,7 @@ const MoviesAdmin = () => {
       <CrawlModal
         isOpen={crawlModalOpen}
         onClose={() => setCrawlModalOpen(false)}
+        onSuccess={() => fetchMovies(1)}
       />
     </div>
   );

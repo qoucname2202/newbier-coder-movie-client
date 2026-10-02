@@ -109,33 +109,38 @@ const AdminRolesPage: NextPageWithLayout = () => {
       </Head>
 
       <div className="roles-container">
-        <section className="content-header mb-3">
-          <div className="d-flex justify-content-between align-items-center">
-            <div>
-              <h1 className="page-title mb-1">Quản lý vai trò</h1>
-              <p className="text-muted mb-0" style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                Định nghĩa các nhóm quyền và vai trò quản trị hệ thống
-              </p>
+        <section className="mb-4">
+          <div className="container-fluid p-0">
+            <div className="row align-items-center">
+              <div className="col-md-6">
+                <h1 className="page-title mb-1">Quản lý vai trò</h1>
+                <p className="text-muted mb-0" style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                  Định nghĩa các nhóm quyền và vai trò quản trị hệ thống
+                </p>
+              </div>
+              <div className="col-md-6 text-md-end mt-2 mt-md-0">
+                <button
+                  type="button"
+                  className="btn btn-primary d-inline-flex align-items-center"
+                  style={{
+                    backgroundColor: '#e50914',
+                    borderColor: '#e50914',
+                    borderRadius: '6px',
+                    padding: '8px 16px',
+                    fontWeight: 500,
+                    fontSize: '0.88rem'
+                  }}
+                  onClick={handleAddRole}
+                >
+                  <FaPlus className="mr-2" style={{ marginRight: '8px' }} /> Thêm vai trò mới
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              className="btn btn-primary d-flex align-items-center"
-              style={{
-                backgroundColor: '#e50914',
-                borderColor: '#e50914',
-                borderRadius: '6px',
-                padding: '8px 16px',
-                fontWeight: 500,
-                fontSize: '0.88rem'
-              }}
-              onClick={handleAddRole}
-            >
-              <FaPlus className="mr-2" style={{ marginRight: '8px' }} /> Thêm vai trò mới
-            </button>
           </div>
         </section>
 
         <section className="content">
+          <div className="container-fluid p-0">
           <div className="card">
             <div className="card-header d-flex justify-content-between align-items-center">
               <h3 className="card-title">Danh sách vai trò</h3>
@@ -266,8 +271,9 @@ const AdminRolesPage: NextPageWithLayout = () => {
               )}
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+    </div>
 
       <style jsx>{`
         .roles-container {

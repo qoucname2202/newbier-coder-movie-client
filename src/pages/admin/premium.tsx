@@ -840,7 +840,7 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
 
 
         <section className="content">
-          <div className="container-fluid">
+          <div className="container-fluid p-0">
             <div className="card">
               <div className="card-header p-0 d-flex justify-content-between align-items-center">
                 <ul className="nav nav-tabs">
@@ -918,11 +918,11 @@ const AdminPremiumPage: NextPageWithLayout<AdminPremiumPageProps> = () => {
                 ) : subscriptions.length === 0 ? (
                   <div className="text-center py-5">
                     <div className="empty-state mb-3">
-                      {activeTab === 'pending' && <FaHourglassHalf size={48} color="#ffc107" />}
-                      {activeTab === 'approved' && <FaCheckCircle size={48} color="#28a745" />}
-                      {activeTab === 'rejected' && <FaTimesCircle size={48} color="#dc3545" />}
+                      {activeTab === 'pending' && <FaHourglassHalf size={48} />}
+                      {activeTab === 'approved' && <FaCheckCircle size={48} />}
+                      {activeTab === 'rejected' && <FaTimesCircle size={48} />}
                     </div>
-                    <p className="text-muted">
+                    <p className="text-light">
                       {activeTab === 'pending' && 'Không có đăng ký Premium nào đang chờ duyệt'}
                       {activeTab === 'approved' && 'Không có đăng ký Premium nào đã được duyệt'}
                       {activeTab === 'rejected' && 'Không có đăng ký Premium nào đã bị từ chối'}

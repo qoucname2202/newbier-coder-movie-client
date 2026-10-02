@@ -110,20 +110,23 @@ const UpcomingMoviesPage: React.FC = () => {
   return (
     <AdminLayout>
       <div className={styles.container}>
-        <div className="container-fluid px-3 px-md-4">
+        <div className="container-fluid p-0">
           {/* Header Section */}
-          <section className={styles.headerSection}>
-            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-              <div>
-                <h1 className={styles.headerTitle}>Quản lý Phim Sắp Ra Mắt</h1>
-              </div>
-              <div className={styles.headerActions}>
-                <Link href="/admin/movies" className={styles.viewReleasedBtn}>
-                  <FaFilm className="me-1" /> Danh sách phim đã phát hành
-                </Link>
-                <Link href="/admin/upcoming-movies/new" className={styles.addMovieBtn}>
-                  <FaPlus className="me-1" /> Thêm phim mới
-                </Link>
+          <section className="mb-4">
+            <div className="container-fluid p-0">
+              <div className="row align-items-center">
+                <div className="col-md-6">
+                  <h1 className="h3 text-white fw-bold mb-1">Quản lý Phim Sắp Ra Mắt</h1>
+                  <p className="text-muted small mb-0">Theo dõi, cập nhật và phát hành phim chờ công chiếu</p>
+                </div>
+                <div className="col-md-6 text-md-end mt-2 mt-md-0">
+                  <Link href="/admin/movies" className="btn btn-outline-primary me-2">
+                    <FaFilm className="me-1" /> Danh sách phim đã phát hành
+                  </Link>
+                  <Link href="/admin/upcoming-movies/new" className="btn btn-primary">
+                    <FaPlus className="me-1" /> Thêm phim mới
+                  </Link>
+                </div>
               </div>
             </div>
           </section>
