@@ -38,7 +38,7 @@ const AddUpcomingMoviePage: React.FC = () => {
   return (
     <AdminLayout>
       <div className={styles.container}>
-        <div className="container-fluid px-3 px-md-4">
+        <div className="container-fluid p-0">
           <section className={styles.headerSection}>
             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
               <div className="d-flex align-items-center gap-3">

@@ -3,9 +3,10 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from '@/styles/AdminUpcomingMovies.module.css';
-import { Spinner, Modal, Button } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaPaperPlane, FaFilm, FaCalendarAlt } from 'react-icons/fa';
 import AdminLayout from '@/components/Layout/AdminLayout';
+import ConfirmModal from '@/components/Admin/Common/ConfirmModal';
 import { getUpcomingMovies, deleteUpcomingMovie, releaseUpcomingMovie } from '@/services/admin/upcomingMovieService';
 import { UpcomingMovie } from '@/services/admin/upcomingMovieService';
 import Pagination from '@/components/Admin/Common/Pagination';
@@ -112,21 +113,21 @@ const UpcomingMoviesPage: React.FC = () => {
       <div className={styles.container}>
         <div className="container-fluid p-0">
           {/* Header Section */}
-          <section className="mb-4">
-            <div className="container-fluid p-0">
-              <div className="row align-items-center">
-                <div className="col-md-6">
-                  <h1 className="h3 text-white fw-bold mb-1">Quản lý Phim Sắp Ra Mắt</h1>
-                  <p className="text-muted small mb-0">Theo dõi, cập nhật và phát hành phim chờ công chiếu</p>
-                </div>
-                <div className="col-md-6 text-md-end mt-2 mt-md-0">
-                  <Link href="/admin/movies" className="btn btn-outline-primary me-2">
-                    <FaFilm className="me-1" /> Danh sách phim đã phát hành
-                  </Link>
-                  <Link href="/admin/upcoming-movies/new" className="btn btn-primary">
-                    <FaPlus className="me-1" /> Thêm phim mới
-                  </Link>
-                </div>
+          <section className={styles.headerSection}>
+            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div>
+                <h1 className={styles.headerTitle}>Quản lý Phim Sắp Ra Mắt</h1>
+                <p className={styles.headerSubtitle}>
+                  Theo dõi, cập nhật và phát hành phim chờ công chiếu
+                </p>
+              </div>
+              <div className={styles.headerActions}>
+                <Link href="/admin/movies" className={styles.viewReleasedBtn}>
+                  <FaFilm /> Danh sách phim đã phát hành
+                </Link>
+                <Link href="/admin/upcoming-movies/new" className={styles.addMovieBtn}>
+                  <FaPlus /> Thêm phim mới
+                </Link>
               </div>
             </div>
           </section>
@@ -311,51 +312,26 @@ const UpcomingMoviesPage: React.FC = () => {
       </div>
 
       {/* Delete Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: 600 }}>Xác nhận xoá phim</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedMovie && (
-            <div>
-              Bạn có chắc chắn muốn xoá phim <strong style={{ color: '#ffffff' }}>"{selectedMovie.name}"</strong> không?
-              <div className="mt-2 text-muted" style={{ fontSize: '0.85rem' }}>
-                Hành động này sẽ xoá vĩnh viễn và không thể hoàn tác.
-              </div>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" size="sm" onClick={() => setShowDeleteModal(false)}>
-            Hủy bỏ
-          </Button>
-          <Button variant="danger" size="sm" onClick={confirmDelete} style={{ backgroundColor: '#e50914', borderColor: '#e50914' }}>
-            Xác nhận xoá
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={showDeleteModal}
+        title="Xác nhận xoá phim"
+        message={selectedMovie ? `Bạn có chắc chắn muốn xoá phim "${selectedMovie.name}" không? Hành động này sẽ xoá vĩnh viễn và không thể hoàn tác.` : ''}
+        confirmText="Xác nhận xoá"
+        cancelText="Hủy bỏ"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
 
       {/* Release Modal */}
-      <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title style={{ fontSize: '1.1rem', fontWeight: 600 }}>Xác nhận phát hành phim</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedMovie && (
-            <div>
-              Bạn có chắc chắn muốn chuyển phim <strong style={{ color: '#ffffff' }}>"{selectedMovie.name}"</strong> sang trạng thái đã phát hành chính thức không?
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" size="sm" onClick={() => setShowReleaseModal(false)}>
-            Hủy bỏ
-          </Button>
-          <Button variant="success" size="sm" onClick={confirmRelease}>
-            Phát hành
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={showReleaseModal}
+        title="Xác nhận phát hành phim"
+        message={selectedMovie ? `Bạn có chắc chắn muốn chuyển phim "${selectedMovie.name}" sang trạng thái đã phát hành chính thức không?` : ''}
+        confirmText="Phát hành ngay"
+        cancelText="Hủy bỏ"
+        onConfirm={confirmRelease}
+        onCancel={() => setShowReleaseModal(false)}
+      />
     </AdminLayout>
   );
 };

@@ -305,12 +305,12 @@ const UserForm: React.FC<UserFormProps> = ({
     <div className="modal-backdrop">
       <div className="modal-dialog">
         <div className="modal-content">
-          <div className={`modal-header ${mode === 'create' ? 'bg-primary' : 'bg-info'}`}>
+          <div className="modal-header">
             <h5 className="modal-title">
               {mode === 'create' ? (
-                <><FaUser className="me-2" /> Thêm người dùng mới</>
+                <><FaUser className="me-2 text-danger" /> Thêm người dùng mới</>
               ) : (
-                <><FaUserCog className="me-2" /> Chỉnh sửa người dùng</>
+                <><FaUserCog className="me-2 text-danger" /> Chỉnh sửa người dùng</>
               )}
             </h5>
             <button
@@ -468,7 +468,7 @@ const UserForm: React.FC<UserFormProps> = ({
                       )}
                     </div>
                     {mode === 'create' && (
-                      <small className="form-text text-muted">Mật khẩu phải có ít nhất 6 ký tự</small>
+                      <small className="form-text text-light">Mật khẩu phải có ít nhất 6 ký tự</small>
                     )}
                   </div>
                 </div>
@@ -582,7 +582,7 @@ const UserForm: React.FC<UserFormProps> = ({
             <div className="modal-footer">
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn-cancel"
                 onClick={onClose}
                 disabled={isSubmitting}
               >
@@ -590,17 +590,20 @@ const UserForm: React.FC<UserFormProps> = ({
               </button>
               <button
                 type="submit"
-                className={`btn btn-${mode === 'create' ? 'primary' : 'info'}`}
+                className="btn-save"
                 disabled={isSubmitting}
               >
-                <FaSave className="me-2" /> {isSubmitting ? 'Đang lưu...' : 'Lưu'}
+                <FaSave className="me-2" /> {isSubmitting ? 'Đang lưu...' : 'Lưu thông tin'}
               </button>
             </div>
           </form>
         </div>
-      </div>      <style jsx>{`
+      </div>
+
+      <style jsx>{`
         .modal-backdrop {
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(6px);
           position: fixed;
           top: 0;
           left: 0;
@@ -612,6 +615,13 @@ const UserForm: React.FC<UserFormProps> = ({
           justify-content: center;
           overflow-x: hidden;
           overflow-y: auto;
+          padding: 16px;
+          animation: fadeIn 0.15s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
 
         .modal-dialog {
@@ -625,59 +635,129 @@ const UserForm: React.FC<UserFormProps> = ({
           display: flex;
           flex-direction: column;
           width: 100%;
-          background-color: #fff;
-          border-radius: 0.3rem;
-          box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+          background-color: #111723;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+          overflow: hidden;
+          color: #cbd5e1;
         }
 
         .modal-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 1rem;
-          border-bottom: 1px solid #dee2e6;
-          border-top-left-radius: 0.3rem;
-          border-top-right-radius: 0.3rem;
-          color: white;
+          padding: 16px 20px;
+          background-color: #141b29;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          color: #ffffff;
         }
 
         .modal-title {
           margin: 0;
           line-height: 1.5;
-          font-size: 1.25rem;
-          font-weight: 500;
+          font-size: 1.15rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          color: #ffffff;
         }
 
         .modal-body {
           position: relative;
           flex: 1 1 auto;
-          padding: 1rem;
+          padding: 20px;
           max-height: 70vh;
           overflow-y: auto;
+          background-color: #111723;
         }
 
-        /* Add styles for labels */
         .form-label {
-          color: #212529;
+          color: #cbd5e1;
           font-weight: 500;
+          font-size: 0.86rem;
+          margin-bottom: 6px;
         }
 
         .icon-form {
-          color: #0d6efd;
+          color: #e50914;
+          opacity: 0.9;
+        }
+
+        :global(.modal-content .form-control),
+        :global(.modal-content .form-select) {
+          background-color: #0e131d !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          color: #f1f5f9 !important;
+          border-radius: 6px !important;
+          font-size: 0.88rem !important;
+        }
+
+        :global(.modal-content .form-control:focus),
+        :global(.modal-content .form-select:focus) {
+          border-color: #e50914 !important;
+          box-shadow: none !important;
+        }
+
+        :global(.modal-content .form-control::placeholder) {
+          color: #64748b !important;
         }
 
         .form-check-label {
-          color: #212529;
+          color: #cbd5e1;
+          font-size: 0.88rem;
         }
 
         .modal-footer {
           display: flex;
           align-items: center;
           justify-content: flex-end;
-          padding: 1rem;
-          border-top: 1px solid #dee2e6;
-          border-bottom-right-radius: 0.3rem;
-          border-bottom-left-radius: 0.3rem;
+          gap: 10px;
+          padding: 14px 20px;
+          background-color: #0e131d;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-cancel {
+          height: 38px;
+          padding: 0 16px;
+          border-radius: 6px;
+          background-color: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #94a3b8;
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+        }
+
+        .btn-cancel:hover {
+          background-color: rgba(255, 255, 255, 0.05);
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-save {
+          height: 38px;
+          padding: 0 18px;
+          border-radius: 6px;
+          background-color: #e50914;
+          border: 1px solid #e50914;
+          color: #ffffff;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          box-shadow: 0 2px 8px rgba(229, 9, 20, 0.25);
+          display: inline-flex;
+          align-items: center;
+        }
+
+        .btn-save:hover {
+          background-color: #c10711;
+          border-color: #c10711;
         }
 
         .avatar-upload-container {
@@ -686,15 +766,45 @@ const UserForm: React.FC<UserFormProps> = ({
           align-items: center;
         }
 
+        .avatar-actions :global(.btn) {
+          border-radius: 6px !important;
+          font-size: 0.8rem !important;
+          font-weight: 500 !important;
+          padding: 5px 12px !important;
+        }
+
+        .avatar-actions :global(.btn-outline-primary) {
+          color: #f87171 !important;
+          border-color: rgba(229, 9, 20, 0.4) !important;
+          background: rgba(229, 9, 20, 0.08) !important;
+        }
+
+        .avatar-actions :global(.btn-outline-primary:hover) {
+          background-color: #e50914 !important;
+          border-color: #e50914 !important;
+          color: #ffffff !important;
+        }
+
+        .avatar-actions :global(.btn-outline-secondary) {
+          color: #94a3b8 !important;
+          border-color: rgba(255, 255, 255, 0.15) !important;
+          background: transparent !important;
+        }
+
+        .avatar-actions :global(.btn-outline-secondary:hover) {
+          background-color: rgba(255, 255, 255, 0.06) !important;
+          color: #ffffff !important;
+        }
+
         .avatar-preview {
           position: relative;
-          width: 120px;
-          height: 120px;
+          width: 110px;
+          height: 110px;
           border-radius: 50%;
           overflow: hidden;
-          background-color: #f0f0f0;
-          border: 3px solid #fff;
-          box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+          background-color: #0e131d;
+          border: 3px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .avatar-image {
@@ -710,14 +820,10 @@ const UserForm: React.FC<UserFormProps> = ({
           left: 0;
           width: 100%;
           height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.6);
           display: flex;
           justify-content: center;
           align-items: center;
-        }
-
-        .icon-form {
-          opacity: 0.7;
         }
       `}</style>
     </div>

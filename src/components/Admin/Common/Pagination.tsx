@@ -93,6 +93,61 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </button>
         </li>
       </ul>
+
+      <style jsx>{`
+        :global(.pagination) {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+
+        :global(.pagination .page-item) {
+          margin: 0;
+        }
+
+        :global(.pagination .page-link) {
+          background-color: #111723 !important;
+          border: 1px solid rgba(255, 255, 255, 0.08) !important;
+          color: #cbd5e1 !important;
+          border-radius: 6px !important;
+          min-width: 36px;
+          height: 36px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 10px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          transition: all 0.15s ease;
+          box-shadow: none !important;
+          cursor: pointer;
+        }
+
+        :global(.pagination .page-link:hover) {
+          background-color: #1a2234 !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+          color: #ffffff !important;
+        }
+
+        :global(.pagination .page-item.active .page-link) {
+          background-color: #e50914 !important;
+          border-color: #e50914 !important;
+          color: #ffffff !important;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(229, 9, 20, 0.35) !important;
+        }
+
+        :global(.pagination .page-item.disabled .page-link) {
+          background-color: rgba(255, 255, 255, 0.02) !important;
+          border-color: rgba(255, 255, 255, 0.05) !important;
+          color: #475569 !important;
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+      `}</style>
     </nav>
   );
 };

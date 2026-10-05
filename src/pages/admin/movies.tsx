@@ -66,6 +66,12 @@ import {
   RatingStats
 } from '../../services/admin/ratingAdminService';
 
+const combinedStyles = {
+  ...styles,
+  ...ratingStyles,
+  ...darkStyles
+};
+
 interface Category {
   id: string;
   name: string;
@@ -130,29 +136,29 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, movie, onClose, onCon
   if (!isOpen || !movie) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => {
+    <div className={combinedStyles.modalOverlay} onClick={(e) => {
       if (e.target === e.currentTarget) onClose();
     }}>
-      <div className={styles.deleteModalContent} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.deleteModalHeader}>
-          <FaExclamationTriangle className={styles.deleteWarningIcon} />
-          <h3 className={styles.deleteModalTitle}>Xác nhận xóa</h3>
+      <div className={combinedStyles.deleteModalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={combinedStyles.deleteModalHeader}>
+          <FaExclamationTriangle className={combinedStyles.deleteWarningIcon} />
+          <h3 className={combinedStyles.deleteModalTitle}>Xác nhận xóa</h3>
         </div>
-        <div className={styles.deleteModalBody}>
-          <p className={styles.deleteQuestion}>
+        <div className={combinedStyles.deleteModalBody}>
+          <p className={combinedStyles.deleteQuestion}>
             Bạn có chắc chắn muốn xóa phim <strong>&quot;{movie.name}&quot;</strong>?
           </p>
-          <p className={styles.deleteWarningText}>
+          <p className={combinedStyles.deleteWarningText}>
             <FaExclamationTriangle style={{ marginRight: '8px' }} />
             Thao tác này không thể hoàn tác.
           </p>
         </div>
-        <div className={styles.deleteModalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>
+        <div className={combinedStyles.deleteModalFooter}>
+          <button className={combinedStyles.cancelButton} onClick={onClose}>
             <FaChevronLeft style={{ fontSize: '14px' }} /> Hủy
           </button>
           <button
-            className={styles.confirmDeleteButton}
+            className={combinedStyles.confirmDeleteButton}
             onClick={() => {
               onConfirm();
             }}
@@ -487,12 +493,6 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
     const updatedEpisodes = [...episodes];
     updatedEpisodes.splice(serverIndex, 1);
     setEpisodes(updatedEpisodes);
-  };
-
-  const combinedStyles = {
-    ...styles,
-    ...ratingStyles,
-    ...darkStyles
   };
 
   return (
@@ -1802,11 +1802,6 @@ const MoviesAdmin = () => {
       console.error('Error updating movie visibility:', error);
       toast.error('Không thể cập nhật trạng thái hiển thị phim');
     }
-  };
-
-  const combinedStyles = {
-    ...styles,
-    ...darkStyles
   };
 
   // const handleSort = (field: string) => {

@@ -87,7 +87,7 @@ const UpcomingMovieDetail: React.FC = () => {
   return (
     <AdminLayout>
       <div className={styles.container}>
-        <div className="container-fluid px-3 px-md-4">
+        <div className="container-fluid p-0">
           {/* Header Section */}
           <section className={styles.headerSection}>
             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
