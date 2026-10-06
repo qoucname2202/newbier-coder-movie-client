@@ -1,205 +1,152 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { AUTH_CONFIG } from '../../config/authConfig';
 
-const checkApiConnection = async () => {
-  try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'HEAD',
-      headers: { 'Accept': 'application/json' },
-      signal: AbortSignal.timeout(5000)
-    });
+const API_URL = process.env.NEXT_PUBLIC_CORE_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-    if (response.status < 500) {
-      return true;
-    } else {
-      console.warn('⚠️ API server returned error:', response.status);
-      return false;
-    }
-  } catch (error) {
-    console.error('❌ API connection failed:', error.message);
-    return false;
-  }
-};
 
-if (typeof window !== 'undefined') {
-  checkApiConnection().then(isConnected => {
-    if (!isConnected) {
-      console.warn('⚠️ API server is not available at:', API_URL);
-    }
-  });
-}
 
 const authService = {
   login: async (credentials) => {
     try {
-      console.group('===== Login Attempt Details =====');
+      const username = credentials.username || credentials.email || '';
+      const payload = {
+        username: typeof username === 'string' ? username.trim() : '',
+        password: credentials.password
+      };
 
-      try {
-        const pingResponse = await fetch(`${API_URL}/auth/login`, {
-          method: 'HEAD',
-          headers: { 'Accept': 'application/json' },
-          signal: AbortSignal.timeout(3000)
-        });
-      } catch (pingError) {
-        console.error("Server ping failed:", pingError.message);
-        console.warn("⚠️ Backend server might not be running!");
-      }
+      const loginEndpoint = AUTH_CONFIG?.api?.endpoint || `${API_URL}/auth/login`;
 
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(loginEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify(payload)
       });
 
-      if (!response.ok) {
-        const contentType = response.headers.get('content-type');
-        let errorMessage = 'Đăng nhập thất bại';
-        let responseText = '';
+      let responseText = '';
+      let data = null;
 
-        try {
-          responseText = await response.text();
-
-          if (contentType && contentType.includes('application/json')) {
-            const errorData = JSON.parse(responseText);
-            errorMessage = errorData.error || errorData.message || errorMessage;
-            console.error("Error response JSON:", errorData);
-          } else if (responseText.includes('<!DOCTYPE')) {
-            errorMessage = 'Lỗi kết nối máy chủ. Vui lòng kiểm tra lại API URL.';
-            console.error("Received HTML instead of JSON");
-          }
-        } catch (parseError) {
-          console.error("Error parsing response:", parseError);
-          console.error("Raw response text:", responseText);
+      try {
+        responseText = await response.text();
+        if (responseText) {
+          data = JSON.parse(responseText);
         }
+      } catch {
+        // silent parse handling
+      }
 
-        console.groupEnd();
+      // Check standard v1 response contract (responseStatus + responseData)
+      if (data && data.responseStatus) {
+        if (data.responseStatus.responseCode === "000000" && data.responseData?.access_token) {
+          const accessToken = data.responseData.access_token;
+          const refreshToken = data.responseData.refresh_token;
+
+          localStorage.setItem("auth_token", accessToken);
+          localStorage.setItem("token", accessToken);
+          if (refreshToken) {
+            localStorage.setItem("refresh_token", refreshToken);
+          }
+
+          let user = null;
+          try {
+            const base64Url = accessToken.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+
+            const decoded = JSON.parse(jsonPayload);
+
+            user = {
+              _id: decoded.sub || decoded.userId || decoded.id,
+              id: decoded.sub || decoded.userId || decoded.id,
+              username: decoded.username || payload.username,
+              fullname: decoded.username || '',
+              role: decoded.role || 'USER',
+              permissions: decoded.permissions || [],
+              sessionId: decoded.sessionId || '',
+              accountType: decoded.accountType || 'Normal',
+              token: accessToken
+            };
+          } catch {
+            user = {
+              username: payload.username,
+              role: 'USER',
+              token: accessToken
+            };
+          }
+
+          localStorage.setItem("user", JSON.stringify(user));
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('storage'));
+          }
+
+          return {
+            success: true,
+            user: user,
+            token: accessToken,
+            data: data.responseData
+          };
+        } else {
+          const errorMessage = data.responseStatus.responseMessage || 'Invalid credentials';
+          throw new Error(errorMessage);
+        }
+      }
+
+      // Legacy fallback (token directly in response)
+      if (!response.ok) {
+        let errorMessage = 'Đăng nhập thất bại';
+        if (data && (data.error || data.message)) {
+          errorMessage = data.error || data.message;
+        } else if (responseText.includes('<!DOCTYPE')) {
+          errorMessage = 'Lỗi kết nối máy chủ. Vui lòng kiểm tra lại API URL.';
+        }
         throw new Error(errorMessage);
       }
 
-      const contentType = response.headers.get('content-type');
-      let data;
-
-      try {
-        const responseText = await response.text();
-
-        if (!contentType || !contentType.includes('application/json')) {
-          console.error("Non-JSON content type:", contentType);
-          throw new Error("Server trả về định dạng không phải JSON");
+      if (data && data.token) {
+        localStorage.setItem("auth_token", data.token);
+        localStorage.setItem("token", data.token);
+        if (data.refreshToken) {
+          localStorage.setItem("refresh_token", data.refreshToken);
         }
 
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Error parsing JSON response:", parseError);
-        console.groupEnd();
-        throw new Error("Lỗi xử lý dữ liệu từ server. Vui lòng thử lại.");
-      }
-
-      if (!data.token) {
-        console.error("No token in response:", data);
-        console.groupEnd();
-        throw new Error("Không nhận được token từ server");
-      }
-
-      localStorage.setItem("auth_token", data.token);
-
-      if (data.refreshToken) {
-        localStorage.setItem("refresh_token", data.refreshToken);
-      }
-
-      try {
-        const base64Url = data.token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-
-        const decoded = JSON.parse(jsonPayload);
-
         try {
-          const userDetailResponse = await fetch(`${API_URL}/auth/user-detail`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${data.token}`,
-              "Accept": "application/json",
-            }
-          });
+          const base64Url = data.token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
 
-          if (!userDetailResponse.ok) {
-            console.warn("Could not fetch user detail information, using basic info from token");
-            const user = {
-              _id: decoded.userId,
-              email: decoded.email,
-              role: decoded.role,
-              accountType: decoded.accountType || 'Normal'
-            };
-
-            localStorage.setItem("user", JSON.stringify(user));
-
-            console.groupEnd();
-
-            return {
-              success: true,
-              user: user,
-              token: data.token
-            };
-          } else {
-            const userDetailData = await userDetailResponse.json();
-
-            const fullUser = {
-              _id: decoded.userId,
-              email: decoded.email,
-              role: decoded.role,
-              accountType: decoded.accountType || 'Normal',
-              fullname: userDetailData.user?.fullname || '',
-              address: userDetailData.user?.address || '',
-              phone: userDetailData.user?.phone || '',
-              date_of_birth: userDetailData.user?.date_of_birth || '',
-              bio: userDetailData.user?.bio || '',
-              avatar: userDetailData.user?.avatar || '',
-              favoriteGenres: userDetailData.user?.favoriteGenres || []
-            };
-
-            localStorage.setItem("user", JSON.stringify(fullUser));
-
-            console.groupEnd();
-
-            return {
-              success: true,
-              user: fullUser,
-              token: data.token
-            };
-          }
-        } catch (userDetailError) {
-          console.error("Error fetching user details:", userDetailError);
-
+          const decoded = JSON.parse(jsonPayload);
           const user = {
-            _id: decoded.userId,
-            email: decoded.email,
-            role: decoded.role,
-            accountType: decoded.accountType || 'Normal'
+            _id: decoded.userId || decoded.sub,
+            id: decoded.userId || decoded.sub,
+            email: decoded.email || payload.username,
+            username: decoded.username || payload.username,
+            role: decoded.role || 'USER',
+            accountType: decoded.accountType || 'Normal',
+            token: data.token
           };
 
           localStorage.setItem("user", JSON.stringify(user));
-
-          console.groupEnd();
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('storage'));
+          }
 
           return {
             success: true,
             user: user,
             token: data.token
           };
+        } catch {
+          throw new Error("Lỗi xử lý token từ server.");
         }
-      } catch (tokenError) {
-        console.error("Error decoding token:", tokenError);
-        console.error("Token value:", data.token);
-        console.groupEnd();
-        throw new Error("Lỗi xử lý token. Token không hợp lệ.");
       }
+
+      throw new Error("Không nhận được token từ máy chủ.");
     } catch (error) {
-      console.error("Login error:", error);
-      console.groupEnd();
       throw error;
     }
   },

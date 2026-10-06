@@ -8,6 +8,7 @@ import {
   LOCAL_DEFAULT_BACKDROP,
   LOCAL_DEFAULT_POSTER
 } from './movieFallbackConfig';
+import { AUTH_CONFIG } from './authConfig';
 
 /**
  * Global System Configuration.
@@ -79,10 +80,14 @@ export const SYSTEM_CONFIG = {
       if (!videoKey) return '';
       return `https://www.youtube.com/embed/${videoKey}?${params}`;
     }
-  }
+  },
+
+  // Authentication & Artwork Configuration
+  auth: AUTH_CONFIG
 };
 
 export const TMDB_CONFIG = SYSTEM_CONFIG.tmdb;
 export const YOUTUBE_CONFIG = SYSTEM_CONFIG.youtube;
+export { AUTH_CONFIG };
 
 export default SYSTEM_CONFIG;
