@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import Layout from "../components/Layout";
 import OfflineNotice from "../components/OfflineNotice";
 import NetworkStatusBar from "../components/NetworkStatusBar";
+import CinemaAlert from "../components/UI/CinemaAlert";
 import AdContextProvider from "../context/AdContext";
 import { registerServiceWorker } from "../utils/serviceWorker";
 import { ROUTES } from "../config/routesConfig";
@@ -131,6 +132,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
           </Head>
           <NetworkStatusBar />
           <OfflineNotice />
+          <CinemaAlert />
           {getWrappedComponent()}
         </AdContextProvider>
 
@@ -153,6 +155,27 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
             display: none; /* Chrome, Safari, Opera */
             width: 0px;
             background: transparent;
+          }
+
+          /* Enhanced contrast for dark cinema theme: prevent muted text from sinking into dark backgrounds */
+          .text-muted,
+          .form-text {
+            color: #94a3b8 !important; /* Clear, elegant slate instead of muddy Bootstrap #6c757d */
+          }
+
+          /* Clear, high-contrast placeholders across all inputs and textareas */
+          ::placeholder,
+          .form-control::placeholder,
+          input::placeholder,
+          textarea::placeholder {
+            color: #94a3b8 !important; /* Visible slate placeholder with full opacity */
+            opacity: 1 !important;
+          }
+
+          .form-control:focus::placeholder,
+          input:focus::placeholder {
+            color: #cbd5e1 !important;
+            opacity: 1 !important;
           }
         `}</style>
       </AuthProvider>

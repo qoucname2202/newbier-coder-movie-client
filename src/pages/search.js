@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Head from "next/head";
 import { useRouter } from 'next/router';
 import movieService from "../API/services/movieService";
 import searchHistoryService from "../API/services/searchHistoryService";
 import searchSuggestionService from "../API/services/searchSuggestionService";
 import { useAuth } from "../utils/auth";
 import Image from 'next/image';
+import BackToTop from "../components/UI/BackToTop";
+import { MovieFilter, filterStateToQueryParams } from "../components/Movie";
+import { INITIAL_MOVIE_FILTER_STATE } from "../components/Movie/MovieFilter";
 
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -31,6 +35,7 @@ export default function SearchPage() {
     const [error, setError] = useState(null);
     const [initialLoad, setInitialLoad] = useState(true);
     const [page, setPage] = useState(1);
+    const [filterState, setFilterState] = useState(INITIAL_MOVIE_FILTER_STATE);
     const [filters, setFilters] = useState({
         category: '',
         country: '',
@@ -40,7 +45,6 @@ export default function SearchPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [totalMovies, setTotalMovies] = useState(0);
     const [imageLoading, setImageLoading] = useState({});
-    const [showBackToTop, setShowBackToTop] = useState(false);
 
     // States for search suggestions
     const [searchSuggestions, setSearchSuggestions] = useState([]);
@@ -120,30 +124,47 @@ export default function SearchPage() {
         }
     }, [movies]);
 
-    const fetchMovies = async (searchQuery, pageNumber = 1, isLoadMore = false) => {
+    const fetchMovies = async (searchQuery, filterOverrides = null, pageNumber = 1, isLoadMore = false) => {
         try {
             setLoading(true);
             setError(null);
 
             const currentQuery = searchQuery !== undefined ? searchQuery : query;
+            let actualFilters = filterState;
+            let actualPage = pageNumber;
+            let actualLoadMore = isLoadMore;
 
-            const searchFilters = {
-                category: filters.category || undefined,
-                country: filters.country || undefined,
-                year: filters.year || undefined,
-                duration: filters.duration || undefined
-            };
+            if (typeof filterOverrides === 'number') {
+                actualPage = filterOverrides;
+                actualLoadMore = Boolean(pageNumber);
+                actualFilters = filterState;
+            } else if (filterOverrides && typeof filterOverrides === 'object') {
+                actualFilters = filterOverrides;
+            }
 
-            const response = await movieService.searchMovies(
+            const searchFilters = filterStateToQueryParams(actualFilters);
+
+            let response = await movieService.searchMovies(
                 currentQuery,
                 {
                     ...searchFilters,
                     search_description: true,
                     search_all_fields: true
                 },
-                pageNumber,
-                20
+                actualPage,
+                24
             );
+
+            // Graceful fallback to newest movies if empty and no query
+            if ((!response || !response.hits || response.hits.length === 0) && !currentQuery) {
+                const fallbackRes = await movieService.getNewestMovies(actualPage, 24);
+                if (fallbackRes?.items?.length > 0) {
+                    response = {
+                        hits: fallbackRes.items,
+                        total: fallbackRes.pagination?.totalItems || fallbackRes.items.length
+                    };
+                }
+            }
 
             if (response && response.hits) {
                 const processedMovies = response.hits.map(movie => ({
@@ -163,7 +184,7 @@ export default function SearchPage() {
                     ...newImageLoadingState
                 }));
 
-                if (isLoadMore) {
+                if (actualLoadMore) {
                     setMovies(prevMovies => {
                         const existingIds = new Set(prevMovies.map(m => m.uniqueId || m.id || m._id || m.slug));
 
@@ -182,7 +203,7 @@ export default function SearchPage() {
             } else {
                 console.error("Không nhận được dữ liệu phim hợp lệ:", response);
                 setError("Không nhận được dữ liệu phim hợp lệ từ máy chủ");
-                if (!isLoadMore) {
+                if (!actualLoadMore) {
                     setMovies([]);
                 }
             }
@@ -191,7 +212,7 @@ export default function SearchPage() {
         } catch (error) {
             console.error("Lỗi khi tìm kiếm phim:", error);
             setError(`Lỗi khi tìm kiếm phim: ${error.message}`);
-            if (!isLoadMore) {
+            if (!actualLoadMore) {
                 setMovies([]);
             }
             setInitialLoad(false);
@@ -396,52 +417,27 @@ export default function SearchPage() {
         if (router.isReady) {
             if (window.userIsTyping) return;
 
-            let urlQuery = router.query.q || "";
-            const urlCategory = router.query.category || "";
-            const urlCountry = router.query.country || "";
-            const urlYear = router.query.year || "";
-            const urlDuration = router.query.duration || "";
+            const urlQuery = (typeof router.query.q === 'string' ? router.query.q : "") || "";
+            const urlCategory = (typeof router.query.category === 'string' ? router.query.category : "") || "";
+            const urlCountry = (typeof router.query.country === 'string' ? router.query.country : "") || "";
+            const urlYear = (typeof router.query.year === 'string' ? router.query.year : "") || "";
 
-            if (!urlQuery && !query && initialLoad) {
-                const lastSearchQuery = typeof window !== 'undefined' ? localStorage.getItem('lastSearchQuery') : null;
-                if (lastSearchQuery) {
-                    urlQuery = lastSearchQuery;
-                    router.replace({
-                        pathname: '/search',
-                        query: {
-                            q: urlQuery,
-                            ...(urlCategory && { category: urlCategory }),
-                            ...(urlCountry && { country: urlCountry }),
-                            ...(urlYear && { year: urlYear }),
-                            ...(urlDuration && { duration: urlDuration })
-                        }
-                    }, undefined, { shallow: true });
-                }
-            }
-
-            if ((urlQuery !== "" || query === "") && urlQuery !== query) {
+            if (urlQuery !== query) {
                 setQuery(urlQuery);
             }
 
-            const shouldUpdateFilters =
-                urlCategory !== filters.category ||
-                urlCountry !== filters.country ||
-                urlYear !== filters.year ||
-                urlDuration !== filters.duration;
+            // Sync any incoming URL query params into filterState
+            let initialFilters = { ...INITIAL_MOVIE_FILTER_STATE };
+            if (urlCategory) initialFilters.categories = [urlCategory];
+            if (urlCountry) initialFilters.country = urlCountry;
+            if (urlYear) initialFilters.year = urlYear;
 
-            if (shouldUpdateFilters) {
-                setFilters({
-                    category: urlCategory,
-                    country: urlCountry,
-                    year: urlYear,
-                    duration: urlDuration
-                });
+            if (urlCategory || urlCountry || urlYear) {
+                setFilterState(initialFilters);
             }
 
-            const hasSearch = urlQuery || urlCategory || urlCountry || urlYear || urlDuration;
-            if (hasSearch && !window.userIsTyping) {
-                fetchMovies(urlQuery, 1, false);
-            }
+            // Always fetch movies on page entry (fallback to newest movies if empty)
+            fetchMovies(urlQuery, initialFilters, 1, false);
         }
     }, [router.isReady, router.query]);
 
@@ -454,28 +450,6 @@ export default function SearchPage() {
         const regex = new RegExp(`(${escapedQuery})`, 'gi');
 
         return text.replace(regex, '<span class="highlight-match">$1</span>');
-    };
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.pageYOffset > 300) {
-                setShowBackToTop(true);
-            } else {
-                setShowBackToTop(false);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
-
-    const scrollToTop = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
     };
 
     useEffect(() => {
@@ -498,179 +472,134 @@ export default function SearchPage() {
 
     return (
         <div className="bg-black min-vh-100 text-white">
-            <div className="container py-5 mt-5">
-                <h1 className="mb-4">Tìm kiếm phim</h1>
-
-                {/* Search input */}
-                <form onSubmit={handleSearch} className="mb-4">
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            className="form-control bg-dark text-white border-dark"
-                            placeholder="Gõ tên phim, diễn viên, phim hành động năm 2020..."
-                            value={query}
-                            onChange={handleSearchInputChange}
-                            autoComplete="off"
-                            ref={searchInputRef}
-                        />
-                        <button
-                            type="submit"
-                            className="btn btn-danger"
-                            disabled={loading}
+            <Head>
+                <title>Duyệt tìm phim | Movie Streaming</title>
+            </Head>
+            <div className="container pt-3 pb-5">
+                {/* Search Bar - Gọn gàng, tối ưu diện tích và không dùng gradient rối mắt */}
+                <div className="mb-3">
+                    <form onSubmit={handleSearch} className="position-relative" style={{ maxWidth: '640px' }}>
+                        <div 
+                            className="input-group" 
+                            style={{ 
+                                background: '#141416',
+                                border: '1px solid rgba(255, 255, 255, 0.12)',
+                                borderRadius: '6px',
+                                overflow: 'hidden'
+                            }}
                         >
-                            {loading ? (
-                                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                            ) : (
-                                <i className="fas fa-search me-2"></i>
-                            )}
-                            Tìm kiếm
-                        </button>
-                    </div>
-
-                </form>
-
-                {/* Search suggestions */}
-                {showSuggestions && searchSuggestions.length > 0 && (
-                    <div className="search-suggestions bg-dark text-white p-3 rounded" ref={suggestionsRef}>
-                        <ul className="list-unstyled mb-0">
-                            {searchSuggestions.map((suggestion, index) => (
-                                <li
-                                    key={index}
-                                    className="suggestion-item py-2 px-3 rounded mb-2 cursor-pointer"
-                                    onClick={() => handleSuggestionClick(suggestion)}
-                                >
-                                    {suggestion}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-
-                {/* Filters */}
-                <div className="row mb-4">
-                    {/* Category Filter */}
-                    <div className="col-md-3 mb-3">
-                        <select
-                            className="form-select bg-dark text-white border-dark"
-                            value={filters.category}
-                            onChange={(e) => handleFilterChange('category', e.target.value)}
-                        >
-                            <option value="">Tất cả thể loại</option>
-                            {categories.map((category, index) => (
-                                <option key={index} value={category}>{category}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Country Filter */}
-                    <div className="col-md-3 mb-3">
-                        <select
-                            className="form-select bg-dark text-white border-dark"
-                            value={filters.country}
-                            onChange={(e) => handleFilterChange('country', e.target.value)}
-                        >
-                            <option value="">Tất cả quốc gia</option>
-                            {countries.map((country, index) => (
-                                <option key={index} value={country}>{country}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Year Filter */}
-                    <div className="col-md-3 mb-3">
-                        <select
-                            className="form-select bg-dark text-white border-dark"
-                            value={filters.year}
-                            onChange={(e) => handleFilterChange('year', e.target.value)}
-                        >
-                            <option value="">Tất cả năm</option>
-                            {years.map((year) => (
-                                <option key={year} value={year}>{year}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Duration Filter - New */}
-                    <div className="col-md-3 mb-3">
-                        <select
-                            className="form-select bg-dark text-white border-dark"
-                            value={filters.duration}
-                            onChange={(e) => handleFilterChange('duration', e.target.value)}
-                        >
-                            <option value="">Tất cả độ dài</option>
-                            {durations.map((duration, index) => (
-                                <option key={index} value={duration.value}>{duration.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                {/* Active filters display */}
-                {(filters.category || filters.country || filters.year || filters.duration) && (
-                    <div className="mb-4">
-                        <div className="d-flex flex-wrap gap-2 align-items-center">
-                            <span className="text-muted">Bộ lọc đang áp dụng:</span>
-
-                            {filters.category && (
-                                <span className="badge bg-danger p-2">
-                                    Thể loại: {filters.category}
-                                    <button
-                                        className="btn btn-sm ms-2 p-0 text-white"
-                                        onClick={() => handleFilterChange('category', '')}
-                                    >
-                                        <i className="fas fa-times"></i>
-                                    </button>
-                                </span>
-                            )}
-
-                            {filters.country && (
-                                <span className="badge bg-danger p-2">
-                                    Quốc gia: {filters.country}
-                                    <button
-                                        className="btn btn-sm ms-2 p-0 text-white"
-                                        onClick={() => handleFilterChange('country', '')}
-                                    >
-                                        <i className="fas fa-times"></i>
-                                    </button>
-                                </span>
-                            )}
-
-                            {filters.year && (
-                                <span className="badge bg-danger p-2">
-                                    Năm: {filters.year}
-                                    <button
-                                        className="btn btn-sm ms-2 p-0 text-white"
-                                        onClick={() => handleFilterChange('year', '')}
-                                    >
-                                        <i className="fas fa-times"></i>
-                                    </button>
-                                </span>
-                            )}
-
-                            {filters.duration && (
-                                <span className="badge bg-danger p-2">
-                                    Độ dài: {durations.find(d => d.value === filters.duration)?.label || filters.duration}
-                                    <button
-                                        className="btn btn-sm ms-2 p-0 text-white"
-                                        onClick={() => handleFilterChange('duration', '')}
-                                    >
-                                        <i className="fas fa-times"></i>
-                                    </button>
-                                </span>
-                            )}
-
-                            <button
-                                className="btn btn-sm btn-outline-secondary"
-                                onClick={() => {
-                                    setFilters({ category: '', country: '', year: '', duration: '' });
-                                    fetchMovies(query, 1, false);
+                            <span 
+                                className="input-group-text border-0" 
+                                style={{ 
+                                    background: 'transparent', 
+                                    color: '#9ca3af',
+                                    paddingLeft: '14px',
+                                    fontSize: '0.9rem'
                                 }}
                             >
-                                Xóa tất cả
+                                <i className="fas fa-search"></i>
+                            </span>
+                            <input
+                                type="text"
+                                className="form-control text-white border-0"
+                                style={{
+                                    backgroundColor: 'transparent',
+                                    fontSize: '0.9rem',
+                                    padding: '9px 12px',
+                                    boxShadow: 'none'
+                                }}
+                                placeholder="Gõ tên phim, diễn viên, từ khóa tìm kiếm..."
+                                value={query}
+                                onChange={handleSearchInputChange}
+                                autoComplete="off"
+                                ref={searchInputRef}
+                            />
+                            {query && (
+                                <button
+                                    type="button"
+                                    className="btn border-0 text-secondary"
+                                    style={{ background: 'transparent', padding: '0 10px', fontSize: '0.85rem' }}
+                                    onClick={() => {
+                                        setQuery('');
+                                        if (searchInputRef.current) searchInputRef.current.focus();
+                                        fetchMovies('', filterState, 1, false);
+                                    }}
+                                    title="Xóa tìm kiếm"
+                                >
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            )}
+                            <button
+                                type="submit"
+                                className="btn d-flex align-items-center"
+                                style={{
+                                    background: '#e50914',
+                                    color: '#ffffff',
+                                    fontWeight: 600,
+                                    fontSize: '0.86rem',
+                                    padding: '0 20px',
+                                    border: 'none',
+                                    borderRadius: '0 5px 5px 0'
+                                }}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                ) : null}
+                                Tìm kiếm
                             </button>
                         </div>
-                    </div>
-                )}                {/* Skeleton Loading Component */}
+
+                        {/* Search suggestions dropdown */}
+                        {showSuggestions && searchSuggestions.length > 0 && (
+                            <div 
+                                className="search-suggestions text-white p-2" 
+                                style={{ 
+                                    position: 'absolute',
+                                    top: 'calc(100% + 4px)',
+                                    left: 0,
+                                    right: 0,
+                                    zIndex: 1050,
+                                    backgroundColor: '#141416', 
+                                    border: '1px solid rgba(255, 255, 255, 0.1)', 
+                                    borderRadius: '6px',
+                                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)' 
+                                }} 
+                                ref={suggestionsRef}
+                            >
+                                <ul className="list-unstyled mb-0">
+                                    {searchSuggestions.map((suggestion, index) => (
+                                        <li
+                                            key={index}
+                                            className="suggestion-item py-2 px-3 rounded mb-1 cursor-pointer"
+                                            onClick={() => handleSuggestionClick(suggestion)}
+                                        >
+                                            <i className="fas fa-search me-2 text-muted" style={{ fontSize: '0.75rem' }}></i>
+                                            {suggestion}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </form>
+                </div>
+
+                {/* 2. MovieFilter Component - Bộ lọc chi tiết theo chuẩn Dark Cinema */}
+                <MovieFilter
+                    value={filterState}
+                    onChange={(newFilters) => setFilterState(newFilters)}
+                    onSubmit={(newFilters) => {
+                        setPage(1);
+                        fetchMovies(query, newFilters, 1, false);
+                    }}
+                    onReset={() => {
+                        setFilterState(INITIAL_MOVIE_FILTER_STATE);
+                        setPage(1);
+                        fetchMovies(query, INITIAL_MOVIE_FILTER_STATE, 1, false);
+                    }}
+                    showTitleHeader={false}
+                    themeColor="red"
+                />                {/* Skeleton Loading Component */}
                 {loading && movies.length === 0 ? (
                     <div className="row g-4">
                         {Array.from({ length: 12 }).map((_, index) => (
@@ -703,16 +632,39 @@ export default function SearchPage() {
                         )}
 
                         {!loading && movies.length === 0 && (
-                            <div className="alert alert-warning">
-                                Không tìm thấy phim phù hợp với tiêu chí tìm kiếm
+                            <div className="text-center py-5 my-3">
+                                <i className="fas fa-film mb-2 text-secondary opacity-50" style={{ fontSize: '2.4rem' }}></i>
+                                <div className="fw-semibold text-white mb-1" style={{ fontSize: '1.05rem' }}>
+                                    Không tìm thấy phim phù hợp với tiêu chí
+                                </div>
+                                <p className="text-secondary small mb-3">
+                                    Vui lòng thử chọn tiêu chí khác hoặc đặt lại bộ lọc để xem toàn bộ danh sách phim.
+                                </p>
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-secondary px-3"
+                                    onClick={() => {
+                                        setFilterState(INITIAL_MOVIE_FILTER_STATE);
+                                        setPage(1);
+                                        fetchMovies(query, INITIAL_MOVIE_FILTER_STATE, 1, false);
+                                    }}
+                                >
+                                    Đặt lại bộ lọc
+                                </button>
                             </div>
                         )}
 
                         {movies.length > 0 && (
                             <>
-                                <div className="mb-3 text-muted">
-                                    {query && <span>Kết quả tìm kiếm cho "{query}": </span>}
-                                    Tìm thấy {totalMovies} kết quả
+                                <div className="mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style={{ color: '#94a3b8', fontSize: '0.94rem' }}>
+                                    <div>
+                                        {query ? (
+                                            <span>Kết quả tìm kiếm cho <strong style={{ color: '#f87171' }}>"{query}"</strong>: </span>
+                                        ) : (
+                                            <span>Danh sách phim: </span>
+                                        )}
+                                        Tìm thấy <strong style={{ color: '#f8fafc' }}>{totalMovies}</strong> kết quả
+                                    </div>
                                 </div>
                                 <div className="row g-4">
                                     {movies.map((movie) => (
@@ -824,51 +776,30 @@ export default function SearchPage() {
                 )}
             </div>
 
-            {showBackToTop && (
-                <button
-                    onClick={scrollToTop}
-                    aria-label="Back to top"
-                    style={{
-                        position: 'fixed',
-                        bottom: '30px',
-                        right: '30px',
-                        width: '50px',
-                        height: '50px',
-                        borderRadius: '50%',
-                        backgroundColor: '#808080',
-                        color: 'white',
-                        border: 'none',
-                        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.38)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        fontSize: '1.5rem',
-                        zIndex: 1000,
-                        opacity: 0.8,
-                        transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.opacity = '1';
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.opacity = '0.8';
-                        e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                >
-                    <i className="bi bi-arrow-up"></i>
-                </button>
-            )}
+            {/* Common Floating Back To Top button */}
+            <BackToTop />
 
             <style jsx global>{`
+                .form-control::placeholder,
+                input::placeholder {
+                    color: #94a3b8 !important;
+                    opacity: 1 !important;
+                }
+
+                .form-control:focus {
+                    background-color: #161824 !important;
+                    border-color: #ef4444 !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25) !important;
+                }
+
                 .form-select {
                     cursor: pointer;
                 }
 
                 .form-select:focus {
-                    border-color:rgb(109, 98, 99);
-                    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+                    border-color: #ef4444;
+                    box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
                 }
 
                 .movie-card {
@@ -1198,13 +1129,13 @@ export default function SearchPage() {
 
                 .search-suggestions {
                     position: absolute;
-                    z-index: 1000;
-                    width: calc(100% - 115px);
+                    z-index: 1050;
+                    width: 100%;
                     max-height: 300px;
                     overflow-y: auto;
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-                    margin-top: -1rem;
-                    border: 1px solid rgba(110, 106, 106, 0.2);
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+                    margin-top: 4px;
+                    border: 1px solid rgba(255, 255, 255, 0.12);
                 }
 
                 .suggestion-item {

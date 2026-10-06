@@ -1,0 +1,396 @@
+/* MovieFilter.module.css - Cinematic Dark Theme */
+
+.browserContainer {
+  width: 100%;
+  margin-bottom: 16px;
+  color: #f1f5f9;
+}
+
+/* Filter Card Panel: Minimalist Dark Cinema surface */
+.filterCard {
+  background: #141417;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* Card State when Collapsed: Super compact toolbar */
+.filterCardCollapsed {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #121214;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.filterCardCollapsed:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: #151518;
+}
+
+/* Card Header Bar */
+.filterCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+}
+
+.filterHeaderWithBorder {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.filterHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.filterHeaderIconWrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: rgba(229, 9, 20, 0.1);
+  color: #e50914;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.filterHeaderTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterHeaderTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.filterActiveBadge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(229, 9, 20, 0.15);
+  color: #ff6b6b;
+  white-space: nowrap;
+}
+
+.filterDefaultHint {
+  font-size: 0.76rem;
+  color: #71717a;
+  white-space: nowrap;
+}
+
+/* Preview tags when collapsed */
+.collapsedChipsPreview {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-left: 4px;
+}
+
+.collapsedChipBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.73rem;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d1d5db;
+  white-space: nowrap;
+}
+
+.filterHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.headerResetBtn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 3px 6px;
+  transition: color 0.15s ease;
+}
+
+.headerResetBtn:hover {
+  color: #e50914;
+}
+
+/* Collapsible Toggle Button */
+.filterToggleBtn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.filterToggleBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Rows List */
+.filterRows {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Từng hàng tiêu chí: Tối ưu khoảng cách gọn gàng */
+.filterRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.84rem;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.filterRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Cột nhãn bên trái: Gọn, không chiếm nhiều diện tích */
+.rowLabel {
+  width: 82px;
+  min-width: 82px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-align: right;
+  padding-top: 3px;
+  user-select: none;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+
+/* Khối các lựa chọn bên phải */
+.rowOptions {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 6px;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+/* Nút "Tất cả" & Các chip tiêu chí */
+.boxedChip,
+.textChip,
+.sortChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+  line-height: 1.3;
+}
+
+.boxedChip:hover,
+.textChip:hover,
+.sortChip:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Active State: Đỏ Cinema dứt khoát, không dùng pseudo dot chiếm chỗ */
+.boxedChipActiveRed,
+.textChipActiveRed,
+.sortChipActiveRed {
+  background: #e50914 !important;
+  border-color: #e50914 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* Ô nhập năm sản xuất */
+.yearInputWrap {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 1px 8px;
+  gap: 5px;
+  height: 27px;
+  transition: all 0.15s ease;
+}
+
+.yearInputWrap:focus-within {
+  border-color: #e50914;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.yearInputIcon {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+.yearInput {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.78rem;
+  width: 65px;
+  outline: none;
+}
+
+.yearInput::placeholder {
+  color: #6b7280;
+  font-size: 0.76rem;
+}
+
+/* Chân bảng lọc: Gọn gàng, thẳng hàng */
+.filterFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 12px;
+  padding-left: 94px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  flex-wrap: wrap;
+}
+
+/* Nút Lọc kết quả: Màu đỏ solid cinema dứt khoát */
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #e50914;
+  border: none;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  user-select: none;
+}
+
+.submitBtn:hover {
+  background: #f40612;
+}
+
+/* Nút Thu gọn */
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Nút Đặt lại */
+.resetTextBtn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 10px;
+  transition: color 0.15s ease;
+}
+
+.resetTextBtn:hover {
+  color: #e50914;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .filterCard {
+    padding: 10px 12px;
+  }
+
+  .filterCardCollapsed {
+    padding: 8px 10px;
+  }
+
+  .collapsedChipsPreview {
+    display: none;
+  }
+
+  .filterRow {
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 8px;
+  }
+
+  .rowLabel {
+    width: 100%;
+    min-width: unset;
+    text-align: left;
+    font-size: 0.76rem;
+    color: #9ca3af;
+    padding-top: 0;
+  }
+
+  .rowOptions {
+    gap: 4px 6px;
+  }
+
+  .filterFooter {
+    padding-left: 0;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
+}

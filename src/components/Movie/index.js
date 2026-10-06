@@ -32,3 +32,4 @@ export {
 // Legacy Compatibility components
 export { default as MovieCarouselSection } from './MovieCarouselSection';
 export { default as MovieGridSection } from './MovieGridSection';
+export { default as MovieFilter, filterStateToQueryParams } from './MovieFilter';
