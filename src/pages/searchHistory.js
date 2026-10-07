@@ -160,9 +160,7 @@ export function SearchHistoryContent({ inProfilePage = false }) {
 
   return (
     <div className={inProfilePage ? "search-history-content" : "search-history-page"}>
-      {!inProfilePage && <Navbar />}
-
-      <div className={inProfilePage ? "" : "container mt-5 pt-5"}>
+      <div className={inProfilePage ? "" : "container pt-3 pb-5"}>
         <div className="history-header">
           <div className="d-flex justify-content-between align-items-center flex-wrap">
             <h2 className="history-title">

@@ -25,6 +25,24 @@ export const ROUTES = {
 };
 
 /**
+ * Routes that feature a full-bleed cinematic hero banner and should not have default top padding.
+ */
+export const FULL_BLEED_ROUTES = [
+  ROUTES.HOME,
+  ROUTES.MOVIE_PREFIX
+];
+
+/**
+ * Checks whether a given pathname should render full-bleed without header clearance.
+ * @param {string} pathname - Current route path (e.g. '/' or '/movie/batman').
+ * @returns {boolean} True if the route has a full-bleed hero banner.
+ */
+export const isFullBleedRoute = (pathname) => {
+  if (!pathname) return false;
+  return pathname === ROUTES.HOME || pathname.startsWith(ROUTES.MOVIE_PREFIX);
+};
+
+/**
  * Default route prefixes where banner advertisements should be suppressed.
  */
 export const DEFAULT_AD_EXCLUDED_PATHS = [

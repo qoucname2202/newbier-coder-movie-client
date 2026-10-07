@@ -21,7 +21,7 @@ const Footer = () => {
               Trang web xem phim trực tuyến với hàng ngàn bộ phim mới và phổ biến từ nhiều quốc gia và nhiều thể loại khác nhau.
               Trải nghiệm xem phim tuyệt vời với chất lượng cao.
             </p>
-            <div className="social-links">
+            {/* <div className="social-links">
               <a href="#" className="social-link"><FaFacebook /></a>
               <a href="#" className="social-link"><FaTwitter /></a>
               <a href="#" className="social-link"><FaInstagram /></a>
@@ -68,7 +68,7 @@ const Footer = () => {
                 <FaEnvelope className="contact-icon" />
                 <span>quangnguyen31072004@gmail.com</span>
               </li>
-            </ul>
+            </ul> */}
           </div>
         </div>
 

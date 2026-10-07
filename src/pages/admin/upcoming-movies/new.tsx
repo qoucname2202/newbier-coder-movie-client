@@ -42,9 +42,6 @@ const AddUpcomingMoviePage: React.FC = () => {
           <section className={styles.headerSection}>
             <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
               <div className="d-flex align-items-center gap-3">
-                <Link href="/admin/upcoming-movies" className={styles.viewReleasedBtn}>
-                  <FaArrowLeft className="me-1" /> Quay lại danh sách
-                </Link>
                 <h1 className={styles.headerTitle}>Thêm Phim Sắp Ra Mắt</h1>
               </div>
             </div>

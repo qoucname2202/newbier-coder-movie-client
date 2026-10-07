@@ -137,7 +137,7 @@ const WatchLater = ({ inProfilePage = false }) => {
 
   const mainContent = (
     <>
-      <div className={inProfilePage ? "" : "container mt-5 pt-5"} style={{ marginTop: '40px' }}>
+      <div className={inProfilePage ? "" : "container pt-3 pb-5"}>
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
           {!inProfilePage && <h2 className="text-white">Danh Sách Xem Sau</h2>}
           {inProfilePage && <h3 className="section-header">Danh sách xem sau</h3>}

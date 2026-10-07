@@ -891,3 +891,5 @@ export default function AdminSearchPage() {
         </AdminLayout>
     );
 }
+
+AdminSearchPage.getLayout = (page) => page;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -6,52 +6,33 @@ import AdminLayout from '@/components/Layout/AdminLayout';
 import AdminRoute from '@/components/ProtectedRoute/AdminRoute';
 import axios from '@/API/config/axiosConfig';
 import {
-  FaFilm, FaArrowLeft, FaSave, FaMagic, FaPlus,
-  FaTimes, FaTrash, FaCheck, FaExclamationTriangle,
-  FaImage, FaPlay, FaServer, FaTag, FaGlobe,
-  FaUserTie, FaUsers, FaInfoCircle, FaCalendarAlt,
-  FaClock, FaTv, FaStar
+  FaFilm, FaArrowLeft, FaSave, FaMagic,
+  FaCheck, FaImage, FaPlay, FaServer, FaTag,
+  FaUserTie, FaUsers, FaInfoCircle,
+  FaTv, FaStar, FaChevronRight, FaChevronLeft, FaSearch, FaTimes, FaLayerGroup, FaSlidersH
 } from 'react-icons/fa';
 import styles from '@/styles/AdminAddMovie.module.css';
-
-// Preset standard categories for Vietnamese movie sites
-const PRESET_CATEGORIES = [
-  { id: 'hanh-dong', name: 'Hành Động' },
-  { id: 'phieu-luu', name: 'Phiêu Lưu' },
-  { id: 'hoat-hinh', name: 'Hoạt Hình' },
-  { id: 'hai-huoc', name: 'Hài Hước' },
-  { id: 'hinh-su', name: 'Hình Sự' },
-  { id: 'tai-lieu', name: 'Tài Liệu' },
-  { id: 'chinh-kich', name: 'Chính Kịch' },
-  { id: 'gia-dinh', name: 'Gia Đình' },
-  { id: 'gia-tuong', name: 'Giả Tưởng' },
-  { id: 'lich-su', name: 'Lịch Sử' },
-  { id: 'kinh-di', name: 'Kinh Dị' },
-  { id: 'bi-an', name: 'Bí Ẩn' },
-  { id: 'lang-man', name: 'Lãng Mạn' },
-  { id: 'khoa-hoc-vien-tuong', name: 'Khoa Học Viễn Tưởng' },
-  { id: 'giat-gan', name: 'Giật Gân' },
-  { id: 'chien-tranh', name: 'Chiến Tranh' },
-  { id: 'vo-thuat', name: 'Võ Thuật' },
-  { id: 'co-trang', name: 'Cổ Trang' },
-  { id: 'hoc-duong', name: 'Học Đường' },
-  { id: 'am-nhac', name: 'Âm Nhạc' }
-];
-
-// Preset standard countries
-const PRESET_COUNTRIES = [
-  { id: 'viet-nam', name: 'Việt Nam' },
-  { id: 'han-quoc', name: 'Hàn Quốc' },
-  { id: 'trung-quoc', name: 'Trung Quốc' },
-  { id: 'au-my', name: 'Âu Mỹ (Mỹ)' },
-  { id: 'nhat-ban', name: 'Nhật Bản' },
-  { id: 'thai-lan', name: 'Thái Lan' },
-  { id: 'an-do', name: 'Ấn Độ' },
-  { id: 'hong-kong', name: 'Hồng Kông' },
-  { id: 'dai-loan', name: 'Đài Loan' },
-  { id: 'anh', name: 'Anh Quốc' },
-  { id: 'phap', name: 'Pháp' }
-];
+import CinemaSelect from '@/components/Admin/Movies/CinemaSelect';
+import TagAutocompletePicker from '@/components/Admin/Movies/TagAutocompletePicker';
+import BackToTop from '@/components/UI/BackToTop';
+import { showCinemaAlert } from '@/components/UI/CinemaAlert';
+import {
+  YEAR_STEPPER_CONFIG,
+  FORM_VALIDATION_CONFIG,
+  MOVIE_FORM_I18N,
+  MOVIE_TYPES,
+  MOVIE_STATUSES,
+  MOVIE_QUALITIES,
+  MOVIE_LANGUAGES,
+  DURATION_OPTIONS,
+  EPISODE_TOTAL_OPTIONS,
+  PRESET_CATEGORIES,
+  PRESET_COUNTRIES,
+  POPULAR_DIRECTORS,
+  POPULAR_ACTORS,
+  SERVER_TEMPLATES,
+  DEMO_PRESETS
+} from '@/config/addMovieConfig';
 
 interface EpisodeItem {
   name: string;
@@ -69,15 +50,18 @@ interface ServerGroup {
 const AddMoviePage = () => {
   const router = useRouter();
 
+  // Wizard Step State (1: Cơ bản, 2: Phân loại, 3: Media, 4: Server, 5: Xuất bản)
+  const [currentStep, setCurrentStep] = useState<number>(1);
+
   // Movie Form State
   const [name, setName] = useState('');
   const [originName, setOriginName] = useState('');
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState('');
-  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [year, setYear] = useState<number>(YEAR_STEPPER_CONFIG.defaultYear);
   const [type, setType] = useState<'single' | 'series'>('single');
   const [status, setStatus] = useState<'completed' | 'ongoing' | 'trailer'>('completed');
-  const [quality, setQuality] = useState('HD');
+  const [quality, setQuality] = useState('4K Ultra HD');
   const [lang, setLang] = useState('Vietsub');
   const [time, setTime] = useState('110 phút');
   const [episodeCurrent, setEpisodeCurrent] = useState('Full');
@@ -92,6 +76,7 @@ const AddMoviePage = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['hanh-dong', 'phieu-luu']);
   const [allCategories, setAllCategories] = useState(PRESET_CATEGORIES);
   const [customCategory, setCustomCategory] = useState('');
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
 
   const [selectedCountries, setSelectedCountries] = useState<string[]>(['au-my']);
   const [allCountries, setAllCountries] = useState(PRESET_COUNTRIES);
@@ -99,13 +84,10 @@ const AddMoviePage = () => {
 
   // Cast & Crew
   const [directors, setDirectors] = useState<string[]>(['Christopher Nolan']);
-  const [directorInput, setDirectorInput] = useState('');
-
   const [actors, setActors] = useState<string[]>(['Cillian Murphy', 'Robert Downey Jr.', 'Emily Blunt']);
-  const [actorInput, setActorInput] = useState('');
 
   // Extras
-  const [isCopyright, setIsCopyright] = useState(false);
+  const [isCopyright, setIsCopyright] = useState(true);
   const [chieuRap, setChieuRap] = useState(true);
   const [subDocQuyen, setSubDocQuyen] = useState(false);
   const [notify, setNotify] = useState('');
@@ -119,7 +101,7 @@ const AddMoviePage = () => {
   // Episodes & Servers
   const [servers, setServers] = useState<ServerGroup[]>([
     {
-      server_name: 'Vietsub #1 (VIP)',
+      server_name: 'Vietsub #1 (VIP 4K)',
       server_data: [
         {
           name: 'Tập 1',
@@ -135,18 +117,6 @@ const AddMoviePage = () => {
   // UI States
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const [toastMessage, setToastMessage] = useState<{ show: boolean; text: string; type: 'success' | 'error' | 'info' }>({
-    show: false,
-    text: '',
-    type: 'info'
-  });
-
-  const showToast = (text: string, type: 'success' | 'error' | 'info' = 'info') => {
-    setToastMessage({ show: true, text, type });
-    setTimeout(() => {
-      setToastMessage(prev => ({ ...prev, show: false }));
-    }, 3500);
-  };
 
   // Helper slug generator
   const generateSlug = (val: string) => {
@@ -178,6 +148,13 @@ const AddMoviePage = () => {
     setSelectedCategories(prev =>
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
+    if (validationErrors.category) {
+      setValidationErrors(prev => {
+        const copy = { ...prev };
+        delete copy.category;
+        return copy;
+      });
+    }
   };
 
   const addCustomCategory = () => {
@@ -197,6 +174,13 @@ const AddMoviePage = () => {
     setSelectedCountries(prev =>
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
+    if (validationErrors.country) {
+      setValidationErrors(prev => {
+        const copy = { ...prev };
+        delete copy.country;
+        return copy;
+      });
+    }
   };
 
   const addCustomCountry = () => {
@@ -211,72 +195,81 @@ const AddMoviePage = () => {
     setCustomCountry('');
   };
 
-  // Add Tags (Directors / Actors)
-  const addDirector = () => {
-    if (directorInput.trim() && !directors.includes(directorInput.trim())) {
-      setDirectors(prev => [...prev, directorInput.trim()]);
-      setDirectorInput('');
+  // Add / Remove Directors & Actors
+  const handleAddDirector = (nameToAdd: string) => {
+    if (nameToAdd && !directors.includes(nameToAdd)) {
+      setDirectors(prev => [...prev, nameToAdd]);
     }
   };
 
-  const removeDirector = (item: string) => {
+  const handleRemoveDirector = (item: string) => {
     setDirectors(prev => prev.filter(d => d !== item));
   };
 
-  const addActor = () => {
-    if (actorInput.trim() && !actors.includes(actorInput.trim())) {
-      setActors(prev => [...prev, actorInput.trim()]);
-      setActorInput('');
+  const handleAddActor = (nameToAdd: string) => {
+    if (nameToAdd && !actors.includes(nameToAdd)) {
+      setActors(prev => [...prev, nameToAdd]);
     }
   };
 
-  const removeActor = (item: string) => {
+  const handleRemoveActor = (item: string) => {
     setActors(prev => prev.filter(a => a !== item));
   };
 
-  // Episodes Manager
+  // Fixed Episodes Manager: 100% Immutable Updates (Fixes adding 2 / deleting 2 in React StrictMode)
   const addEpisodeToServer = (serverIdx: number) => {
-    setServers(prev => {
-      const copy = [...prev];
-      const count = copy[serverIdx].server_data.length + 1;
-      copy[serverIdx].server_data.push({
-        name: `Tập ${count}`,
-        slug: `tap-${count}`,
-        filename: `tap-${count}`,
-        link_embed: '',
-        link_m3u8: ''
-      });
-      return copy;
-    });
+    setServers(prev => prev.map((s, idx) => {
+      if (idx !== serverIdx) return s;
+      const count = s.server_data.length + 1;
+      return {
+        ...s,
+        server_data: [
+          ...s.server_data,
+          {
+            name: `Tập ${count}`,
+            slug: `tap-${count}`,
+            filename: `tap-${count}`,
+            link_embed: '',
+            link_m3u8: ''
+          }
+        ]
+      };
+    }));
   };
 
   const updateEpisode = (serverIdx: number, epIdx: number, field: keyof EpisodeItem, val: string) => {
-    setServers(prev => {
-      const copy = [...prev];
-      copy[serverIdx].server_data[epIdx] = {
-        ...copy[serverIdx].server_data[epIdx],
-        [field]: val
+    setServers(prev => prev.map((s, idx) => {
+      if (idx !== serverIdx) return s;
+      return {
+        ...s,
+        server_data: s.server_data.map((ep, i) => {
+          if (i !== epIdx) return ep;
+          const updated = { ...ep, [field]: val };
+          if (field === 'name' && !ep.slug) {
+            updated.slug = generateSlug(val);
+          }
+          return updated;
+        })
       };
-      if (field === 'name' && !copy[serverIdx].server_data[epIdx].slug) {
-        copy[serverIdx].server_data[epIdx].slug = generateSlug(val);
-      }
-      return copy;
-    });
+    }));
   };
 
   const removeEpisode = (serverIdx: number, epIdx: number) => {
-    setServers(prev => {
-      const copy = [...prev];
-      copy[serverIdx].server_data.splice(epIdx, 1);
-      return copy;
-    });
+    setServers(prev => prev.map((s, idx) => {
+      if (idx !== serverIdx) return s;
+      return {
+        ...s,
+        server_data: s.server_data.filter((_, i) => i !== epIdx)
+      };
+    }));
   };
 
-  const addServer = () => {
+  const addServer = (templateName?: string) => {
+    const sName = templateName || `Server Dự Phòng #${servers.length + 1}`;
     setServers(prev => [
       ...prev,
       {
-        server_name: `Server Dự Phòng #${prev.length + 1}`,
+        server_name: sName,
         server_data: [
           {
             name: 'Tập 1',
@@ -288,58 +281,52 @@ const AddMoviePage = () => {
         ]
       }
     ]);
+    showCinemaAlert(`Đã thêm máy chủ ${sName}`, 'cinema');
   };
 
   const removeServer = (serverIdx: number) => {
     if (servers.length <= 1) {
-      showToast('Phải có ít nhất 1 máy chủ phát phim', 'error');
+      showCinemaAlert(MOVIE_FORM_I18N.validation.minServersRequired, 'warning');
       return;
     }
     setServers(prev => prev.filter((_, idx) => idx !== serverIdx));
   };
 
-  // Quick Demo Auto-Fill (Sẵn sàng mọi thứ)
-  const fillDemoData = () => {
-    setName('Oppenheimer: Kẻ Chế Tạo Bom Nguyên Tử');
-    setOriginName('Oppenheimer');
-    setSlug('oppenheimer-ke-che-tao-bom-nguyen-tu');
-    setYear(2023);
-    setType('single');
-    setStatus('completed');
-    setQuality('4K Ultra HD');
-    setLang('Vietsub + Thuyết Minh');
-    setTime('180 phút');
-    setEpisodeCurrent('Full');
-    setEpisodeTotal('1 Tập');
-    setThumbUrl('https://image.tmdb.org/t/p/w1280/rLb2cw69QBHgFDWcl0zKyfEaY2K.jpg');
-    setPosterUrl('https://image.tmdb.org/t/p/w780/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg');
-    setTrailerUrl('https://www.youtube.com/watch?v=uYPbbksJxIg');
-    setContent('Bộ phim kể về cuộc đời và sự nghiệp của nhà vật lý lý thuyết J. Robert Oppenheimer, người được mệnh danh là "cha đẻ của bom nguyên tử", cùng những mâu thuẫn nội tâm sâu sắc trong dự án Manhattan làm thay đổi tiến trình lịch sử nhân loại.');
-    setSelectedCategories(['chinh-kich', 'lich-su', 'chien-tranh']);
-    setSelectedCountries(['au-my']);
-    setDirectors(['Christopher Nolan']);
-    setActors(['Cillian Murphy', 'Emily Blunt', 'Matt Damon', 'Robert Downey Jr.', 'Florence Pugh']);
-    setChieuRap(true);
-    setIsCopyright(true);
-    setTmdbId('872585');
-    setVoteAverage(8.9);
-    setVoteCount(8420);
-    setServers([
-      {
-        server_name: 'Vietsub #1 (VIP 4K)',
-        server_data: [
-          {
-            name: 'Bản Đầy Đủ (Full)',
-            slug: 'full',
-            filename: 'oppenheimer-full',
-            link_embed: 'https://player.phimapi.com/player/?url=https://s1.phimapi.com/oppenheimer-sample.m3u8',
-            link_m3u8: 'https://s1.phimapi.com/oppenheimer-sample.m3u8'
-          }
-        ]
-      }
-    ]);
+  // Quick Demo Auto-Fill from Config Presets
+  const applyDemoPreset = (presetIndex = 0) => {
+    const preset = DEMO_PRESETS[presetIndex];
+    if (!preset) return;
+    const d = preset.data;
+    setName(d.name);
+    setOriginName(d.originName);
+    setSlug(d.slug);
+    setYear(d.year);
+    setType(d.type);
+    setStatus(d.status);
+    setQuality(d.quality);
+    setLang(d.lang);
+    setTime(d.time);
+    setEpisodeCurrent(d.episodeCurrent);
+    setEpisodeTotal(d.episodeTotal);
+    setThumbUrl(d.thumbUrl);
+    setPosterUrl(d.posterUrl);
+    setTrailerUrl(d.trailerUrl);
+    setContent(d.content);
+    setSelectedCategories(d.selectedCategories);
+    setSelectedCountries(d.selectedCountries);
+    setDirectors(d.directors);
+    setActors(d.actors);
+    setChieuRap(d.chieuRap);
+    setIsCopyright(d.isCopyright);
+    setSubDocQuyen(d.subDocQuyen);
+    setTmdbId(d.tmdbId);
+    setVoteAverage(d.voteAverage);
+    setVoteCount(d.voteCount);
+    setNotify(d.notify);
+    setShowtimes(d.showtimes);
+    setServers(d.servers);
     setValidationErrors({});
-    showToast('Đã điền tự động dữ liệu mẫu phim bom tấn!', 'success');
+    showCinemaAlert(`Đã điền tự động dữ liệu mẫu: ${preset.title}!`, 'success');
   };
 
   // Completion percentage
@@ -355,15 +342,65 @@ const AddMoviePage = () => {
     return Math.min(100, score);
   }, [name, slug, content, posterUrl, selectedCategories, selectedCountries, servers]);
 
-  // Form Validation
+  // Step Completion Checker
+  const isStep1Done = Boolean(name && slug && year);
+  const isStep2Done = Boolean(selectedCategories.length > 0 && selectedCountries.length > 0);
+  const isStep3Done = Boolean(posterUrl);
+  const isStep4Done = Boolean(servers.length > 0 && servers[0].server_data.length > 0);
+  const isStep5Done = Boolean(content);
+
+  // Validate current step before advancing
+  const handleNextStep = () => {
+    if (currentStep === 1) {
+      if (FORM_VALIDATION_CONFIG.name.required && !name.trim()) {
+        setValidationErrors(prev => ({ ...prev, name: MOVIE_FORM_I18N.validation.nameRequired }));
+        showCinemaAlert(MOVIE_FORM_I18N.validation.nameRequired, 'warning');
+        return;
+      }
+      if (FORM_VALIDATION_CONFIG.slug.required && !slug.trim()) {
+        setValidationErrors(prev => ({ ...prev, slug: MOVIE_FORM_I18N.validation.slugRequired }));
+        showCinemaAlert(MOVIE_FORM_I18N.validation.slugRequired, 'warning');
+        return;
+      }
+    } else if (currentStep === 2) {
+      if (FORM_VALIDATION_CONFIG.category.required && selectedCategories.length === 0) {
+        setValidationErrors(prev => ({ ...prev, category: MOVIE_FORM_I18N.validation.categoryRequired }));
+        showCinemaAlert(MOVIE_FORM_I18N.validation.categoryRequired, 'warning');
+        return;
+      }
+      if (FORM_VALIDATION_CONFIG.country.required && selectedCountries.length === 0) {
+        setValidationErrors(prev => ({ ...prev, country: MOVIE_FORM_I18N.validation.countryRequired }));
+        showCinemaAlert(MOVIE_FORM_I18N.validation.countryRequired, 'warning');
+        return;
+      }
+    } else if (currentStep === 3) {
+      if (FORM_VALIDATION_CONFIG.poster.required && !posterUrl.trim()) {
+        setValidationErrors(prev => ({ ...prev, poster: MOVIE_FORM_I18N.validation.posterRequired }));
+        showCinemaAlert(MOVIE_FORM_I18N.validation.posterRequired, 'warning');
+        return;
+      }
+    }
+
+    if (currentStep < 5) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  // Form Overall Validation
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Vui lòng nhập tên phim (Tiếng Việt)';
-    if (!slug.trim()) errs.slug = 'Slug URL không được để trống';
-    if (!content.trim()) errs.content = 'Vui lòng nhập nội dung tóm tắt phim';
-    if (!posterUrl.trim()) errs.poster = 'Vui lòng cung cấp URL áp phích (Poster)';
-    if (selectedCategories.length === 0) errs.category = 'Chọn ít nhất 1 thể loại';
-    if (selectedCountries.length === 0) errs.country = 'Chọn ít nhất 1 quốc gia';
+    if (FORM_VALIDATION_CONFIG.name.required && !name.trim()) errs.name = MOVIE_FORM_I18N.validation.nameRequired;
+    if (FORM_VALIDATION_CONFIG.slug.required && !slug.trim()) errs.slug = MOVIE_FORM_I18N.validation.slugRequired;
+    if (FORM_VALIDATION_CONFIG.content.required && !content.trim()) errs.content = MOVIE_FORM_I18N.validation.contentRequired;
+    if (FORM_VALIDATION_CONFIG.poster.required && !posterUrl.trim()) errs.poster = MOVIE_FORM_I18N.validation.posterRequired;
+    if (FORM_VALIDATION_CONFIG.category.required && selectedCategories.length === 0) errs.category = MOVIE_FORM_I18N.validation.categoryRequired;
+    if (FORM_VALIDATION_CONFIG.country.required && selectedCountries.length === 0) errs.country = MOVIE_FORM_I18N.validation.countryRequired;
 
     setValidationErrors(errs);
     return Object.keys(errs).length === 0;
@@ -374,7 +411,7 @@ const AddMoviePage = () => {
     e.preventDefault();
 
     if (!validate()) {
-      showToast('Vui lòng điền đầy đủ các thông tin bắt buộc!', 'error');
+      showCinemaAlert(MOVIE_FORM_I18N.validation.fillRequiredPrompt, 'warning');
       return;
     }
 
@@ -435,7 +472,7 @@ const AddMoviePage = () => {
       try {
         const res = await axios.post('/admin/movies', payload);
         if (res.data && res.data.success) {
-          showToast('Thêm phim mới thành công vào hệ thống!', 'success');
+          showCinemaAlert('Thêm phim mới thành công vào hệ thống!', 'success');
           setTimeout(() => router.push('/admin/movies'), 1200);
           return;
         }
@@ -443,580 +480,782 @@ const AddMoviePage = () => {
         console.warn('API call encountered error, saving simulation:', apiErr);
       }
 
-      // If backend is in preview mode or offline
-      showToast('Đã lưu phim thành công (Chế độ xem trước)!', 'success');
+      showCinemaAlert('Đã lưu phim thành công (Chế độ xem trước)!', 'success');
       setTimeout(() => router.push('/admin/movies'), 1500);
 
     } catch (err) {
       console.error('Error creating movie:', err);
-      showToast('Có lỗi xảy ra khi tạo phim!', 'error');
+      showCinemaAlert('Có lỗi xảy ra khi tạo phim!', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  // Filtered categories
+  const filteredCategories = useMemo(() => {
+    if (!categorySearchQuery.trim()) return allCategories;
+    const q = categorySearchQuery.toLowerCase();
+    return allCategories.filter(c => c.name.toLowerCase().includes(q) || c.id.includes(q));
+  }, [allCategories, categorySearchQuery]);
+
   return (
     <>
       <Head>
-        <title>Thêm Phim Mới - Dark Cinema Studio</title>
+        <title>{MOVIE_FORM_I18N.header.title} - Dark Cinema Studio</title>
       </Head>
 
       <div className={styles.pageContainer}>
-        {/* Header Toolbar */}
+        {/* Compact Header Toolbar (Cleaned redundant Save button) */}
         <div className={styles.pageHeader}>
-          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
               <h1 className={styles.headerTitle}>
                 <span className={styles.headerIconBox}>
                   <FaFilm />
                 </span>
-                Thêm Phim Mới
+                {MOVIE_FORM_I18N.header.title}
               </h1>
-              <p className={styles.headerSubtitle}>
-                Nhập thông tin chi tiết, hình ảnh, nguồn phát và phát hành phim lên hệ thống
-              </p>
               <div className={styles.breadcrumbNav}>
                 <Link href="/admin">Dashboard</Link>
                 <span>/</span>
-                <Link href="/admin/movies">Quản lý phim</Link>
+                <Link href="/admin/movies">{MOVIE_FORM_I18N.header.backToList}</Link>
                 <span>/</span>
-                <span className="text-light">Thêm phim mới</span>
+                <span className="text-light">Thêm mới</span>
               </div>
             </div>
 
             <div className={styles.headerActions}>
               <Link href="/admin/movies" legacyBehavior>
                 <a className={styles.btnBack}>
-                  <FaArrowLeft /> Quay lại danh sách
+                  <FaArrowLeft /> {MOVIE_FORM_I18N.header.backToList}
                 </a>
               </Link>
               <button
                 type="button"
                 className={styles.btnDemoFill}
-                onClick={fillDemoData}
-                title="Tự động điền dữ liệu mẫu bom tấn để thử nghiệm nhanh"
+                onClick={() => applyDemoPreset(0)}
+                title="Tự động điền dữ liệu mẫu bom tấn Oppenheimer"
               >
-                <FaMagic /> Tự động điền mẫu
+                <FaMagic /> Mẫu Oppenheimer
               </button>
               <button
                 type="button"
-                className={styles.btnSaveTop}
-                onClick={handleSubmit}
-                disabled={loading}
+                className={styles.btnDemoFill}
+                onClick={() => applyDemoPreset(1)}
+                title="Tự động điền dữ liệu mẫu bom tấn Dune: Part Two"
               >
-                <FaSave /> {loading ? 'Đang lưu...' : 'Lưu phim mới'}
+                <FaMagic /> Mẫu Dune 2
               </button>
             </div>
           </div>
         </div>
 
-        {/* Form Grid: 2 Columns */}
-        <form onSubmit={handleSubmit}>
-          <div className="row g-4">
-            {/* Left Column: Main Movie Data (70%) */}
-            <div className="col-lg-8">
-              {/* Card 1: Basic & Identification */}
-              <div className={styles.glassCard}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>
-                    <FaInfoCircle className={styles.cardTitleIcon} /> Thông tin nhận diện phim
-                  </h3>
-                  <span className="badge bg-danger">Bắt buộc</span>
+        {/* Horizontal Stepper (Tabs Bar) - Mobile Friendly with shortTitle & no text wrap */}
+        <div className={styles.horizontalStepper}>
+          {MOVIE_FORM_I18N.steps.map((s) => {
+            const isActive = currentStep === s.num;
+            const isDone = s.num === 1 ? isStep1Done : s.num === 2 ? isStep2Done : s.num === 3 ? isStep3Done : s.num === 4 ? isStep4Done : isStep5Done;
+            return (
+              <button
+                key={s.num}
+                type="button"
+                className={`${styles.stepperItem} ${isActive ? styles.stepperActive : ''} ${isDone ? styles.stepperCompleted : ''}`}
+                onClick={() => setCurrentStep(s.num)}
+              >
+                <div className={styles.stepNumBadge}>
+                  {isDone && !isActive ? <FaCheck size={9} /> : s.num}
                 </div>
-                <div className={styles.cardBody}>
-                  <div className="row g-3">
-                    {/* Vietnamese Name */}
-                    <div className="col-md-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>
-                          Tên phim (Tiếng Việt) <span className={styles.requiredAsterisk}>*</span>
-                        </label>
+                <div className={styles.stepInfo}>
+                  <span className={styles.stepTitle}>{s.shortTitle}</span>
+                  <span className={styles.stepDesc}>{s.desc}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Form Body - Ultra Compact Multi-Step View */}
+        <form onSubmit={handleSubmit}>
+
+          {/* ==================== BƯỚC 1: THÔNG TIN CƠ BẢN ==================== */}
+          {currentStep === 1 && (
+            <div className={styles.glassCard}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>
+                  <FaInfoCircle className={styles.cardTitleIcon} /> {MOVIE_FORM_I18N.steps[0].fullTitle}
+                </h3>
+                <span className="badge bg-danger">Bắt buộc tên & slug</span>
+              </div>
+              <div className={styles.cardBody}>
+                {/* Group 1: Nhận diện & Đường dẫn (Name, Origin name, Slug, Year) */}
+                <div className={styles.stepSectionDivider}>
+                  <FaFilm size={10} /> {MOVIE_FORM_I18N.step1.sectionIdentity}
+                </div>
+
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>
+                          {MOVIE_FORM_I18N.step1.nameVi} <span className={styles.requiredAsterisk}>*</span>
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        className={`${styles.inputControl} ${validationErrors.name ? styles.inputError : ''}`}
+                        placeholder={MOVIE_FORM_I18N.step1.nameViPlaceholder}
+                        value={name}
+                        onChange={handleNameChange}
+                      />
+                      {validationErrors.name && (
+                        <span className={styles.errorText}>{validationErrors.name}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-md-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step1.originName}</span>
+                      </label>
+                      <input
+                        type="text"
+                        className={styles.inputControl}
+                        placeholder={MOVIE_FORM_I18N.step1.originNamePlaceholder}
+                        value={originName}
+                        onChange={(e) => setOriginName(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-7">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>
+                          {MOVIE_FORM_I18N.step1.slug} <span className={styles.requiredAsterisk}>*</span>
+                        </span>
+                      </label>
+                      <div className={styles.slugInputWrapper}>
                         <input
                           type="text"
-                          className={`${styles.inputControl} ${validationErrors.name ? styles.inputError : ''}`}
-                          placeholder="Ví dụ: Đất Rừng Phương Nam, Kẻ Hủy Diệt..."
-                          value={name}
-                          onChange={handleNameChange}
+                          className={`${styles.inputControl} ${validationErrors.slug ? styles.inputError : ''}`}
+                          placeholder={MOVIE_FORM_I18N.step1.slugPlaceholder}
+                          value={slug}
+                          onChange={(e) => setSlug(e.target.value)}
                         />
-                        {validationErrors.name && (
-                          <span className={styles.errorText}>{validationErrors.name}</span>
-                        )}
+                        <button
+                          type="button"
+                          className={styles.btnRegenSlug}
+                          onClick={() => setSlug(generateSlug(name))}
+                          title="Tạo lại slug từ tên phim"
+                        >
+                          {MOVIE_FORM_I18N.step1.regenSlug}
+                        </button>
                       </div>
+                      {validationErrors.slug && (
+                        <span className={styles.errorText}>{validationErrors.slug}</span>
+                      )}
                     </div>
+                  </div>
 
-                    {/* Origin Name */}
-                    <div className="col-md-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Tên gốc (Tiếng Anh/Bản địa)</label>
-                        <input
-                          type="text"
-                          className={styles.inputControl}
-                          placeholder="Ví dụ: Song of the South, Oppenheimer..."
-                          value={originName}
-                          onChange={(e) => setOriginName(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Slug */}
-                    <div className="col-md-8">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>
-                          Đường dẫn tĩnh (Slug URL) <span className={styles.requiredAsterisk}>*</span>
-                        </label>
-                        <div className={styles.slugInputWrapper}>
-                          <input
-                            type="text"
-                            className={`${styles.inputControl} ${validationErrors.slug ? styles.inputError : ''}`}
-                            placeholder="duong-dan-phim"
-                            value={slug}
-                            onChange={(e) => setSlug(e.target.value)}
-                          />
+                  <div className="col-md-5">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step1.releaseYear}</span>
+                      </label>
+                      {/* Year Stepper completely configured from YEAR_STEPPER_CONFIG */}
+                      <div className={styles.yearStepperWrapper}>
+                        {YEAR_STEPPER_CONFIG.quickSteps.filter(s => s < 0).map(s => (
                           <button
+                            key={s}
                             type="button"
-                            className={styles.btnRegenSlug}
-                            onClick={() => setSlug(generateSlug(name))}
+                            className={styles.yearStepBtn}
+                            onClick={() => setYear(y => Math.max(YEAR_STEPPER_CONFIG.minYear, y + s))}
+                            title={`Lùi ${Math.abs(s)} năm`}
                           >
-                            Tạo lại
+                            {s}
                           </button>
-                        </div>
-                        {validationErrors.slug && (
-                          <span className={styles.errorText}>{validationErrors.slug}</span>
-                        )}
-                        <span className={styles.helpText}>URL trang phim sẽ là: /phim/{slug || 'ten-phim'}</span>
-                      </div>
-                    </div>
-
-                    {/* Release Year */}
-                    <div className="col-md-4">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Năm phát hành</label>
+                        ))}
                         <input
                           type="number"
-                          className={styles.inputControl}
+                          className={styles.yearInput}
                           value={year}
-                          min={1920}
-                          max={2100}
+                          min={YEAR_STEPPER_CONFIG.minYear}
+                          max={YEAR_STEPPER_CONFIG.maxYear}
                           onChange={(e) => setYear(Number(e.target.value))}
                         />
-                      </div>
-                    </div>
-
-                    {/* Type, Status, Quality, Lang */}
-                    <div className="col-md-3">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Định dạng phim</label>
-                        <select
-                          className={styles.inputControl}
-                          value={type}
-                          onChange={(e) => setType(e.target.value as 'single' | 'series')}
-                        >
-                          <option value="single">Phim lẻ (Movie)</option>
-                          <option value="series">Phim bộ (Series)</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="col-md-3">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Trạng thái</label>
-                        <select
-                          className={styles.inputControl}
-                          value={status}
-                          onChange={(e) => setStatus(e.target.value as 'completed' | 'ongoing' | 'trailer')}
-                        >
-                          <option value="completed">Hoàn tất</option>
-                          <option value="ongoing">Đang chiếu</option>
-                          <option value="trailer">Sắp chiếu / Trailer</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="col-md-3">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Chất lượng</label>
-                        <select
-                          className={styles.inputControl}
-                          value={quality}
-                          onChange={(e) => setQuality(e.target.value)}
-                        >
-                          <option value="4K Ultra HD">4K Ultra HD</option>
-                          <option value="FHD">Full HD 1080p</option>
-                          <option value="HD">HD 720p</option>
-                          <option value="CAM">Bản CAM / Rạp</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="col-md-3">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Ngôn ngữ</label>
-                        <select
-                          className={styles.inputControl}
-                          value={lang}
-                          onChange={(e) => setLang(e.target.value)}
-                        >
-                          <option value="Vietsub">Vietsub</option>
-                          <option value="Thuyết Minh">Thuyết Minh</option>
-                          <option value="Lồng Tiếng">Lồng Tiếng</option>
-                          <option value="Vietsub + Thuyết Minh">Vietsub + Thuyết Minh</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Time, Episodes */}
-                    <div className="col-md-4">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Thời lượng</label>
-                        <input
-                          type="text"
-                          className={styles.inputControl}
-                          placeholder="Ví dụ: 120 phút hoặc 45 phút/tập"
-                          value={time}
-                          onChange={(e) => setTime(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-4">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Tập hiện tại</label>
-                        <input
-                          type="text"
-                          className={styles.inputControl}
-                          placeholder="Full hoặc Tập 12"
-                          value={episodeCurrent}
-                          onChange={(e) => setEpisodeCurrent(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-4">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Tổng số tập</label>
-                        <input
-                          type="text"
-                          className={styles.inputControl}
-                          placeholder="1 Tập hoặc 24 Tập"
-                          value={episodeTotal}
-                          onChange={(e) => setEpisodeTotal(e.target.value)}
-                        />
+                        {YEAR_STEPPER_CONFIG.quickSteps.filter(s => s > 0).map(s => (
+                          <button
+                            key={s}
+                            type="button"
+                            className={styles.yearStepBtn}
+                            onClick={() => setYear(y => Math.min(YEAR_STEPPER_CONFIG.maxYear, y + s))}
+                            title={`Tiến ${s} năm`}
+                          >
+                            +{s}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Card 2: Categorization & Cast */}
-              <div className={styles.glassCard}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>
-                    <FaTag className={styles.cardTitleIcon} /> Thể loại & Phân loại
-                  </h3>
-                  <span className="text-muted small">Đã chọn: {selectedCategories.length} thể loại</span>
+                {/* Group 2: Định dạng & Trạng thái phát hành */}
+                <div className={styles.stepSectionDivider}>
+                  <FaLayerGroup size={10} /> {MOVIE_FORM_I18N.step1.sectionFormat}
                 </div>
-                <div className={styles.cardBody}>
-                  {/* Category Pills */}
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      Chọn thể loại phù hợp <span className={styles.requiredAsterisk}>*</span>
-                    </label>
-                    <div className={styles.chipGrid}>
-                      {allCategories.map(cat => (
-                        <button
-                          key={cat.id}
-                          type="button"
-                          className={`${styles.chipPill} ${selectedCategories.includes(cat.id) ? styles.chipActive : ''}`}
-                          onClick={() => toggleCategory(cat.id)}
-                        >
-                          {selectedCategories.includes(cat.id) && <FaCheck size={10} />}
-                          {cat.name}
-                        </button>
-                      ))}
-                    </div>
-                    {validationErrors.category && (
-                      <span className={styles.errorText}>{validationErrors.category}</span>
-                    )}
 
-                    <div className={styles.customChipInput}>
-                      <input
-                        type="text"
-                        className={styles.inputControl}
-                        style={{ maxWidth: 280 }}
-                        placeholder="Thêm thể loại tùy chỉnh..."
-                        value={customCategory}
-                        onChange={(e) => setCustomCategory(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomCategory())}
-                      />
-                      <button type="button" className={styles.btnRegenSlug} onClick={addCustomCategory}>
-                        <FaPlus size={11} className="me-1" /> Thêm thể loại
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Country Pills */}
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      Quốc gia sản xuất <span className={styles.requiredAsterisk}>*</span>
-                    </label>
-                    <div className={styles.chipGrid}>
-                      {allCountries.map(c => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          className={`${styles.chipPill} ${selectedCountries.includes(c.id) ? styles.chipActive : ''}`}
-                          onClick={() => toggleCountry(c.id)}
-                        >
-                          {selectedCountries.includes(c.id) && <FaCheck size={10} />}
-                          {c.name}
-                        </button>
-                      ))}
-                    </div>
-                    {validationErrors.country && (
-                      <span className={styles.errorText}>{validationErrors.country}</span>
-                    )}
-
-                    <div className={styles.customChipInput}>
-                      <input
-                        type="text"
-                        className={styles.inputControl}
-                        style={{ maxWidth: 280 }}
-                        placeholder="Thêm quốc gia khác..."
-                        value={customCountry}
-                        onChange={(e) => setCustomCountry(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomCountry())}
-                      />
-                      <button type="button" className={styles.btnRegenSlug} onClick={addCustomCountry}>
-                        <FaPlus size={11} className="me-1" /> Thêm quốc gia
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Directors & Actors as Tag Chips */}
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>
-                          <span className="d-flex align-items-center gap-1">
-                            <FaUserTie size={12} /> Đạo diễn
-                          </span>
-                          <span className="text-muted small">Nhấn Enter để thêm</span>
-                        </label>
-                        <div className={styles.tagContainer}>
-                          {directors.map(dir => (
-                            <span key={dir} className={styles.tagBadge}>
-                              {dir}
-                              <button type="button" className={styles.tagRemoveBtn} onClick={() => removeDirector(dir)}>
-                                <FaTimes size={10} />
-                              </button>
-                            </span>
-                          ))}
-                          <input
-                            type="text"
-                            className={styles.tagInputBare}
-                            placeholder="Nhập tên đạo diễn..."
-                            value={directorInput}
-                            onChange={(e) => setDirectorInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addDirector())}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>
-                          <span className="d-flex align-items-center gap-1">
-                            <FaUsers size={12} /> Diễn viên chính
-                          </span>
-                          <span className="text-muted small">Nhấn Enter để thêm</span>
-                        </label>
-                        <div className={styles.tagContainer}>
-                          {actors.map(act => (
-                            <span key={act} className={styles.tagBadge}>
-                              {act}
-                              <button type="button" className={styles.tagRemoveBtn} onClick={() => removeActor(act)}>
-                                <FaTimes size={10} />
-                              </button>
-                            </span>
-                          ))}
-                          <input
-                            type="text"
-                            className={styles.tagInputBare}
-                            placeholder="Nhập tên diễn viên..."
-                            value={actorInput}
-                            onChange={(e) => setActorInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addActor())}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3: Synopsis & Description */}
-              <div className={styles.glassCard}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>
-                    <FaInfoCircle className={styles.cardTitleIcon} /> Nội dung & Mô tả chi tiết
-                  </h3>
-                </div>
-                <div className={styles.cardBody}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      Nội dung tóm tắt phim <span className={styles.requiredAsterisk}>*</span>
-                      <span className="text-muted small">{content.length} ký tự</span>
-                    </label>
-                    <textarea
-                      rows={5}
-                      className={`${styles.inputControl} ${validationErrors.content ? styles.inputError : ''}`}
-                      placeholder="Nhập phần tóm tắt nội dung hấp dẫn về cốt truyện của phim..."
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                    />
-                    {validationErrors.content && (
-                      <span className={styles.errorText}>{validationErrors.content}</span>
-                    )}
-                  </div>
-
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Thông báo / Ghi chú đặc biệt</label>
-                        <input
-                          type="text"
-                          className={styles.inputControl}
-                          placeholder="Ví dụ: Đã có bản Cam nét, bản HD sẽ cập nhật thứ 6..."
-                          value={notify}
-                          onChange={(e) => setNotify(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Lịch chiếu phim</label>
-                        <input
-                          type="text"
-                          className={styles.inputControl}
-                          placeholder="Ví dụ: 20h00 Thứ 7 & Chủ Nhật hàng tuần"
-                          value={showtimes}
-                          onChange={(e) => setShowtimes(e.target.value)}
-                        />
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>{MOVIE_FORM_I18N.step1.format}</label>
+                      <div className={styles.segmentedControl}>
+                        {MOVIE_TYPES.map(t => (
+                          <button
+                            key={t.value}
+                            type="button"
+                            className={`${styles.segmentedItem} ${type === t.value ? styles.segmentedActive : ''}`}
+                            onClick={() => setType(t.value)}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
 
-                  {/* Badges / Flags */}
-                  <div className="d-flex flex-wrap gap-4 mt-2 pt-3 border-top border-secondary border-opacity-10">
-                    <label className="d-flex align-items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        checked={chieuRap}
-                        onChange={(e) => setChieuRap(e.target.checked)}
-                      />
-                      <span>Phim Chiếu Rạp</span>
-                    </label>
-
-                    <label className="d-flex align-items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        checked={isCopyright}
-                        onChange={(e) => setIsCopyright(e.target.checked)}
-                      />
-                      <span>Bản Quyền Đã Xác Minh</span>
-                    </label>
-
-                    <label className="d-flex align-items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        checked={subDocQuyen}
-                        onChange={(e) => setSubDocQuyen(e.target.checked)}
-                      />
-                      <span>Phụ Đề Độc Quyền</span>
-                    </label>
+                  <div className="col-md-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>{MOVIE_FORM_I18N.step1.status}</label>
+                      <div className={styles.segmentedControl}>
+                        {MOVIE_STATUSES.map(s => (
+                          <button
+                            key={s.value}
+                            type="button"
+                            className={`${styles.segmentedItem} ${status === s.value ? styles.segmentedActive : ''}`}
+                            onClick={() => setStatus(s.value)}
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Card 4: Episodes & Servers */}
-              <div className={styles.glassCard}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>
-                    <FaServer className={styles.cardTitleIcon} /> Quản lý Máy chủ & Nguồn phát tập phim
-                  </h3>
-                  <button type="button" className={styles.btnRegenSlug} onClick={addServer}>
-                    <FaPlus size={11} className="me-1" /> Thêm Server mới
+                {/* Group 3: Thông số kỹ thuật & Tập phim */}
+                <div className={styles.stepSectionDivider}>
+                  <FaSlidersH size={10} /> {MOVIE_FORM_I18N.step1.sectionSpecs}
+                </div>
+
+                <div className="row g-3">
+                  <div className="col-md-3 col-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step1.quality}</span>
+                      </label>
+                      <CinemaSelect
+                        options={MOVIE_QUALITIES}
+                        value={quality}
+                        onChange={setQuality}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-3 col-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step1.language}</span>
+                      </label>
+                      <CinemaSelect
+                        options={MOVIE_LANGUAGES}
+                        value={lang}
+                        onChange={setLang}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-3 col-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step1.duration}</span>
+                      </label>
+                      <CinemaSelect
+                        options={DURATION_OPTIONS}
+                        value={time}
+                        onChange={setTime}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-md-3 col-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step1.totalEpisodes}</span>
+                      </label>
+                      <CinemaSelect
+                        options={EPISODE_TOTAL_OPTIONS}
+                        value={episodeTotal}
+                        onChange={setEpisodeTotal}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step Actions - Calmer Neutral Next Button */}
+                <div className={styles.stepNavFooter}>
+                  <div className="text-muted small">
+                    Bước 1 / 5: {MOVIE_FORM_I18N.steps[0].shortTitle}
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.btnStepNextCalm}
+                    onClick={handleNextStep}
+                  >
+                    {MOVIE_FORM_I18N.actions.next}: {MOVIE_FORM_I18N.steps[1].shortTitle} <FaChevronRight size={10} />
                   </button>
                 </div>
-                <div className={styles.cardBody}>
-                  {servers.map((server, sIdx) => (
-                    <div key={sIdx} className={styles.serverBox}>
-                      <div className={styles.serverHeader}>
-                        <div className="d-flex align-items-center gap-2">
+              </div>
+            </div>
+          )}
+
+          {/* ==================== BƯỚC 2: PHÂN LOẠI & DIỄN VIÊN ==================== */}
+          {currentStep === 2 && (
+            <div className={styles.glassCard}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>
+                  <FaTag className={styles.cardTitleIcon} /> {MOVIE_FORM_I18N.steps[1].fullTitle}
+                </h3>
+                <span className="text-muted small">
+                  {selectedCategories.length} thể loại • {selectedCountries.length} quốc gia
+                </span>
+              </div>
+              <div className={styles.cardBody}>
+                <div className="row g-3">
+                  {/* Left Column: Categories with cleanly spaced search filter */}
+                  <div className="col-md-6">
+                    <div className={styles.formGroup}>
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label className={styles.formLabel} style={{ margin: 0 }}>
+                          <span className={styles.labelTitle}>
+                            {MOVIE_FORM_I18N.step2.categoryLabel} <span className={styles.requiredAsterisk}>*</span>
+                          </span>
+                        </label>
+                        <div className={styles.searchFilterWrapper}>
                           <input
                             type="text"
-                            className={styles.inputControl}
-                            style={{ maxWidth: 220, padding: '0.35rem 0.65rem' }}
-                            value={server.server_name}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setServers(prev => {
-                                const copy = [...prev];
-                                copy[sIdx].server_name = val;
-                                return copy;
-                              });
-                            }}
+                            className={styles.searchFilterInput}
+                            placeholder={MOVIE_FORM_I18N.step2.categorySearchPlaceholder}
+                            value={categorySearchQuery}
+                            onChange={(e) => setCategorySearchQuery(e.target.value)}
                           />
-                          <span className="badge bg-secondary">{server.server_data.length} tập</span>
-                        </div>
-
-                        <div className="d-flex gap-2">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
-                            onClick={() => addEpisodeToServer(sIdx)}
-                          >
-                            <FaPlus size={10} /> Thêm tập
-                          </button>
-                          {servers.length > 1 && (
-                            <button
-                              type="button"
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() => removeServer(sIdx)}
-                              title="Xóa máy chủ này"
-                            >
-                              <FaTrash size={11} />
-                            </button>
-                          )}
+                          <FaSearch className={styles.searchFilterIcon} />
                         </div>
                       </div>
 
-                      {/* Episode Rows */}
+                      {/* Compact Scrollable Genre Box */}
+                      <div className={styles.compactChipScrollBox}>
+                        {filteredCategories.map(cat => {
+                          const isChecked = selectedCategories.includes(cat.id);
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              className={`${styles.chipPill} ${isChecked ? styles.chipActive : ''}`}
+                              onClick={() => toggleCategory(cat.id)}
+                            >
+                              {isChecked && <FaCheck size={8} />}
+                              {cat.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {validationErrors.category && (
+                        <span className={styles.errorText}>{validationErrors.category}</span>
+                      )}
+
+                      {/* Add Custom Genre inline (Single 'Thêm' button) */}
+                      <div className="d-flex gap-1 mt-1">
+                        <input
+                          type="text"
+                          className={styles.inputControl}
+                          style={{ height: 30, fontSize: '0.78rem' }}
+                          placeholder={MOVIE_FORM_I18N.step2.addCategoryPlaceholder}
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomCategory())}
+                        />
+                        <button
+                          type="button"
+                          className={styles.yearStepBtn}
+                          style={{ height: 30, fontSize: '0.76rem', padding: '0 0.65rem' }}
+                          onClick={addCustomCategory}
+                        >
+                          {MOVIE_FORM_I18N.step2.addBtn}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Countries */}
+                  <div className="col-md-6">
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>
+                        <span className={styles.labelTitle}>
+                          {MOVIE_FORM_I18N.step2.countryLabel} <span className={styles.requiredAsterisk}>*</span>
+                        </span>
+                        <span className="text-muted small">Đã chọn: {selectedCountries.length}</span>
+                      </label>
+
+                      {/* Compact Scrollable Country Box */}
+                      <div className={styles.compactChipScrollBox}>
+                        {allCountries.map(c => {
+                          const isChecked = selectedCountries.includes(c.id);
+                          return (
+                            <button
+                              key={c.id}
+                              type="button"
+                              className={`${styles.chipPill} ${isChecked ? styles.chipActive : ''}`}
+                              onClick={() => toggleCountry(c.id)}
+                            >
+                              {isChecked && <FaCheck size={8} />}
+                              {c.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {validationErrors.country && (
+                        <span className={styles.errorText}>{validationErrors.country}</span>
+                      )}
+
+                      {/* Add Custom Country inline (Single 'Thêm' button) */}
+                      <div className="d-flex gap-1 mt-1">
+                        <input
+                          type="text"
+                          className={styles.inputControl}
+                          style={{ height: 30, fontSize: '0.78rem' }}
+                          placeholder={MOVIE_FORM_I18N.step2.addCountryPlaceholder}
+                          value={customCountry}
+                          onChange={(e) => setCustomCountry(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomCountry())}
+                        />
+                        <button
+                          type="button"
+                          className={styles.yearStepBtn}
+                          style={{ height: 30, fontSize: '0.76rem', padding: '0 0.65rem' }}
+                          onClick={addCustomCountry}
+                        >
+                          {MOVIE_FORM_I18N.step2.addBtn}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Directors & Actors with Autocomplete Tag Combobox */}
+                  <div className="col-md-6">
+                    <TagAutocompletePicker
+                      label={MOVIE_FORM_I18N.step2.directorLabel}
+                      icon={<FaUserTie size={11} />}
+                      items={directors}
+                      onAdd={handleAddDirector}
+                      onRemove={handleRemoveDirector}
+                      suggestions={POPULAR_DIRECTORS}
+                      placeholder={MOVIE_FORM_I18N.step2.directorPlaceholder}
+                    />
+                  </div>
+
+                  <div className="col-md-6">
+                    <TagAutocompletePicker
+                      label={MOVIE_FORM_I18N.step2.actorLabel}
+                      icon={<FaUsers size={11} />}
+                      items={actors}
+                      onAdd={handleAddActor}
+                      onRemove={handleRemoveActor}
+                      suggestions={POPULAR_ACTORS}
+                      placeholder={MOVIE_FORM_I18N.step2.actorPlaceholder}
+                    />
+                  </div>
+                </div>
+
+                {/* Step Actions - Calmer Neutral Next Button */}
+                <div className={styles.stepNavFooter}>
+                  <button
+                    type="button"
+                    className={styles.btnStepPrev}
+                    onClick={handlePrevStep}
+                  >
+                    <FaChevronLeft size={10} /> {MOVIE_FORM_I18N.actions.prev}: {MOVIE_FORM_I18N.steps[0].shortTitle}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.btnStepNextCalm}
+                    onClick={handleNextStep}
+                  >
+                    {MOVIE_FORM_I18N.actions.next}: {MOVIE_FORM_I18N.steps[2].shortTitle} <FaChevronRight size={10} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================== BƯỚC 3: MEDIA & HÌNH ẢNH ==================== */}
+          {currentStep === 3 && (
+            <div className={styles.glassCard}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>
+                  <FaImage className={styles.cardTitleIcon} /> {MOVIE_FORM_I18N.steps[2].fullTitle}
+                </h3>
+                <span className="badge bg-danger">Bắt buộc Poster</span>
+              </div>
+              <div className={styles.cardBody}>
+                {/* Efficient space utilization: side-by-side inputs & instant previews */}
+                <div className={styles.mediaRow}>
+                  {/* Left: Input controls */}
+                  <div className={styles.mediaInputsCol}>
+                    {/* Poster URL */}
+                    <div className={styles.formGroup}>
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label className={styles.formLabel} style={{ margin: 0 }}>
+                          <span className={styles.labelTitle}>
+                            {MOVIE_FORM_I18N.step3.posterLabel} <span className={styles.requiredAsterisk}>*</span>
+                          </span>
+                        </label>
+                        <div className="d-flex gap-1">
+                          <button
+                            type="button"
+                            className={styles.yearStepBtn}
+                            style={{ height: 24, fontSize: '0.72rem', padding: '0 0.4rem' }}
+                            onClick={() => setPosterUrl('https://image.tmdb.org/t/p/w780/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg')}
+                          >
+                            {MOVIE_FORM_I18N.step3.sample1}
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.yearStepBtn}
+                            style={{ height: 24, fontSize: '0.72rem', padding: '0 0.4rem' }}
+                            onClick={() => setPosterUrl('https://image.tmdb.org/t/p/w780/czembW0Rk1Ke7lCJGhkAiBhQ9la.jpg')}
+                          >
+                            {MOVIE_FORM_I18N.step3.sample2}
+                          </button>
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        className={`${styles.inputControl} ${validationErrors.poster ? styles.inputError : ''}`}
+                        placeholder={MOVIE_FORM_I18N.step3.posterPlaceholder}
+                        value={posterUrl}
+                        onChange={(e) => setPosterUrl(e.target.value.trim())}
+                      />
+                      {validationErrors.poster && (
+                        <span className={styles.errorText}>{validationErrors.poster}</span>
+                      )}
+                    </div>
+
+                    {/* Thumbnail / Backdrop URL */}
+                    <div className={styles.formGroup}>
+                      <div className="d-flex justify-content-between align-items-center mb-1">
+                        <label className={styles.formLabel} style={{ margin: 0 }}>
+                          {MOVIE_FORM_I18N.step3.backdropLabel}
+                        </label>
+                        <div className="d-flex gap-1">
+                          <button
+                            type="button"
+                            className={styles.yearStepBtn}
+                            style={{ height: 24, fontSize: '0.72rem', padding: '0 0.4rem' }}
+                            onClick={() => setThumbUrl('https://image.tmdb.org/t/p/w1280/rLb2cw69QBHgFDWcl0zKyfEaY2K.jpg')}
+                          >
+                            {MOVIE_FORM_I18N.step3.sample1}
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.yearStepBtn}
+                            style={{ height: 24, fontSize: '0.72rem', padding: '0 0.4rem' }}
+                            onClick={() => setThumbUrl('https://image.tmdb.org/t/p/w1280/xOMo8BRK7PfcJv9JCnx7s520b22.jpg')}
+                          >
+                            {MOVIE_FORM_I18N.step3.sample2}
+                          </button>
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        className={styles.inputControl}
+                        placeholder={MOVIE_FORM_I18N.step3.backdropPlaceholder}
+                        value={thumbUrl}
+                        onChange={(e) => setThumbUrl(e.target.value.trim())}
+                      />
+                    </div>
+
+                    {/* Trailer URL */}
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>{MOVIE_FORM_I18N.step3.trailerLabel}</label>
+                      <input
+                        type="text"
+                        className={styles.inputControl}
+                        placeholder={MOVIE_FORM_I18N.step3.trailerPlaceholder}
+                        value={trailerUrl}
+                        onChange={(e) => setTrailerUrl(e.target.value.trim())}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right: Instant Previews Side-by-Side (Zero Lag) */}
+                  <div className={styles.mediaPreviewsCol}>
+                    <label className={styles.formLabel}>{MOVIE_FORM_I18N.step3.previewTitle}</label>
+                    <div className={styles.previewRow}>
+                      <div className={styles.posterPreviewBox}>
+                        {posterUrl ? (
+                          <img
+                            key={posterUrl}
+                            src={posterUrl}
+                            alt="Poster preview"
+                            className={styles.previewImg}
+                            loading="eager"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.opacity = '0.3';
+                            }}
+                          />
+                        ) : (
+                          <div className={styles.previewPlaceholder}>
+                            <FaImage size={20} className="mb-1" />
+                            <span>Poster 2:3</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className={styles.thumbPreviewBox}>
+                        {thumbUrl ? (
+                          <img
+                            key={thumbUrl}
+                            src={thumbUrl}
+                            alt="Backdrop preview"
+                            className={styles.previewImg}
+                            loading="eager"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.opacity = '0.3';
+                            }}
+                          />
+                        ) : (
+                          <div className={styles.previewPlaceholder}>
+                            <FaPlay size={20} className="mb-1" />
+                            <span>Backdrop 16:9</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step Actions - Calmer Neutral Next Button */}
+                <div className={styles.stepNavFooter}>
+                  <button
+                    type="button"
+                    className={styles.btnStepPrev}
+                    onClick={handlePrevStep}
+                  >
+                    <FaChevronLeft size={10} /> {MOVIE_FORM_I18N.actions.prev}: {MOVIE_FORM_I18N.steps[1].shortTitle}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.btnStepNextCalm}
+                    onClick={handleNextStep}
+                  >
+                    {MOVIE_FORM_I18N.actions.next}: {MOVIE_FORM_I18N.steps[3].shortTitle} <FaChevronRight size={10} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================== BƯỚC 4: NGUỒN PHÁT & MÁY CHỦ ==================== */}
+          {currentStep === 4 && (
+            <div className={styles.glassCard}>
+              <div className={styles.cardHeader}>
+                <h3 className={styles.cardTitle}>
+                  <FaServer className={styles.cardTitleIcon} /> {MOVIE_FORM_I18N.steps[3].fullTitle}
+                </h3>
+                {/* No-wrap server template buttons: '+' and text never split */}
+                <div className={styles.serverTemplatesRow}>
+                  <span className="text-muted small me-1">{MOVIE_FORM_I18N.step4.addServerLabel}</span>
+                  {SERVER_TEMPLATES.slice(0, 3).map((st, sIdx) => (
+                    <button
+                      key={sIdx}
+                      type="button"
+                      className={styles.serverTemplateBtn}
+                      onClick={() => addServer(st)}
+                    >
+                      <span>+{st.split(' ')[0]}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.cardBody}>
+                {servers.map((server, sIdx) => (
+                  <div key={sIdx} className={styles.serverBox}>
+                    <div className={styles.serverHeader}>
+                      <div className="d-flex align-items-center gap-2">
+                        <input
+                          type="text"
+                          className={styles.inputControl}
+                          style={{ maxWidth: 200, height: 30, padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}
+                          value={server.server_name}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setServers(prev => prev.map((s, idx) => idx === sIdx ? { ...s, server_name: val } : s));
+                          }}
+                        />
+                        <span className="badge bg-secondary" style={{ fontSize: '0.7rem' }}>
+                          {server.server_data.length} tập
+                        </span>
+                      </div>
+
+                      <div className="d-flex gap-1">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+                          style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                          onClick={() => addEpisodeToServer(sIdx)}
+                        >
+                          {MOVIE_FORM_I18N.step4.addEpisodeBtn}
+                        </button>
+                        {servers.length > 1 && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-secondary"
+                            style={{ fontSize: '0.75rem', padding: '0.2rem 0.4rem' }}
+                            onClick={() => removeServer(sIdx)}
+                            title="Xóa máy chủ này"
+                          >
+                            <FaTimes size={9} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Scrollable Episode Rows */}
+                    <div className={styles.episodesScrollContainer}>
                       {server.server_data.map((ep, epIdx) => (
                         <div key={epIdx} className={styles.episodeRow}>
                           <input
                             type="text"
                             className={styles.inputControl}
-                            placeholder="Tên tập (Tập 1)"
+                            style={{ height: 30, fontSize: '0.8rem' }}
+                            placeholder={MOVIE_FORM_I18N.step4.epNamePlaceholder}
                             value={ep.name}
                             onChange={(e) => updateEpisode(sIdx, epIdx, 'name', e.target.value)}
                           />
                           <input
                             type="text"
                             className={styles.inputControl}
-                            placeholder="Mã nhúng Embed (https://...)"
+                            style={{ height: 30, fontSize: '0.8rem' }}
+                            placeholder={MOVIE_FORM_I18N.step4.embedPlaceholder}
                             value={ep.link_embed}
                             onChange={(e) => updateEpisode(sIdx, epIdx, 'link_embed', e.target.value)}
                           />
                           <input
                             type="text"
                             className={styles.inputControl}
-                            placeholder="Luồng HLS m3u8 (https://...)"
+                            style={{ height: 30, fontSize: '0.8rem' }}
+                            placeholder={MOVIE_FORM_I18N.step4.m3u8Placeholder}
                             value={ep.link_m3u8}
                             onChange={(e) => updateEpisode(sIdx, epIdx, 'link_m3u8', e.target.value)}
                           />
@@ -1026,119 +1265,231 @@ const AddMoviePage = () => {
                             onClick={() => removeEpisode(sIdx, epIdx)}
                             title="Xóa tập này"
                           >
-                            <FaTimes size={12} />
+                            <FaTimes size={10} />
                           </button>
                         </div>
                       ))}
                     </div>
-                  ))}
+                  </div>
+                ))}
+
+                {/* Step Actions - Calmer Neutral Next Button */}
+                <div className={styles.stepNavFooter}>
+                  <button
+                    type="button"
+                    className={styles.btnStepPrev}
+                    onClick={handlePrevStep}
+                  >
+                    <FaChevronLeft size={10} /> {MOVIE_FORM_I18N.actions.prev}: {MOVIE_FORM_I18N.steps[2].shortTitle}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.btnStepNextCalm}
+                    onClick={handleNextStep}
+                  >
+                    {MOVIE_FORM_I18N.actions.next}: {MOVIE_FORM_I18N.steps[4].shortTitle} <FaChevronRight size={10} />
+                  </button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Right Column: Media & Live Preview (30%) */}
-            <div className="col-lg-4">
-              {/* Media URLs Card */}
-              <div className={styles.glassCard}>
+          {/* ==================== BƯỚC 5: XUẤT BẢN & ĐÁNH GIÁ (BALANCED 2-COLUMN LAYOUT) ==================== */}
+          {currentStep === 5 && (
+            <div className={styles.step5Grid}>
+              {/* Left Column: Synopsis, Notes, Flags */}
+              <div className={styles.glassCard} style={{ margin: 0 }}>
                 <div className={styles.cardHeader}>
                   <h3 className={styles.cardTitle}>
-                    <FaImage className={styles.cardTitleIcon} /> Hình ảnh & Trailer
+                    <FaInfoCircle className={styles.cardTitleIcon} /> {MOVIE_FORM_I18N.steps[4].fullTitle}
                   </h3>
+                  <span className="badge bg-danger">Bắt buộc tóm tắt</span>
                 </div>
                 <div className={styles.cardBody}>
-                  {/* Poster URL */}
+                  {/* Synopsis */}
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
-                      Áp phích (Poster dọc 2:3) <span className={styles.requiredAsterisk}>*</span>
+                      <span className={styles.labelTitle}>
+                        {MOVIE_FORM_I18N.step5.synopsisLabel} <span className={styles.requiredAsterisk}>*</span>
+                      </span>
+                      <span className="text-muted small">{content.length} ký tự</span>
                     </label>
-                    <input
-                      type="text"
-                      className={`${styles.inputControl} ${validationErrors.poster ? styles.inputError : ''}`}
-                      placeholder="https://.../poster.jpg"
-                      value={posterUrl}
-                      onChange={(e) => setPosterUrl(e.target.value)}
+                    <textarea
+                      rows={4}
+                      className={`${styles.inputControl} ${validationErrors.content ? styles.inputError : ''}`}
+                      style={{ height: 'auto', padding: '0.5rem 0.75rem', fontSize: '0.84rem' }}
+                      placeholder={MOVIE_FORM_I18N.step5.synopsisPlaceholder}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
                     />
-                    {validationErrors.poster && (
-                      <span className={styles.errorText}>{validationErrors.poster}</span>
+                    {validationErrors.content && (
+                      <span className={styles.errorText}>{validationErrors.content}</span>
                     )}
                   </div>
 
-                  {/* Thumbnail / Backdrop URL */}
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Ảnh bìa ngang (Backdrop 16:9)</label>
-                    <input
-                      type="text"
-                      className={styles.inputControl}
-                      placeholder="https://.../backdrop.jpg"
-                      value={thumbUrl}
-                      onChange={(e) => setThumbUrl(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Trailer URL */}
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Link Video Trailer (YouTube)</label>
-                    <input
-                      type="text"
-                      className={styles.inputControl}
-                      placeholder="https://www.youtube.com/watch?v=..."
-                      value={trailerUrl}
-                      onChange={(e) => setTrailerUrl(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Visual Preview Boxes */}
-                  <div className={styles.previewRow}>
-                    <div className={styles.posterPreviewBox}>
-                      {posterUrl ? (
-                        <img
-                          src={posterUrl}
-                          alt="Poster preview"
-                          className={styles.previewImg}
-                          onError={(e) => (e.currentTarget.style.display = 'none')}
+                  {/* Notice & Showtimes */}
+                  <div className="row g-2">
+                    <div className="col-md-6">
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>
+                          <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step5.noticeLabel}</span>
+                        </label>
+                        <input
+                          type="text"
+                          className={styles.inputControl}
+                          placeholder={MOVIE_FORM_I18N.step5.noticePlaceholder}
+                          value={notify}
+                          onChange={(e) => setNotify(e.target.value)}
                         />
-                      ) : (
-                        <div className={styles.previewPlaceholder}>
-                          <FaImage size={24} className="mb-1" />
-                          <span>Poster 2:3</span>
-                        </div>
-                      )}
+                      </div>
                     </div>
 
-                    <div className={styles.thumbPreviewBox}>
-                      {thumbUrl ? (
-                        <img
-                          src={thumbUrl}
-                          alt="Backdrop preview"
-                          className={styles.previewImg}
-                          onError={(e) => (e.currentTarget.style.display = 'none')}
+                    <div className="col-md-6">
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>
+                          <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step5.showtimesLabel}</span>
+                        </label>
+                        <input
+                          type="text"
+                          className={styles.inputControl}
+                          placeholder={MOVIE_FORM_I18N.step5.showtimesPlaceholder}
+                          value={showtimes}
+                          onChange={(e) => setShowtimes(e.target.value)}
                         />
-                      ) : (
-                        <div className={styles.previewPlaceholder}>
-                          <FaPlay size={24} className="mb-1" />
-                          <span>Backdrop 16:9</span>
-                        </div>
-                      )}
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Flags */}
+                  <div className="d-flex flex-wrap gap-3 mt-1 pt-2 border-top border-secondary border-opacity-10">
+                    <label className="d-flex align-items-center gap-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={chieuRap}
+                        onChange={(e) => setChieuRap(e.target.checked)}
+                      />
+                      <span className="small">{MOVIE_FORM_I18N.step5.flagChieuRap}</span>
+                    </label>
+
+                    <label className="d-flex align-items-center gap-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={isCopyright}
+                        onChange={(e) => setIsCopyright(e.target.checked)}
+                      />
+                      <span className="small">{MOVIE_FORM_I18N.step5.flagCopyright}</span>
+                    </label>
+
+                    <label className="d-flex align-items-center gap-1 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        checked={subDocQuyen}
+                        onChange={(e) => setSubDocQuyen(e.target.checked)}
+                      />
+                      <span className="small">{MOVIE_FORM_I18N.step5.flagExclusive}</span>
+                    </label>
+                  </div>
+
+                  {/* Step Actions (Single 'Quay lại' button; Final submit is handled cleanly by the sticky bar) */}
+                  <div className={styles.stepNavFooter}>
+                    <button
+                      type="button"
+                      className={styles.btnStepPrev}
+                      onClick={handlePrevStep}
+                    >
+                      <FaChevronLeft size={10} /> {MOVIE_FORM_I18N.actions.prev}: {MOVIE_FORM_I18N.steps[3].shortTitle}
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Live Movie Card Simulator (Mô phỏng hiển thị trên web) */}
-              <div className={styles.glassCard}>
+              {/* Right Column: Unified TMDB & Simulator (Balanced Height) */}
+              <div className={styles.glassCard} style={{ margin: 0 }}>
                 <div className={styles.cardHeader}>
                   <h3 className={styles.cardTitle}>
-                    <FaTv className={styles.cardTitleIcon} /> Mô phỏng hiển thị Web
+                    <FaTv className={styles.cardTitleIcon} /> {MOVIE_FORM_I18N.step5.simulatorTitle}
                   </h3>
                 </div>
                 <div className={styles.cardBody}>
+                  {/* TMDB row directly above the card preview */}
+                  <div className="row g-2 mb-2">
+                    <div className="col-6">
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>
+                          <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step5.tmdbIdLabel}</span>
+                        </label>
+                        <input
+                          type="text"
+                          className={styles.inputControl}
+                          style={{ height: 32, fontSize: '0.8rem' }}
+                          placeholder="872585"
+                          value={tmdbId}
+                          onChange={(e) => setTmdbId(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-3">
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>
+                          <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step5.voteAvgLabel}</span>
+                        </label>
+                        <div className={styles.microStepperWrapper}>
+                          <button
+                            type="button"
+                            className={styles.microStepBtn}
+                            onClick={() => setVoteAverage(v => Math.max(0, Number((v - 0.5).toFixed(1))))}
+                            title="Giảm 0.5 điểm"
+                          >
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            max="10"
+                            className={styles.microStepInput}
+                            value={voteAverage}
+                            onChange={(e) => setVoteAverage(Number(e.target.value))}
+                          />
+                          <button
+                            type="button"
+                            className={styles.microStepBtn}
+                            onClick={() => setVoteAverage(v => Math.min(10, Number((v + 0.5).toFixed(1))))}
+                            title="Tăng 0.5 điểm"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-3">
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>
+                          <span className={styles.labelTitle}>{MOVIE_FORM_I18N.step5.voteCountLabel}</span>
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          className={styles.inputControl}
+                          style={{ height: 32, fontSize: '0.8rem', textAlign: 'center' }}
+                          value={voteCount}
+                          onChange={(e) => setVoteCount(Number(e.target.value))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Simulator Preview Card */}
                   <div className={styles.movieCardSimulator}>
                     <div className={styles.simPosterArea}>
                       {posterUrl ? (
-                        <img src={posterUrl} alt={name} className={styles.previewImg} />
+                        <img src={posterUrl} alt={name} className={styles.previewImg} loading="eager" />
                       ) : (
                         <div className="w-100 h-100 d-flex align-items-center justify-content-center text-muted">
-                          <FaFilm size={36} />
+                          <FaFilm size={26} />
                         </div>
                       )}
                       <span className={styles.simBadgeQuality}>{quality}</span>
@@ -1154,101 +1505,45 @@ const AddMoviePage = () => {
                         <span>{time}</span>
                         <span>•</span>
                         <span className="text-warning d-flex align-items-center gap-1">
-                          <FaStar size={10} /> {voteAverage}
+                          <FaStar size={9} /> {voteAverage}
                         </span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* TMDB / Ratings Card */}
-              <div className={styles.glassCard}>
-                <div className={styles.cardHeader}>
-                  <h3 className={styles.cardTitle}>
-                    <FaStar className="text-warning" /> Thông số Đánh giá & TMDB
-                  </h3>
-                </div>
-                <div className={styles.cardBody}>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>TMDB Movie ID</label>
-                    <input
-                      type="text"
-                      className={styles.inputControl}
-                      placeholder="Ví dụ: 872585"
-                      value={tmdbId}
-                      onChange={(e) => setTmdbId(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="row g-2">
-                    <div className="col-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Điểm TMDB (0-10)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          max="10"
-                          className={styles.inputControl}
-                          value={voteAverage}
-                          onChange={(e) => setVoteAverage(Number(e.target.value))}
-                        />
-                      </div>
-                    </div>
-                    <div className="col-6">
-                      <div className={styles.formGroup}>
-                        <label className={styles.formLabel}>Lượt đánh giá</label>
-                        <input
-                          type="number"
-                          min="0"
-                          className={styles.inputControl}
-                          value={voteCount}
-                          onChange={(e) => setVoteCount(Number(e.target.value))}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
+          )}
 
-          {/* Sticky Bottom Publish Bar */}
+          {/* Sticky Bottom Progress & Quick Actions Bar */}
           <div className={styles.stickyBottomBar}>
             <div className={styles.completionProgress}>
-              <span className="text-muted small">Mức độ hoàn thiện:</span>
+              <span className="text-muted small">Tiến độ:</span>
               <div className={styles.progressBarTrack}>
                 <div className={styles.progressBarFill} style={{ width: `${completionPercentage}%` }} />
               </div>
               <span className="fw-bold text-white small">{completionPercentage}%</span>
             </div>
 
-            <div className="d-flex align-items-center gap-3">
+            <div className="d-flex align-items-center gap-2">
               <Link href="/admin/movies" legacyBehavior>
-                <a className="btn btn-sm btn-outline-secondary">Hủy bỏ</a>
+                <a className="btn btn-sm btn-outline-secondary" style={{ fontSize: '0.8rem', padding: '0.35rem 0.75rem' }}>
+                  {MOVIE_FORM_I18N.actions.cancel}
+                </a>
               </Link>
               <button
                 type="submit"
-                className={styles.btnSaveTop}
+                className={styles.btnPrimarySubmit}
                 disabled={loading}
               >
-                <FaSave /> {loading ? 'Đang lưu phim...' : 'Xuất bản & Lưu phim'}
+                <FaSave /> {loading ? MOVIE_FORM_I18N.actions.saving : MOVIE_FORM_I18N.actions.publish}
               </button>
             </div>
           </div>
         </form>
       </div>
 
-      {/* Floating Toast Notification */}
-      {toastMessage.show && (
-        <div className={`custom-floating-toast toast-${toastMessage.type}`}>
-          {toastMessage.type === 'success' && <FaCheck className="text-success" />}
-          {toastMessage.type === 'error' && <FaExclamationTriangle className="text-danger" />}
-          {toastMessage.type === 'info' && <FaInfoCircle className="text-info" />}
-          <span className="small">{toastMessage.text}</span>
-        </div>
-      )}
+      <BackToTop />
     </>
   );
 };

@@ -11,7 +11,7 @@ import { useAuth } from '../../utils/auth';
 import AccountLockedBanner from '../Alert/AccountLockedBanner';
 import { BannerAd } from '../Advertisement';
 import { useAdContext } from '../../context/AdContext';
-import { ROUTES, isAdVisibleForPath } from '../../config/routesConfig';
+import { ROUTES, isAdVisibleForPath, isFullBleedRoute } from '../../config/routesConfig';
 
 /**
  * Calculates dynamic body padding based on active route and banner states.
@@ -39,7 +39,7 @@ const calculateLayoutPadding = ({
     paddingTop += 120;
   }
 
-  // Home page requires strict 0px top padding for full-bleed hero backdrop under transparent navbar
+  // Top banner ads clearance on eligible non-hero pages
   if (!isHomePage && showAds && !isMoviePage) {
     paddingTop += 20;
   }
@@ -55,9 +55,10 @@ const calculateLayoutPadding = ({
  * Main application Layout wrapper.
  * @param {Object} props - React props.
  * @param {React.ReactNode} props.children - Page contents.
+ * @param {React.ComponentType} [props.Component] - Page component for static property inspections.
  * @returns {JSX.Element} Rendered application layout.
  */
-export default function Layout({ children }) {
+export default function Layout({ children, Component }) {
   const router = useRouter();
   const { showAccountLockedBanner } = useAuth();
   const { hideHomepageAds } = useAdContext();
@@ -68,12 +69,18 @@ export default function Layout({ children }) {
   const isMoviePage = pathname.startsWith(ROUTES.MOVIE_PREFIX);
   const isHomePage = pathname === ROUTES.HOME;
 
+  // Centralized full-bleed check: Home, Movie Detail/Watch pages or explicit Component.fullBleed opt-in
+  const isFullBleed = isFullBleedRoute(pathname) || Boolean(Component?.fullBleed) || Boolean(Component?.isFullBleed);
+
+  // Standard pages require clearance for the fixed 64px Navbar
+  const needsHeaderOffset = !isAuthPage && !isFullBleed;
+
   // Synchronize ad visibility state using centralized route config
   useEffect(() => {
     setShowAds(isAdVisibleForPath(pathname, hideHomepageAds));
   }, [pathname, hideHomepageAds]);
 
-  // Adjust body padding dynamically while preserving full-bleed for the homepage
+  // Adjust body padding dynamically for overlays (e.g. account locked banner)
   useEffect(() => {
     const { paddingTop, paddingBottom } = calculateLayoutPadding({
       isHomePage,
@@ -101,17 +108,34 @@ export default function Layout({ children }) {
       {/* Top Banner Ad: only shown on non-homepage and non-movie pages to protect full-bleed hero */}
       {showAds && !isMoviePage && !isHomePage && <BannerAd position="top" />}
 
-      <main className={isHomePage ? 'full-bleed-main' : ''}>{children}</main>
+      <main className={`layout-main ${needsHeaderOffset ? 'standard-page-main' : 'full-bleed-main'}`}>
+        {children}
+      </main>
 
       {showAds && <BannerAd position="bottom" />}
 
       {!isAuthPage && <Footer />}
 
       <style jsx global>{`
-        .full-bleed-main {
+        :root {
+          --navbar-height: 64px;
+        }
+
+        .layout-main {
           margin: 0;
-          padding: 0;
           width: 100%;
+          box-sizing: border-box;
+        }
+
+        /* Auto-clearance for standard pages so headers never obscure content */
+        .standard-page-main {
+          padding-top: var(--navbar-height, 64px);
+          min-height: calc(100vh - var(--navbar-height, 64px));
+        }
+
+        /* Full-bleed hero views (e.g. Homepage, Movie details) */
+        .full-bleed-main {
+          padding-top: 0;
           overflow-x: hidden;
         }
       `}</style>

@@ -93,7 +93,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     initializeUser();
   }, [initializeUser]);
 
-  const isAdminPage = router.pathname.startsWith(ROUTES.ADMIN_PREFIX);
+  const isAdminPage = router.pathname.startsWith(ROUTES.ADMIN_PREFIX) || router.pathname.startsWith('/admin');
   const isAuthPage = router.pathname.startsWith(ROUTES.AUTH_PREFIX);
   const isSearchPage = router.pathname === ROUTES.SEARCH;
 
@@ -106,7 +106,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
       return page;
     }
 
-    return <Layout>{page}</Layout>;
+    return <Layout Component={Component}>{page}</Layout>;
   }, [Component, isAdminPage]);
 
   const getWrappedComponent = useCallback(() => {
