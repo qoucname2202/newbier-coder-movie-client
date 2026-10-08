@@ -14,16 +14,15 @@ const PendingSubscriptionsPage = () => {
   const [modalAction, setModalAction] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [processingAction, setProcessingAction] = useState(false);
-  
+
   const router = useRouter();
-  
-  // Lấy danh sách đăng ký đang chờ duyệt
+
   useEffect(() => {
     const fetchPendingSubscriptions = async () => {
       try {
         setLoading(true);
         const response = await subscriptionService.getAdminPendingSubscriptions();
-        
+
         if (response) {
           setPendingSubscriptions(response.pendingSubscriptions || []);
           setPagination(response.pagination || { page: 1, pages: 1, total: 0 });
@@ -35,38 +34,34 @@ const PendingSubscriptionsPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchPendingSubscriptions();
   }, []);
-  
-  // Xử lý khi admin muốn phê duyệt đăng ký
+
   const handleApprove = (subscription) => {
     setSelectedSubscription(subscription);
     setModalAction('approve');
     setShowConfirmModal(true);
   };
-  
-  // Xử lý khi admin muốn từ chối đăng ký
+
   const handleReject = (subscription) => {
     setSelectedSubscription(subscription);
     setModalAction('reject');
     setShowConfirmModal(true);
   };
-  
-  // Xử lý xác nhận hành động (phê duyệt hoặc từ chối)
+
   const handleConfirmAction = async () => {
     if (!selectedSubscription) return;
-    
+
     try {
       setProcessingAction(true);
-      
+
       if (modalAction === 'approve') {
         const response = await subscriptionService.approveSubscription(selectedSubscription._id);
-        
+
         if (response.success) {
           toast.success("Phê duyệt đăng ký thành công!");
-          // Xóa subscription đã duyệt khỏi danh sách
-          setPendingSubscriptions(prevSubscriptions => 
+          setPendingSubscriptions(prevSubscriptions =>
             prevSubscriptions.filter(sub => sub._id !== selectedSubscription._id)
           );
         } else {
@@ -77,19 +72,17 @@ const PendingSubscriptionsPage = () => {
           selectedSubscription._id,
           { reason: rejectionReason }
         );
-        
+
         if (response.success) {
           toast.success("Từ chối đăng ký thành công!");
-          // Xóa subscription đã từ chối khỏi danh sách
-          setPendingSubscriptions(prevSubscriptions => 
+          setPendingSubscriptions(prevSubscriptions =>
             prevSubscriptions.filter(sub => sub._id !== selectedSubscription._id)
           );
         } else {
           toast.error(response.message || "Từ chối không thành công. Vui lòng thử lại!");
         }
       }
-      
-      // Đóng modal
+
       setShowConfirmModal(false);
       setSelectedSubscription(null);
       setRejectionReason('');
@@ -100,15 +93,14 @@ const PendingSubscriptionsPage = () => {
       setProcessingAction(false);
     }
   };
-  
-  // Xử lý chuyển trang
+
   const handlePageChange = async (page) => {
     if (page < 1 || page > pagination.pages || page === pagination.page) return;
-    
+
     try {
       setLoading(true);
       const response = await subscriptionService.getAdminPendingSubscriptions(page);
-      
+
       if (response) {
         setPendingSubscriptions(response.pendingSubscriptions || []);
         setPagination(response.pagination || { page: 1, pages: 1, total: 0 });
@@ -120,8 +112,7 @@ const PendingSubscriptionsPage = () => {
       setLoading(false);
     }
   };
-  
-  // Hiển thị danh sách đăng ký chờ duyệt
+
   const renderPendingSubscriptions = () => {
     if (loading) {
       return (
@@ -131,7 +122,7 @@ const PendingSubscriptionsPage = () => {
         </div>
       );
     }
-    
+
     if (pendingSubscriptions.length === 0) {
       return (
         <div className={styles.emptyState}>
@@ -141,7 +132,7 @@ const PendingSubscriptionsPage = () => {
         </div>
       );
     }
-    
+
     return (
       <div className={styles.subscriptionList}>
         <table className={styles.dataTable}>
@@ -191,8 +182,8 @@ const PendingSubscriptionsPage = () => {
                       }).format(subscription.paymentId.amount)}
                     </div>
                     <div className={styles.paymentMethod}>
-                      {subscription.paymentId.method === 'bank_transfer' 
-                        ? 'Chuyển khoản' 
+                      {subscription.paymentId.method === 'bank_transfer'
+                        ? 'Chuyển khoản'
                         : subscription.paymentId.method === 'credit_card'
                         ? 'Thẻ tín dụng'
                         : subscription.paymentId.method === 'momo'
@@ -214,13 +205,13 @@ const PendingSubscriptionsPage = () => {
                 </td>
                 <td>
                   <div className={styles.actions}>
-                    <button 
+                    <button
                       className={styles.approveButton}
                       onClick={() => handleApprove(subscription)}
                     >
                       <FaCheck /> Duyệt
                     </button>
-                    <button 
+                    <button
                       className={styles.rejectButton}
                       onClick={() => handleReject(subscription)}
                     >
@@ -232,23 +223,22 @@ const PendingSubscriptionsPage = () => {
             ))}
           </tbody>
         </table>
-        
-        {/* Phân trang */}
+
         {pagination.pages > 1 && (
           <div className={styles.pagination}>
-            <button 
+            <button
               onClick={() => handlePageChange(pagination.page - 1)}
               disabled={pagination.page === 1 || loading}
               className={styles.pageButton}
             >
               &laquo; Trước
             </button>
-            
+
             <span className={styles.pageInfo}>
               Trang {pagination.page} / {pagination.pages}
             </span>
-            
-            <button 
+
+            <button
               onClick={() => handlePageChange(pagination.page + 1)}
               disabled={pagination.page === pagination.pages || loading}
               className={styles.pageButton}
@@ -260,11 +250,10 @@ const PendingSubscriptionsPage = () => {
       </div>
     );
   };
-  
-  // Modal xác nhận phê duyệt hoặc từ chối
+
   const renderConfirmModal = () => {
     if (!showConfirmModal || !selectedSubscription) return null;
-    
+
     return (
       <div className={styles.modalOverlay}>
         <div className={styles.modal}>
@@ -272,7 +261,7 @@ const PendingSubscriptionsPage = () => {
             <h3>
               {modalAction === 'approve' ? 'Xác nhận phê duyệt' : 'Xác nhận từ chối'}
             </h3>
-            <button 
+            <button
               className={styles.closeButton}
               onClick={() => {
                 setShowConfirmModal(false);
@@ -284,12 +273,12 @@ const PendingSubscriptionsPage = () => {
               <FaTimes />
             </button>
           </div>
-          
+
           <div className={styles.modalBody}>
             {modalAction === 'approve' ? (
               <div className={styles.confirmContent}>
                 <p>Bạn có chắc chắn muốn phê duyệt đăng ký Premium cho người dùng sau?</p>
-                
+
                 <div className={styles.subscriptionDetail}>
                   <div className={styles.detailItem}>
                     <strong>Người dùng:</strong> {selectedSubscription.userId.fullname} ({selectedSubscription.userId.email})
@@ -305,8 +294,8 @@ const PendingSubscriptionsPage = () => {
                   </div>
                   <div className={styles.detailItem}>
                     <strong>Phương thức thanh toán:</strong> {
-                      selectedSubscription.paymentId.method === 'bank_transfer' 
-                        ? 'Chuyển khoản' 
+                      selectedSubscription.paymentId.method === 'bank_transfer'
+                        ? 'Chuyển khoản'
                         : selectedSubscription.paymentId.method === 'credit_card'
                         ? 'Thẻ tín dụng'
                         : selectedSubscription.paymentId.method === 'momo'
@@ -317,13 +306,13 @@ const PendingSubscriptionsPage = () => {
                     }
                   </div>
                 </div>
-                
+
                 <p>Sau khi phê duyệt, tài khoản của người dùng sẽ được nâng cấp lên Premium.</p>
               </div>
             ) : (
               <div className={styles.confirmContent}>
                 <p>Bạn có chắc chắn muốn từ chối đăng ký Premium cho người dùng sau?</p>
-                
+
                 <div className={styles.subscriptionDetail}>
                   <div className={styles.detailItem}>
                     <strong>Người dùng:</strong> {selectedSubscription.userId.fullname} ({selectedSubscription.userId.email})
@@ -338,10 +327,10 @@ const PendingSubscriptionsPage = () => {
                     }).format(selectedSubscription.paymentId.amount)}
                   </div>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="rejectionReason">Lý do từ chối:</label>
-                  <textarea 
+                  <textarea
                     id="rejectionReason"
                     className={styles.textarea}
                     value={rejectionReason}
@@ -353,9 +342,9 @@ const PendingSubscriptionsPage = () => {
               </div>
             )}
           </div>
-          
+
           <div className={styles.modalFooter}>
-            <button 
+            <button
               className={styles.cancelButton}
               onClick={() => {
                 setShowConfirmModal(false);
@@ -366,7 +355,7 @@ const PendingSubscriptionsPage = () => {
             >
               Hủy
             </button>
-            <button 
+            <button
               className={modalAction === 'approve' ? styles.approveButton : styles.rejectButton}
               onClick={handleConfirmAction}
               disabled={modalAction === 'reject' && !rejectionReason.trim() || processingAction}
@@ -385,14 +374,14 @@ const PendingSubscriptionsPage = () => {
       </div>
     );
   };
-  
+
   return (
     <div className={styles.adminContainer}>
       <div className={styles.adminHeader}>
         <h1>Quản lý đăng ký Premium chờ duyệt</h1>
         <p>Xét duyệt các yêu cầu đăng ký gói Premium từ người dùng</p>
       </div>
-      
+
       <div className={styles.contentContainer}>
         <div className={styles.summary}>
           <div className={styles.summaryItem}>
@@ -405,10 +394,10 @@ const PendingSubscriptionsPage = () => {
             </div>
           </div>
         </div>
-        
+
         {renderPendingSubscriptions()}
       </div>
-      
+
       {renderConfirmModal()}
     </div>
   );

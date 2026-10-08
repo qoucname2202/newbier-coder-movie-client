@@ -1,0 +1,372 @@
+.loginPage {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background-color: #ffffff;
+  color: #18181b;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Left Form Pane */
+.formSide {
+  flex: 1 1 50%;
+  width: 50%;
+  min-width: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 48px 32px;
+  position: relative;
+  background-color: #ffffff;
+  z-index: 2;
+}
+
+.backHome {
+  position: absolute;
+  top: 28px;
+  left: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.backHome:hover {
+  color: #111827;
+  background-color: #f3f4f6;
+  transform: translateX(-2px);
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.title {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #111827;
+  margin: 0 0 8px 0;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: 14.5px;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  border-radius: 12px;
+  height: 52px;
+  padding: 0 16px;
+  border: 1.5px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.inputWrapper:focus-within {
+  border-color: #9ca3af;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05);
+}
+
+.inputWrapper.inputError {
+  border-color: #ef4444 !important;
+  background-color: #ffffff;
+}
+
+.inputIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1f2937;
+  font-size: 17px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.inputField {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 15px;
+  color: #111827 !important;
+  font-family: inherit;
+  height: 100%;
+  padding: 0;
+}
+
+.inputField::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+  font-weight: 400;
+}
+
+.eyeButton {
+  background: none;
+  border: none;
+  padding: 6px;
+  margin-left: 6px;
+  color: #1f2937;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  transition: color 0.15s ease, transform 0.1s ease;
+  outline: none;
+  border-radius: 6px;
+}
+
+.eyeButton:hover {
+  color: #000000;
+}
+
+.eyeButton:active {
+  transform: scale(0.92);
+}
+
+/* Status messages */
+.errorBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: -6px;
+  margin-bottom: 2px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+.successBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #10b981;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: -6px;
+  margin-bottom: 2px;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Links row */
+.linksRow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 13px;
+  margin-top: -4px;
+  margin-bottom: 8px;
+}
+
+.forgotText {
+  color: #6b7280;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.forgotText:hover {
+  color: #111827;
+}
+
+.signupText {
+  color: #111827;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 6px;
+  transition: opacity 0.15s ease;
+}
+
+.signupText:hover {
+  text-decoration: underline;
+}
+
+/* Submit Button */
+.submitButton {
+  width: 100%;
+  height: 50px;
+  background-color: #18181b;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(24, 24, 27, 0.12);
+  margin-top: 4px;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #27272a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(24, 24, 27, 0.18);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submitButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.dividerContainer {
+  display: flex;
+  align-items: center;
+  margin: 28px 0 22px 0;
+  gap: 12px;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+.dividerText {
+  font-size: 13px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.dividerText strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Social Login */
+.socialRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.socialButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  padding: 0;
+}
+
+.socialButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.socialButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.socialButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Right Artwork Side */
+.imageSide {
+  flex: 1 1 50%;
+  width: 50%;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: #f97316;
+}
+
+.artworkImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Mobile & Tablet Responsive */
+@media (max-width: 900px) {
+  .loginPage {
+    flex-direction: column-reverse;
+  }
+
+  .imageSide {
+    display: none;
+  }
+
+  .formSide {
+    min-height: 100vh;
+    padding: 36px 20px;
+  }
+
+  .backHome {
+    top: 20px;
+    left: 20px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+}

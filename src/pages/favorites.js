@@ -36,20 +36,17 @@ export default function FavoritesPage({ inProfilePage = false }) {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching favorites...');
-      
+
       const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-      console.log('Token exists:', !!token);
-      
+
       if (!token) {
         setError('Bạn cần đăng nhập để xem danh sách yêu thích');
         setLoading(false);
         return;
       }
-      
+
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      console.log('Calling API at:', `${apiUrl}/favorites`);
-      
+
       const response = await fetch(`${apiUrl}/favorites`, {
         method: 'GET',
         headers: {
@@ -59,29 +56,23 @@ export default function FavoritesPage({ inProfilePage = false }) {
         },
         credentials: 'include'
       });
-      
-      console.log('Response status:', response.status);
-      
+
       const rawText = await response.text();
-      console.log('Raw response:', rawText);
-      
+
       let data;
       try {
         data = JSON.parse(rawText);
-        console.log('Parsed data:', data);
       } catch (parseError) {
         console.error('Error parsing JSON:', parseError);
         setError('Lỗi xử lý dữ liệu từ server');
         setLoading(false);
         return;
       }
-      
+
       if (data && (data.statusCode === 200 || response.status === 200)) {
-        console.log('API returned success response with status:', data.statusCode || response.status);
-        
+
         if (data.data && Array.isArray(data.data)) {
-          console.log('Found array data with length:', data.data.length);
-          
+
           const normalizedFavorites = data.data.map(movie => ({
             id: movie.id || movie._id || '',
             title: movie.title || movie.name || 'Không có tiêu đề',
@@ -94,13 +85,11 @@ export default function FavoritesPage({ inProfilePage = false }) {
             type: movie.type || 'movie',
             dateAdded: movie.createdAt || new Date().toISOString()
           }));
-          
+
           normalizedFavorites.forEach((movie, index) => {
-            console.log(`Normalized Movie ${index + 1}:`, JSON.stringify(movie));
           });
-          
+
           setFavorites(normalizedFavorites);
-          console.log('Updated favorites state with', normalizedFavorites.length, 'movies');
         } else {
           console.warn('Data is not in expected format:', data);
           setFavorites([]);
@@ -140,14 +129,11 @@ export default function FavoritesPage({ inProfilePage = false }) {
     try {
       setIsDeleting(true);
       const movieId = movie.id;
-      console.log('[FAVORITES] Removing movie:', movieId);
-      
-      // Cập nhật UI ngay lập tức trước khi gọi API
+
       setFavorites(prevFavs => prevFavs.filter(m => m.id !== movieId));
-      
-      // Gọi API để xóa trong backend
+
       const result = await favoritesService.removeFromFavorites(movieId);
-      
+
       if (result.success) {
         toast.success('Đã xóa phim khỏi danh sách yêu thích!', {
           position: "top-right",
@@ -158,15 +144,12 @@ export default function FavoritesPage({ inProfilePage = false }) {
           draggable: true
         });
       } else {
-        // Nếu API gọi thất bại, khôi phục lại danh sách
         toast.error(result.message || 'Không thể xóa phim khỏi danh sách yêu thích');
-        // Tải lại danh sách để đảm bảo dữ liệu chính xác
         fetchFavorites();
       }
     } catch (error) {
       console.error('[FAVORITES] Error removing movie:', error);
       toast.error('Có lỗi xảy ra khi xóa phim khỏi danh sách yêu thích');
-      // Tải lại danh sách để đảm bảo dữ liệu chính xác
       fetchFavorites();
     } finally {
       setIsDeleting(false);
@@ -205,11 +188,10 @@ export default function FavoritesPage({ inProfilePage = false }) {
     if (window.confirm(`Bạn có chắc chắn muốn xóa ${selectedItems.length} phim đã chọn khỏi danh sách yêu thích?`)) {
       try {
         setIsDeleting(true);
-        
+
         let successCount = 0;
         let errorCount = 0;
-        
-        // Xóa từng phim đã chọn
+
         for (const movieId of selectedItems) {
           try {
             const result = await favoritesService.removeFromFavorites(movieId);
@@ -224,12 +206,10 @@ export default function FavoritesPage({ inProfilePage = false }) {
             console.error(`Error removing movie ${movieId}:`, error);
           }
         }
-        
-        // Cập nhật danh sách
+
         setFavorites(prevFavs => prevFavs.filter(movie => !selectedItems.includes(movie.id)));
         setSelectedItems([]);
-        
-        // Thông báo kết quả
+
         if (successCount > 0 && errorCount === 0) {
           toast.success(`Đã xóa ${successCount} phim khỏi danh sách yêu thích!`);
         } else if (successCount > 0 && errorCount > 0) {
@@ -254,7 +234,7 @@ export default function FavoritesPage({ inProfilePage = false }) {
 
   const sortFavorites = (movies) => {
     if (!Array.isArray(movies)) return [];
-    
+
     switch (sortOption) {
       case 'a-z':
         return [...movies].sort((a, b) => a.title.localeCompare(b.title));
@@ -282,22 +262,21 @@ export default function FavoritesPage({ inProfilePage = false }) {
       console.warn('Favorites is not an array:', favorites);
       return [];
     }
-    
+
     if (selectedFilter === 'all') return favorites;
-    
+
     if (selectedFilter === 'movie') {
       return favorites.filter(movie => movie.type === 'movie' || movie.type === 'single');
     }
-    
+
     if (selectedFilter === 'series') {
       return favorites.filter(movie => movie.type === 'series' || movie.type === 'tv');
     }
-    
+
     return favorites;
   };
 
   const filteredList = sortFavorites(filteredFavorites());
-  console.log('Filtered favorites count:', filteredList?.length || 0);
 
   // Render sort option name
   const getSortOptionName = () => {
@@ -316,25 +295,25 @@ export default function FavoritesPage({ inProfilePage = false }) {
 
   const mainContent = (
     <>
-      <div className={inProfilePage ? "" : "container mt-5 pt-5"} style={{ marginTop: '30px' }}>
+      <div className={inProfilePage ? "" : "container pt-3 pb-5"}>
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
           {!inProfilePage && <h2 className="text-white">Phim yêu thích</h2>}
           {inProfilePage && <h3 className="section-header" style={{ marginTop: '20px' }}>Phim yêu thích</h3>}
-          
+
           <div className="d-flex flex-wrap gap-2" >
-            <button 
-              className={inProfilePage ? "refresh-button" : "btn btn-outline-light d-flex align-items-center"} 
+            <button
+              className={inProfilePage ? "refresh-button" : "btn btn-outline-light d-flex align-items-center"}
               onClick={handleRefresh}
               disabled={refreshing}
             >
-              <FaSync className={`me-2 ${refreshing ? 'spin' : ''}`} /> 
+              <FaSync className={`me-2 ${refreshing ? 'spin' : ''}`} />
               {refreshing ? 'Đang làm mới' : 'Làm mới'}
             </button>
-            
+
             {!loading && filteredList.length > 0 && (
               <>
                 <div className="dropdown">
-                  <button 
+                  <button
                     className="btn btn-outline-light dropdown-toggle"
                     type="button"
                     id="sortDropdown"
@@ -354,16 +333,16 @@ export default function FavoritesPage({ inProfilePage = false }) {
                     <li><button className="dropdown-item" onClick={() => handleSortChange('year-asc')}>Năm cũ nhất</button></li>
                   </ul>
                 </div>
-                
-                <button 
+
+                <button
                   className={`btn ${selectMode ? 'btn-danger' : 'btn-outline-light'} d-flex align-items-center`}
                   onClick={toggleSelectMode}
                 >
                   <FaCheckSquare className="me-2" /> Chọn nhiều
                 </button>
-                
+
                 {selectMode && (
-                  <button 
+                  <button
                     className="btn btn-danger"
                     onClick={handleRemoveSelected}
                     disabled={selectedItems.length === 0}
@@ -375,28 +354,28 @@ export default function FavoritesPage({ inProfilePage = false }) {
             )}
           </div>
         </div>
-        
+
         <div className="filter-buttons mb-4">
-          <button 
+          <button
             className={`btn ${selectedFilter === 'all' ? 'btn-danger' : 'btn-outline-danger'} me-2 mb-2 mb-md-0`}
             onClick={() => setSelectedFilter('all')}
           >
             Tất cả
           </button>
-          <button 
+          <button
             className={`btn ${selectedFilter === 'movie' ? 'btn-danger' : 'btn-outline-danger'} me-2 mb-2 mb-md-0`}
             onClick={() => setSelectedFilter('movie')}
           >
             Phim lẻ
           </button>
-          <button 
+          <button
             className={`btn ${selectedFilter === 'series' ? 'btn-danger' : 'btn-outline-danger'} mb-2 mb-md-0`}
             onClick={() => setSelectedFilter('series')}
           >
             Phim bộ
           </button>
         </div>
-        
+
         {loading ? (
           <div className="text-center py-5 my-5">
             <div className="spinner-border text-danger" role="status" style={{ width: '3rem', height: '3rem' }}>
@@ -417,7 +396,7 @@ export default function FavoritesPage({ inProfilePage = false }) {
                 onClick={handleRefresh}
                 disabled={refreshing}
               >
-                <FaSync className={`me-2 ${refreshing ? 'spin' : ''}`} /> 
+                <FaSync className={`me-2 ${refreshing ? 'spin' : ''}`} />
                 Thử lại
               </button>
               <Link href="/" className="btn btn-outline-light">
@@ -441,12 +420,12 @@ export default function FavoritesPage({ inProfilePage = false }) {
                 <div className={styles.movieCard}>
                   <div className={styles.movieImageContainer}>
                     {selectMode && (
-                      <div 
+                      <div
                         className="position-absolute top-0 start-0 m-2"
                         style={{zIndex: 10}}
                         onClick={() => toggleSelectItem(movie.id)}
                       >
-                        <div 
+                        <div
                           style={{
                             width: '22px',
                             height: '22px',
@@ -473,9 +452,9 @@ export default function FavoritesPage({ inProfilePage = false }) {
                       </div>
                     )}
                     <Link href={`/movie/${movie.slug}`}>
-                      <img 
-                        src={movie.thumbnail || '/img/Phim.png'} 
-                        alt={movie.title} 
+                      <img
+                        src={movie.thumbnail || '/img/Phim.png'}
+                        alt={movie.title}
                         className={styles.movieImage}
                         onError={(e) => {
                           e.target.onerror = null;
@@ -486,14 +465,14 @@ export default function FavoritesPage({ inProfilePage = false }) {
                     <div className={styles.movieOverlay}>
                       {!selectMode && (
                         <>
-                          <button 
+                          <button
                             className={styles.removeButton}
                             onClick={() => handleRemoveFavorite(movie)}
                           >
                             <i className="bi bi-trash"></i>
                           </button>
-                          <Link 
-                            href={`/movie/${movie.slug}`} 
+                          <Link
+                            href={`/movie/${movie.slug}`}
                             className={styles.watchButton}
                           >
                             <i className="bi bi-play-fill"></i>
@@ -531,7 +510,7 @@ export default function FavoritesPage({ inProfilePage = false }) {
           </div>
         )}
       </div>
-      
+
       <ToastContainer position="top-right" autoClose={3000} />
     </>
   );

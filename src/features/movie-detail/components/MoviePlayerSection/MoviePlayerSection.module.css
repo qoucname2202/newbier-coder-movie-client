@@ -1,0 +1,197 @@
+.playerSection {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Lights off backdrop overlay */
+.theaterOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.94);
+  z-index: 100;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+}
+
+.playerWrapper {
+  position: relative;
+  z-index: 105;
+  background: #000000;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 16:9 Responsive Video Stage */
+.videoStage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #05070a;
+}
+
+.iframePlayer {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.emptyStreamFallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #94a3b8;
+  padding: 2rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  color: #e50914;
+}
+
+/* Control Bar Beneath Player */
+.playerControlBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(180deg, #131722 0%, #0d1017 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.serverSelection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.serverLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 2px;
+}
+
+.serverBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.serverBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.serverBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.serverBtnActive {
+  background: linear-gradient(135deg, #e50914 0%, #c10711 100%);
+  border-color: #e50914;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.4);
+}
+
+.serverBadge {
+  font-size: 0.7rem;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.playbackActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actionBtn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.actionBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.actionBtnPinned {
+  background: rgba(229, 9, 20, 0.18) !important;
+  border-color: rgba(229, 9, 20, 0.55) !important;
+  color: #ffffff !important;
+}
+
+.actionBtnPinned:hover {
+  background: rgba(229, 9, 20, 0.28) !important;
+  border-color: rgba(229, 9, 20, 0.75) !important;
+}
+
+.btnTheaterActive {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #000000;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .playerSection {
+    padding: 0;
+  }
+  .playerControlBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .serverSelection,
+  .playbackActions {
+    justify-content: center;
+  }
+}

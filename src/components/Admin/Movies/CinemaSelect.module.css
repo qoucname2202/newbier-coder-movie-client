@@ -1,0 +1,169 @@
+/* CinemaSelect.module.css - Dark Cinema Custom Dropdown */
+
+.selectWrapper {
+  position: relative;
+  width: 100%;
+  user-select: none;
+}
+
+.triggerBtn {
+  width: 100%;
+  height: 40px;
+  background-color: #141416;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: #f1f5f9;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+}
+
+.triggerBtn:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.22);
+  background-color: #1a1a1f;
+}
+
+.triggerBtn.isOpen {
+  border-color: #e50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
+  background-color: #18181d;
+}
+
+.triggerBtn.hasError {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+.triggerBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #111114;
+}
+
+.triggerContent {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.placeholderText {
+  color: #6b7280;
+}
+
+.chevronIcon {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chevronIcon.rotated {
+  transform: rotate(180deg);
+  color: #e50914;
+}
+
+/* Floating Dropdown Menu */
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: #18181c;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 1050;
+  padding: 0.35rem;
+  animation: fadeInDown 0.15s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownMenu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dropdownMenu::-webkit-scrollbar-track {
+  background: #141416;
+  border-radius: 4px;
+}
+
+.dropdownMenu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.dropdownMenu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.optionItem {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.optionItem:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.optionItem.isSelected {
+  background-color: rgba(229, 9, 20, 0.16);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.optionLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.optionMainText {
+  font-size: 0.86rem;
+  color: #f1f5f9;
+}
+
+.optionDesc {
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+
+.checkIcon {
+  color: #e50914;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}

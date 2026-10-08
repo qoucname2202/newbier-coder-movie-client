@@ -1,0 +1,1135 @@
+/* AdminAddMovie.module.css - Dark Cinema Studio Theme for Movie Creation */
+
+.pageContainer {
+  background-color: #0a0a0c;
+  color: #f1f5f9;
+  min-height: 100vh;
+  padding: 1rem 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .pageContainer {
+    padding: 1.25rem 1.75rem;
+  }
+}
+
+/* Page Header */
+.pageHeader {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.headerTitle {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.headerIconBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(229, 9, 20, 0.15);
+  border: 1px solid rgba(229, 9, 20, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e50914;
+  font-size: 1rem;
+}
+
+.breadcrumbNav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-top: 0.2rem;
+}
+
+.breadcrumbNav a {
+  color: #9ca3af;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.breadcrumbNav a:hover {
+  color: #ffffff;
+}
+
+/* Top Action Buttons */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.btnBack {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.btnBack:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btnDemoFill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #9ca3af;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.btnDemoFill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Primary Final Submit Button */
+.btnPrimarySubmit {
+  background: #e50914;
+  border: 1px solid #e50914;
+  color: #ffffff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btnPrimarySubmit:hover:not(:disabled) {
+  background: #f40612;
+  border-color: #f40612;
+}
+
+.btnPrimarySubmit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Horizontal Stepper (Tabs Bar) - Responsive on mobile */
+.horizontalStepper {
+  display: flex;
+  align-items: center;
+  background: #141416;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.3rem;
+  margin-bottom: 0.85rem;
+  overflow-x: auto;
+  gap: 0.25rem;
+  scrollbar-width: none;
+}
+
+.horizontalStepper::-webkit-scrollbar {
+  display: none;
+}
+
+.stepperItem {
+  flex: 1;
+  min-width: 90px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .stepperItem {
+    min-width: 140px;
+    padding: 0.45rem 0.85rem;
+  }
+}
+
+.stepperItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+.stepperItem.stepperActive {
+  background: #18181c;
+  border-color: rgba(229, 9, 20, 0.5);
+  color: #ffffff;
+}
+
+.stepperItem.stepperCompleted {
+  color: #cbd5e1;
+}
+
+.stepNumBadge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+
+.stepperActive .stepNumBadge {
+  background: #e50914;
+  color: #ffffff;
+}
+
+.stepperCompleted .stepNumBadge {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.stepInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  overflow: hidden;
+}
+
+.stepTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: inherit;
+  line-height: 1.15;
+}
+
+.stepDesc {
+  display: none;
+  font-size: 0.68rem;
+  color: #6b7280;
+  line-height: 1.15;
+}
+
+@media (min-width: 992px) {
+  .stepDesc {
+    display: block;
+  }
+}
+
+.stepperActive .stepDesc {
+  color: #9ca3af;
+}
+
+/* Glass Card - Overflow visible to let popups and dropdowns escape outside cleanly */
+.glassCard {
+  background: #141416;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  overflow: visible;
+  position: relative;
+}
+
+.cardHeader {
+  padding: 0.6rem 0.95rem;
+  background: #18181c;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.cardTitleIcon {
+  color: #e50914;
+  font-size: 0.88rem;
+}
+
+.cardBody {
+  padding: 0.95rem;
+}
+
+/* Visual Section Separators within Step 1 */
+.stepSectionDivider {
+  margin: 0.85rem 0 0.75rem 0;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Form Controls */
+.formGroup {
+  margin-bottom: 0.65rem;
+}
+
+.formLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.28rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.labelTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.requiredAsterisk {
+  color: #e50914;
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: baseline;
+  user-select: none;
+}
+
+.inputControl {
+  width: 100%;
+  height: 38px;
+  background: #0d0d10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+  padding: 0.35rem 0.75rem !important;
+  font-size: 0.85rem !important;
+  transition: all 0.18s ease;
+  outline: none;
+}
+
+.inputControl:focus {
+  border-color: #e50914 !important;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2) !important;
+}
+
+.inputControl::placeholder {
+  color: #6b7280;
+}
+
+.inputError {
+  border-color: #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.05) !important;
+}
+
+.errorText {
+  color: #f87171;
+  font-size: 0.72rem;
+  margin-top: 0.2rem;
+  display: block;
+}
+
+/* Year Stepper with Quick -5 -1 +1 +5 Buttons */
+.yearStepperWrapper {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+}
+
+.yearStepBtn {
+  height: 38px;
+  min-width: 36px;
+  padding: 0 0.45rem;
+  background: #18181c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.yearStepBtn:hover {
+  background: #22222a;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.yearStepBtn:active {
+  background: #e50914;
+  border-color: #e50914;
+  color: #ffffff;
+}
+
+.yearInput {
+  flex: 1;
+  height: 38px;
+  background: #0d0d10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+  text-align: center;
+  font-size: 0.92rem !important;
+  font-weight: 700;
+  outline: none;
+  min-width: 60px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.yearInput:focus {
+  border-color: #e50914 !important;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2) !important;
+}
+
+/* Hide ugly default browser number spin buttons */
+.yearInput::-webkit-outer-spin-button,
+.yearInput::-webkit-inner-spin-button,
+.inputControl::-webkit-outer-spin-button,
+.inputControl::-webkit-inner-spin-button,
+.microStepInput::-webkit-outer-spin-button,
+.microStepInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inputControl[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Micro Stepper for TMDB Score & Ratings */
+.microStepperWrapper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.microStepBtn {
+  height: 32px;
+  min-width: 26px;
+  padding: 0 0.35rem;
+  background: #18181c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.microStepBtn:hover {
+  background: #24242c;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.microStepBtn:active {
+  background: #e50914;
+  border-color: #e50914;
+  color: #ffffff;
+}
+
+.microStepInput {
+  flex: 1;
+  height: 32px;
+  background: #0d0d10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 5px !important;
+  color: #ffffff !important;
+  text-align: center;
+  font-size: 0.82rem !important;
+  font-weight: 700;
+  outline: none;
+  min-width: 45px;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.microStepInput:focus {
+  border-color: #e50914 !important;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2) !important;
+}
+
+/* Segmented Control */
+.segmentedControl {
+  display: flex;
+  background: #0d0d10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  width: 100%;
+  height: 38px;
+}
+
+.segmentedItem {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  padding: 0.35rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.segmentedItem:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.segmentedItem.segmentedActive {
+  background: #e50914;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Slug Box with regenerate button */
+.slugInputWrapper {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.btnRegenSlug {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 0 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnRegenSlug:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* Search Box in Category Filter - Fixed spacing without overlapping */
+.searchFilterWrapper {
+  position: relative;
+  width: 140px;
+}
+
+.searchFilterInput {
+  width: 100%;
+  height: 28px !important;
+  background: #0d0d10 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 5px !important;
+  color: #ffffff !important;
+  padding: 0.2rem 0.5rem 0.2rem 1.85rem !important;
+  font-size: 0.74rem !important;
+  outline: none;
+}
+
+.searchFilterIcon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 0.7rem;
+  pointer-events: none;
+}
+
+/* Compact Scrollable Box for Categories & Countries */
+.compactChipScrollBox {
+  max-height: 115px;
+  overflow-y: auto;
+  background: #0d0d10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.compactChipScrollBox::-webkit-scrollbar {
+  width: 4px;
+}
+
+.compactChipScrollBox::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.chipPill {
+  padding: 0.25rem 0.55rem;
+  border-radius: 5px;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #9ca3af;
+  background: #141418;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.chipPill:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.chipPill.chipActive {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: #e50914;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Compact Tag Box for Actors & Directors */
+.compactTagScrollBox {
+  background: #0d0d10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0.3rem;
+  max-height: 68px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.compactTagScrollBox::-webkit-scrollbar {
+  width: 4px;
+}
+
+.compactTagScrollBox::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.tagBadge {
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  color: #ffffff;
+  border-radius: 5px;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.76rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+}
+
+.tagRemoveBtn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.tagRemoveBtn:hover {
+  color: #ffffff;
+}
+
+/* Combobox Autocomplete for Actors & Directors */
+.comboboxWrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.comboboxInputRow {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.comboboxDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #18181c;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.85);
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 1080;
+  padding: 0.3rem;
+}
+
+.comboboxDropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.comboboxDropdown::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.comboboxItem {
+  width: 100%;
+  padding: 0.35rem 0.55rem;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.12s ease;
+}
+
+.comboboxItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+/* Step 3: Media Cards & Instant Previews */
+.mediaRow {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mediaInputsCol {
+  flex: 1;
+  min-width: 280px;
+}
+
+.mediaPreviewsCol {
+  width: 100%;
+  max-width: 380px;
+}
+
+.previewRow {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.posterPreviewBox {
+  width: 110px;
+  aspect-ratio: 2/3;
+  border-radius: 6px;
+  background: #0d0d10;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.thumbPreviewBox {
+  flex: 1;
+  aspect-ratio: 16/9;
+  border-radius: 6px;
+  background: #0d0d10;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  position: relative;
+}
+
+.previewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.previewPlaceholder {
+  font-size: 0.72rem;
+  color: #6b7280;
+  text-align: center;
+  padding: 0.35rem;
+}
+
+/* Server Templates in Step 4 - No awkward wrap of + and title */
+.serverTemplatesRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.serverTemplateBtn {
+  height: 28px;
+  padding: 0 0.55rem;
+  background: #18181c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.serverTemplateBtn:hover {
+  background: #24242c;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.serverBox {
+  background: #101014;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.serverHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.episodesScrollContainer {
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.episodesScrollContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.episodesScrollContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.episodeRow {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 30px;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.35rem;
+  background: #0a0a0c;
+  padding: 0.3rem 0.45rem;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+@media (max-width: 768px) {
+  .episodeRow {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+}
+
+.btnTrash {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnTrash:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Step 5: Balanced Layout */
+.step5Grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 992px) {
+  .step5Grid {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: stretch;
+  }
+}
+
+.step5CardEqual {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.step5CardBodyEqual {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Live Movie Card Simulator */
+.movieCardSimulator {
+  background: #141416;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  max-width: 220px;
+  margin: 0.5rem auto 0 auto;
+}
+
+.simPosterArea {
+  position: relative;
+  aspect-ratio: 2/3;
+  width: 100%;
+  background: #09090b;
+}
+
+.simBadgeQuality {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: #e50914;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+.simBadgeLang {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.simInfoArea {
+  padding: 0.55rem;
+}
+
+.simTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.simOriginTitle {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.simMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: #6b7280;
+}
+
+/* Step Footer Navigation Bar - Softer Colors, Not Overly Bright */
+.stepNavFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  margin-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btnStepPrev {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btnStepPrev:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.btnStepPrev:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Calm, Soft Neutral Style for Intermediate "Next" Steps */
+.btnStepNextCalm {
+  background: #1e1e24;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+  padding: 0.45rem 1.15rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.btnStepNextCalm:hover {
+  background: #282832;
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+/* Sticky Bottom Publish Bar */
+.stickyBottomBar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(14, 14, 18, 0.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 1rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.85rem;
+}
+
+.completionProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.progressBarTrack {
+  width: 100px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: #e50914;
+  transition: width 0.3s ease;
+}

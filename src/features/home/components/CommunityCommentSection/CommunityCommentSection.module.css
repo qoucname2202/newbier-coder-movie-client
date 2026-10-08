@@ -1,0 +1,712 @@
+/* ==========================================================================
+   CommunityCommentSection.module.css
+   Unified Community Comments Architecture:
+   - Left (col-xl-9): 2 Horizontal Rails (Top Week & Top Month/History with Backdrop Cards)
+   - Right (col-xl-3): YouTube-style Vertical Live Chat with Infinite Scroll Loader
+   ========================================================================== */
+
+.commentSection {
+  margin: 2.5rem 0 3.5rem 0;
+  position: relative;
+}
+
+/* ==========================================================================
+   Rails Layout & Sub-headers
+   ========================================================================== */
+
+/* ==========================================================================
+   Rails Layout & Sub-headers
+   ========================================================================== */
+.railsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.railWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.railHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.railTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.railIcon {
+  color: #e50914;
+  font-size: 0.8rem;
+}
+
+/* Sub-toggle for Month vs History */
+.toggleSwitchGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.12rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+}
+
+.toggleBtn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+  color: #ffffff;
+}
+
+.toggleBtnActive {
+  color: #ffffff;
+  background: #e50914;
+  box-shadow: 0 1px 6px rgba(229, 9, 20, 0.4);
+}
+
+/* Horizontal Track (Seamless Horizontal Scrolling) */
+.cardsTrack {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Hide default scrollbar for clean look */
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cardsTrack::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==========================================================================
+   Cinematic Backdrop Comment Card (Impressive & Space-Efficient)
+   ========================================================================== */
+.backdropCommentCard {
+  position: relative;
+  width: 230px;
+  min-width: 230px;
+  height: 134px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0b0f19;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  padding: 0.45rem 0.65rem;
+  flex-shrink: 0;
+  transition: border-color 0.2s ease;
+}
+
+.backdropCommentCard:hover {
+  border-color: rgba(229, 9, 20, 0.6);
+  /* No scale / translate jump as requested */
+}
+
+/* Movie Poster/Backdrop as Background Image - Crisp & Static (No hover zoom) */
+.cardBackdropImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  z-index: 0;
+}
+
+/* Lightened Ambient Gradient Overlay for vibrant, eye-catching visuals */
+.cardBackdropOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 15, 25, 0.12) 0%,
+    rgba(11, 15, 25, 0.45) 40%,
+    rgba(11, 15, 25, 0.88) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Inner Foreground Content */
+.cardForeground {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Top Line: Movie Name (1 line strictly restricted) */
+.movieLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem; /* Spacious separation from author line */
+}
+
+.movieName {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #38bdf8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 175px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.movieRatingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+
+/* Author Line: Sharp avatar, author name, badge and optional reply */
+.authorLine {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 1.05rem;
+  line-height: 1.05rem;
+  margin-bottom: 0.35rem; /* Comfortable breathing space before comment body */
+  font-size: 0.68rem;
+}
+
+.authorLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Sharp, clear user avatar with crisp border */
+.userAvatar {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e50914 0%, #6366f1 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.authorName {
+  font-weight: 700;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.userBadge {
+  font-size: 0.54rem;
+  font-weight: 600;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 0.05rem 0.25rem;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Compact Reply Connector inline without drifting baseline */
+.replySnippet {
+  font-size: 0.62rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70px;
+  margin-left: 0.15rem;
+}
+
+.timeAgo {
+  font-size: 0.62rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+/* Comment Synopsis: Strictly 2 lines restricted */
+.commentBody {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #cbd5e1;
+  margin: 0 0 0.15rem 0;
+  height: 1.95rem; /* Strictly 2 lines restricted as requested */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+}
+
+/* Card Bottom Footer: Slim line, minimal padding, no space wasted */
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.15rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.68rem;
+  color: #94a3b8;
+  margin-top: auto;
+  line-height: 1.15;
+}
+
+.interactionGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.btnLike {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.btnLike:hover {
+  color: #ffffff;
+}
+
+.btnLikeActive {
+  color: #ef4444;
+}
+
+.replyCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ==========================================================================
+   Right Column: YouTube Live Chat Style Vertical Box with Loader
+   ========================================================================== */
+.liveChatBox {
+  position: relative;
+  background: rgba(18, 24, 38, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  height: 100%;
+  min-height: 308px;
+  max-height: 348px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+.liveChatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.95rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* Delicate pulsating live dot */
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+  animation: dotPulse 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.35); opacity: 1; box-shadow: 0 0 10px #ef4444; }
+}
+
+.liveChatTitle {
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.liveChatCount {
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Scrollable Container with Infinite Scroll Trigger */
+.liveFeedContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+
+.liveFeedContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.liveFeedContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+}
+
+/* Loading Indicator when scrolling up to fetch more */
+.scrollLoader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.spinnerMini {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #e50914;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Individual Live Chat Item */
+.chatMessageItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  animation: slideInUp 0.35s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chatMessageItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chatAvatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.chatBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.chatHeaderLine {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: 0.1rem;
+}
+
+.chatUser {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.chatMovieTag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #38bdf8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.chatText {
+  color: #e2e8f0;
+  font-size: 0.74rem;
+  margin: 0;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.chatTimeAgo {
+  font-size: 0.62rem;
+  color: #475569;
+  margin-left: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Floating Return-to-Latest Button (Appears when scrolled away from top, scrolls to top and reloads) */
+.btnReturnToLatest,
+.btnScrollBottom {
+  position: absolute;
+  top: 44px; /* Placed cleanly right underneath the live chat header */
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(229, 9, 20, 0.6);
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 10px rgba(229, 9, 20, 0.35);
+  z-index: 15;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideDownFade 0.25s ease-out;
+}
+
+.btnReturnToLatest:hover,
+.btnScrollBottom:hover {
+  background: #e50914;
+  border-color: #e50914;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.5);
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.endOfFeed {
+  text-align: center;
+  font-size: 0.62rem;
+  color: #64748b;
+  padding: 0.45rem 0 0.2rem 0;
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Mobile Responsiveness (< 768px & < 480px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .commentSection {
+    margin: 2rem 0;
+  }
+
+  .railsColumn {
+    gap: 1.15rem;
+  }
+
+  .railHeader {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .railTitle {
+    font-size: 0.84rem;
+  }
+
+  .toggleSwitchGroup {
+    gap: 0.1rem;
+    padding: 0.1rem;
+  }
+
+  .toggleBtn {
+    font-size: 0.65rem;
+    padding: 0.18rem 0.5rem;
+  }
+
+  .cardsTrack {
+    gap: 0.65rem;
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-bottom: 0.4rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .backdropCommentCard {
+    width: 220px;
+    min-width: 220px;
+    height: 130px;
+    padding: 0.45rem 0.6rem;
+    scroll-snap-align: start;
+  }
+
+  .movieName {
+    font-size: 0.72rem;
+    max-width: 155px;
+  }
+
+  .authorName {
+    max-width: 75px;
+  }
+
+  .replySnippet {
+    max-width: 60px;
+  }
+
+  .commentBody {
+    font-size: 0.7rem;
+    height: 1.9rem;
+    line-height: 1.35;
+  }
+
+  /* Compact Mobile Live Chat box when stacked below rails */
+  .liveChatBox {
+    margin-top: 0.5rem;
+    min-height: 250px;
+    max-height: 280px;
+    border-radius: 12px;
+  }
+
+  .liveChatHeader {
+    padding: 0.55rem 0.85rem;
+  }
+
+  .liveFeedContainer {
+    padding: 0.5rem 0.75rem;
+    gap: 0.45rem;
+  }
+
+  .chatMessageItem {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.72rem;
+  }
+
+  .chatMovieTag {
+    max-width: 110px;
+  }
+}
+
+@media (max-width: 480px) {
+  .backdropCommentCard {
+    width: 205px;
+    min-width: 205px;
+    height: 126px;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .movieName {
+    font-size: 0.7rem;
+    max-width: 140px;
+  }
+
+  .authorLine {
+    font-size: 0.64rem;
+  }
+
+  .authorName {
+    max-width: 65px;
+  }
+
+  .commentBody {
+    font-size: 0.68rem;
+  }
+
+  .liveChatBox {
+    max-height: 260px;
+    min-height: 230px;
+  }
+}
+
+

@@ -229,10 +229,32 @@
 
 /* Slider container */
 .sliderContainer {
-  margin: 0 -10px;
+  margin: 0 -8px;
   position: relative;
 }
 
+.sliderContainer :global(.slick-list) {
+  padding-top: 10px !important;
+  padding-bottom: 14px !important;
+  margin-top: -10px !important;
+  margin-bottom: -14px !important;
+}
+
 .sliderItem {
-  padding: 0 10px;
+  padding: 4px 6px;
+}
+
+@media (max-width: 768px) {
+  .sliderContainer {
+    margin: 0 -5px;
+  }
+  .sliderContainer :global(.slick-list) {
+    padding-top: 6px !important;
+    padding-bottom: 10px !important;
+    margin-top: -6px !important;
+    margin-bottom: -10px !important;
+  }
+  .sliderItem {
+    padding: 2px 3px;
+  }
 }

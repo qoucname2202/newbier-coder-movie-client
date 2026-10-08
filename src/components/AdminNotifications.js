@@ -7,12 +7,10 @@ const AdminNotifications = () => {
   const { lastMessage, isConnected } = useWebSocket();
   const [connectionStatus, setConnectionStatus] = useState("Đang kết nối...");
 
-  // Xử lý thông báo từ WebSocket
   useEffect(() => {
     if (lastMessage) {
-      // Xác định nội dung thông báo dựa trên loại hành động
       let notificationContent = '';
-      
+
       if (lastMessage.type === 'movie') {
         switch (lastMessage.action) {
           case 'created':
@@ -37,7 +35,6 @@ const AdminNotifications = () => {
             toast.info(notificationContent);
         }
       } else if (lastMessage.type === 'user') {
-        // Xử lý thông báo liên quan đến người dùng
         switch (lastMessage.action) {
           case 'created':
             notificationContent = `Người dùng mới "${lastMessage.data.username}" đã được tạo`;
@@ -53,18 +50,16 @@ const AdminNotifications = () => {
         }
       }
 
-      console.log('Notification:', notificationContent);
     }
   }, [lastMessage]);
 
-  // Cập nhật trạng thái kết nối
   useEffect(() => {
     setConnectionStatus(isConnected ? "Đã kết nối" : "Mất kết nối");
   }, [isConnected]);
 
   return (
     <>
-      <div className="socket-status" style={{ 
+      <div className="socket-status" style={{
         position: 'fixed',
         bottom: '20px',
         right: '20px',
@@ -78,7 +73,7 @@ const AdminNotifications = () => {
         <span className={`status-dot ${isConnected ? 'connected' : 'disconnected'}`}></span>
         <span className="status-text">WebSocket: {connectionStatus}</span>
       </div>
-      
+
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -90,7 +85,7 @@ const AdminNotifications = () => {
         draggable
         pauseOnHover
       />
-      
+
       <style jsx>{`
         .status-dot {
           display: inline-block;

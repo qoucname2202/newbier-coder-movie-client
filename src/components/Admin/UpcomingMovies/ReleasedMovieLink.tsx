@@ -58,16 +58,33 @@ const ReleasedMovieLink: React.FC<ReleasedMovieLinkProps> = ({ upcomingMovieId }
   if (loading || !releasedMovieId) return null;
 
   return (
-    <Alert variant="success" className="mt-3">
-      <div className="d-flex justify-content-between align-items-center">
-        <span>Phim này đã được phát hành chính thức!</span>
+    <div
+      className="mt-3 mb-3 p-3 rounded"
+      style={{
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        border: '1px solid rgba(16, 185, 129, 0.25)',
+        color: '#34d399',
+      }}
+    >
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>
+          Phim này đã được phát hành chính thức trong hệ thống!
+        </span>
         <Link href={`/admin/movies/edit/${releasedMovieId}`} passHref>
-          <Button variant="outline-success" size="sm">
+          <Button
+            size="sm"
+            style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              borderColor: 'rgba(16, 185, 129, 0.4)',
+              color: '#34d399',
+              fontSize: '0.82rem',
+            }}
+          >
             <FaExternalLinkAlt className="me-1" /> Xem phim đã phát hành
           </Button>
         </Link>
       </div>
-    </Alert>
+    </div>
   );
 };
 

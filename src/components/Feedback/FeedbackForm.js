@@ -6,13 +6,12 @@ import axios from 'axios';
 const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, isAuthenticated } = useAuth();  const [formData, setFormData] = useState({
     name: user?.fullmame || user?.name || 'Khách',
     email: user?.email || '',
-    subject: 'Góp ý từ người dùng', // Đặt giá trị mặc định cho subject
+    subject: 'Góp ý từ người dùng',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  // Cập nhật formData khi user thay đổi
   React.useEffect(() => {
     if (user) {
       setFormData(prev => ({
@@ -31,41 +30,36 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
     }));
   };  const validateForm = () => {
     const { email, message } = formData;
-    // Không cần kiểm tra name vì nó luôn là read-only
     if (!email.trim()) return 'Vui lòng nhập email';
     if (!message.trim()) return 'Vui lòng nhập nội dung';
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return 'Email không hợp lệ';
-    
+
     return '';
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate form
     const error = validateForm();
     if (error) {
       setFormError(error);
       return;
     }
-    
+
     setFormError('');
     setIsSubmitting(true);
       try {
-      // Đảm bảo name luôn lấy từ user object nếu có
-      // Xử lý tên hiển thị với thứ tự ưu tiên: fullName hoặc name từ user object, 
-      // hoặc tên trong formData nếu không có user
       const submitData = {
         ...formData,
         name: user?.fullname || user?.name || formData.name
       };
-      
-      // Điều chỉnh cho backend nếu có user đăng nhập
+
       if (user && user._id) {
-        submitData.user = user._id; // Gắn user ID nếu người dùng đã đăng nhập
+        submitData.user = user._id;
       }
-      
+
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
       const response = await axios.post(`${baseUrl}/feedback`, submitData, {
         headers: {
@@ -73,9 +67,9 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           ...(isAuthenticated && { Authorization: `Bearer ${localStorage.getItem('token')}` })
         }
       });
-      
+
       if (response.data && response.data.success) {
-        setSubmitSuccess(true);        
+        setSubmitSuccess(true);
         // Reset form after successful submission
         setFormData({
           name: user?.fullname || user?.name || 'Khách',
@@ -83,7 +77,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           subject: 'Góp ý từ người dùng',
           message: ''
         });
-        
+
         // Close after 2 seconds
         setTimeout(() => {
           setSubmitSuccess(false);
@@ -110,7 +104,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
             <FaTimes />
           </button>
         </div>
-      
+
       <div className="feedback-content">
         {submitSuccess ? (
           <div className="feedback-success">
@@ -135,7 +129,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
                 style={{opacity: 1, fontSize: "16px"}}
               />
             </div>
-            
+
             <div className="mb-3">
               <input
                 type="email"
@@ -147,7 +141,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
                 readOnly={!!user?.email}
                 style={{fontSize: "16px"}}
               />            </div>
-              
+
               <div className="mb-4">
               <textarea
                 name="message"
@@ -159,9 +153,9 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
                 style={{fontSize: "16px"}}
               ></textarea>
             </div>
-            
-            <button 
-              type="submit" 
+
+            <button
+              type="submit"
               className="btn btn-danger w-100 py-2"
               disabled={isSubmitting}
               style={{fontSize: "16px", fontWeight: 600}}
@@ -186,7 +180,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           z-index: 1000;
           animation: fadeIn 0.3s ease-in-out;
         }
-        
+
         .feedback-dropdown {
           position: fixed;
           top: 50%;
@@ -203,23 +197,23 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           overflow: hidden;
           animation: scaleIn 0.3s ease-in-out;
         }
-        
+
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        
+
         @keyframes scaleIn {
-          from { 
+          from {
             opacity: 0;
             transform: translate(-50%, -50%) scale(0.9);
           }
-          to { 
+          to {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
           }
         }
-        
+
         @media (max-width: 992px) {
           .feedback-dropdown {
             width: 90%;
@@ -247,7 +241,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
             max-width: 300px;
           }
         }
-        
+
         @media (max-width: 992px) {
           .feedback-dropdown {
             width: 90%;
@@ -262,7 +256,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           background-color: rgba(0,0,0,0.3);
           box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        
+
         .feedback-header h6 {
           font-weight: 600;
           color: #fff;
@@ -280,12 +274,12 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           justify-content: center;
           transition: all 0.2s ease;
         }
-        
+
         .btn-close-feedback:hover {
           color: #fff;
           transform: scale(1.1);
         }
-        
+
         .feedback-content {
           padding: 24px;
           max-height: 600px;
@@ -295,7 +289,7 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           margin-bottom: 15px;
           border-radius: 6px;
         }
-        
+
         .feedback-success {
           display: flex;
           flex-direction: column;
@@ -304,27 +298,27 @@ const FeedbackForm = forwardRef(({ isOpen, onClose }, ref) => {  const { user, i
           padding: 40px 24px;
           text-align: center;
         }
-        
+
         .success-icon {
           font-size: 50px;
           color: #28a745;
           margin-bottom: 20px;
           animation: pulse 1.5s infinite ease-in-out;
         }
-        
+
         @keyframes pulse {
           0% { transform: scale(1); }
           50% { transform: scale(1.1); }
           100% { transform: scale(1); }
         }
-        
+
         .feedback-success p {
           margin-bottom: 10px;
           font-size: 20px;
           font-weight: 600;
           color: #fff;
         }
-        
+
         .success-message {
           font-size: 16px !important;
           font-weight: normal !important;

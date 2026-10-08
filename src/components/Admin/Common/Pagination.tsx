@@ -14,7 +14,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   let startPage = Math.max(1, currentPage - 2);
   let endPage = Math.min(totalPages, currentPage + 2);
 
-  // Luôn hiển thị ít nhất 5 trang nếu có
   if (endPage - startPage + 1 < 5) {
     if (startPage === 1) {
       endPage = Math.min(5, totalPages);
@@ -23,7 +22,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     }
   }
 
-  // Tạo mảng các số trang để hiển thị
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
   }
@@ -31,7 +29,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
   return (
     <nav aria-label="Page navigation">
       <ul className="pagination justify-content-center">
-        {/* Nút Previous */}
         <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
           <button
             className="page-link"
@@ -43,7 +40,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </button>
         </li>
 
-        {/* Trang đầu tiên nếu không có trong view */}
         {startPage > 1 && (
           <>
             <li className="page-item">
@@ -57,7 +53,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </>
         )}
 
-        {/* Số trang */}
         {pageNumbers.map(number => (
           <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
             <button
@@ -69,7 +64,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </li>
         ))}
 
-        {/* Trang cuối nếu không có trong view */}
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && (
@@ -88,7 +82,6 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </>
         )}
 
-        {/* Nút Next */}
         <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
           <button
             className="page-link"
@@ -100,6 +93,61 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
           </button>
         </li>
       </ul>
+
+      <style jsx>{`
+        :global(.pagination) {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+
+        :global(.pagination .page-item) {
+          margin: 0;
+        }
+
+        :global(.pagination .page-link) {
+          background-color: #111723 !important;
+          border: 1px solid rgba(255, 255, 255, 0.08) !important;
+          color: #cbd5e1 !important;
+          border-radius: 6px !important;
+          min-width: 36px;
+          height: 36px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 10px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          transition: all 0.15s ease;
+          box-shadow: none !important;
+          cursor: pointer;
+        }
+
+        :global(.pagination .page-link:hover) {
+          background-color: #1a2234 !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+          color: #ffffff !important;
+        }
+
+        :global(.pagination .page-item.active .page-link) {
+          background-color: #e50914 !important;
+          border-color: #e50914 !important;
+          color: #ffffff !important;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(229, 9, 20, 0.35) !important;
+        }
+
+        :global(.pagination .page-item.disabled .page-link) {
+          background-color: rgba(255, 255, 255, 0.02) !important;
+          border-color: rgba(255, 255, 255, 0.05) !important;
+          color: #475569 !important;
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+      `}</style>
     </nav>
   );
 };

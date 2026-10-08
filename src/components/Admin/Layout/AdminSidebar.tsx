@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/router';  import { 
-  FaHome, 
-  FaFilm, 
-  FaUsers, 
+import { useRouter } from 'next/router';  import {
+  FaHome,
+  FaFilm,
+  FaUsers,
   FaCrown,
   FaPlayCircle,
   FaTimes,
@@ -21,7 +21,7 @@ interface MenuItem {
   path: string;
   icon: React.ElementType;
   label: string;
-  badge?: number; 
+  badge?: number;
 }
 
 const AdminSidebar = () => {
@@ -40,7 +40,6 @@ const AdminSidebar = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Lấy số lượng feedback chưa đọc
   useEffect(() => {
     const fetchUnreadFeedbackCount = async () => {
       try {
@@ -61,21 +60,17 @@ const AdminSidebar = () => {
     };
 
     fetchUnreadFeedbackCount();
-    
-    // Cập nhật số lượng feedback chưa đọc mỗi 2 phút
+
     const interval = setInterval(fetchUnreadFeedbackCount, 2 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Lấy số lượng yêu cầu Premium đang chờ duyệt
   useEffect(() => {
     const fetchPendingPremiumCount = async () => {
       try {
         const token = localStorage.getItem('auth_token') || localStorage.getItem('authToken');
         if (!token) return;
 
-        // Thay vì gọi API /pending-count (đang bị lỗi), sử dụng API /pending-subscriptions
-        // và đếm số lượng từ kết quả trả về
         const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
         const response = await fetch(`${baseUrl}/subscription/admin/pending-subscriptions`, {
           headers: {
@@ -86,10 +81,8 @@ const AdminSidebar = () => {
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
-            // Đếm số lượng đăng ký chờ duyệt từ danh sách
             const subscriptions = data.data?.subscriptions || [];
             setPendingPremiumCount(subscriptions.length);
-            console.log(`Đã tìm thấy ${subscriptions.length} đăng ký premium chờ duyệt`);
           } else {
             console.error('API returned success: false', data);
             setPendingPremiumCount(0);
@@ -99,7 +92,6 @@ const AdminSidebar = () => {
           setPendingPremiumCount(0);
         }      } catch (error: any) {
         console.error('Error fetching pending premium count:', error);
-        // Hiển thị lỗi chi tiết để debug
         if (error.response) {
           console.error('Response error:', error.response.status, error.response.data);
         }
@@ -108,8 +100,7 @@ const AdminSidebar = () => {
     };
 
     fetchPendingPremiumCount();
-    
-    // Cập nhật số lượng yêu cầu premium chưa duyệt mỗi phút
+
     const interval = setInterval(fetchPendingPremiumCount, 60 * 1000);
     return () => clearInterval(interval);
   }, []);
@@ -121,11 +112,11 @@ const AdminSidebar = () => {
     { path: '/admin/movies', icon: FaFilm, label: 'Movies' },
     { path: '/admin/upcoming-movies', icon: FaPlayCircle, label: 'Phim sắp ra mắt' },
     { path: '/admin/users', icon: FaUsers, label: 'Users' },
-    { path: '/admin/premium', icon: FaCrown, label: 'Premium', badge: pendingPremiumCount },
-    { path: '/admin/feedback', icon: FaEnvelope, label: 'Góp ý người dùng', badge: unreadFeedbackCount },
-    { path: '/admin/reports', icon: FaExclamationTriangle, label: 'Báo cáo lỗi' },
-    { path: '/admin/advertisement', icon: FaAd, label: 'Quảng cáo' },
-    { path: '/admin/notifications/email', icon: FaBell, label: 'Gửi thông báo' },
+    // { path: '/admin/premium', icon: FaCrown, label: 'Premium', badge: pendingPremiumCount },
+    // { path: '/admin/feedback', icon: FaEnvelope, label: 'Góp ý người dùng', badge: unreadFeedbackCount },
+    // { path: '/admin/reports', icon: FaExclamationTriangle, label: 'Báo cáo lỗi' },
+    // { path: '/admin/advertisement', icon: FaAd, label: 'Quảng cáo' },
+    // { path: '/admin/notifications/email', icon: FaBell, label: 'Gửi thông báo' },
   ];
 
   return (
@@ -133,16 +124,16 @@ const AdminSidebar = () => {
       <div className={styles.sidebar}>
         <div className={styles.brand}>
           <div className={styles.brandImageWrapper}>
-            <Image 
-              src="/img/icons.png" 
-              alt="Admin Logo" 
+            <Image
+              src="/img/icons.png"
+              alt="Admin Logo"
               width={35}
               height={35}
               className={styles.brandImage}
             />
           </div>
           <h1 className={styles.brandText}>Movie Admin</h1>
-          <button 
+          <button
             className="btn btn-link d-block d-md-none position-absolute end-0 top-0 mt-2 me-2 text-white"
             onClick={closeSidebar}
             aria-label="Close sidebar"
@@ -154,14 +145,13 @@ const AdminSidebar = () => {
         <nav className={styles.nav} role="navigation" aria-label="Main navigation">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            // Sửa cách kiểm tra đường dẫn active để hoạt động với feedback.tsx và premium.tsx
-            const isActive = item.path === '/admin' 
+            const isActive = item.path === '/admin'
               ? router.pathname === '/admin'
               : router.pathname.startsWith(item.path);
-            
+
             return (
               <div className={styles.navItem} key={item.path}>
-                <Link 
+                <Link
                   href={item.path}
                   className={`${styles.navLink} ${isActive ? styles.active : ''}`}
                   onClick={closeSidebar}
@@ -178,11 +168,11 @@ const AdminSidebar = () => {
           })}
         </nav>
       </div>
-      
-      <div 
-        className={styles.overlay} 
+
+      <div
+        className={styles.overlay}
         onClick={closeSidebar}
-        role="presentation" 
+        role="presentation"
         aria-hidden="true"
       />
     </>

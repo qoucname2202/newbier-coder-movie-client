@@ -10,9 +10,6 @@ interface DashboardStats {
   totalComments: number;
 }
 
-/**
- * Lấy thông tin thống kê cho dashboard admin
- */
 export const getDashboardStats = async (): Promise<DashboardStats> => {
   try {
     const response = await axiosInstance.get('/admin/dashboard/stats');

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import AdminLayout from '@/components/Layout/AdminLayout';
-import { 
-  FaPlus, 
-  FaEdit, 
-  FaTrash, 
-  FaVideo, 
-  FaImage, 
-  FaUndo 
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaVideo,
+  FaImage,
+  FaUndo,
+  FaBullhorn
 } from 'react-icons/fa';
 import adService from '@/API/services/adService';
 import { toast, ToastContainer } from 'react-toastify';
@@ -68,31 +69,31 @@ const AdvertisementPage = () => {
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   });
-  
+
   const router = useRouter();
     useEffect(() => {
     fetchAdvertisements();
   }, [currentPage, filterType, filterActive, searchQuery]);
-  
+
   const fetchAdvertisements = async () => {
     try {
       setLoading(true);
-      
+
       // Use a try-catch with a simpler approach to handle backend connectivity
       try {
         // Test API connectivity with a simple check
-        const connectionTest = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/health-check`, { 
+        const connectionTest = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/health-check`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
           signal: AbortSignal.timeout(3000) // 3 second timeout for the connectivity test
         });
-        
+
         if (!connectionTest.ok) throw new Error('API server connection failed');
       } catch (connectionError) {
         console.warn('API server may be down:', connectionError);
         // Continue with the request anyway, but we've logged the potential issue
       }
-      
+
       const result = await adService.getAllAds(
         currentPage,
         10,
@@ -101,13 +102,13 @@ const AdvertisementPage = () => {
       );
 
       if (result && result.success) {
-        const filtered = searchQuery 
-          ? result.advertisements.filter((ad: Advertisement) => 
+        const filtered = searchQuery
+          ? result.advertisements.filter((ad: Advertisement) =>
               ad.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
               ad.advertiser.toLowerCase().includes(searchQuery.toLowerCase())
             )
           : result.advertisements;
-          
+
         setAdvertisements(filtered);
         setTotalPages(result.totalPages || 1);
       } else {
@@ -128,7 +129,7 @@ const AdvertisementPage = () => {
       setLoading(false);
     }
   };
-  
+
   const handleOpenModal = (ad?: Advertisement) => {
     if (ad) {
       // Edit mode
@@ -163,14 +164,14 @@ const AdvertisementPage = () => {
     }
     setModalOpen(true);
   };
-  
+
   const handleCloseModal = () => {
     setModalOpen(false);
   };
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    
+
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({
@@ -202,7 +203,7 @@ const AdvertisementPage = () => {
     }
   };    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       // Ensure proper date formatting
       const dataToSubmit = {
@@ -211,9 +212,7 @@ const AdvertisementPage = () => {
         endDate: formData.endDate,
         active: Boolean(formData.active)
       };
-      
-      console.log('Submitting advertisement data:', dataToSubmit);
-      
+
       if (selectedAd) {
         // Update existing ad
         const result = await adService.updateAd(selectedAd._id, dataToSubmit);
@@ -242,14 +241,14 @@ const AdvertisementPage = () => {
       toast.error('Có lỗi khi lưu quảng cáo');
     }
   };
-  
+
   const handleConfirmDelete = (ad: Advertisement) => {
     setSelectedAd(ad);
     setDeleteModalOpen(true);
   };
     const handleDelete = async () => {
     if (!selectedAd) return;
-    
+
     try {
       const result = await adService.deleteAd(selectedAd._id);
       if (result && result.success) {
@@ -265,23 +264,23 @@ const AdvertisementPage = () => {
       toast.error('Có lỗi khi xóa quảng cáo');
     }
   };
-  
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchAdvertisements();
   };
-  
+
   const resetFilters = () => {
     setFilterType('');
     setFilterActive('');
     setSearchQuery('');
     setCurrentPage(1);
   };
-  
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-  
+
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'video':
@@ -294,7 +293,7 @@ const AdvertisementPage = () => {
         return <FaImage className="text-gray-500" />;
     }
   };
-  
+
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'video':
@@ -307,7 +306,7 @@ const AdvertisementPage = () => {
         return 'Không xác định';
     }
   };
-  
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('vi-VN');
   };
@@ -316,7 +315,7 @@ const AdvertisementPage = () => {
     <AdminLayout>
       <div className="container-fluid px-4">
         <div className="d-sm-flex align-items-center justify-content-between mb-4">
-          <h1 className="h3 mb-0 text-black fw-bold">Quản lý Quảng Cáo</h1>
+          <h1 className="h3 mb-0 text-white fw-bold">Quản lý Quảng Cáo</h1>
           <button
             className="btn btn-primary"
             onClick={() => handleOpenModal()}
@@ -329,7 +328,7 @@ const AdvertisementPage = () => {
         <div className="card shadow mb-4">
           <div className="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 className="m-0 font-weight-bold text-primary">Danh sách quảng cáo</h6>
-            <button 
+            <button
               className="btn btn-sm btn-outline-secondary"
               onClick={resetFilters}
               disabled={!filterType && !filterActive && !searchQuery}
@@ -385,11 +384,11 @@ const AdvertisementPage = () => {
                 </form>
               </div>
             </div>
-            
+
             {/* Advertisements Table */}
             <div className="table-responsive">
               <table className="table table-bordered">
-                <thead className="table-light">
+                <thead>
                   <tr>
                     <th>Tên</th>
                     <th>Loại</th>
@@ -411,8 +410,16 @@ const AdvertisementPage = () => {
                     </tr>
                   ) : advertisements.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="text-center py-4">
-                        Không có quảng cáo nào được tìm thấy
+                      <td colSpan={7} className="text-center py-5">
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '36px 0' }}>
+                          <FaBullhorn size={44} style={{ color: '#475569', marginBottom: '16px' }} />
+                          <div style={{ color: '#f1f5f9', fontWeight: 600, fontSize: '1.05rem', marginBottom: '6px' }}>
+                            Không có quảng cáo nào được tìm thấy
+                          </div>
+                          <p style={{ color: '#64748b', fontSize: '0.875rem', margin: 0 }}>
+                            Chưa có chiến dịch quảng cáo nào hoặc không có kết quả phù hợp với bộ lọc hiện tại.
+                          </p>
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -428,8 +435,8 @@ const AdvertisementPage = () => {
                                 style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "4px" }}
                               />
                             ) : (
-                              <div className="bg-light d-flex align-items-center justify-content-center me-2" 
-                                style={{ width: "40px", height: "40px", borderRadius: "4px" }}>
+                              <div className="d-flex align-items-center justify-content-center me-2" style={{ width: "40px", height: "40px", borderRadius: "4px", backgroundColor: "#1e293b", color: "#94a3b8" }}>
+
                                 {getTypeIcon(ad.type)}
                               </div>
                             )}
@@ -487,7 +494,7 @@ const AdvertisementPage = () => {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Pagination */}
             {totalPages > 1 && (
               <nav>
@@ -574,7 +581,7 @@ const AdvertisementPage = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label htmlFor="type" className="form-label">Loại quảng cáo <span className="text-danger">*</span></label>
@@ -605,7 +612,7 @@ const AdvertisementPage = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="mb-3">
                     <label htmlFor="content" className="form-label">Nội dung (URL) <span className="text-danger">*</span></label>
                     <input
@@ -619,12 +626,12 @@ const AdvertisementPage = () => {
                       required
                     />
                     <div className="form-text">
-                      {formData.type === 'video' 
-                        ? 'URL video quảng cáo (ví dụ: link từ Youtube, Google Drive hoặc storage khác)' 
+                      {formData.type === 'video'
+                        ? 'URL video quảng cáo (ví dụ: link từ Youtube, Google Drive hoặc storage khác)'
                         : 'URL hình ảnh quảng cáo (ví dụ: link từ imgbb, Google Drive, hoặc storage khác)'}
                     </div>
                   </div>
-                  
+
                   {formData.type === 'video' && (
                     <div className="row mb-3">
                       <div className="col-md-6">
@@ -654,7 +661,7 @@ const AdvertisementPage = () => {
                       </div>
                     </div>
                   )}
-                  
+
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label htmlFor="startDate" className="form-label">Ngày bắt đầu <span className="text-danger">*</span></label>
@@ -681,7 +688,7 @@ const AdvertisementPage = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="form-check form-switch mb-3">
                     <input
                       className="form-check-input"
@@ -695,7 +702,7 @@ const AdvertisementPage = () => {
                       Kích hoạt quảng cáo
                     </label>
                   </div>
-                  
+
                   {formData.content && (
                     <div className="mb-3">
                       <label className="form-label">Xem trước:</label>
@@ -705,10 +712,10 @@ const AdvertisementPage = () => {
                             <video src={formData.content} controls className="rounded" />
                           </div>
                         ) : (
-                          <img 
-                            src={formData.content} 
-                            alt="Banner preview" 
-                            className="img-fluid rounded" 
+                          <img
+                            src={formData.content}
+                            alt="Banner preview"
+                            className="img-fluid rounded"
                             style={{ maxHeight: '200px', objectFit: 'contain' }}
                           />
                         )}
@@ -785,6 +792,141 @@ const AdvertisementPage = () => {
         pauseOnHover
         theme="colored"
       />
+      <style jsx>{`
+        :global(.card) {
+          background-color: #111723 !important;
+          border: 1px solid rgba(255, 255, 255, 0.07) !important;
+          border-radius: 10px !important;
+          color: #cbd5e1 !important;
+          box-shadow: none !important;
+        }
+
+        :global(.card-header) {
+          background-color: #141b29 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+          color: #ffffff !important;
+        }
+
+        :global(.card-header h6) {
+          color: #ffffff !important;
+        }
+
+        :global(.form-label) {
+          color: #94a3b8 !important;
+          font-size: 0.85rem !important;
+          margin-bottom: 4px !important;
+        }
+
+        :global(.form-select),
+        :global(.form-control) {
+          background-color: #0e131d !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          color: #f1f5f9 !important;
+          border-radius: 6px !important;
+          font-size: 0.88rem !important;
+        }
+
+        :global(.form-select:focus),
+        :global(.form-control:focus) {
+          border-color: #e50914 !important;
+          box-shadow: none !important;
+        }
+
+        :global(.table) {
+          --bs-table-bg: #111723 !important;
+          --bs-table-accent-bg: #111723 !important;
+          --bs-table-striped-bg: #111723 !important;
+          --bs-table-color: #cbd5e1 !important;
+          --bs-table-hover-bg: #151c2a !important;
+          --bs-table-hover-color: #f1f5f9 !important;
+          background-color: #111723 !important;
+          color: #cbd5e1 !important;
+          margin-bottom: 0 !important;
+        }
+
+        :global(.table tbody tr) {
+          background-color: #111723 !important;
+        }
+
+        :global(.table-bordered),
+        :global(.table-bordered th),
+        :global(.table-bordered td) {
+          border: 1px solid rgba(255, 255, 255, 0.06) !important;
+        }
+
+        :global(.btn-outline-secondary) {
+          color: #94a3b8 !important;
+          border-color: rgba(255, 255, 255, 0.12) !important;
+          background: transparent !important;
+        }
+
+        :global(.btn-outline-secondary:hover) {
+          color: #ffffff !important;
+          border-color: rgba(255, 255, 255, 0.25) !important;
+          background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        :global(.table-light),
+        :global(.table thead th) {
+          background-color: #141b29 !important;
+          color: #94a3b8 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+          border-top: none !important;
+          font-size: 0.82rem !important;
+          font-weight: 600 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.04em !important;
+          padding: 12px 16px !important;
+        }
+
+        :global(.table tbody td) {
+          background-color: #111723 !important;
+          color: #cbd5e1 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+          padding: 12px 16px !important;
+          vertical-align: middle !important;
+          border-left: none !important;
+          border-right: none !important;
+        }
+
+        :global(.table tbody tr:hover),
+        :global(.table tbody tr:hover td) {
+          background-color: #151c2a !important;
+          color: #f1f5f9 !important;
+        }
+
+        :global(.modal-content) {
+          background-color: #111723 !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
+          border-radius: 12px !important;
+          color: #cbd5e1 !important;
+        }
+
+        :global(.modal-header) {
+          background-color: #141b29 !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+          color: #ffffff !important;
+          padding: 16px 20px !important;
+        }
+
+        :global(.modal-footer) {
+          background-color: #0e131d !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+          padding: 12px 20px !important;
+        }
+
+        :global(.btn-primary) {
+          background-color: #e50914 !important;
+          border: none !important;
+          border-radius: 6px !important;
+          font-weight: 500 !important;
+          transition: background-color 0.15s ease !important;
+        }
+
+        :global(.btn-primary:hover) {
+          background-color: #c10711 !important;
+        }
+      `}</style>
     </AdminLayout>
   );
 };

@@ -1,7 +1,6 @@
 // src/pages/admin/movies.tsx
 'use client';
 
-// Khai báo kiểu cho đối tượng window toàn cục
 declare global {
   interface Window {
     searchTimeout?: NodeJS.Timeout;
@@ -10,10 +9,10 @@ declare global {
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import AdminRoute from '../../components/ProtectedRoute/AdminRoute';
-import { 
-  FaPlus, 
-  FaSearch, 
-  FaPen,   
+import {
+  FaPlus,
+  FaSearch,
+  FaPen,
   FaTrash,
   FaChevronLeft,
   FaChevronRight,
@@ -45,15 +44,15 @@ import styles from '../../styles/AdminMovies.module.css';
 import darkStyles from '../../styles/AdminMoviesDark.module.css';
 import ratingStyles from '../../styles/AdminRatings.module.css';
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/router';  
+import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import AdminLayout from '../../components/Layout/AdminLayout';
 import CrawlModal from '../../components/Admin/CrawlModal';
 import axiosInstance from '../../API/config/axiosConfig';
 
-import { 
-  getMoviesForAdmin, 
-  deleteMovieByAdmin, 
+import {
+  getMoviesForAdmin,
+  deleteMovieByAdmin,
   toggleMovieVisibility,
   searchMoviesWithElasticsearch,
   checkElasticsearchStatus,
@@ -66,6 +65,12 @@ import {
   syncAllMovieRatings,
   RatingStats
 } from '../../services/admin/ratingAdminService';
+
+const combinedStyles = {
+  ...styles,
+  ...ratingStyles,
+  ...darkStyles
+};
 
 interface Category {
   id: string;
@@ -111,7 +116,7 @@ interface Movie {
     }>;
   }[];
   createdAt: string;
-  updatedAt: string;  
+  updatedAt: string;
   expiryDate?: string;
   rating: number;
   vote_count: number;
@@ -131,31 +136,30 @@ const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, movie, onClose, onCon
   if (!isOpen || !movie) return null;
 
   return (
-    <div className={styles.modalOverlay} onClick={(e) => {
+    <div className={combinedStyles.modalOverlay} onClick={(e) => {
       if (e.target === e.currentTarget) onClose();
     }}>
-      <div className={styles.deleteModalContent} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.deleteModalHeader}>
-          <FaExclamationTriangle className={styles.deleteWarningIcon} />
-          <h3 className={styles.deleteModalTitle}>Xác nhận xóa</h3>
+      <div className={combinedStyles.deleteModalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={combinedStyles.deleteModalHeader}>
+          <FaExclamationTriangle className={combinedStyles.deleteWarningIcon} />
+          <h3 className={combinedStyles.deleteModalTitle}>Xác nhận xóa</h3>
         </div>
-        <div className={styles.deleteModalBody}>
-          <p className={styles.deleteQuestion}>
+        <div className={combinedStyles.deleteModalBody}>
+          <p className={combinedStyles.deleteQuestion}>
             Bạn có chắc chắn muốn xóa phim <strong>&quot;{movie.name}&quot;</strong>?
           </p>
-          <p className={styles.deleteWarningText}>
+          <p className={combinedStyles.deleteWarningText}>
             <FaExclamationTriangle style={{ marginRight: '8px' }} />
             Thao tác này không thể hoàn tác.
           </p>
         </div>
-        <div className={styles.deleteModalFooter}>
-          <button className={styles.cancelButton} onClick={onClose}>
+        <div className={combinedStyles.deleteModalFooter}>
+          <button className={combinedStyles.cancelButton} onClick={onClose}>
             <FaChevronLeft style={{ fontSize: '14px' }} /> Hủy
           </button>
-          <button 
-            className={styles.confirmDeleteButton} 
+          <button
+            className={combinedStyles.confirmDeleteButton}
             onClick={() => {
-              console.log("Xác nhận xóa phim:", movie.name);
               onConfirm();
             }}
           >
@@ -175,24 +179,24 @@ interface MovieDetailModalProps {
 const renderStars = (rating: number, styles: Record<string, string>) => {
   const stars = [];
   // Use the rating directly for 10-star scale
-  const normalizedRating = rating; // Không cần chuyển đổi nữa
-  
+  const normalizedRating = rating;
+
   const fullStars = Math.floor(normalizedRating);
   const hasHalfStar = normalizedRating % 1 >= 0.5;
-  
+
   for (let i = 0; i < fullStars; i++) {
     stars.push(<FaStar key={`full-${i}`} className={`${styles.starIcon} ${styles.filled}`} />);
   }
-  
+
   if (hasHalfStar) {
     stars.push(<FaStarHalfAlt key="half" className={`${styles.starIcon} ${styles.half}`} />);
   }
-  
+
   const emptyStars = 10 - fullStars - (hasHalfStar ? 1 : 0);
   for (let i = 0; i < emptyStars; i++) {
     stars.push(<FaRegStar key={`empty-${i}`} className={styles.starIcon} />);
   }
-  
+
   return stars;
 };
 
@@ -204,7 +208,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
   const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [fullMovieData, setFullMovieData] = useState<Movie | null>(null);
-  
+
   // Rating states
   const [loadingRatings, setLoadingRatings] = useState(false);
   const [syncingRatings, setSyncingRatings] = useState(false);
@@ -223,7 +227,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
   const [newServerName, setNewServerName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [saving, setSaving] = useState(false);
-  
+
   // Move all useEffect hooks before early return
   useEffect(() => {
     if (isOpen && movie) {
@@ -231,29 +235,19 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
         try {
           setLoading(true);
           const response = await axiosInstance.get(`/admin/movies/${movie._id}`);
-          
-          console.log("API response:", response.data);
-          
+
           if (response.data && response.data.message === 'Movie retrieved successfully' && response.data.movie) {
-            console.log("Tải chi tiết phim thành công từ cấu trúc message/movie:", response.data.movie);
             setFullMovieData(response.data.movie);
-            
-            if (response.data.movie.episodes) {
-              console.log("Đường dẫn phim từ API:", response.data.movie.episodes);
-              setEpisodes(response.data.movie.episodes || []);
-            } else {
-              console.log("Phim không có đường dẫn");
-              setEpisodes([]);
-            }
+            setEpisodes(response.data.movie.episodes || []);
             setLoading(false);
             return;
           }
-          
+
           let movieData = null;
-          
+
           if (response.data && response.data.movie) {
             movieData = response.data.movie;
-          } 
+          }
           else if (response.data && response.data._id) {
             movieData = response.data;
           }
@@ -261,22 +255,13 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
             movieData = response.data;
             movieData._id = movieData.id;
           }
-          
+
           if (movieData) {
-            console.log("Tải chi tiết phim thành công:", movieData);
             setFullMovieData(movieData);
-            
-            if (movieData.episodes) {
-              console.log("Đường dẫn phim từ API:", movieData.episodes);
-              setEpisodes(movieData.episodes || []);
-            } else {
-              console.log("Phim không có đường dẫn");
-              setEpisodes([]);
-            }
+            setEpisodes(movieData.episodes || []);
           } else {
             console.error("Không nhận được dữ liệu phim hợp lệ:", response.data);
             if (response.data) {
-              console.log("Thử sử dụng response.data trực tiếp");
               setFullMovieData(response.data);
             } else {
               toast.error("Không thể tải chi tiết phim - Dữ liệu không hợp lệ");
@@ -289,7 +274,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
           setLoading(false);
         }
       };
-      
+
       fetchFullMovieData();
     } else {
       setFullMovieData(null);
@@ -297,11 +282,11 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
       setRatingStats(null);
     }
   }, [isOpen, movie]);
-  
+
   // Add a new useEffect to load ratings when the ratings tab is selected
   useEffect(() => {
     if (!movie || activeTab !== 'ratings') return;
-    
+
     const fetchRatingsData = async () => {
       try {
         setLoadingRatings(true);
@@ -314,10 +299,10 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
         setLoadingRatings(false);
       }
     };
-    
+
     fetchRatingsData();
   }, [movie, activeTab]);
-  
+
   // Fetch ratings when active tab changes to 'ratings' or when movie changes
   useEffect(() => {
     const fetchRatings = async () => {
@@ -334,24 +319,24 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
         }
       }
     };
-    
+
     fetchRatings();
   }, [isOpen, movie, activeTab]);
     // Early return check after all hooks are declared
   if (!isOpen || !movie) return null;
-  
+
   // Handle sync ratings for current movie
   const handleSyncRatings = async () => {
     if (!movie) return;
-    
+
     try {
       setSyncingRatings(true);
       await syncMovieRatings(movie._id);
-      
+
       // After syncing, refresh rating data
       const updatedRatings = await getMovieRatings(movie._id);
       setRatingStats(updatedRatings);
-      
+
       // Also update the full movie data to show updated rating on info tab
       if (fullMovieData) {
         setFullMovieData({
@@ -360,7 +345,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
           vote_count: updatedRatings.ratingCount
         });
       }
-      
+
       toast.success("Đồng bộ đánh giá thành công!");
     } catch (error) {
       console.error("Lỗi khi đồng bộ đánh giá:", error);
@@ -372,15 +357,14 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
   const formatDate = (dateString: string) => {
     try {
       if (!dateString) return 'Không xác định';
-      
+
       const date = new Date(dateString);
-      
-      // Định dạng ngày và giờ riêng biệt để rõ ràng hơn
+
       const timeString = date.toLocaleTimeString('vi-VN', {
         hour: '2-digit',
         minute: '2-digit',
       });
-      
+
       const formattedDateString = date.toLocaleDateString('vi-VN', {
         day: '2-digit',
         month: '2-digit',
@@ -400,8 +384,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
   };
 
   // const formatCategory = (category: any[] | any | undefined): string => {
-  //   if (!category) return 'Chưa phân loại';
-    
+
   //   if (Array.isArray(category)) {
   //     return category.map(cat => {
   //       if (typeof cat === 'object' && cat !== null && cat.name) {
@@ -410,7 +393,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
   //       return cat.toString();
   //     }).join(', ');
   //   }
-    
+
   //   return category.toString();
   // };
     const handleCopyLink = (text: string, type: string) => {
@@ -449,30 +432,26 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
     setErrorMessage('');
   };
 
-  // Xử lý lưu danh sách tập phim
   const handleSaveEpisodes = async () => {
     if (!movie || !movie._id) return;
-    
+
     try {
       setSaving(true);
-      
-      // Gọi API để cập nhật episodes
+
       const response = await axiosInstance.put(`/admin/movies/${movie._id}/episodes`, {
         episodes: episodes
       });
-      
+
       if (response.data && response.data.success) {
         toast.success('Lưu đường dẫn phim thành công!');
-        
-        // Cập nhật dữ liệu phim với episodes mới
+
         if (fullMovieData) {
           setFullMovieData({
             ...fullMovieData,
             episodes: episodes
           });
         }
-        
-        // Tắt chế độ chỉnh sửa
+
         setIsEditing(false);
       } else {
         toast.error('Không thể lưu đường dẫn phim: ' + (response.data?.message || 'Lỗi không xác định'));
@@ -484,8 +463,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
       setSaving(false);
     }
   };
-  
-  // Xử lý thêm tập phim mới vào server
+
   const handleAddEpisode = (serverIndex: number) => {
     const updatedEpisodes = [...episodes];
     const newEpisode = {
@@ -495,35 +473,26 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
       link_embed: '',
       link_m3u8: ''
     };
-    
+
     updatedEpisodes[serverIndex].server_data.push(newEpisode);
     setEpisodes(updatedEpisodes);
   };
-  
-  // Xử lý xóa tập phim
+
   const handleDeleteEpisode = (serverIndex: number, episodeIndex: number) => {
     const updatedEpisodes = [...episodes];
     updatedEpisodes[serverIndex].server_data.splice(episodeIndex, 1);
     setEpisodes(updatedEpisodes);
   };
-    // Xử lý thay đổi thông tin tập phim
   const handleEpisodeChange = (serverIndex: number, episodeIndex: number, field: 'name' | 'slug' | 'filename' | 'link_embed' | 'link_m3u8', value: string) => {
     const updatedEpisodes = [...episodes];
     updatedEpisodes[serverIndex].server_data[episodeIndex][field] = value;
     setEpisodes(updatedEpisodes);
   };
-  
-  // Xử lý xóa server
+
   const handleDeleteServer = (serverIndex: number) => {
     const updatedEpisodes = [...episodes];
     updatedEpisodes.splice(serverIndex, 1);
     setEpisodes(updatedEpisodes);
-  };
-  
-  const combinedStyles = {
-    ...styles,
-    ...ratingStyles,
-    ...(theme === 'dark' ? darkStyles : {})
   };
 
   return (
@@ -532,13 +501,13 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
     }}>
       <div className={`${combinedStyles.modalContent} ${combinedStyles.modalContentLarge}`} onClick={(e) => e.stopPropagation()}>
         <div className={combinedStyles.modalHeader}>
-          <div className={combinedStyles.modalHeaderContent}>            
+          <div className={combinedStyles.modalHeaderContent}>
             <div className={combinedStyles.modalTitleWrapper}>
               <h2 className={combinedStyles.modalTitle}>Chi tiết phim</h2>
               <div className={combinedStyles.modalSubtitle}>
-                <FaCode size={14} /> 
-                <span 
-                  className={combinedStyles.modalId} 
+                <FaCode size={14} />
+                <span
+                  className={combinedStyles.modalId}
                   onClick={() => handleCopyLink(displayMovie._id, 'ID phim')}
                   title="Nhấp để sao chép ID phim"
                 >
@@ -551,42 +520,42 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                 )}
               </div>
             </div>
-            <button 
-              className={combinedStyles.closeButtonX} 
+            <button
+              className={combinedStyles.closeButtonX}
               onClick={onClose}
               aria-label="Đóng"
             >×</button>
           </div>
         </div>
-        
+
         <div className={combinedStyles.tabNavigation}>
-          <button 
+          <button
             className={`${combinedStyles.tabButton} ${activeTab === 'info' ? combinedStyles.activeTab : ''}`}
             onClick={() => setActiveTab('info')}
             title="Thông tin cơ bản về phim"
           >
             <FaInfoCircle /> <span className={combinedStyles.tabText}>Thông tin cơ bản</span>
           </button>
-          <button 
+          <button
             className={`${combinedStyles.tabButton} ${activeTab === 'content' ? combinedStyles.activeTab : ''}`}
             onClick={() => setActiveTab('content')}
             title="Nội dung và mô tả phim"
           >
             <FaAlignLeft /> <span className={combinedStyles.tabText}>Nội dung phim</span>
           </button>
-          <button 
+          <button
             className={`${combinedStyles.tabButton} ${activeTab === 'technical' ? combinedStyles.activeTab : ''}`}
             onClick={() => setActiveTab('technical')}
             title="Thông tin kỹ thuật của phim"
           >
             <FaCode /> <span className={combinedStyles.tabText}>Thông tin kỹ thuật</span>
-          </button>          <button 
+          </button>          <button
             className={`${combinedStyles.tabButton} ${activeTab === 'episodes' ? combinedStyles.activeTab : ''}`}
             onClick={() => setActiveTab('episodes')}
             title="Danh sách các tập phim và đường dẫn"
           >
             <FaStream /> <span className={combinedStyles.tabText}>Danh sách tập phim</span>
-          </button>          <button 
+          </button>          <button
             className={`${combinedStyles.tabButton} ${activeTab === 'ratings' ? combinedStyles.activeTab : ''}`}
             onClick={() => setActiveTab('ratings')}
             title="Quản lý đánh giá người dùng"
@@ -594,7 +563,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
             <FaStar /> <span className={combinedStyles.tabText}>Đánh giá</span>
           </button>
         </div>
-        
+
         <div className={combinedStyles.modalBody}>
           {loading ? (
             <div className={combinedStyles.loadingSpinnerContainer}>
@@ -610,8 +579,8 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                   <div className={combinedStyles.infoGrid}>
                     <div className={combinedStyles.posterCol}>
                       <div className={combinedStyles.posterWrapper}>
-                        <img 
-                          src={displayMovie.thumb_url} 
+                        <img
+                          src={displayMovie.thumb_url}
                           alt={displayMovie.name}
                           className={combinedStyles.moviePoster}
                           onError={(e) => {
@@ -629,7 +598,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                           <span className={combinedStyles.voteCount}>({displayMovie.vote_count || 0} đánh giá)</span>
                         </div>
                       </div>
-                      
+
                       <div className={combinedStyles.movieFlags}>
                         {displayMovie.is_copyright && (
                           <span className={combinedStyles.copyright}>Bản quyền</span>
@@ -643,14 +612,14 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                       </div>
 
                       <div className={combinedStyles.quickActions}>
-                        <a 
-                          href={`/movie/${displayMovie.slug}`} 
-                          target="_blank" 
+                        <a
+                          href={`/movie/${displayMovie.slug}`}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className={combinedStyles.viewOnSiteButton}
                         >
                           <FaExternalLinkAlt /> <span>Xem trên website</span>
-                        </a>                        <button 
+                        </a>                        <button
                           onClick={() => router.push(`/admin/movies/edit/${displayMovie._id}`)}
                           className={combinedStyles.editIconButton}
                           title="Chỉnh sửa phim"
@@ -661,7 +630,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                         </button>
                       </div>
                     </div>
-                    
+
                     <div className={combinedStyles.infoCol}>
                       <div className={combinedStyles.movieTitleContainer}>
                         <h2 className={combinedStyles.movieName}>{displayMovie.name}</h2>
@@ -669,46 +638,46 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                       </div>                      <div className={combinedStyles.statusBadge} data-status={displayMovie.isHidden ? 'inactive' : 'active'}>
                         {displayMovie.isHidden ? 'Đang ẩn phim' : 'Đang hiển thị'}
                       </div>
-                      
+
                       <div className={combinedStyles.infoGrid}>                        <div className={`${combinedStyles.infoCard} ${combinedStyles.basicInfoCard} ${combinedStyles.infoCardHalf}`}>
                           <h3 className={combinedStyles.infoCardTitle}>Thông tin cơ bản</h3>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Loại phim:</div>
                             <div className={combinedStyles.infoValue}>
                               {displayMovie.type === 'series' ? 'Phim bộ' : 'Phim lẻ'}
                             </div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Chất lượng:</div>
                             <div className={combinedStyles.infoValue}>{displayMovie.quality || 'HD'}</div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Ngôn ngữ:</div>
                             <div className={combinedStyles.infoValue}>{displayMovie.lang || 'Vietsub'}</div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Thời lượng:</div>
                             <div className={combinedStyles.infoValue}>{displayMovie.time || 'Không xác định'}</div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Lượt xem:</div>
                             <div className={combinedStyles.infoValue}>{displayMovie.views || displayMovie.view || 0}</div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Quốc gia:</div>
                             <div className={combinedStyles.infoValue}>
-                              {displayMovie.country && Array.isArray(displayMovie.country) 
+                              {displayMovie.country && Array.isArray(displayMovie.country)
                                 ? displayMovie.country.map(c => typeof c === 'object' ? c.name : c).join(', ')
                                 : (displayMovie.country || 'Chưa xác định')}
                             </div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Năm sản xuất:</div>
                             <div className={combinedStyles.infoValue}>{displayMovie.year || 'Chưa xác định'}</div>
@@ -716,7 +685,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                         </div>
                           <div className={`${combinedStyles.infoCard} ${combinedStyles.additionalInfoCard} ${combinedStyles.infoCardHalf}`}>
                           <h3 className={combinedStyles.infoCardTitle}>Thông tin bổ sung</h3>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Thể loại:</div>
                             <div className={combinedStyles.infoValue}>
@@ -732,24 +701,24 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Đạo diễn:</div>
                             <div className={combinedStyles.infoValue}>{formatArray(displayMovie.director)}</div>
                           </div>
-                          
+
                           <div className={combinedStyles.infoRow}>
                             <div className={combinedStyles.infoLabel}>Diễn viên:</div>
                             <div className={combinedStyles.infoValue}>{formatArray(displayMovie.actor)}</div>
                           </div>
-                          
+
                           {displayMovie.showtimes && (
                             <div className={combinedStyles.infoRow}>
                               <div className={combinedStyles.infoLabel}>Lịch chiếu:</div>
                               <div className={combinedStyles.infoValue}>{displayMovie.showtimes}</div>
                             </div>
                           )}
-                          
+
                           {displayMovie.type === 'series' && (
                             <>
                               <div className={combinedStyles.infoRow}>
@@ -810,7 +779,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'content' && (
                 <div className={combinedStyles.contentTab}>
                   <div className={combinedStyles.contentCard}>
@@ -826,7 +795,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                       </div>
                     )}
                   </div>
-                  
+
                   {displayMovie.tags && displayMovie.tags.length > 0 && (
                     <div className={combinedStyles.tagsCard}>
                       <h4 className={combinedStyles.tagsHeading}>Từ khóa:</h4>
@@ -843,7 +812,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                 <div className={combinedStyles.technicalTab}>
                   <div className={combinedStyles.technicalContent}>
                     <h3 className={combinedStyles.tabHeading}>Thông tin kỹ thuật</h3>
-                    
+
                     <div className={combinedStyles.technicalInfoCard}>
                       <div className={combinedStyles.technicalSection}>
                         <h4 className={combinedStyles.sectionTitle}>Thông tin định danh</h4>
@@ -853,7 +822,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                             <span className={combinedStyles.modalId}>
                               {displayMovie._id}
                             </span>
-                            <button 
+                            <button
                               className={combinedStyles.copyButton}
                               onClick={() => handleCopyLink(displayMovie._id, 'ID')}
                               title="Sao chép ID"
@@ -863,12 +832,12 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                             </button>
                           </div>
                         </div>
-                        
+
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>Slug:</div>
                           <div className={combinedStyles.techValue}>
                             {displayMovie.slug}
-                            <button 
+                            <button
                               className={combinedStyles.copyButton}
                               onClick={() => handleCopyLink(displayMovie.slug, 'Slug')}
                               title="Sao chép slug"
@@ -879,14 +848,14 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className={combinedStyles.technicalSection}>
                         <h4 className={combinedStyles.sectionTitle}>URLs & Đường dẫn</h4>
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>URL hình ảnh:</div>
                           <div className={combinedStyles.techValue}>
                             <span className={combinedStyles.urlText}>{displayMovie.thumb_url}</span>
-                            <button 
+                            <button
                               className={combinedStyles.copyButton}
                               onClick={() => handleCopyLink(displayMovie.thumb_url, 'URL hình ảnh')}
                               title="Sao chép URL"
@@ -896,13 +865,13 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                             </button>
                           </div>
                         </div>
-                        
+
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>Đường dẫn trên website:</div>
                           <div className={combinedStyles.techValue}>
                             <span className={combinedStyles.urlText}>{`/phim/${displayMovie.slug}`}</span>
                             <div className={combinedStyles.urlActions}>
-                              <button 
+                              <button
                                 className={combinedStyles.copyButton}
                                 onClick={() => handleCopyLink(`/phim/${displayMovie.slug}`, 'đường dẫn')}
                                 title="Sao chép đường dẫn"
@@ -910,9 +879,9 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                               >
                                 <FaCopy />
                               </button>
-                              <a 
-                                href={`/phim/${displayMovie.slug}`} 
-                                target="_blank" 
+                              <a
+                                href={`/phim/${displayMovie.slug}`}
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className={combinedStyles.openLinkButton}
                                 title="Mở liên kết"
@@ -924,7 +893,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className={combinedStyles.technicalSection}>
                         <h4 className={combinedStyles.sectionTitle}>Thông tin phân loại</h4>
                         <div className={combinedStyles.techInfoRow}>
@@ -943,7 +912,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                             )}
                           </div>
                         </div>
-                        
+
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>Loại phim:</div>
                           <div className={combinedStyles.techValue}>
@@ -953,7 +922,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className={combinedStyles.technicalSection}>
                         <h4 className={combinedStyles.sectionTitle}>Thông số kỹ thuật</h4>
                         <div className={combinedStyles.techInfoRow}>
@@ -962,17 +931,17 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                             <span className={combinedStyles.qualityBadge}>{displayMovie.quality || 'HD'}</span>
                           </div>
                         </div>
-                        
+
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>Nguồn phim:</div>
                           <div className={combinedStyles.techValue}>{displayMovie.source || 'Không xác định'}</div>
                         </div>
-                        
+
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>Kích thước file:</div>
                           <div className={combinedStyles.techValue}>{displayMovie.file_size || 'Không xác định'}</div>
                         </div>
-                        
+
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>Số tập phim:</div>
                           <div className={combinedStyles.techValue}>
@@ -981,7 +950,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                             </span>
                           </div>
                         </div>
-                        
+
                         <div className={combinedStyles.techInfoRow}>
                           <div className={combinedStyles.techLabel}>Số server:</div>
                           <div className={combinedStyles.techValue}>
@@ -992,7 +961,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                         </div>
                       </div>
                     </div>
-                    
+
                     {copySuccess && (
                       <div className={combinedStyles.copySuccessMessage}>
                         <FaCheckCircle className={combinedStyles.successIcon} /> {copySuccess}
@@ -1000,22 +969,22 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                     )}
                   </div>                </div>
               )}
-              
+
               {activeTab === 'ratings' && (
                 <div className={combinedStyles.ratingsTab}>
                   <div className={combinedStyles.ratingsHeader}>
                     <h3 className={combinedStyles.tabHeading}>Đánh giá người dùng</h3>
-                    
-                    <button 
+
+                    <button
                       className={combinedStyles.syncRatingsButton}
                       onClick={handleSyncRatings}
                       disabled={syncingRatings}
                     >
-                      <FaSync className={syncingRatings ? combinedStyles.spinningIcon : ''} /> 
+                      <FaSync className={syncingRatings ? combinedStyles.spinningIcon : ''} />
                       {syncingRatings ? 'Đang đồng bộ...' : 'Đồng bộ đánh giá'}
                     </button>
                   </div>
-                  
+
                   {loadingRatings ? (
                     <div className={combinedStyles.loadingSpinnerContainer}>
                       <div className={combinedStyles.loadingSpinner}>
@@ -1026,9 +995,9 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                   ) : ratingStats ? (
                     <div className={combinedStyles.ratingsContent}>
                       <div className={combinedStyles.ratingSummary}>
-                        <div className={combinedStyles.ratingOverview}>                          
+                        <div className={combinedStyles.ratingOverview}>
                           <h4 className={combinedStyles.ratingTitle}>Tổng quan đánh giá</h4>                          <div className={combinedStyles.ratingDetails}>
-                            <div className={combinedStyles.averageRatingBig}>                              
+                            <div className={combinedStyles.averageRatingBig}>
                               {ratingStats.averageRating.toFixed(1)}
                               <span className={combinedStyles.outOf}>/10</span>
                             </div>
@@ -1038,7 +1007,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                             <div className={combinedStyles.ratingCount}>
                               Tổng số đánh giá: <strong>{ratingStats.ratingCount}</strong>
                             </div>
-                            
+
                             {displayMovie.userRating !== undefined && displayMovie.userRating > 0 && (
                               <div className={combinedStyles.userRatingDetail}>
                                 <h5 className={combinedStyles.userRatingTitle}>
@@ -1058,15 +1027,15 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                           <h4 className={combinedStyles.distributionTitle}>Phân bố đánh giá</h4>
                           {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(stars => {
                             const count = ratingStats.userRatingsStats[stars] || 0;
-                            const percentage = ratingStats.ratingCount > 0 
-                              ? (count / ratingStats.ratingCount) * 100 
+                            const percentage = ratingStats.ratingCount > 0
+                              ? (count / ratingStats.ratingCount) * 100
                               : 0;
-                              
+
                             return (
                               <div key={stars} className={combinedStyles.ratingBar}>
                                 <div className={combinedStyles.starCount}>{stars} điểm</div>
                                 <div className={combinedStyles.barContainer}>
-                                  <div 
+                                  <div
                                     className={combinedStyles.barFill}
                                     style={{ width: `${percentage}%` }}
                                   ></div>
@@ -1077,7 +1046,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                           })}
                         </div>
                       </div>
-                      
+
                       <div className={combinedStyles.userRatingsList}>
                         <h4 className={combinedStyles.userRatingsTitle}>Danh sách đánh giá từ người dùng</h4>
                         {ratingStats.ratings.length > 0 ? (
@@ -1092,19 +1061,19 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                               </thead>
                               <tbody>
                                 {ratingStats.ratings.map((rating) => {
-                                  const user = typeof rating.userId === 'object' 
-                                    ? rating.userId 
+                                  const user = typeof rating.userId === 'object'
+                                    ? rating.userId
                                     : { _id: 'unknown', username: 'Unknown', email: 'unknown' };
-                                    
+
                                   return (
                                     <tr key={rating._id} className={combinedStyles.ratingRow}>
                                       <td className={combinedStyles.userCell}>
                                         <div className={combinedStyles.userData}>
                                           <div className={combinedStyles.userAvatar}>
                                             {typeof user === 'object' && user.avatar ? (
-                                              <img 
-                                                src={user.avatar} 
-                                                alt={user.username} 
+                                              <img
+                                                src={user.avatar}
+                                                alt={user.username}
                                                 className={combinedStyles.avatar}
                                               />
                                             ) : (
@@ -1148,7 +1117,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                   ) : (
                     <div className={combinedStyles.noRatings}>
                       <p>Không có dữ liệu đánh giá</p>
-                      <button 
+                      <button
                         className={combinedStyles.syncRatingsButtonCenter}
                         onClick={() => {
                           if (!movie) return;
@@ -1178,9 +1147,9 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                 <div className={combinedStyles.episodesTab}>
                   <div className={combinedStyles.episodesHeader}>
                     <h3 className={combinedStyles.tabHeading}>Danh sách tập phim</h3>
-                    
+
                     {!isEditing ? (
-                      <button 
+                      <button
                         className={combinedStyles.editEpisodesButton}
                         onClick={() => setIsEditing(true)}
                       >
@@ -1188,14 +1157,14 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                       </button>
                     ) : (
                       <div className={combinedStyles.editingActions}>
-                        <button 
+                        <button
                           className={combinedStyles.saveButton}
                           onClick={handleSaveEpisodes}
                           disabled={saving}
                         >
                           {saving ? 'Đang lưu...' : <><FaSave /> Lưu đường dẫn phim</>}
                         </button>
-                        <button 
+                        <button
                           className={combinedStyles.cancelButton}
                           onClick={() => setIsEditing(false)}
                           disabled={saving}
@@ -1205,7 +1174,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                       </div>
                     )}
                   </div>
-                  
+
                   {episodes.length === 0 ? (
                     <div className={combinedStyles.noEpisodes}>
                       <div className={combinedStyles.noEpisodesMessage}>
@@ -1213,7 +1182,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                         <p>Chưa có đường dẫn tập phim nào.</p>
                       </div>
                       {!isEditing && (
-                        <button 
+                        <button
                           className={combinedStyles.addEpisodesButton}
                           onClick={() => setIsEditing(true)}
                         >
@@ -1227,12 +1196,12 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                         <div key={serverIndex} className={combinedStyles.serverSection}>
                           <div className={combinedStyles.serverHeader}>
                             <h4 className={combinedStyles.serverName}>
-                              <FaServer className={combinedStyles.serverIcon} /> 
+                              <FaServer className={combinedStyles.serverIcon} />
                               <span>{server.server_name}</span>
                               <span className={combinedStyles.episodeCount}>({server.server_data.length} tập)</span>
                             </h4>
                             {isEditing && (
-                              <button 
+                              <button
                                 className={combinedStyles.deleteServerButton}
                                 onClick={() => handleDeleteServer(serverIndex)}
                                 title="Xóa server"
@@ -1242,7 +1211,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                               </button>
                             )}
                           </div>
-                          
+
                           <div className={combinedStyles.episodesTable}>
                             <table className={combinedStyles.episodesDataTable}>
                               <thead>
@@ -1260,7 +1229,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                   <tr key={episodeIndex} className={combinedStyles.episodeRow}>
                                     <td>
                                       {isEditing ? (
-                                        <input 
+                                        <input
                                           type="text"
                                           value={episode.name}
                                           onChange={(e) => handleEpisodeChange(serverIndex, episodeIndex, 'name', e.target.value)}
@@ -1273,7 +1242,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                     </td>
                                     <td>
                                       {isEditing ? (
-                                        <input 
+                                        <input
                                           type="text"
                                           value={episode.slug}
                                           onChange={(e) => handleEpisodeChange(serverIndex, episodeIndex, 'slug', e.target.value)}
@@ -1286,7 +1255,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                     </td>
                                     {isEditing && (
                                       <td>
-                                        <input 
+                                        <input
                                           type="text"
                                           value={episode.filename || ''}
                                           onChange={(e) => handleEpisodeChange(serverIndex, episodeIndex, 'filename', e.target.value)}
@@ -1297,7 +1266,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                     )}
                                     <td className={combinedStyles.linkCell}>
                                       {isEditing ? (
-                                        <input 
+                                        <input
                                           type="text"
                                           value={episode.link_embed || ''}
                                           onChange={(e) => handleEpisodeChange(serverIndex, episodeIndex, 'link_embed', e.target.value)}
@@ -1311,7 +1280,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                           </span>
                                           {episode.link_embed && (
                                             <div className={combinedStyles.linkActions}>
-                                              <button 
+                                              <button
                                                 className={combinedStyles.copyLinkButton}
                                                 onClick={() => handleCopyLink(episode.link_embed, 'link embed')}
                                                 title="Sao chép link embed"
@@ -1319,9 +1288,9 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                               >
                                                 <FaCopy />
                                               </button>
-                                              <a 
-                                                href={episode.link_embed} 
-                                                target="_blank" 
+                                              <a
+                                                href={episode.link_embed}
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className={combinedStyles.viewLinkButton}
                                                 title="Xem link"
@@ -1336,7 +1305,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                     </td>
                                     <td className={combinedStyles.linkCell}>
                                       {isEditing ? (
-                                        <input 
+                                        <input
                                           type="text"
                                           value={episode.link_m3u8 || ''}
                                           onChange={(e) => handleEpisodeChange(serverIndex, episodeIndex, 'link_m3u8', e.target.value)}
@@ -1350,7 +1319,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                           </span>
                                           {episode.link_m3u8 && (
                                             <div className={combinedStyles.linkActions}>
-                                              <button 
+                                              <button
                                                 className={combinedStyles.copyLinkButton}
                                                 onClick={() => handleCopyLink(episode.link_m3u8, 'link m3u8')}
                                                 title="Sao chép link m3u8"
@@ -1358,9 +1327,9 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                               >
                                                 <FaCopy />
                                               </button>
-                                              <a 
-                                                href={episode.link_m3u8} 
-                                                target="_blank" 
+                                              <a
+                                                href={episode.link_m3u8}
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 className={combinedStyles.viewLinkButton}
                                                 title="Xem link"
@@ -1375,7 +1344,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                                     </td>
                                     {isEditing && (
                                       <td>
-                                        <button 
+                                        <button
                                           className={combinedStyles.deleteEpisodeButton}
                                           onClick={() => handleDeleteEpisode(serverIndex, episodeIndex)}
                                           title="Xóa tập phim"
@@ -1390,10 +1359,10 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                               </tbody>
                             </table>
                           </div>
-                          
+
                           {isEditing && (
                             <div className={combinedStyles.addEpisodeContainer}>
-                              <button 
+                              <button
                                 className={combinedStyles.addEpisodeButton}
                                 onClick={() => handleAddEpisode(serverIndex)}
                               >
@@ -1405,19 +1374,19 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
                       ))}
                     </div>
                   )}
-                  
+
                   {isEditing && (
                     <div className={combinedStyles.addServerForm}>
                       <h4 className={combinedStyles.addServerTitle}>Thêm server mới</h4>
                       <div className={combinedStyles.addServerInputGroup}>
-                        <input 
+                        <input
                           type="text"
                           value={newServerName}
                           onChange={(e) => setNewServerName(e.target.value)}
                           placeholder="Tên server (VD: Vietsub, Thuyết minh...)"
                           className={combinedStyles.addServerInput}
                         />
-                        <button 
+                        <button
                           className={combinedStyles.addServerButton}
                           onClick={handleAddServer}
                         >
@@ -1432,13 +1401,13 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
             </>
           )}
         </div>
-        
+
         <div className={combinedStyles.modalFooter}>
           <button className={combinedStyles.closeButton} onClick={onClose}>
             Đóng
           </button>
-          <button 
-            className={combinedStyles.editFullButton} 
+          <button
+            className={combinedStyles.editFullButton}
             onClick={() => router.push(`/admin/movies/edit/${displayMovie._id}`)}
           >
             <FaPen /> Chỉnh sửa đầy đủ
@@ -1451,7 +1420,7 @@ const MovieDetailModal: React.FC<MovieDetailModalProps> = ({ isOpen, movie, onCl
 
 const MoviesAdmin = () => {
   const topRef = useRef<HTMLDivElement>(null);
-  
+
   const router = useRouter();
   const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
@@ -1485,7 +1454,6 @@ const MoviesAdmin = () => {
     const checkESStatus = async () => {
       try {
         const status = await checkElasticsearchStatus();
-        console.log('Elasticsearch status:', status);
         setElasticsearchStatus(status);
         setEsStatusChecked(true);
       } catch (error) {
@@ -1497,30 +1465,25 @@ const MoviesAdmin = () => {
         setEsStatusChecked(true);
       }
     };
-    
+
     checkESStatus();
   }, []);
 
   const searchMovies = async (query: string, page: number) => {
     try {
       setLoading(true);
-      
+
       // Ensure current page is set
       const currentPageToUse = page || currentPage;
-      
+
       let response;
-      
+
       // Check Elasticsearch status and search content
       if (query && query.trim() !== '' && elasticsearchStatus?.status === 'active') {
-        // Has search content and Elasticsearch is working well -> use Elasticsearch
-        console.log('Searching with Elasticsearch:', query);
-        
-        // Automatically enable Elasticsearch for searches with content
         if (!isSearching) {
-          console.log('Automatically enabling Elasticsearch for search');
           setIsSearching(true);
         }
-        
+
         response = await searchMoviesWithElasticsearch(
           currentPageToUse,
           moviesPerPage,
@@ -1531,18 +1494,14 @@ const MoviesAdmin = () => {
           filterType || undefined
         );
       } else {
-        // Empty search content or Elasticsearch not available -> use MongoDB
-        console.log('Searching with MongoDB:', query || 'empty query');
-        
-        // If no search content, ensure UI shows correct state
         if (!query || query.trim() === '') {
           setIsSearching(false);
         }
-        
+
         response = await getMoviesForAdmin(
-          currentPageToUse, 
-          moviesPerPage, 
-          sortField, 
+          currentPageToUse,
+          moviesPerPage,
+          sortField,
           sortDirection,
           selectedCategory || undefined,
           filterStatus !== 'all' ? filterStatus : undefined,
@@ -1551,14 +1510,11 @@ const MoviesAdmin = () => {
           filterType || undefined
         );
       }
-      
-      console.log('Search API response:', response);
-      
+
       // Process response data from service
       if (response && response.movies && Array.isArray(response.movies)) {
-        console.log(`Retrieved ${response.movies.length} movies from search`);
         setMovies(response.movies);
-        
+
         // Get pagination info
         const pagination = response.pagination || {};
         setTotalMovies(pagination.totalItems || 0);
@@ -1569,7 +1525,7 @@ const MoviesAdmin = () => {
         setTotalMovies(0);
         setTotalPages(1);
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error searching movies:', error);
@@ -1583,33 +1539,29 @@ const MoviesAdmin = () => {
 
   const fetchMovies = useCallback(async (page: number) => {
     try {
-      console.log('Fetching movies for page:', page);
-      
+
       if (searchQuery && searchQuery.trim() !== '') {
         await searchMovies(searchQuery, page);
         return;
       }
-      
+
       setLoading(true);
-      
+
       const response = await getMoviesForAdmin(
-        page, 
-        moviesPerPage, 
-        sortField, 
+        page,
+        moviesPerPage,
+        sortField,
         sortDirection,
         selectedCategory || undefined,
         filterStatus !== 'all' ? filterStatus : undefined,
-        '', 
+        '',
         filterYear,
         filterType || undefined
       );
-      
-      console.log('Movies list response:', response);
-      
+
       if (response && response.movies && Array.isArray(response.movies)) {
-        console.log(`Retrieved ${response.movies.length} movies`);
         setMovies(response.movies);
-        
+
         const pagination = response.pagination || {};
         setTotalMovies(pagination.totalItems || 0);
         setTotalPages(pagination.totalPages || 1);
@@ -1619,7 +1571,7 @@ const MoviesAdmin = () => {
         setTotalMovies(0);
         setTotalPages(1);
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching movies:', error);
@@ -1629,47 +1581,43 @@ const MoviesAdmin = () => {
       setTotalMovies(0);
       setTotalPages(1);
     }
-  }, [searchQuery, moviesPerPage, sortField, sortDirection, selectedCategory, 
+  }, [searchQuery, moviesPerPage, sortField, sortDirection, selectedCategory,
       filterStatus, filterYear, filterType, elasticsearchStatus]);
 
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    console.log('Search query changed to:', newValue);
-    
+
     // Set the new search query value
     setSearchQuery(newValue);
-    
+
     // Reset to page 1 when search query changes
     setCurrentPage(1);
-    
+
     // Clear any existing search timeout
     if (window.searchTimeout) {
       clearTimeout(window.searchTimeout);
     }
-    
+
     if (!newValue || newValue.trim() === '') {
-      console.log('Search query cleared, switching to MongoDB and loading all movies');
       setIsSearching(false);
-      
+
       // Directly call getMoviesForAdmin instead of fetchMovies to avoid circular dependency issues
       setLoading(true);
       getMoviesForAdmin(
-        1, 
-        moviesPerPage, 
-        sortField, 
+        1,
+        moviesPerPage,
+        sortField,
         sortDirection,
         selectedCategory || undefined,
         filterStatus !== 'all' ? filterStatus : undefined,
-        '', 
+        '',
         filterYear,
         filterType || undefined
       ).then(response => {
-        console.log('Movies list response after clearing search:', response);
-        
+
         if (response && response.movies && Array.isArray(response.movies)) {
-          console.log(`Retrieved ${response.movies.length} movies after clearing search`);
           setMovies(response.movies);
-          
+
           const pagination = response.pagination || {};
           setTotalMovies(pagination.totalItems || 0);
           setTotalPages(pagination.totalPages || 1);
@@ -1679,7 +1627,7 @@ const MoviesAdmin = () => {
           setTotalMovies(0);
           setTotalPages(1);
         }
-        
+
         setLoading(false);
       }).catch(error => {
         console.error('Error fetching movies after clearing search:', error);
@@ -1697,8 +1645,6 @@ const MoviesAdmin = () => {
     }
   }, [moviesPerPage, sortField, sortDirection, selectedCategory, filterStatus, filterYear, filterType]);
 
-
-  
   useEffect(() => {
     if (searchQuery === '') {
       fetchMovies(currentPage);
@@ -1706,22 +1652,17 @@ const MoviesAdmin = () => {
   }, [currentPage, moviesPerPage, sortField, sortDirection, selectedCategory, filterStatus, filterYear, filterType, isSearching]);  useEffect(() => {
     const fetchCategories = async () => {
       try {
-        console.log('Fetching all categories from API...');
-        
-        // Sử dụng API endpoint mới để lấy tất cả thể loại
+
         const response = await axiosInstance.get('/admin/movies/categories');
-        
+
         if (response.data && response.data.categories) {
           const categoriesFromAPI = response.data.categories;
-          console.log(`Received ${categoriesFromAPI.length} unique categories from API`);
           setCategories(categoriesFromAPI);
         } else {
-          console.log('No categories returned from API, falling back to extraction method');
-          
-          // Phương thức dự phòng: Trích xuất từ danh sách phim hiện tại
+
           if (movies && movies.length > 0) {
             const categoriesMap = new Map();
-            
+
             movies.forEach(movie => {
               if (Array.isArray(movie.category)) {
                 movie.category.forEach(cat => {
@@ -1731,7 +1672,7 @@ const MoviesAdmin = () => {
                       name: cat.name,
                       slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')
                     });
-                  } 
+                  }
                   else if (typeof cat === 'string') {
                     if (!categoriesMap.has(cat)) {
                       categoriesMap.set(cat, {
@@ -1744,22 +1685,18 @@ const MoviesAdmin = () => {
                 });
               }
             });
-            
+
             const uniqueCategories = Array.from(categoriesMap.values());
-            console.log(`Extracted ${uniqueCategories.length} unique categories from movies`);
             setCategories(uniqueCategories);
           } else {
-            console.log('No movies data available to extract categories');
             setCategories([]);
           }
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
-        
-        // Phương thức dự phòng khi API gặp lỗi
+
         if (movies && movies.length > 0) {
           const categoriesMap = new Map();
-          // Trích xuất từ danh sách phim đã tải
           movies.forEach(movie => {
             if (Array.isArray(movie.category)) {
               movie.category.forEach(cat => {
@@ -1769,7 +1706,7 @@ const MoviesAdmin = () => {
                     name: cat.name,
                     slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')
                   });
-                } 
+                }
                 else if (typeof cat === 'string') {
                   if (!categoriesMap.has(cat)) {
                     categoriesMap.set(cat, {
@@ -1782,7 +1719,7 @@ const MoviesAdmin = () => {
               });
             }
           });
-          
+
           const uniqueCategories = Array.from(categoriesMap.values());
           setCategories(uniqueCategories);
         } else {
@@ -1838,40 +1775,26 @@ const MoviesAdmin = () => {
         toast.error('Không thể cập nhật trạng thái - Thiếu thông tin phim');
         return;
       }
-      
-      // Đảm bảo ID phim là chuỗi và hoàn chỉnh
+
       const movieId = String(movie._id).trim();
-      
-      console.log('Toggling visibility for movie:', {
-        id: movieId,
-        name: movie.name,
-        currentVisibility: movie.isHidden ? 'hidden' : 'visible'
-      });
-      
+
       if (!movieId || movieId.length < 24) {
         console.error('Invalid movie ID:', movieId, 'Expected a 24-character MongoDB ObjectId');
         toast.error('ID phim không hợp lệ, không thể cập nhật trạng thái');
         return;
       }
 
-      // Hiển thị loading toast
       const loadingToast = toast.loading('Đang cập nhật trạng thái phim...');
-      
-      // Gọi API để cập nhật trạng thái
+
       const response = await toggleMovieVisibility(movieId);
-      
-      // Đóng loading toast
+
       toast.dismiss(loadingToast);
-      
-      console.log('Toggle visibility response:', response);
-      
-      // Cập nhật trạng thái trong danh sách phim
+
       const newIsHidden = !movie.isHidden;
       toast.success(`Đã ${newIsHidden ? 'ẩn' : 'hiện'} phim thành công`);
-      
-      // Cập nhật state để UI hiển thị đúng ngay lập tức
-      setMovies(prevMovies => 
-        prevMovies.map(m => 
+
+      setMovies(prevMovies =>
+        prevMovies.map(m =>
           m._id === movieId ? { ...m, isHidden: newIsHidden } : m
         )
       );
@@ -1879,12 +1802,6 @@ const MoviesAdmin = () => {
       console.error('Error updating movie visibility:', error);
       toast.error('Không thể cập nhật trạng thái hiển thị phim');
     }
-  };
-
-
-  const combinedStyles = {
-    ...styles,
-    ...(theme === 'dark' ? darkStyles : {})
   };
 
   // const handleSort = (field: string) => {
@@ -1908,12 +1825,12 @@ const MoviesAdmin = () => {
     try {
       setSyncingAllRatings(true);
       const loadingToast = toast.loading('Đang đồng bộ tất cả đánh giá...');
-      
+
       await syncAllMovieRatings();
-      
+
       toast.dismiss(loadingToast);
       toast.success('Đồng bộ tất cả đánh giá thành công!');
-      
+
       // Refresh movie data to show updated ratings
       fetchMovies(currentPage);
     } catch (error) {
@@ -1926,10 +1843,10 @@ const MoviesAdmin = () => {
   return (
     <div className={combinedStyles.container}>
       <div ref={topRef}></div>
-      
+
       <header className={combinedStyles.header}>
         <h1 className={combinedStyles.headerTitle}>Quản lý Phim</h1>
-        
+
         {esStatusChecked && (
           <div className={combinedStyles.elasticsearchStatus}>
             {elasticsearchStatus && (
@@ -1954,31 +1871,58 @@ const MoviesAdmin = () => {
       </header>
 
       <div className={combinedStyles.toolBar}>
-        <div className={combinedStyles.searchInput}>
-          <div className={combinedStyles.searchIcon}>
-            <FaSearch />
-          </div>
-          <input
-            type="text"
-            placeholder={isSearching && searchQuery.trim() ? "Tìm kiếm phim bằng Elasticsearch..." : "Tìm kiếm phim..."}
-            value={searchQuery}
-            onChange={handleSearch}
-            className={combinedStyles.input}
-          />
-          {isSearching && searchQuery.trim() && (
-            <div className={combinedStyles.searchBadge} title="Đang sử dụng Elasticsearch">
-              <FaBolt className={combinedStyles.esBadgeIcon} />
+        <div className={combinedStyles.toolBarHeader}>
+          <div className={combinedStyles.searchInput}>
+            <div className={combinedStyles.searchIcon}>
+              <FaSearch />
             </div>
-          )}
+            <input
+              type="text"
+              placeholder={isSearching && searchQuery.trim() ? "Tìm kiếm phim bằng Elasticsearch..." : "Tìm kiếm phim..."}
+              value={searchQuery}
+              onChange={handleSearch}
+              className={combinedStyles.input}
+            />
+            {isSearching && searchQuery.trim() && (
+              <div className={combinedStyles.searchBadge} title="Đang sử dụng Elasticsearch">
+                <FaBolt className={combinedStyles.esBadgeIcon} />
+              </div>
+            )}
+          </div>
+
+          <div className={combinedStyles.actionButtons}>
+            <button
+              className={combinedStyles.syncAllRatingsButton}
+              onClick={handleSyncAllRatings}
+              disabled={syncingAllRatings}
+              title="Đồng bộ đánh giá cho tất cả phim"
+            >
+              <FaSync className={syncingAllRatings ? combinedStyles.spinningIcon : ''} />
+              <span>{syncingAllRatings ? 'Đang đồng bộ...' : 'Đồng bộ đánh giá'}</span>
+            </button>
+
+            <button
+              className={combinedStyles.crawlButton}
+              onClick={() => setCrawlModalOpen(true)}
+              title="Crawl phim từ nguồn bên ngoài"
+            >
+              <FaDownload className={combinedStyles.crawlIcon} />
+              <span>Crawl Phim</span>
+            </button>
+
+            <button className={combinedStyles.addButton} onClick={handleAddMovie}>
+              <FaPlus />
+              <span>Thêm Phim Mới</span>
+            </button>
+          </div>
         </div>
-        
-        <div className={combinedStyles.filterControls}>          
-        <div className={combinedStyles.filterSelect}>
+
+        <div className={combinedStyles.filterControls}>
+          <div className={combinedStyles.filterSelect}>
             <FaFilter className={combinedStyles.filterIcon} />
-            
-            <select 
+            <select
               id="categoryFilter"
-              value={selectedCategory} 
+              value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className={combinedStyles.select}
               aria-label="Lọc theo thể loại"
@@ -1991,12 +1935,12 @@ const MoviesAdmin = () => {
               ))}
             </select>
           </div>
-          
+
           <div className={combinedStyles.filterSelect}>
             <FaEye className={combinedStyles.filterIcon} />
-            <select 
+            <select
               id="statusFilter"
-              value={filterStatus} 
+              value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as 'all' | 'active' | 'inactive')}
               className={combinedStyles.select}
               aria-label="Lọc theo trạng thái"
@@ -2006,10 +1950,10 @@ const MoviesAdmin = () => {
               <option value="inactive">Đang ẩn</option>
             </select>
           </div>
-          
+
           <div className={combinedStyles.filterSelect}>
             <FaCalendarAlt className={combinedStyles.filterIcon} />
-            <select 
+            <select
               id="yearFilter"
               value={filterYear?.toString() || ''}
               onChange={handleYearChange}
@@ -2022,10 +1966,10 @@ const MoviesAdmin = () => {
               ))}
             </select>
           </div>
-          
+
           <div className={combinedStyles.filterSelect}>
             <FaFilm className={combinedStyles.filterIcon} />
-            <select 
+            <select
               id="typeFilter"
               value={filterType}
               onChange={handleTypeChange}
@@ -2037,7 +1981,7 @@ const MoviesAdmin = () => {
               <option value="single">Phim lẻ</option>
             </select>
           </div>
-          
+
           <div className={combinedStyles.filterSelect}>
             <select
               id="perPageFilter"
@@ -2053,41 +1997,18 @@ const MoviesAdmin = () => {
             </select>
           </div>
 
-          <button 
+          <button
             className={combinedStyles.refreshButton}
             onClick={() => fetchMovies(currentPage)}
             title="Làm mới dữ liệu"
           >
             <FaSync />
-          </button>        </div>          <div className={combinedStyles.actionButtons}>
-            <button 
-              className={`${combinedStyles.syncAllRatingsButton} ${combinedStyles.highlightedButton}`}
-              onClick={handleSyncAllRatings}
-              disabled={syncingAllRatings}
-              title="Đồng bộ đánh giá cho tất cả phim"
-            >
-              <FaStar className={combinedStyles.starIcon} /> <FaSync className={syncingAllRatings ? combinedStyles.spinningIcon : ''} />
-              <span>{syncingAllRatings ? 'Đang đồng bộ...' : 'Đồng bộ tất cả đánh giá'}</span>
-            </button>
-            
-            <button 
-              className={`${combinedStyles.crawlButton} ${combinedStyles.highlightedButton}`}
-              onClick={() => setCrawlModalOpen(true)}
-              title="Crawl phim từ nguồn bên ngoài"
-            >
-              <FaDownload className={combinedStyles.crawlIcon} /> 
-              <span>Crawl Phim</span>
-            </button>
-            
-            <button className={combinedStyles.addButton} onClick={handleAddMovie}>
-              <FaPlus />
-              <span>Thêm Phim Mới</span>
-            </button>
-          </div>
+          </button>
+        </div>
       </div>
 
       <div className={combinedStyles.tableContainer}>
-        <table className={combinedStyles.table}>              
+        <table className={combinedStyles.table}>
           <thead>
             <tr>
               <th>TÊN PHIM</th>
@@ -2096,26 +2017,33 @@ const MoviesAdmin = () => {
               <th>THAO TÁC</th>
             </tr>
           </thead>
-          <tbody>            
-            {loading ? (              
-              <tr>                
-                <td colSpan={4} className="text-center py-4">
-                  <div className={combinedStyles.loadingSpinner}>
-                    Đang tải...
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={4} className={combinedStyles.emptyTableRow}>
+                  <div className={combinedStyles.emptyStateContainer}>
+                    <FaSync className={`${combinedStyles.emptyStateIcon} ${combinedStyles.spinningIcon}`} />
+                    <div className={combinedStyles.emptyStateText}>Đang tải danh sách phim...</div>
                   </div>
                 </td>
               </tr>
             ) : movies.length === 0 ? (
-              <tr>                <td colSpan={4} className="text-center py-4">
-                  {isSearching && searchQuery.trim() ? 
-                    'Không tìm thấy phim nào khớp với tìm kiếm Elasticsearch' : 
-                    'Không tìm thấy phim nào'
-                  }
+              <tr>
+                <td colSpan={4} className={combinedStyles.emptyTableRow}>
+                  <div className={combinedStyles.emptyStateContainer}>
+                    <FaFilm className={combinedStyles.emptyStateIcon} />
+                    <div className={combinedStyles.emptyStateText}>
+                      {isSearching && searchQuery.trim() ?
+                        'Không tìm thấy phim nào khớp với tìm kiếm Elasticsearch' :
+                        'Không tìm thấy phim nào'
+                      }
+                    </div>
+                  </div>
                 </td>
               </tr>
             ): (
-              movies.map((movie) => (                <tr 
-                  key={movie._id} 
+              movies.map((movie) => (                <tr
+                  key={movie._id}
                   className={combinedStyles.movieRow}
                 >
                   <td onClick={() => setDetailModal({ isOpen: true, movie })} className={combinedStyles.mainInfoColumn}>
@@ -2125,7 +2053,7 @@ const MoviesAdmin = () => {
                     <div className={combinedStyles.movieMetaInfo}>
                       <strong>Đạo diễn:</strong> {
                         movie.director ? (
-                          Array.isArray(movie.director) 
+                          Array.isArray(movie.director)
                             ? movie.director.length > 2 ? `${movie.director[0]}, ${movie.director[1]}...` : movie.director.join(', ')
                             : movie.director
                         ) : (
@@ -2136,7 +2064,7 @@ const MoviesAdmin = () => {
                     <div className={combinedStyles.movieMetaInfo}>
                       <strong>Diễn viên:</strong> {
                         movie.actor ? (
-                          Array.isArray(movie.actor) 
+                          Array.isArray(movie.actor)
                             ? movie.actor.length > 2 ? `${movie.actor[0]}, ${movie.actor[1]}...` : movie.actor.join(', ')
                             : movie.actor
                         ) : (
@@ -2154,13 +2082,13 @@ const MoviesAdmin = () => {
                           <span className={combinedStyles.noInfo}>Chưa có</span>
                         )
                       }
-                    </div>                  
+                    </div>
                   </td>                  <td onClick={() => setDetailModal({ isOpen: true, movie })} className={combinedStyles.ratingColumn}>
                     <div className={combinedStyles.ratingDisplay}>
                       <div className={combinedStyles.ratingStarsBig}>
                               {renderStars(movie.rating || 0, combinedStyles)}
-                            </div>                    
-                      
+                            </div>
+
                       <div className={combinedStyles.ratingInfo}>
                         <span className={`${styles.ratingValue} ${movie.rating <= 0 ? styles.lowRating : ''}`}>
                           {(movie.rating || 0).toFixed(1)}
@@ -2172,7 +2100,7 @@ const MoviesAdmin = () => {
                   </td>
                   <td className={combinedStyles.actionColumn}>
                     <div className={combinedStyles.actions}>
-                      <button 
+                      <button
                         className={combinedStyles.detailButton}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -2181,7 +2109,7 @@ const MoviesAdmin = () => {
                         title="Xem chi tiết"
                       >
                         <FaEye />
-                      </button>                      <button 
+                      </button>                      <button
                         className={combinedStyles.editIconButtonSmall}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -2203,7 +2131,7 @@ const MoviesAdmin = () => {
                       >
                         {movie.isHidden ? <FaEyeSlash /> : <FaEye />}
                       </button>
-                      <button 
+                      <button
                         className={combinedStyles.deleteButton}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -2237,7 +2165,7 @@ const MoviesAdmin = () => {
             >
               <span>«</span>
             </button>
-            
+
             <button
               className={`${combinedStyles.pageButton} ${currentPage === 1 ? combinedStyles.disabled : ''}`}
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -2246,11 +2174,11 @@ const MoviesAdmin = () => {
             >
               <FaChevronLeft />
             </button>
-            
+
             {Array.from({ length: Math.min(5, Math.max(1, totalPages || 1)) }, (_, i) => {
               let pageNum;
               const validTotalPages = totalPages || 1;
-              
+
               if (validTotalPages <= 5) {
                 pageNum = i + 1;
                 if (pageNum > validTotalPages) return null;
@@ -2261,7 +2189,7 @@ const MoviesAdmin = () => {
               } else {
                 pageNum = currentPage - 2 + i;
               }
-              
+
               return (
                 <button
                   key={pageNum}
@@ -2272,7 +2200,7 @@ const MoviesAdmin = () => {
                 </button>
               );
             })}
-            
+
             <button
               className={`${combinedStyles.pageButton} ${currentPage === totalPages ? combinedStyles.disabled : ''}`}
               onClick={() => setCurrentPage(p => Math.min(totalPages || 1, p + 1))}
@@ -2281,7 +2209,7 @@ const MoviesAdmin = () => {
             >
               <FaChevronRight />
             </button>
-            
+
             <button
               className={`${combinedStyles.pageButton} ${currentPage === totalPages ? combinedStyles.disabled : ''}`}
               onClick={() => setCurrentPage(totalPages || 1)}
@@ -2295,7 +2223,7 @@ const MoviesAdmin = () => {
 
         {totalMovies > 10 && (
           <div className={combinedStyles.backToTopContainer}>
-            <button 
+            <button
               className={combinedStyles.backToTopButton}
               onClick={scrollToTop}
               title="Về đầu trang"
@@ -2321,6 +2249,7 @@ const MoviesAdmin = () => {
       <CrawlModal
         isOpen={crawlModalOpen}
         onClose={() => setCrawlModalOpen(false)}
+        onSuccess={() => fetchMovies(1)}
       />
     </div>
   );

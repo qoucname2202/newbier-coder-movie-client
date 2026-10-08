@@ -32,8 +32,7 @@ const UpcomingMoviesPage: React.FC = () => {
     setError(null);
     try {
       const response = await getUpcomingMovies(page, limit, searchTerm);
-      console.log('Upcoming movies data:', response.data);
-      
+
       if (response.data && response.data.upcomingMovies) {
         setUpcomingMovies(response.data.upcomingMovies);
         setTotalMovies(response.data.totalCount || 0);
@@ -71,7 +70,7 @@ const UpcomingMoviesPage: React.FC = () => {
 
   const confirmDelete = async () => {
     if (!selectedMovie?._id) return;
-    
+
     try {
       await deleteUpcomingMovie(selectedMovie._id);
       setShowDeleteModal(false);
@@ -84,11 +83,11 @@ const UpcomingMoviesPage: React.FC = () => {
   };
   const confirmRelease = async () => {
     if (!selectedMovie?._id) return;
-    
+
     try {
       const response = await releaseUpcomingMovie(selectedMovie._id);
       setShowReleaseModal(false);
-      
+
       if (response.data?.movie?._id) {
         // If we get back the new movie ID, show it in the alert
         const newMovieId = response.data.movie._id;
@@ -114,25 +113,32 @@ const UpcomingMoviesPage: React.FC = () => {
 
   return (
     <AdminLayout>
-      <div className="content-wrapper">
-        <section className="content-header">
-          <div className="container-fluid">            <Row>
-              <Col>
-                <h1>Quản lý Phim Sắp Ra Mắt</h1>
-              </Col>
-              <Col xs="auto">
-                <Link href="/admin/movies" passHref>
-                  <Button variant="outline-primary">
+      <div className="container-fluid p-0">
+        <section className="mb-4">
+          <div className="container-fluid p-0">
+            <div className="row align-items-center">
+              <div className="col-md-6">
+                <h1 className="h3 text-white fw-bold mb-1">Quản lý Phim Sắp Ra Mắt</h1>
+                <p className="text-muted small mb-0">Quản lý danh sách và phát hành phim sắp chiếu</p>
+              </div>
+              <div className="col-md-6 text-md-end mt-2 mt-md-0">
+                <Link href="/admin/movies" passHref legacyBehavior>
+                  <Button variant="outline-primary" className="me-2">
                     Xem danh sách phim đã phát hành
                   </Button>
                 </Link>
-              </Col>
-            </Row>
+                <Link href="/admin/upcoming-movies/new" passHref legacyBehavior>
+                  <Button variant="primary">
+                    <FaPlus className="me-1" /> Thêm Phim
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
 
         <section className="content">
-          <div className="container-fluid">
+          <div className="container-fluid p-0">
             {error && (
               <Alert variant="danger" className="mb-4">
                 {error}
@@ -219,7 +225,7 @@ const UpcomingMoviesPage: React.FC = () => {
                                     style={{ objectFit: 'cover' }}
                                   />
                                 ) : (
-                                  <div 
+                                  <div
                                     className="bg-secondary text-white d-flex justify-content-center align-items-center"
                                     style={{ width: '80px', height: '120px', margin: '0 auto' }}
                                   >
@@ -324,7 +330,6 @@ const UpcomingMoviesPage: React.FC = () => {
         </section>
       </div>
 
-      {/* Modal Xác nhận xoá phim */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận xoá phim</Modal.Title>
@@ -348,7 +353,6 @@ const UpcomingMoviesPage: React.FC = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal Xác nhận chuyển trạng thái phát hành */}
       <Modal show={showReleaseModal} onHide={() => setShowReleaseModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Xác nhận phát hành phim</Modal.Title>

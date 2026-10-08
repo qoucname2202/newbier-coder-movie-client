@@ -43,7 +43,7 @@ const WatchLater = ({ inProfilePage = false }) => {
   const handleRemoveMovie = async (movieId) => {
     try {
       const result = await watchlistService.removeFromWatchlist(movieId);
-      
+
       if (result.success) {
         setMovies(movies.filter(movie => movie.id !== movieId));
         toast.success(result.message || 'Đã xóa phim khỏi danh sách xem sau');
@@ -59,7 +59,7 @@ const WatchLater = ({ inProfilePage = false }) => {
   const handleClearWatchlist = async () => {
     try {
       const result = await watchlistService.clearWatchlist();
-      
+
       if (result.success) {
         setMovies([]);
         toast.success(result.message || 'Đã xóa tất cả phim trong danh sách xem sau');
@@ -94,16 +94,16 @@ const WatchLater = ({ inProfilePage = false }) => {
     }
 
     try {
-      const deletionPromises = selectedMovies.map(movieId => 
+      const deletionPromises = selectedMovies.map(movieId =>
         watchlistService.removeFromWatchlist(movieId)
       );
-      
+
       await Promise.all(deletionPromises);
-      
+
       setMovies(movies.filter(movie => !selectedMovies.includes(movie.id)));
       setSelectedMovies([]);
       toast.success(`Đã xóa ${selectedMovies.length} phim khỏi danh sách xem sau`);
-      
+
       // Exit multi-select mode if all movies are deleted
       if (selectedMovies.length === movies.length) {
         setMultiSelectMode(false);
@@ -116,7 +116,7 @@ const WatchLater = ({ inProfilePage = false }) => {
 
   const sortMovies = (movies) => {
     if (!movies) return [];
-    
+
     switch (sortOption) {
       case 'newest':
         return [...movies].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
@@ -137,23 +137,23 @@ const WatchLater = ({ inProfilePage = false }) => {
 
   const mainContent = (
     <>
-      <div className={inProfilePage ? "" : "container mt-5 pt-5"} style={{ marginTop: '40px' }}>
+      <div className={inProfilePage ? "" : "container pt-3 pb-5"}>
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
           {!inProfilePage && <h2 className="text-white">Danh Sách Xem Sau</h2>}
           {inProfilePage && <h3 className="section-header">Danh sách xem sau</h3>}
-          
+
           <div className="d-flex gap-2 mt-2 mt-md-0">
             {movies.length > 0 && (
               <>
                 <div className="dropdown">
-                  <button 
+                  <button
                     className="btn btn-outline-light dropdown-toggle"
                     type="button"
                     id="sortDropdown"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    <i className="bi bi-sort-down me-1"></i> 
+                    <i className="bi bi-sort-down me-1"></i>
                     {sortOption === 'newest' && 'Mới nhất'}
                     {sortOption === 'oldest' && 'Cũ nhất'}
                     {sortOption === 'name_asc' && 'Tên A-Z'}
@@ -161,30 +161,30 @@ const WatchLater = ({ inProfilePage = false }) => {
                     {sortOption === 'rating' && 'Đánh giá cao nhất'}
                   </button>
                   <ul className="dropdown-menu dropdown-menu-dark" aria-labelledby="sortDropdown">
-                    <li><button 
-                      className="dropdown-item" 
+                    <li><button
+                      className="dropdown-item"
                       onClick={() => setSortOption('newest')}
                     >Mới nhất</button></li>
-                    <li><button 
-                      className="dropdown-item" 
+                    <li><button
+                      className="dropdown-item"
                       onClick={() => setSortOption('oldest')}
                     >Cũ nhất</button></li>
-                    <li><button 
-                      className="dropdown-item" 
+                    <li><button
+                      className="dropdown-item"
                       onClick={() => setSortOption('name_asc')}
                     >Tên A-Z</button></li>
-                    <li><button 
-                      className="dropdown-item" 
+                    <li><button
+                      className="dropdown-item"
                       onClick={() => setSortOption('name_desc')}
                     >Tên Z-A</button></li>
-                    <li><button 
-                      className="dropdown-item" 
+                    <li><button
+                      className="dropdown-item"
                       onClick={() => setSortOption('rating')}
                     >Đánh giá cao nhất</button></li>
                   </ul>
                 </div>
 
-                <button 
+                <button
                   className={`btn ${multiSelectMode ? 'btn-danger' : 'btn-outline-light'}`}
                   onClick={handleToggleSelectMode}
                 >
@@ -192,7 +192,7 @@ const WatchLater = ({ inProfilePage = false }) => {
                 </button>
 
                 {!multiSelectMode && (
-                  <button 
+                  <button
                     className="btn btn-outline-danger"
                     onClick={() => setConfirmClearModal(true)}
                   >
@@ -201,7 +201,7 @@ const WatchLater = ({ inProfilePage = false }) => {
                 )}
 
                 {multiSelectMode && (
-                  <button 
+                  <button
                     className="btn btn-danger"
                     onClick={handleDeleteSelected}
                     disabled={selectedMovies.length === 0}
@@ -211,8 +211,8 @@ const WatchLater = ({ inProfilePage = false }) => {
                 )}
               </>
             )}
-            
-            <button 
+
+            <button
               className={inProfilePage ? "refresh-button ms-2" : "btn btn-outline-primary"}
               onClick={fetchWatchlist}
             >
@@ -220,7 +220,7 @@ const WatchLater = ({ inProfilePage = false }) => {
             </button>
           </div>
         </div>
-        
+
         {loading ? (
           <div className="text-center my-5">
             <div className="spinner-border text-light" role="status">
@@ -235,12 +235,12 @@ const WatchLater = ({ inProfilePage = false }) => {
                 <div className={styles.movieCard}>
                   <div className={styles.movieImageContainer}>
                     {multiSelectMode && (
-                      <div 
+                      <div
                         className="position-absolute top-0 start-0 m-2"
                         style={{zIndex: 10}}
                         onClick={() => handleSelectMovie(movie.id)}
                       >
-                        <div 
+                        <div
                           style={{
                             width: '22px',
                             height: '22px',
@@ -267,9 +267,9 @@ const WatchLater = ({ inProfilePage = false }) => {
                       </div>
                     )}
                     <Link href={`/movie/${movie.slug}`}>
-                      <img 
-                        src={movie.thumbnail || '/img/Phim.png'} 
-                        alt={movie.title} 
+                      <img
+                        src={movie.thumbnail || '/img/Phim.png'}
+                        alt={movie.title}
                         className={styles.movieImage}
                         onError={(e) => {
                           e.target.onerror = null;
@@ -280,14 +280,14 @@ const WatchLater = ({ inProfilePage = false }) => {
                     <div className={styles.movieOverlay}>
                       {!multiSelectMode && (
                         <>
-                          <button 
+                          <button
                             className={styles.removeButton}
                             onClick={() => handleRemoveMovie(movie.id)}
                           >
                             <i className="bi bi-x-circle-fill"></i>
                           </button>
-                          <Link 
-                            href={`/movie/${movie.slug}`} 
+                          <Link
+                            href={`/movie/${movie.slug}`}
                             className={styles.watchButton}
                           >
                             <i className="bi bi-play-fill"></i>
@@ -336,15 +336,15 @@ const WatchLater = ({ inProfilePage = false }) => {
           </div>
         )}
       </div>
-      
+
       {/* Confirm Clear Modal */}
       {confirmClearModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
               <h5>Xác nhận</h5>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn-close btn-close-white"
                 onClick={() => setConfirmClearModal(false)}
               ></button>
@@ -354,15 +354,15 @@ const WatchLater = ({ inProfilePage = false }) => {
               <p className="text-danger">Hành động này không thể hoàn tác.</p>
             </div>
             <div className={styles.modalFooter}>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-secondary"
                 onClick={() => setConfirmClearModal(false)}
               >
                 Hủy
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="btn btn-danger"
                 onClick={handleClearWatchlist}
               >
@@ -375,12 +375,10 @@ const WatchLater = ({ inProfilePage = false }) => {
     </>
   );
 
-  // Nếu component được sử dụng trong Profile, chỉ trả về nội dung, không bao gồm Navbar
   if (inProfilePage) {
     return mainContent;
   }
 
-  // Trường hợp sử dụng như một trang độc lập
   return (
     <div className={styles.container}>
       {mainContent}

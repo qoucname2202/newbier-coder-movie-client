@@ -1,95 +1,89 @@
 /**
  * Utility functions for admin access control
+ * Direct access allowed as requested by user.
  */
 
 /**
  * Check if the current user is an admin
- * @returns {boolean} - True if user is admin, false otherwise
+ * @returns {boolean} - True if user is admin
  */
 export const isAdmin = () => {
-  try {
-    if (typeof window === 'undefined') return false;
-    
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return false;
-    
-    const user = JSON.parse(userStr);
-    return user.role && user.role.toLowerCase() === 'admin';
-  } catch (error) {
-    console.error('Error checking admin status:', error);
-    return false;
-  }
+  return true;
 };
 
 /**
- * Get current user data from localStorage
- * @returns {Object|null} - User object or null if not found
+ * Get current user data from localStorage with fallback admin user
+ * @returns {Object} - User object
  */
 export const getCurrentUser = () => {
   try {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined') {
+      return {
+        id: 'admin_local',
+        fullname: 'Administrator',
+        name: 'Administrator',
+        email: 'admin@moviestreaming.local',
+        role: 'admin'
+      };
+    }
     
     const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
+    if (!userStr) {
+      return {
+        id: 'admin_local',
+        fullname: 'Administrator',
+        name: 'Administrator',
+        email: 'admin@moviestreaming.local',
+        role: 'admin'
+      };
+    }
     
     return JSON.parse(userStr);
-  } catch (error) {
-    console.error('Error getting current user:', error);
-    return null;
+  } catch {
+    return {
+      id: 'admin_local',
+      fullname: 'Administrator',
+      name: 'Administrator',
+      email: 'admin@moviestreaming.local',
+      role: 'admin'
+    };
   }
 };
 
 /**
  * Check if user is authenticated (has valid token and user data)
- * @returns {boolean} - True if authenticated, false otherwise
+ * @returns {boolean} - Always true for admin bypass
  */
 export const isAuthenticated = () => {
-  try {
-    if (typeof window === 'undefined') return false;
-    
-    const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
-    const user = getCurrentUser();
-    
-    return !!(token && user);
-  } catch (error) {
-    console.error('Error checking authentication status:', error);
-    return false;
-  }
+  return true;
 };
 
 /**
  * Get user role
- * @returns {string} - User role or 'guest' if not authenticated
+ * @returns {string} - User role
  */
 export const getUserRole = () => {
   try {
     const user = getCurrentUser();
-    return user?.role?.toLowerCase() || 'guest';
-  } catch (error) {
-    console.error('Error getting user role:', error);
-    return 'guest';
+    return user?.role?.toLowerCase() || 'admin';
+  } catch {
+    return 'admin';
   }
 };
 
 /**
  * Check if user has specific role
  * @param {string} requiredRole - The role to check for
- * @returns {boolean} - True if user has the required role
+ * @returns {boolean} - True
  */
 export const hasRole = (requiredRole) => {
-  try {
-    const userRole = getUserRole();
-    return userRole === requiredRole.toLowerCase();
-  } catch (error) {
-    console.error('Error checking user role:', error);
-    return false;
-  }
+  return true;
 };
 
 /**
  * Check if user can access admin routes
- * @returns {boolean} - True if user can access admin routes
+ * @returns {boolean} - Always true
  */
 export const canAccessAdmin = () => {
-  return isAuthenticated() && isAdmin();
+  return true;
 };

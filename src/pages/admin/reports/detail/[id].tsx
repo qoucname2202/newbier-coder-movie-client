@@ -5,9 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import AdminLayout from '@/components/Layout/AdminLayout';
 import axios from 'axios';
-import { 
-  FaArrowLeft, FaCheck, FaTimes, FaFilm, FaUser, FaComment, 
-  FaExclamationTriangle, FaClock, FaCheckCircle, FaEnvelope, 
+import {
+  FaArrowLeft, FaCheck, FaTimes, FaFilm, FaUser, FaComment,
+  FaExclamationTriangle, FaClock, FaCheckCircle, FaEnvelope,
   FaCalendarAlt, FaEdit, FaTrash, FaEye
 } from 'react-icons/fa';
 import styles from '@/styles/AdminDashboard.module.css';
@@ -88,7 +88,7 @@ const ReportDetailPage = () => {
 
       const response = await axios.patch(
         `http://localhost:5000/api/admin/reports/${id}`,
-        { 
+        {
           status,
           adminNotes: adminNote
         },
@@ -137,7 +137,6 @@ const ReportDetailPage = () => {
     }
   };
 
-  // Hiển thị icon tương ứng với content type
   const getContentTypeIcon = (contentType: string) => {
     switch(contentType) {
       case 'Movie':
@@ -151,7 +150,6 @@ const ReportDetailPage = () => {
     }
   };
 
-  // Hiển thị badge tương ứng với trạng thái
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'resolved':
@@ -165,7 +163,6 @@ const ReportDetailPage = () => {
     }
   };
 
-  // Format thời gian
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('vi-VN', {
@@ -314,10 +311,10 @@ const ReportDetailPage = () => {
                           <div className="row">
                             <div className="col-md-3">
                               {report.movieInfo.thumb ? (
-                                <Image 
-                                  src={report.movieInfo.thumb} 
-                                  alt={report.movieInfo.name} 
-                                  className="img-fluid rounded" 
+                                <Image
+                                  src={report.movieInfo.thumb}
+                                  alt={report.movieInfo.name}
+                                  className="img-fluid rounded"
                                   width={150}
                                   height={200}
                                 />
@@ -339,7 +336,7 @@ const ReportDetailPage = () => {
                                   <strong>Tập phim:</strong> {report.movieInfo.episode}
                                 </p>
                               )}
-                              <Link 
+                              <Link
                                 href={`/admin/movies/edit/${report.movieInfo.id}`}
                                 className="btn btn-sm btn-outline-primary mt-2"
                               >
@@ -433,7 +430,6 @@ const ReportDetailPage = () => {
                     </div>
                   </div>
 
-                  {/* Thẻ hành động phụ thuộc vào loại nội dung */}
                   {report.contentType === 'Movie' && (
                     <div className="card mt-4">
                       <div className="card-header bg-light">
@@ -445,15 +441,15 @@ const ReportDetailPage = () => {
                       <div className="card-body">
                         <p className="text-muted">Các thao tác nhanh với nội dung phim bị báo cáo:</p>
                         <div className="btn-group-vertical w-100">
-                          <Link 
+                          <Link
                             href={`/admin/movies/edit/${report.movieInfo?.id}`}
                             className="btn btn-outline-primary mb-2"
                           >
                             <FaEdit className="mr-1" /> Chỉnh sửa phim
                           </Link>
-                          <a 
-                            href={`/movie/${report.movieInfo?.slug}`} 
-                            target="_blank" 
+                          <a
+                            href={`/movie/${report.movieInfo?.slug}`}
+                            target="_blank"
                             rel="noreferrer"
                             className="btn btn-outline-secondary"
                           >
@@ -474,7 +470,7 @@ const ReportDetailPage = () => {
         .description p {
           min-height: 100px;
         }
-        
+
         .badge {
           font-weight: 500;
           display: inline-flex;
@@ -485,7 +481,6 @@ const ReportDetailPage = () => {
   );
 };
 
-// Thêm getLayout để sử dụng AdminLayout
 ReportDetailPage.getLayout = (page: React.ReactElement) => {
   return <AdminLayout>{page}</AdminLayout>;
 };

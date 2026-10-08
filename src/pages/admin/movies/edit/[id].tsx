@@ -6,22 +6,21 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../../../components/Layout/AdminLayout';
 import { toast } from 'react-toastify';
-import { 
-  FaArrowLeft, 
-  FaSave, 
-  FaTrash, 
-  FaPlus, 
+import {
+  FaArrowLeft,
+  FaSave,
+  FaTrash,
+  FaPlus,
   FaFilm,
 
   FaServer,
 
-  FaArrowUp // Thêm icon mũi tên lên
+  FaArrowUp
 } from 'react-icons/fa';
 import axiosInstance from '../../../../API/config/axiosConfig';
 import { endpoints } from '../../../../config/API';
 import styles from '../../../../styles/MovieEditPage.module.css';
 
-// Interface cho tập phim
 interface Episode {
   name: string;
   slug: string;
@@ -30,14 +29,12 @@ interface Episode {
   link_m3u8: string;
 }
 
-// Interface cho danh mục
 interface Category {
   id: string;
   name: string;
   slug?: string;
 }
 
-// Interface cho quốc gia
 interface Country {
   id: string;
   name: string;
@@ -93,7 +90,6 @@ interface Movie {
   showtimes?: string;
 }
 
-// Component chính
 const MovieEditPage = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -101,8 +97,7 @@ const MovieEditPage = () => {
   const [saving, setSaving] = useState(false);
   const [movie, setMovie] = useState<Movie | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
-  
-  // State cho thông tin phim
+
   const [formData, setFormData] = useState<Partial<Movie>>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
@@ -114,51 +109,42 @@ const MovieEditPage = () => {
   const [updateMessage, setUpdateMessage] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [isDirty, setIsDirty] = useState(false);
-  
-  // State để kiểm soát hiển thị nút back to top
+
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  // Lấy dữ liệu phim và danh mục
   useEffect(() => {
     const fetchData = async () => {
       if (!id) return;
-      
+
       try {
         setLoading(true);
-        
-        // Lấy thông tin phim từ API
+
         const movieUrl = endpoints.admin.movies.getById(id as string);
         const movieResponse = await axiosInstance.get(movieUrl);
-        
+
         if (movieResponse.data && movieResponse.data.movie) {
           const movieData = movieResponse.data.movie;
           setMovie(movieData);
           setFormData(movieData);
-          
-          // Khởi tạo episodes từ dữ liệu movie
+
           if (movieData.episodes && Array.isArray(movieData.episodes)) {
             setEpisodes(movieData.episodes);
           } else {
-            // Nếu chưa có episodes, tạo mảng trống
             setEpisodes([]);
           }
         } else {
           toast.error('Không thể tải thông tin phim');
           router.push('/admin/movies');
         }
-        
-        // Lấy danh sách phim để trích xuất danh mục và quốc gia
+
         const moviesResponse = await axiosInstance.get('/api/admin/movies', {
-          params: { limit: 100 } // Lấy đủ phim để trích xuất đầy đủ categories và countries
+          params: { limit: 100 }
         });
-        
+
         if (moviesResponse.data && moviesResponse.data.movies && Array.isArray(moviesResponse.data.movies)) {
-          // Tạo map để lưu trữ danh mục và quốc gia duy nhất
           const categoriesMap = new Map();
           const countriesMap = new Map();
-            // Trích xuất danh mục và quốc gia từ danh sách phim
           moviesResponse.data.movies.forEach((movie: Movie) => {
-            // Xử lý Categories
             if (movie.category && Array.isArray(movie.category)) {
               movie.category.forEach((cat: Category | string) => {
                 if (typeof cat === 'object' && cat !== null && cat.id) {
@@ -178,7 +164,6 @@ const MovieEditPage = () => {
                 }
               });
             }
-              // Xử lý Countries
             if (movie.country && Array.isArray(movie.country)) {
               movie.country.forEach((country: Country | string) => {
                 if (typeof country === 'object' && country !== null && country.id) {
@@ -199,13 +184,10 @@ const MovieEditPage = () => {
               });
             }
           });
-          
-          // Chuyển map thành mảng
+
           const extractedCategories = Array.from(categoriesMap.values());
           const extractedCountries = Array.from(countriesMap.values());
-          
-          console.log(`Extracted ${extractedCategories.length} categories and ${extractedCountries.length} countries from movies data`);
-          
+
           setCategories(extractedCategories);
           setCountries(extractedCountries);
         } else {
@@ -213,7 +195,7 @@ const MovieEditPage = () => {
           setCategories([]);
           setCountries([]);
         }
-        
+
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Lỗi khi tải dữ liệu');
@@ -225,14 +207,12 @@ const MovieEditPage = () => {
     fetchData();
   }, [id, router]);
 
-  // Hàm thêm server mới
   const handleAddServer = () => {
     if (!newServerName.trim()) {
       setErrorMessage('Vui lòng nhập tên server');
       return;
     }
 
-    // Kiểm tra xem tên server đã tồn tại chưa
     const serverExists = episodes.some(
       server => server.server_name.toLowerCase() === newServerName.trim().toLowerCase()
     );
@@ -242,7 +222,6 @@ const MovieEditPage = () => {
       return;
     }
 
-    // Thêm server mới
     const newServer = {
       server_name: newServerName.trim(),
       server_data: []
@@ -253,7 +232,6 @@ const MovieEditPage = () => {
     setErrorMessage('');
   };
 
-  // Hàm xóa server
   const handleDeleteServer = (index: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa server này?')) {
       const updatedEpisodes = [...episodes];
@@ -262,7 +240,6 @@ const MovieEditPage = () => {
     }
   };
 
-  // Hàm thêm tập phim mới
   const handleAddEpisode = (serverIndex: number) => {
     const updatedEpisodes = [...episodes];
     const newEpisode: Episode = {
@@ -272,12 +249,11 @@ const MovieEditPage = () => {
       link_embed: '',
       link_m3u8: ''
     };
-    
+
     updatedEpisodes[serverIndex].server_data.push(newEpisode);
     setEpisodes(updatedEpisodes);
   };
 
-  // Hàm xóa tập phim
   const handleDeleteEpisode = (serverIndex: number, episodeIndex: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa tập phim này?')) {
       const updatedEpisodes = [...episodes];
@@ -286,52 +262,44 @@ const MovieEditPage = () => {
     }
   };
 
-  // Hàm cập nhật thông tin tập phim
   const handleEpisodeChange = (serverIndex: number, episodeIndex: number, field: keyof Episode, value: string) => {
     const updatedEpisodes = [...episodes];
     updatedEpisodes[serverIndex].server_data[episodeIndex][field] = value;
     setEpisodes(updatedEpisodes);
   };
 
-  // Hàm lưu thay đổi
   const handleSave = async () => {
     if (!movie || !id) return;
-    
+
     try {
       setSaving(true);
-      
-      // Validate dữ liệu trước khi gửi
+
       if (!formData.name || !formData.origin_name || !formData.slug) {
         toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
         setSaving(false);
         return;
       }
-      
-      // Đảm bảo year là số
+
       const updatedFormData = {
         ...formData,
         year: typeof formData.year === 'string' ? parseInt(formData.year) : formData.year,
-        episodes: episodes // Đảm bảo gửi cả thông tin episodes
+        episodes: episodes
       };
-      
-      // Gọi API để cập nhật
+
       const url = endpoints.admin.movies.update(id as string);
       const response = await axiosInstance.put(url, updatedFormData);
-      
+
       if (response.data && response.data.success) {
         toast.success('Lưu thông tin phim thành công');
-        
-        // Cập nhật lại dữ liệu movie hiện tại
+
         setMovie(response.data.movie);
         setFormData(response.data.movie);
-        
-        // Đánh dấu form là không còn thay đổi
+
         setIsDirty(false);      } else {
         throw new Error(response.data.message || 'Lỗi khi lưu dữ liệu phim');
       }
     } catch (error) {
       console.error('Error saving movie data:', error);
-      // Kiểm tra kiểu của error trước khi truy cập thuộc tính
       if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object') {
         const errorResponse = error.response as { data?: { message?: string } };
         toast.error(errorResponse.data?.message || 'Lỗi khi lưu dữ liệu phim');
@@ -343,13 +311,10 @@ const MovieEditPage = () => {
     }
   };
 
-  // Quay lại trang danh sách phim
   const handleBack = () => {
     router.push('/admin/movies');
   };
 
-  // Các hàm xử lý form
-  // Hàm xử lý thay đổi input thông thường
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -357,8 +322,7 @@ const MovieEditPage = () => {
       [name]: value
     });
   };
-  
-  // Hàm xử lý thay đổi checkbox
+
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setFormData({
@@ -366,26 +330,22 @@ const MovieEditPage = () => {
       [name]: checked
     });
   };
-  
-  // Hàm xử lý thay đổi mảng (diễn viên, đạo diễn)
+
   const handleArrayInputChange = (field: string, value: string) => {
-    // Chuyển đổi chuỗi thành mảng bằng cách tách theo dấu phẩy
     const arrayValue = value.split(',').map(item => item.trim()).filter(item => item);
     setFormData({
       ...formData,
       [field]: arrayValue
     });
   };
-  
-  // Hàm xử lý thay đổi đa lựa chọn (categories, countries)
+
   // const handleMultiSelectChange = (field: string, selectedValues: string[]) => {
   //   setFormData({
   //     ...formData,
   //     [field]: selectedValues
   //   });
   // };
-  
-  // Hàm xử lý thay đổi dữ liệu TMDB
+
   const handleTmdbChange = (field: string, value: string | number) => {
     setFormData({
       ...formData,
@@ -395,8 +355,7 @@ const MovieEditPage = () => {
       }
     });
   };
-  
-  // Hàm xử lý thay đổi dữ liệu IMDB
+
   const handleImdbChange = (field: string, value: string) => {
     setFormData({
       ...formData,
@@ -407,13 +366,11 @@ const MovieEditPage = () => {
     });
   };
 
-  // Effect theo dõi thay đổi form
   useEffect(() => {
     const hasChanges = JSON.stringify(formData) !== JSON.stringify(movie);
     setIsDirty(hasChanges);
   }, [formData, movie]);
 
-  // Xử lý khi người dùng thoát trang khi có thay đổi chưa lưu
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty) {
@@ -430,10 +387,8 @@ const MovieEditPage = () => {
     };
   }, [isDirty]);
 
-  // Kiểm tra cuộn trang để hiển thị nút back to top
   useEffect(() => {
     const handleScroll = () => {
-      // Hiển thị nút khi cuộn xuống quá 300px
       if (window.scrollY > 300) {
         setShowBackToTop(true);
       } else {
@@ -442,14 +397,13 @@ const MovieEditPage = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-    
+
     // Cleanup listener khi component unmount
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
-  // Hàm cuộn lên đầu trang
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -468,27 +422,26 @@ const MovieEditPage = () => {
   }
 
   return (
-    // Đã loại bỏ AdminLayout để tránh footer bị lặp lại
     <>
       <Head>
         <title>{movie?.name ? `Chỉnh sửa: ${movie.name}` : 'Chỉnh sửa phim'} | Movie Admin</title>
       </Head>
-      
+
       <form ref={formRef} className={styles.container}>
         <div className={styles.header}>
           <h1 className={styles.headerTitle}>
             {movie?.name ? movie.name : '[id]'}
           </h1>
-          
+
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button 
+            <button
               type="button"
               onClick={handleBack}
               className={styles.backButton}
             >
               <FaArrowLeft /> Quay lại
             </button>
-            
+
             <button
               type="button"
               onClick={handleSave}
@@ -499,14 +452,14 @@ const MovieEditPage = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Basic movie info section */}
         {movie && (
           <div className={styles.movieBasicInfo}>
             <div className={styles.thumbnailPreview}>
               <img src={movie.thumb_url} alt={movie.name} />
             </div>
-            
+
             <div className={styles.movieDetails}>
               <h2>{movie.name}</h2>
               <p className={styles.originalTitle}>{movie.origin_name}</p>
@@ -522,7 +475,7 @@ const MovieEditPage = () => {
 
         {/* Tabs Navigation */}
         <div className={styles.tabsContainer}>
-          <button 
+          <button
             type="button"
             className={`${styles.tabButton} ${activeTab === 'basic' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('basic')}
@@ -530,8 +483,8 @@ const MovieEditPage = () => {
             <span className={styles.tabIcon}>📋</span>
             Thông tin cơ bản
           </button>
-          
-          <button 
+
+          <button
             type="button"
             className={`${styles.tabButton} ${activeTab === 'content' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('content')}
@@ -539,8 +492,8 @@ const MovieEditPage = () => {
             <span className={styles.tabIcon}>📝</span>
             Nội dung & diễn viên
           </button>
-          
-          <button 
+
+          <button
             type="button"
             className={`${styles.tabButton} ${activeTab === 'episodes' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('episodes')}
@@ -548,8 +501,8 @@ const MovieEditPage = () => {
             <span className={styles.tabIcon}>🎬</span>
             Đường dẫn phim
           </button>
-          
-          <button 
+
+          <button
             type="button"
             className={`${styles.tabButton} ${activeTab === 'links' ? styles.activeTab : ''}`}
             onClick={() => setActiveTab('links')}
@@ -561,11 +514,10 @@ const MovieEditPage = () => {
 
         {/* Tab Contents */}
         <div className={styles.tabContent}>
-          {/* Tab Thông tin cơ bản */}
           {activeTab === 'basic' && (
             <div className={styles.formSection}>
               <h3 className={styles.sectionTitle}>Thông tin cơ bản</h3>
-              
+
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
                   <label htmlFor="name">Tên phim:</label>
@@ -579,7 +531,7 @@ const MovieEditPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="origin_name">Tên gốc:</label>
                   <input
@@ -592,7 +544,7 @@ const MovieEditPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="slug">Slug:</label>
                   <input
@@ -605,7 +557,7 @@ const MovieEditPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="year">Năm sản xuất:</label>
                   <input
@@ -618,7 +570,7 @@ const MovieEditPage = () => {
                     required
                   />
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="type">Loại phim:</label>
                   <select
@@ -632,7 +584,7 @@ const MovieEditPage = () => {
                     <option value="single">Phim lẻ</option>
                   </select>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="quality">Chất lượng:</label>
                   <select
@@ -649,7 +601,7 @@ const MovieEditPage = () => {
                     <option value="CAM">CAM</option>
                   </select>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="lang">Ngôn ngữ:</label>
                   <select
@@ -665,7 +617,7 @@ const MovieEditPage = () => {
                     <option value="Vietsub + Thuyết minh">Vietsub + Thuyết minh</option>
                   </select>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="status">Trạng thái:</label>
                   <select
@@ -679,7 +631,7 @@ const MovieEditPage = () => {
                     <option value="inactive">Ẩn</option>
                   </select>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="time">Thời lượng:</label>
                   <input
@@ -692,7 +644,7 @@ const MovieEditPage = () => {
                     className={styles.input}
                   />
                 </div>
-                
+
                 {formData.type === 'series' && (
                   <>
                     <div className={styles.formGroup}>
@@ -707,7 +659,7 @@ const MovieEditPage = () => {
                         className={styles.input}
                       />
                     </div>
-                    
+
                     <div className={styles.formGroup}>
                       <label htmlFor="episode_total">Tổng số tập:</label>
                       <input
@@ -723,7 +675,7 @@ const MovieEditPage = () => {
                   </>
                 )}
               </div>
-              
+
               <div className={styles.checkboxesSection}>
                 <h4>Thuộc tính bổ sung</h4>
                 <div className={styles.checkboxesGrid}>
@@ -737,7 +689,7 @@ const MovieEditPage = () => {
                     />
                     <label htmlFor="is_copyright">Bản quyền</label>
                   </div>
-                  
+
                   <div className={styles.checkboxGroup}>
                     <input
                       type="checkbox"
@@ -748,7 +700,7 @@ const MovieEditPage = () => {
                     />
                     <label htmlFor="chieurap">Chiếu rạp</label>
                   </div>
-                  
+
                   <div className={styles.checkboxGroup}>
                     <input
                       type="checkbox"
@@ -761,7 +713,7 @@ const MovieEditPage = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="showtimes">Lịch chiếu:</label>
                 <input
@@ -774,7 +726,7 @@ const MovieEditPage = () => {
                   className={styles.input}
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="notify">Thông báo:</label>
                 <input
@@ -789,12 +741,11 @@ const MovieEditPage = () => {
               </div>
             </div>
           )}
-          
-          {/* Tab Nội dung & diễn viên */}
+
           {activeTab === 'content' && (
             <div className={styles.formSection}>
               <h3 className={styles.sectionTitle}>Nội dung phim</h3>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="content">Nội dung phim:</label>
                 <textarea
@@ -807,7 +758,7 @@ const MovieEditPage = () => {
                   placeholder="Nhập nội dung mô tả phim..."
                 />
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="director">Đạo diễn:</label>
                 <input
@@ -821,7 +772,7 @@ const MovieEditPage = () => {
                 />
                 <small className={styles.inputHelp}>Nhập tên các đạo diễn, cách nhau bởi dấu phẩy.</small>
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="actor">Diễn viên:</label>
                 <input
@@ -835,15 +786,15 @@ const MovieEditPage = () => {
                 />
                 <small className={styles.inputHelp}>Nhập tên các diễn viên, cách nhau bởi dấu phẩy.</small>
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label>Thể loại:</label>
                 <input
                   type="text"
                   id="category_text"
                   name="category_text"
-                  value={Array.isArray(formData.category) ? 
-                    formData.category.map(cat => typeof cat === 'string' ? cat : cat.name).join(', ') : 
+                  value={Array.isArray(formData.category) ?
+                    formData.category.map(cat => typeof cat === 'string' ? cat : cat.name).join(', ') :
                     formData.category || ''}
                   onChange={(e) => handleArrayInputChange('category', e.target.value)}
                   placeholder="Nhập thể loại, cách nhau bởi dấu phẩy"
@@ -851,15 +802,15 @@ const MovieEditPage = () => {
                 />
                 <small className={styles.inputHelp}>Nhập các thể loại, cách nhau bởi dấu phẩy. VD: Hành động, Phiêu lưu, Tình cảm</small>
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label>Quốc gia:</label>
                 <input
                   type="text"
                   id="country_text"
                   name="country_text"
-                  value={Array.isArray(formData.country) ? 
-                    formData.country.map(c => typeof c === 'string' ? c : c.name).join(', ') : 
+                  value={Array.isArray(formData.country) ?
+                    formData.country.map(c => typeof c === 'string' ? c : c.name).join(', ') :
                     formData.country || ''}
                   onChange={(e) => handleArrayInputChange('country', e.target.value)}
                   placeholder="Nhập quốc gia, cách nhau bởi dấu phẩy"
@@ -869,8 +820,7 @@ const MovieEditPage = () => {
               </div>
             </div>
           )}
-          
-          {/* Tab Đường dẫn phim */}
+
           {activeTab === 'episodes' && (
             <div className={styles.episodesList}>
               {/* Server List */}
@@ -879,7 +829,7 @@ const MovieEditPage = () => {
                   <FaServer className={styles.sectionIcon} />
                   Danh sách Servers
                 </h3>
-                
+
                 {/* Add new server form */}
                 <div className={styles.addServerForm}>
                   <div className={styles.formGroup}>
@@ -893,7 +843,7 @@ const MovieEditPage = () => {
                         placeholder="Nhập tên server..."
                         className={styles.input}
                       />
-                      <button 
+                      <button
                         className={styles.addButton}
                         onClick={handleAddServer}
                       >
@@ -905,7 +855,7 @@ const MovieEditPage = () => {
                     )}
                   </div>
                 </div>
-                
+
                 {/* Display servers and episodes */}
                 {episodes.length === 0 ? (
                   <div className={styles.noServers}>
@@ -922,12 +872,12 @@ const MovieEditPage = () => {
                           </span>
                         </h4>
                         <div className={styles.serverActions}>
-                          <button 
+                          <button
                             className={styles.addEpisodeButton}
                             onClick={() => handleAddEpisode(serverIndex)}
                           >
                             <FaPlus /> Thêm tập
-                          </button>                          <button 
+                          </button>                          <button
                             className={styles.deleteServerButton}
                             onClick={() => handleDeleteServer(serverIndex)}
                             aria-label="Xóa server"
@@ -937,7 +887,7 @@ const MovieEditPage = () => {
                           </button>
                         </div>
                       </div>
-                      
+
                       {/* Episodes */}
                       <div className={styles.episodesContainer}>
                         {server.server_data.length === 0 ? (
@@ -949,7 +899,7 @@ const MovieEditPage = () => {
                                 <h5 className={styles.episodeTitle}>
                                   {episode.name}
                                 </h5>
-                                <button 
+                                <button
                                   className={styles.deleteEpisodeButton}
                                   onClick={() => handleDeleteEpisode(serverIndex, episodeIndex)}
                                   aria-label="Xóa tập phim"
@@ -958,7 +908,7 @@ const MovieEditPage = () => {
                                   <FaTrash />
                                 </button>
                               </div>
-                              
+
                               <div className={styles.episodeForm}>
                                 <div className={styles.formGroup}>
                                   <label>Tên tập:</label>
@@ -970,7 +920,7 @@ const MovieEditPage = () => {
                                     className={styles.input}
                                   />
                                 </div>
-                                
+
                                 <div className={styles.formGroup}>
                                   <label>Slug:</label>
                                   <input
@@ -981,7 +931,7 @@ const MovieEditPage = () => {
                                     className={styles.input}
                                   />
                                 </div>
-                                
+
                                 <div className={styles.formGroup}>
                                   <label>Link Embed:</label>
                                   <input
@@ -992,7 +942,7 @@ const MovieEditPage = () => {
                                     className={styles.input}
                                   />
                                 </div>
-                                
+
                                 <div className={styles.formGroup}>
                                   <label>Link M3U8:</label>
                                   <input
@@ -1013,12 +963,11 @@ const MovieEditPage = () => {
               </div>
             </div>
           )}
-          
-          {/* Tab Liên kết & ID */}
+
           {activeTab === 'links' && (
             <div className={styles.formSection}>
               <h3 className={styles.sectionTitle}>Đường dẫn hình ảnh</h3>
-              
+
               <div className={styles.imageLinksGrid}>
                 <div className={styles.formGroup}>
                   <label htmlFor="thumb_url">Ảnh thumbnail:</label>
@@ -1037,7 +986,7 @@ const MovieEditPage = () => {
                     </div>
                   )}
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="poster_url">Ảnh poster:</label>
                   <input
@@ -1056,7 +1005,7 @@ const MovieEditPage = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="trailer_url">Trailer URL:</label>
                 <input
@@ -1069,9 +1018,9 @@ const MovieEditPage = () => {
                   className={styles.input}
                 />
               </div>
-              
+
               <h3 className={styles.sectionTitle}>Thông tin TMDB</h3>
-              
+
               <div className={styles.externalInfoGrid}>
                 <div className={styles.formGroup}>
                   <label htmlFor="tmdb_id">TMDB ID:</label>
@@ -1084,7 +1033,7 @@ const MovieEditPage = () => {
                     className={styles.input}
                   />
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="tmdb_type">TMDB Type:</label>
                   <select
@@ -1098,7 +1047,7 @@ const MovieEditPage = () => {
                     <option value="tv">tv</option>
                   </select>
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="tmdb_season">TMDB Season:</label>
                   <input
@@ -1111,9 +1060,9 @@ const MovieEditPage = () => {
                   />
                 </div>
               </div>
-              
+
               <h3 className={styles.sectionTitle}>Thông tin IMDB</h3>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="imdb_id">IMDB ID:</label>
                 <input
@@ -1128,11 +1077,11 @@ const MovieEditPage = () => {
             </div>
           )}
         </div>
-        
+
         {/* Save button at bottom */}
         <div className={styles.bottomActions}>
-          <button 
-            className={styles.saveButtonLarge} 
+          <button
+            className={styles.saveButtonLarge}
             onClick={handleSave}
             disabled={saving}
           >
@@ -1144,7 +1093,7 @@ const MovieEditPage = () => {
           </button>
         </div>
       </form>
-    
+
       {/* Back to Top Button with enhanced animation */}
       {showBackToTop && (
         <button
@@ -1164,7 +1113,7 @@ const MovieEditPage = () => {
           max-width: 1400px;
           margin: 0 auto;
         }
-        
+
         /* Server and episode styling */
         .serverBlock {
           margin-bottom: 30px;
@@ -1174,7 +1123,7 @@ const MovieEditPage = () => {
           overflow: hidden;
           border: 1px solid #e9ecef;
         }
-        
+
         .serverHeader {
           display: flex;
           justify-content: space-between;
@@ -1182,7 +1131,7 @@ const MovieEditPage = () => {
           padding: 16px;
           background-color: #e9ecef;
         }
-        
+
         .serverTitle {
           margin: 0;
           font-size: 1.1rem;
@@ -1190,7 +1139,7 @@ const MovieEditPage = () => {
           align-items: center;
           gap: 8px;
         }
-        
+
         .serverName {
           font-weight: 600;
           color: #212529;
@@ -1272,9 +1221,9 @@ const MovieEditPage = () => {
           flex: 1;
         }
 
-        .addButton, 
-        .deleteServerButton, 
-        .addEpisodeButton, 
+        .addButton,
+        .deleteServerButton,
+        .addEpisodeButton,
         .deleteEpisodeButton {
           display: flex;
           align-items: center;
@@ -1289,24 +1238,24 @@ const MovieEditPage = () => {
           transition: all 0.2s ease;
         }
 
-        .addButton, 
+        .addButton,
         .addEpisodeButton {
           background-color: #007bff;
           color: white;
         }
 
-        .addButton:hover, 
+        .addButton:hover,
         .addEpisodeButton:hover {
           background-color: #0069d9;
         }
 
-        .deleteServerButton, 
+        .deleteServerButton,
         .deleteEpisodeButton {
           background-color: #dc3545;
           color: white;
         }
 
-        .deleteServerButton:hover, 
+        .deleteServerButton:hover,
         .deleteEpisodeButton:hover {
           background-color: #c82333;
         }
@@ -1371,7 +1320,6 @@ const MovieEditPage = () => {
           border-top: 1px solid #dee2e6;
         }
 
-        /* Nút cuộn lên đầu trang */
         .backToTop {
           position: fixed;
           bottom: 20px;

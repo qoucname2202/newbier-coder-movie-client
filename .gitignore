@@ -50,3 +50,19 @@ next-env.d.ts
 
 # config files with sensitive keys
 next.config.js
+
+# impeccable & AI local tools (personal workflow)
+/impeccable/
+.impeccable/
+.agent/
+.agents/
+.gemini/
+.claude/
+.cursor/
+.codex/
+PRODUCT.md
+DESIGN.md
+.dev/
+AGENTS.md
+CLAUDE.md
+public/data/dashboard-snapshot.json

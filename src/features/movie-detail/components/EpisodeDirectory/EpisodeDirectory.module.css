@@ -1,0 +1,288 @@
+/**
+ * @file EpisodeDirectory.module.css
+ * @description Compact, high-density episode chips grid for movie detail page.
+ * Supports resume banner, active episode highlight, and smooth group pagination.
+ */
+
+.container {
+  background: rgba(18, 22, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-top: 20px;
+}
+
+/* Header Bar */
+.headerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.headerTitleWrap {
+  display: flex;
+  align-items: center;
+}
+
+.headerTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.epCountBadge {
+  font-size: 0.82rem;
+  color: #8b949e;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+/* Resume Watch Banner */
+.resumeBanner {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.14) 0%, rgba(20, 24, 33, 0.8) 100%);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.resumeInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: #cbd5e1;
+}
+
+.resumeEpHighlight {
+  color: #ffffff;
+  font-weight: 700;
+  background: rgba(229, 9, 20, 0.25);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+.btnResumePlay {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e50914;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btnResumePlay:hover {
+  background: #f40612;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Server Tabs */
+.serverTabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.serverTab {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.serverTab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.serverTabActive {
+  background: #e50914;
+  border-color: #e50914;
+  color: #ffffff;
+}
+
+/* Filter toolbar */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.groupSelectWrap {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 0 10px;
+  height: 34px;
+  flex: 1;
+  max-width: 260px;
+}
+
+.groupDropdownSelect {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.groupDropdownSelect option {
+  background: #161b22;
+  color: #ffffff;
+  padding: 4px;
+}
+
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0 10px;
+  height: 34px;
+  width: 150px;
+}
+
+.searchInput {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.8rem;
+  padding: 5px 6px;
+  outline: none;
+  width: 100%;
+}
+
+.searchInput::placeholder {
+  color: #6e7681;
+}
+
+/* Compact Episode Grid (Chips) */
+.chipsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 7px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 4px;
+  border-radius: 6px;
+  transition: all 0.18s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: #e50914;
+  border-color: #e50914;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.chipResume {
+  background: rgba(229, 9, 20, 0.18) !important;
+  border-color: #e50914 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+}
+
+.emptyNotice {
+  text-align: center;
+  padding: 16px;
+  color: #8b949e;
+  font-size: 0.84rem;
+}
+
+/* Single Source Row */
+.singleSourceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.singleSourceInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sourceLabel {
+  font-size: 0.84rem;
+  color: #8b949e;
+}
+
+.sourceName {
+  font-size: 0.88rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.btnWatchSingle {
+  display: inline-flex;
+  align-items: center;
+  background: #e50914;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btnWatchSingle:hover {
+  background: #f40612;
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .chipsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 5px;
+  }
+
+  .container {
+    padding: 14px;
+  }
+}
