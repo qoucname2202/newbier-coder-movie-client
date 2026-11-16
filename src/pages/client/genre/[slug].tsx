@@ -1,152 +1,161 @@
 /**
- * @file pages/genre/[slug].tsx
- * @description Genre/category landing page: lists movies for a given category slug.
+ * @file pages/client/genre/[slug].tsx
+ * @description Cinema-grade genre landing page with dynamic atmospheric theme showcase,
+ * format filters, responsive 2:3 poster grid, trailer modal, and throttled infinite scrolling.
  */
-import React, { useEffect, useState } from 'react';
+
+import React, { useMemo } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
-import movieService from '@/API/services/movieService';
-import { resolveCategoryTaxonomy } from '@/config/taxonomyConfig';
-import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
-import Skeleton from '@/features/shared/components/UI/Skeleton';
+import {
+  useGenreMovies,
+  getGenreThemeConfig,
+  GenreHeroBanner,
+  GenreFilterBar,
+  GenreMovieGrid,
+  GenreGridSkeleton,
+  GenreScrollLoader,
+  GenreEmptyState
+} from '@/features/client/genre';
+import { TrailerModal } from '@/features/movie-detail';
+import type { TrailerMovie } from '@/features/movie-detail';
 
-interface MovieCard {
-  _id?: string;
-  slug?: string;
-  name?: string;
-  origin_name?: string;
-  thumb_url?: string;
-  poster_url?: string;
-  year?: number | string;
-  [key: string]: unknown;
-}
-
-const CategoryPage: React.FC = () => {
+const GenrePage: React.FC = () => {
   const router = useRouter();
   const { slug } = router.query;
-  const [movies, setMovies] = useState<MovieCard[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const categoryMeta = slug ? resolveCategoryTaxonomy(typeof slug === 'string' ? slug : '') : null;
-  const categoryTitle = categoryMeta?.nameVi || (slug ? String(slug).replace(/-/g, ' ') : 'Category');
   const slugString = typeof slug === 'string' ? slug : '';
 
-  useEffect(() => {
-    if (!slugString) return;
-    let isSubscribed = true;
+  // Resolve dynamic theme aesthetic and metadata
+  const themeConfig = useMemo(() => getGenreThemeConfig(slugString), [slugString]);
 
-    const fetchCategoryMovies = async () => {
-      setLoading(true);
-      try {
-        const list = await movieService.getMoviesByCategory(slugString, 30);
-        if (isSubscribed) {
-          setMovies(Array.isArray(list) ? (list as MovieCard[]) : []);
-        }
-      } catch {
-        if (isSubscribed) setMovies([]);
-      } finally {
-        if (isSubscribed) setLoading(false);
-      }
-    };
+  // Hook managing movies, filters, deduplication, and throttled scroll observer
+  const {
+    movies,
+    total,
+    hasMore,
+    isLoading,
+    isLoadingMore,
+    formatFilter,
+    sortOption,
+    sentinelRef,
+    activeTrailerMovie,
+    setFormatFilter,
+    setSortOption,
+    openTrailer,
+    closeTrailer,
+    resetFilters
+  } = useGenreMovies({ slug: slugString });
 
-    fetchCategoryMovies();
-    return () => {
-      isSubscribed = false;
-    };
-  }, [slugString]);
+  const pageTitle = `${themeConfig.title} - Tuyển Tập Phim Chiếu Rạp & Bom Tấn | MovieStreaming`;
+  const canonicalUrl = `https://moviestreaming.com/genre/${slugString}`;
 
   return (
     <>
       <Head>
-        <title>{categoryTitle} - Watch Online | MovieStreaming</title>
-        <meta name="description" content={`Curated ${categoryTitle} movies, updated regularly, HD quality.`} />
+        <title>{pageTitle}</title>
+        <meta name="description" content={themeConfig.tagline} />
+        <meta name="keywords" content={`${themeConfig.title}, phim ${themeConfig.title}, xem phim ${themeConfig.title} vietsub, phim hd`} />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* OpenGraph */}
+        <meta property="og:type" content="video.movie" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={themeConfig.tagline} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="MovieStreaming" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={themeConfig.tagline} />
       </Head>
 
-      <div className="container-fluid px-3 px-lg-5 py-4" style={{ minHeight: '80vh', paddingTop: '90px' }}>
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-          <div>
-            <nav aria-label="breadcrumb">
-              <ol className="breadcrumb mb-1 text-secondary" style={{ fontSize: '0.85rem' }}>
-                <li className="breadcrumb-item"><Link href="/" className="text-secondary text-decoration-none">Home</Link></li>
-                <li className="breadcrumb-item"><Link href="/search" className="text-secondary text-decoration-none">Genres</Link></li>
-                <li className="breadcrumb-item active text-danger" aria-current="page">{categoryTitle}</li>
-              </ol>
-            </nav>
-            <h1 className="h3 text-white fw-bold text-uppercase m-0">{categoryTitle}</h1>
-          </div>
-          <span className="badge bg-danger bg-opacity-25 text-danger px-3 py-2 border border-danger border-opacity-25 rounded-pill">
-            {movies.length} movies
-          </span>
-        </div>
+      <div className="genre-page-root">
+        {/* Hero Header with dynamic theme glow & sub-genre pills */}
+        <GenreHeroBanner
+          themeConfig={themeConfig}
+          totalMovies={total}
+          currentSlug={slugString}
+        />
 
-        {loading ? (
-          <div className="row g-3">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="col-6 col-sm-4 col-md-3 col-lg-2">
-                <div className="card bg-dark border-0 rounded-3 overflow-hidden">
-                  <Skeleton height="260px" borderRadius="8px" />
-                  <div className="p-2">
-                    <Skeleton height="16px" width="80%" />
-                    <Skeleton height="12px" width="50%" className="mt-1" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : movies.length > 0 ? (
-          <div className="row g-3">
-            {movies.map((movie) => (
-              <div key={movie._id || movie.slug} className="col-6 col-sm-4 col-md-3 col-lg-2">
-                <Link href={`/movie/${movie.slug}`} className="text-decoration-none">
-                  <div className="card bg-dark border-0 rounded-3 overflow-hidden movie-card-hover h-100">
-                    <div style={{ aspectRatio: '2 / 3', width: '100%', position: 'relative', overflow: 'hidden' }}>
-                      <img
-                        src={movie.poster_url || movie.thumb_url || LOCAL_DEFAULT_POSTER}
-                        alt={movie.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        loading="lazy"
-                        onError={(e) => { (e.target as HTMLImageElement).src = LOCAL_DEFAULT_POSTER; }}
-                      />
-                      <span className="badge bg-danger position-absolute top-0 start-0 m-2" style={{ fontSize: '0.7rem' }}>
-                        {movie.year || 'HD'}
-                      </span>
-                    </div>
-                    <div className="p-2 text-white">
-                      <h6 className="text-truncate m-0 fw-semibold" style={{ fontSize: '0.9rem' }} title={movie.name}>
-                        {movie.name}
-                      </h6>
-                      <p className="text-secondary text-truncate m-0" style={{ fontSize: '0.78rem' }}>
-                        {movie.origin_name || movie.name}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-5 text-secondary">
-            <p className="mb-3">No movies in this category yet.</p>
-            <Link href="/search" className="btn btn-outline-danger btn-sm rounded-pill px-4">
-              Explore other genres
-            </Link>
-          </div>
+        {/* Floating Filter & Sorting Toolbar */}
+        <GenreFilterBar
+          formatFilter={formatFilter}
+          sortOption={sortOption}
+          onFormatChange={setFormatFilter}
+          onSortChange={setSortOption}
+          loadedCount={movies.length}
+          totalCount={total}
+          isLoading={isLoading}
+        />
+
+        {/* Main Content Area */}
+        <main className="genre-content-container">
+          {isLoading ? (
+            <GenreGridSkeleton count={18} />
+          ) : movies.length === 0 ? (
+            <GenreEmptyState
+              genreTitle={themeConfig.title}
+              currentSlug={slugString}
+              hasFilters={formatFilter !== 'all'}
+              onResetFilters={resetFilters}
+            />
+          ) : (
+            <>
+              <GenreMovieGrid
+                movies={movies}
+                hasMore={hasMore}
+                totalCount={total}
+                genreTitle={themeConfig.title}
+                onPlayTrailer={openTrailer}
+              />
+
+              {/* Scroll Sentinel Element observed by IntersectionObserver */}
+              <div
+                ref={sentinelRef}
+                className="scroll-sentinel"
+                aria-hidden="true"
+              />
+
+              {/* Loader indicator while fetching next page */}
+              {isLoadingMore && <GenreScrollLoader />}
+            </>
+          )}
+        </main>
+
+        {/* Interactive Trailer Modal */}
+        {activeTrailerMovie && (
+          <TrailerModal
+            movie={activeTrailerMovie as unknown as TrailerMovie}
+            onClose={closeTrailer}
+          />
         )}
       </div>
 
-      <style jsx>{`
-        .movie-card-hover {
-          transition: transform 0.25s ease, box-shadow 0.25s ease;
-          background: #161b22 !important;
+      <style jsx global>{`
+        .genre-page-root {
+          min-height: 100vh;
+          background-color: #0c0f16;
+          color: #ffffff;
+          overflow-x: hidden;
         }
-        .movie-card-hover:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(229, 9, 20, 0.35);
+
+        .genre-content-container {
+          position: relative;
+          min-height: 50vh;
+          padding-bottom: 3rem;
+        }
+
+        .scroll-sentinel {
+          height: 30px;
+          width: 100%;
+          pointer-events: none;
+          visibility: hidden;
         }
       `}</style>
     </>
   );
 };
 
-export default CategoryPage;
+export default GenrePage;
