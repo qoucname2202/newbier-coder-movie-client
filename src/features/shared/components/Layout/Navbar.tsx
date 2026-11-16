@@ -1954,20 +1954,25 @@ const Navbar: React.FC = () => {
         @media (min-width: 992px) and (max-width: 1199px) {
           .nav-link,
           .nav-link-btn {
-            font-size: 13.5px;
-            padding: 0.35rem 0.65rem !important;
+            font-size: 12.5px;
+            padding: 0.3rem 0.45rem !important;
           }
           .expanded-search-box {
-            width: 270px;
+            width: 210px;
           }
           .navbar-logo {
-            width: 105px;
+            width: 95px;
           }
         }
 
         @media (min-width: 1200px) and (max-width: 1399px) {
+          .nav-link,
+          .nav-link-btn {
+            font-size: 13.5px;
+            padding: 0.35rem 0.65rem !important;
+          }
           .expanded-search-box {
-            width: 340px;
+            width: 280px;
           }
         }
 
@@ -1983,7 +1988,9 @@ const Navbar: React.FC = () => {
             top: 0;
             left: -285px;
             width: 285px;
+            max-width: 85vw;
             height: 100vh;
+            height: 100dvh;
             background: rgba(8, 11, 16, 0.98);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
@@ -2039,6 +2046,7 @@ const Navbar: React.FC = () => {
             width: auto;
             max-width: none;
             max-height: calc(85vh - 64px);
+            max-height: calc(85dvh - 64px);
             border-radius: 14px;
           }
 
@@ -2047,6 +2055,51 @@ const Navbar: React.FC = () => {
             padding: 0 2px;
             gap: 6px;
           }
+        }
+
+        @media (max-width: 374px) {
+          .navbar {
+            height: 58px;
+          }
+          .navbar-logo {
+            width: 95px;
+          }
+          .mobile-search-box {
+            height: 34px;
+            padding: 0.25rem 0.6rem;
+          }
+          .mobile-search-input {
+            font-size: 12.5px;
+          }
+          .search-dual-dropdown {
+            top: 58px;
+            left: 6px;
+            right: 6px;
+          }
+        }
+
+        /* Mobile Landscape mode: compact navigation */
+        @media (orientation: landscape) and (max-height: 500px) {
+          .navbar {
+            height: 50px;
+          }
+          .navbar-logo {
+            max-height: 26px;
+            width: 90px;
+          }
+          .navbar-collapse {
+            padding-top: 56px;
+            width: 260px;
+          }
+          .search-dual-dropdown {
+            top: 50px;
+            max-height: calc(100vh - 54px);
+            max-height: calc(100dvh - 54px);
+          }
+          .mobile-search-fullbar {
+            height: 44px;
+          }
+        }
 
           .mobile-search-box {
             display: flex;

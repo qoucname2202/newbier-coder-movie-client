@@ -376,3 +376,64 @@
     font-size: 1rem;
   }
 }
+
+@media (max-width: 480px) {
+  .modalBackdropOverlay {
+    padding: 12px 8px;
+  }
+
+  .trailerCloseBtn {
+    top: 6px;
+    right: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .trailerMetaPanel {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .trailerMetaPoster {
+    width: 58px;
+    height: 84px;
+  }
+
+  .trailerMetaTitle {
+    font-size: 0.88rem;
+  }
+}
+
+/* Mobile Landscape (iPhone ngang) */
+@media (orientation: landscape) and (max-height: 500px) {
+  .modalBackdropOverlay {
+    padding: 6px 14px;
+  }
+
+  .trailerModalBox {
+    max-width: 78vw;
+    max-height: 96vh;
+    max-height: 96dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .trailerVideoWrap {
+    max-height: 84vh;
+    max-height: 84dvh;
+  }
+
+  .trailerMetaPanel {
+    display: none;
+  }
+
+  .trailerCloseBtn {
+    top: 6px;
+    right: 6px;
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+}

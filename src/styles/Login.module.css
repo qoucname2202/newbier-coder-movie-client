@@ -282,28 +282,41 @@
 /* Links row */
 .linksRow {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  font-size: 13px;
-  margin-top: -4px;
-  margin-bottom: 8px;
+  font-size: 13.5px;
+  margin-top: -2px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .forgotText {
   color: #6b7280;
   text-decoration: none;
   transition: color 0.15s ease;
+  font-weight: 500;
 }
 
 .forgotText:hover {
   color: #111827;
 }
 
+.signupPrompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  margin-top: 24px;
+  color: #6b7280;
+  text-align: center;
+}
+
 .signupText {
   color: #111827;
   font-weight: 700;
   text-decoration: none;
-  margin-left: 6px;
   transition: opacity 0.15s ease;
 }
 
@@ -490,9 +503,11 @@
 }
 
 /* Mobile & Tablet Responsive */
-@media (max-width: 900px) {
+@media (max-width: 950px) {
   .loginPage {
-    flex-direction: column-reverse;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .imageSide {
@@ -500,16 +515,407 @@
   }
 
   .formSide {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
     min-height: 100vh;
-    padding: 36px 20px;
+    min-height: 100dvh;
+    padding: 68px 24px 32px;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    position: relative;
   }
 
   .backHome {
+    position: absolute;
     top: 20px;
-    left: 20px;
+    left: 24px;
+    margin-bottom: 0;
+    align-self: auto;
+    z-index: 30;
+    padding: 6px 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #6b7280;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .backHome:hover {
+    color: #111827;
+    background-color: rgba(243, 244, 246, 0.8);
+    transform: translateX(-2px);
+  }
+
+  .formContainer {
+    width: 100%;
+    max-width: 420px;
+    margin: auto 0;
   }
 
   .title {
-    font-size: 36px;
+    font-size: 34px;
+  }
+}
+
+/* Dedicated Tablet Range 750px - 950px (iPad Mini/Air/Pro, Tablets, Large Mobile Landscape) */
+@media (min-width: 750px) and (max-width: 950px) {
+  .loginPage {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .formSide {
+    padding: 72px 32px 36px;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .formContainer {
+    width: 100%;
+    max-width: 420px;
+    margin: auto 0;
+  }
+
+  .backHome {
+    position: absolute;
+    top: 20px;
+    left: 24px;
+    margin-bottom: 0;
+    align-self: auto;
+    z-index: 30;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .backHome:hover {
+    color: #111827;
+    background-color: rgba(243, 244, 246, 0.8);
+    transform: translateX(-2px);
+  }
+}
+
+@media (max-width: 480px) {
+  .formSide {
+    padding: 44px 18px 24px;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+  }
+
+  .formContainer {
+    width: 100%;
+    margin: auto 0;
+  }
+
+  .backHome {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    margin-bottom: 0;
+    font-size: 13px;
+  }
+
+  .header {
+    margin-bottom: 24px;
+  }
+
+  .title {
+    font-size: 28px;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .form {
+    gap: 14px;
+  }
+
+  .inputWrapper {
+    height: 48px;
+    padding: 0 14px;
+    border-radius: 10px;
+  }
+
+  .inputIcon {
+    font-size: 16px;
+    margin-right: 10px;
+  }
+
+  .inputField {
+    font-size: 14.5px;
+  }
+
+  .submitButton {
+    height: 48px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .linksRow {
+    font-size: 13px;
+    gap: 6px;
+  }
+
+  .signupPrompt {
+    margin-top: 20px;
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 421px) {
+  .formSide {
+    padding: 42px 14px 20px;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+  }
+
+  .formContainer {
+    max-width: 100%;
+    margin: auto 0;
+  }
+
+  .backHome {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    margin-bottom: 0;
+    padding: 4px 8px;
+    font-size: 12.5px;
+    gap: 6px;
+  }
+
+  .header {
+    margin-bottom: 18px;
+  }
+
+  .title {
+    font-size: 26px;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .form {
+    gap: 12px;
+  }
+
+  .inputWrapper {
+    height: 46px;
+    padding: 0 12px;
+    border-radius: 10px;
+  }
+
+  .inputIcon {
+    font-size: 15px;
+    margin-right: 8px;
+  }
+
+  .inputField {
+    font-size: 14px;
+  }
+
+  .eyeButton {
+    font-size: 15px;
+    padding: 4px;
+  }
+
+  .errorBox,
+  .successBox {
+    font-size: 12.5px;
+    gap: 5px;
+  }
+
+  .waitingBox {
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 8px;
+    gap: 8px;
+  }
+
+  .waitingTitle {
+    font-size: 12.5px;
+  }
+
+  .waitingMessage {
+    font-size: 11.5px;
+  }
+
+  .retryButton {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .linksRow {
+    font-size: 12.5px;
+    margin-top: 0;
+    margin-bottom: 4px;
+  }
+
+  .rememberRow {
+    font-size: 12.5px;
+    gap: 6px;
+  }
+
+  .rememberRow input[type='checkbox'] {
+    width: 15px;
+    height: 15px;
+  }
+
+  .forgotText {
+    font-size: 12.5px;
+  }
+
+  .submitButton {
+    height: 46px;
+    font-size: 14.5px;
+    border-radius: 10px;
+    margin-top: 4px;
+  }
+
+  .signupPrompt {
+    margin-top: 16px;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 360px) {
+  .formSide {
+    padding: 38px 10px 16px;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+  }
+
+  .formContainer {
+    margin: auto 0;
+  }
+
+  .backHome {
+    top: 10px;
+    left: 10px;
+  }
+
+  .title {
+    font-size: 23px;
+  }
+
+  .subtitle {
+    font-size: 12.5px;
+  }
+
+  .inputWrapper {
+    height: 44px;
+    padding: 0 10px;
+  }
+
+  .inputField {
+    font-size: 13.5px;
+  }
+
+  .submitButton {
+    height: 44px;
+    font-size: 14px;
+  }
+
+  .linksRow {
+    font-size: 12px;
+  }
+
+  .rememberRow {
+    font-size: 12px;
+  }
+
+  .forgotText {
+    font-size: 12px;
+  }
+
+  .signupPrompt {
+    font-size: 12px;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+/* Mobile Landscape */
+@media (orientation: landscape) and (max-height: 500px) {
+  .formSide {
+    padding: 36px 20px 16px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .formContainer {
+    margin: auto 0;
+    max-width: 420px;
+  }
+
+  .backHome {
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    margin-bottom: 0;
+  }
+
+  .header {
+    margin-bottom: 12px;
+  }
+
+  .title {
+    font-size: 22px;
+    margin-bottom: 2px;
+  }
+
+  .subtitle {
+    font-size: 12px;
+  }
+
+  .form {
+    gap: 8px;
+  }
+
+  .inputWrapper {
+    height: 40px;
+  }
+
+  .submitButton {
+    height: 40px;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  .signupPrompt {
+    margin-top: 10px;
+    font-size: 12px;
   }
 }

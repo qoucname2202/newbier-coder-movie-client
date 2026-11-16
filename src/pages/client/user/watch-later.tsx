@@ -234,7 +234,7 @@ const WatchLater = ({ inProfilePage = false }: { inProfilePage?: boolean }) => {
             <p className="text-white mt-3">Đang tải danh sách xem sau...</p>
           </div>
         ) : sortedMovies.length > 0 ? (
-          <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4">
+          <div className="row row-cols-2 row-cols-sm-3 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-3 g-md-4">
             {sortedMovies.map((movie) => (
               <div key={movie.id} className="col">
                 <div className={styles.movieCard}>

@@ -722,3 +722,38 @@
     height: 42px;
   }
 }
+
+@media (max-width: 374px) {
+  .timeframeBtn {
+    font-size: 0.6rem;
+    padding: 0.18rem 0.45rem;
+  }
+
+  .categoryTabBtn {
+    font-size: 0.68rem;
+    padding: 0.24rem 0.45rem;
+  }
+
+  .championCard {
+    height: 180px;
+    min-height: 175px;
+    padding: 0.65rem;
+  }
+
+  .championTitle {
+    font-size: 0.85rem;
+  }
+
+  .metricRow {
+    padding: 0.3rem 0.35rem;
+    gap: 0.4rem;
+  }
+
+  .rowTitle {
+    font-size: 0.76rem;
+  }
+
+  .rowMeta {
+    font-size: 0.65rem;
+  }
+}

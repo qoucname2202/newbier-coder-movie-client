@@ -56,16 +56,25 @@
   font-size: 0.85rem;
   color: #8b949e;
   margin-bottom: 1.25rem;
+  flex-wrap: wrap;
 }
 
 .breadcrumbLink {
   color: #8b949e;
   text-decoration: none;
   transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .breadcrumbLink:hover {
   color: #fff;
+}
+
+.homeIcon {
+  font-size: 0.85rem;
+  opacity: 0.85;
 }
 
 .breadcrumbSeparator {
@@ -142,13 +151,14 @@
 }
 
 .genreTitle {
-  font-size: 2.25rem;
+  font-size: clamp(1.45rem, 5vw, 2.25rem);
   font-weight: 800;
   line-height: 1.15;
   color: #ffffff;
   margin: 0;
   letter-spacing: -0.02em;
   text-transform: capitalize;
+  word-break: break-word;
 }
 
 @media (min-width: 768px) {
@@ -270,4 +280,43 @@
   font-weight: 700 !important;
   box-shadow: 0 4px 16px var(--genre-accent-glow, rgba(229, 9, 20, 0.4));
   transform: translateY(-2px);
+}
+
+@media (min-width: 750px) and (max-width: 950px) {
+  .heroWrapper {
+    padding: 2rem 1.5rem 1.75rem;
+  }
+  .container {
+    width: 100%;
+    max-width: 100%;
+  }
+  .breadcrumbNav {
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .heroWrapper {
+    padding: 1.5rem 1rem 1.25rem;
+  }
+  .subGenreRail {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+  }
+}
+
+@media (max-width: 374px) {
+  .heroWrapper {
+    padding: 1.25rem 0.65rem 1rem;
+  }
+  .genreBadge, .exclusiveBadge {
+    font-size: 0.68rem;
+    padding: 0.22rem 0.55rem;
+  }
+  .statItem {
+    font-size: 0.74rem;
+    padding: 0.3rem 0.55rem;
+  }
 }
