@@ -138,8 +138,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
         ))}
       </div>
 
-      <button className="home-button" onClick={handleHomeClick}>
-        <FaHome /> Home
+      <button className="home-button" onClick={handleHomeClick} aria-label="Trang chủ">
+        <FaHome /> Trang chủ
       </button>
 
       <div className={authBoxClass}>
@@ -881,26 +881,308 @@ const AuthForm: React.FC<AuthFormProps> = ({
           100% { transform: translate(-30%, -50%) rotate(360deg); }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 950px) {
+          .auth-container {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 68px 24px 32px;
+            box-sizing: border-box;
+            position: relative;
+          }
           .auth-box {
             flex-direction: column;
             min-height: auto;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 18px;
+            margin: auto 0;
           }
           .welcome-section {
-            order: -1;
-            padding: 30px 20px;
+            display: none;
           }
           .form-container {
-            padding: 30px 20px;
+            padding: 34px 26px;
+            background: rgba(15, 18, 30, 0.9);
+          }
+          .home-button {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            z-index: 30;
+          }
+        }
+
+        @media (min-width: 750px) and (max-width: 950px) {
+          .auth-container {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 72px 32px 36px;
+            box-sizing: border-box;
+            position: relative;
+          }
+          .auth-box {
+            flex-direction: column;
+            min-height: auto;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 18px;
+            margin: auto 0;
+          }
+          .welcome-section {
+            display: none;
+          }
+          .form-container {
+            padding: 36px 30px;
+            background: rgba(15, 18, 30, 0.92);
+          }
+          .home-button {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            z-index: 30;
+            padding: 6px 10px;
+            font-size: 14px;
+            color: #94a3b8;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          .home-button:hover {
+            color: #ffffff;
+            background: transparent;
+            border: none;
+            transform: translateX(-2px);
+          }
+        }
+
+        @media (max-width: 749px) {
+          .auth-container {
+            padding: 56px 16px 24px;
+          }
+          .auth-box {
+            max-width: 460px;
+            border-radius: 16px;
+          }
+          .form-container {
+            padding: 30px 22px;
+          }
+          .home-button {
+            top: 14px;
+            left: 14px;
           }
         }
 
         @media (max-width: 480px) {
-          .form-section h2 {
-            font-size: 26px;
+          .auth-container {
+            padding: 44px 14px 20px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
-          .welcome-content h1 {
+          .floating-particles {
+            display: none;
+          }
+          .auth-box {
+            border-radius: 14px;
+            margin: auto 0;
+            width: 100%;
+            max-width: 420px;
+          }
+          .form-container {
+            padding: 24px 18px;
+          }
+          .form-section h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+          }
+          .input-group {
+            margin-bottom: 14px;
+          }
+          .input-group input {
+            padding: 12px 14px 12px 38px;
+            font-size: 14.5px;
+          }
+          .input-icon {
+            left: 11px;
+            font-size: 14px;
+          }
+          .auth-button {
+            padding: 12px;
+            font-size: 15px;
+          }
+          .switch-auth {
+            margin-top: 18px;
+            font-size: 13.5px;
+          }
+          .home-button {
+            top: 12px;
+            left: 12px;
+            padding: 6px 12px;
+            font-size: 12px;
+          }
+        }
+
+        @media (max-width: 421px) {
+          .auth-container {
+            padding: 40px 12px 18px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .auth-box {
+            margin: auto 0;
+            width: 100%;
+            max-width: 100%;
+          }
+          .form-container {
+            padding: 20px 14px;
+          }
+          .form-section h2 {
             font-size: 22px;
+            margin-bottom: 16px;
+          }
+          .input-group {
+            margin-bottom: 11px;
+          }
+          .input-group input {
+            padding: 11px 12px 11px 34px;
+            font-size: 14px;
+            border-radius: 8px;
+          }
+          .input-icon {
+            left: 10px;
+            font-size: 13px;
+          }
+          .error-message,
+          .success-message {
+            padding: 10px 12px;
+            font-size: 13px;
+            margin-bottom: 14px;
+          }
+          .auth-button {
+            padding: 11px;
+            font-size: 14.5px;
+            border-radius: 8px;
+          }
+          .social-login {
+            margin-top: 14px;
+            gap: 8px;
+          }
+          .social-button {
+            padding: 10px;
+            font-size: 13px;
+            border-radius: 8px;
+          }
+          .switch-auth {
+            margin-top: 16px;
+            font-size: 13px;
+          }
+          .home-button {
+            top: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            font-size: 11.5px;
+            gap: 5px;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .auth-container {
+            padding: 38px 8px 14px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .auth-box {
+            margin: auto 0;
+          }
+          .form-container {
+            padding: 16px 10px;
+          }
+          .form-section h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+          }
+          .input-group {
+            margin-bottom: 9px;
+          }
+          .input-group input {
+            padding: 10px 10px 10px 30px;
+            font-size: 13px;
+          }
+          .input-icon {
+            left: 8px;
+            font-size: 12px;
+          }
+          .auth-button {
+            padding: 10px;
+            font-size: 14px;
+          }
+          .switch-auth {
+            font-size: 12px;
+            margin-top: 12px;
+          }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+          .auth-container {
+            padding: 34px 16px 14px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .floating-particles {
+            display: none;
+          }
+          .welcome-section {
+            display: none;
+          }
+          .auth-box {
+            max-width: 440px;
+            margin: auto 0;
+          }
+          .form-container {
+            padding: 14px 16px;
+          }
+          .form-section h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+          }
+          .input-group {
+            margin-bottom: 8px;
+          }
+          .input-group input {
+            padding: 8px 10px 8px 30px;
+            font-size: 13px;
+          }
+          .auth-button {
+            padding: 8px;
+            font-size: 13.5px;
+          }
+          .switch-auth {
+            margin-top: 8px;
+            font-size: 12px;
           }
         }
       `}</style>

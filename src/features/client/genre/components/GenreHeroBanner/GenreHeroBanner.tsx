@@ -8,7 +8,7 @@ import React from 'react';
 import Link from 'next/link';
 import { GenreThemeConfig } from '../../types/genre.types';
 import { TAXONOMY_CATEGORIES } from '@/config/taxonomyConfig';
-import { FaFilm, FaTv, FaStar, FaCompass } from 'react-icons/fa';
+import { FaFilm, FaTv, FaStar, FaCompass, FaHome } from 'react-icons/fa';
 import styles from './GenreHeroBanner.module.css';
 
 export interface GenreHeroBannerProps {
@@ -41,7 +41,8 @@ const GenreHeroBanner: React.FC<GenreHeroBannerProps> = ({
         {/* Breadcrumb Navigation */}
         <nav className={styles.breadcrumbNav} aria-label="Đường dẫn trang">
           <Link href="/" className={styles.breadcrumbLink}>
-            Trang Chủ
+            <FaHome className={styles.homeIcon} />
+            <span>Trang Chủ</span>
           </Link>
           <span className={styles.breadcrumbSeparator}>/</span>
           <Link href="/search" className={styles.breadcrumbLink}>

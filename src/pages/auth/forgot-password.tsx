@@ -199,8 +199,114 @@ export default function ForgotPassword() {
               50% { transform: rotate(180deg) scale(1.1); }
             }
             @media (max-width: 768px) {
-              .success-card { padding: 30px 20px; margin: 0 20px; }
+              .forgot-password-container {
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 48px 16px 24px;
+                box-sizing: border-box;
+              }
+              .success-card { padding: 30px 20px; margin: auto 0; width: 100%; max-width: 420px; }
               .action-buttons { flex-direction: column; }
+            }
+
+            @media (max-width: 480px) {
+              .forgot-password-container {
+                padding: 44px 14px 20px;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              .success-card {
+                padding: 24px 16px;
+                margin: auto 0;
+                width: 100%;
+                border-radius: 14px;
+              }
+              .success-icon {
+                font-size: 3.5rem;
+                margin-bottom: 20px;
+              }
+              h1 {
+                font-size: 1.6rem;
+                margin-bottom: 12px;
+              }
+              p {
+                font-size: 14px;
+                margin-bottom: 10px;
+              }
+              .action-buttons {
+                gap: 10px;
+                margin-top: 24px;
+              }
+              .back-to-login,
+              .resend-button {
+                padding: 11px 16px;
+                font-size: 14px;
+                width: 100%;
+                justify-content: center;
+              }
+            }
+
+            @media (max-width: 421px) {
+              .forgot-password-container {
+                padding: 40px 12px 18px;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              .success-card {
+                padding: 20px 14px;
+                margin: auto 0;
+                border-radius: 12px;
+              }
+              .success-icon {
+                font-size: 3rem;
+                margin-bottom: 16px;
+              }
+              h1 {
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+              }
+              p {
+                font-size: 13px;
+                margin-bottom: 8px;
+              }
+              .expire-note {
+                font-size: 12px;
+              }
+              .back-to-login,
+              .resend-button {
+                padding: 10px 14px;
+                font-size: 13px;
+              }
+            }
+
+            @media (max-width: 360px) {
+              .forgot-password-container {
+                padding: 36px 8px 14px;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+              .success-card {
+                padding: 16px 10px;
+                margin: auto 0;
+              }
+              h1 {
+                font-size: 1.25rem;
+              }
+              .success-icon {
+                font-size: 2.5rem;
+              }
             }
           `}</style>
         </div>
@@ -452,9 +558,260 @@ export default function ForgotPassword() {
             0%, 100% { transform: rotate(0deg) scale(1); }
             50% { transform: rotate(180deg) scale(1.1); }
           }
-          @media (max-width: 768px) {
-            .forgot-password-card { padding: 30px 20px; margin: 0 20px; }
-            .back-button { top: 20px; left: 20px; }
+          @media (max-width: 950px) {
+            .forgot-password-container {
+              min-height: 100vh;
+              min-height: 100dvh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 68px 24px 32px;
+              box-sizing: border-box;
+              position: relative;
+            }
+            .forgot-password-card {
+              padding: 34px 26px;
+              margin: auto 0;
+              width: 100%;
+              max-width: 440px;
+            }
+            .back-button {
+              position: absolute;
+              top: 20px;
+              left: 24px;
+              z-index: 25;
+            }
+          }
+
+          @media (min-width: 750px) and (max-width: 950px) {
+            .forgot-password-container {
+              min-height: 100vh;
+              min-height: 100dvh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 72px 32px 36px;
+              box-sizing: border-box;
+              position: relative;
+            }
+            .forgot-password-card {
+              padding: 36px 30px;
+              margin: auto 0;
+              width: 100%;
+              max-width: 450px;
+            }
+            .back-button {
+              position: absolute;
+              top: 20px;
+              left: 24px;
+              z-index: 25;
+              padding: 6px 10px;
+              font-size: 14px;
+              color: #94a3b8;
+              background: transparent;
+              border: none;
+              box-shadow: none;
+              backdrop-filter: none;
+              -webkit-backdrop-filter: none;
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              transition: all 0.2s ease;
+            }
+            .back-button:hover {
+              color: #ffffff;
+              background: transparent;
+              transform: translateX(-2px);
+            }
+          }
+
+          @media (max-width: 749px) {
+            .forgot-password-container {
+              padding: 56px 16px 24px;
+            }
+            .forgot-password-card {
+              padding: 30px 22px;
+              max-width: 420px;
+            }
+            .back-button {
+              top: 14px;
+              left: 14px;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .forgot-password-container {
+              padding: 44px 14px 20px;
+              min-height: 100vh;
+              min-height: 100dvh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .forgot-password-card {
+              margin: auto 0;
+              padding: 24px 18px;
+              border-radius: 14px;
+            }
+            h1 {
+              font-size: 1.7rem;
+              margin-bottom: 12px;
+            }
+            p {
+              font-size: 14px;
+              margin-bottom: 22px;
+            }
+            .input-group {
+              margin-bottom: 18px;
+            }
+            input {
+              padding: 12px 14px 12px 40px;
+              font-size: 14.5px;
+            }
+            .submit-button {
+              padding: 12px;
+              font-size: 15px;
+              border-radius: 8px;
+            }
+            .back-button {
+              top: 12px;
+              left: 12px;
+              padding: 6px 12px;
+              font-size: 12.5px;
+            }
+            .auth-links {
+              margin-top: 20px;
+              font-size: 13px;
+            }
+          }
+
+          @media (max-width: 421px) {
+            .forgot-password-container {
+              padding: 40px 12px 18px;
+              min-height: 100vh;
+              min-height: 100dvh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .forgot-password-card {
+              margin: auto 0;
+              padding: 20px 14px;
+              border-radius: 12px;
+            }
+            h1 {
+              font-size: 1.45rem;
+              margin-bottom: 8px;
+            }
+            p {
+              font-size: 13px;
+              margin-bottom: 18px;
+            }
+            .input-group {
+              margin-bottom: 15px;
+            }
+            input {
+              padding: 11px 12px 11px 36px;
+              font-size: 14px;
+            }
+            .input-icon {
+              left: 12px;
+            }
+            .submit-button {
+              padding: 11px;
+              font-size: 14.5px;
+              margin-bottom: 14px;
+            }
+            .back-button {
+              top: 10px;
+              left: 10px;
+              padding: 5px 10px;
+              font-size: 12px;
+              gap: 5px;
+            }
+            .auth-links {
+              margin-top: 16px;
+              font-size: 12.5px;
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            }
+            .auth-links span {
+              display: none;
+            }
+          }
+
+          @media (max-width: 360px) {
+            .forgot-password-container {
+              padding: 36px 8px 14px;
+              min-height: 100vh;
+              min-height: 100dvh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .forgot-password-card {
+              margin: auto 0;
+              padding: 16px 10px;
+            }
+            h1 {
+              font-size: 1.3rem;
+            }
+            p {
+              font-size: 12.5px;
+              margin-bottom: 14px;
+            }
+            input {
+              padding: 10px 10px 10px 32px;
+              font-size: 13px;
+            }
+            .submit-button {
+              padding: 10px;
+              font-size: 14px;
+            }
+            .auth-links {
+              font-size: 12px;
+            }
+          }
+
+          @media (orientation: landscape) and (max-height: 500px) {
+            .forgot-password-container {
+              padding: 34px 14px 14px;
+              min-height: 100vh;
+              min-height: 100dvh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .forgot-password-card {
+              padding: 16px 20px;
+              max-width: 420px;
+              margin: auto 0;
+            }
+            h1 {
+              font-size: 1.3rem;
+              margin-bottom: 6px;
+            }
+            p {
+              font-size: 12px;
+              margin-bottom: 12px;
+            }
+            .input-group {
+              margin-bottom: 10px;
+            }
+            input {
+              padding: 8px 10px 8px 32px;
+              font-size: 13px;
+            }
+            .submit-button {
+              padding: 8px;
+              font-size: 13.5px;
+              margin-bottom: 8px;
+            }
+            .auth-links {
+              margin-top: 8px;
+              font-size: 11.5px;
+            }
           }
         `}</style>
       </div>

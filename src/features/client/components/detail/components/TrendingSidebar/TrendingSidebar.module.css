@@ -64,13 +64,13 @@
 }
 
 .leaderboardTitle {
-  font-size: 0.88rem;
+  font-size: clamp(0.74rem, 2.5vw, 0.88rem);
   font-weight: 800;
   color: #ffffff;
   margin: 0;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  white-space: nowrap; /* Tuyệt đối không rớt dòng */
+  white-space: nowrap;
 }
 
 .liveBadgeText {
@@ -459,4 +459,53 @@
   text-align: center;
   color: #8b949e;
   font-size: 0.82rem;
+}
+
+/* Responsive Handling */
+@media (max-width: 576px) {
+  .leaderboardContainer {
+    padding: 14px 12px;
+  }
+  .headerTopRow {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .timeBtn {
+    font-size: 0.68rem;
+    padding: 4px 6px;
+  }
+  .championCard {
+    padding: 10px;
+  }
+  .championTitle {
+    font-size: 0.88rem;
+  }
+  .metricRow {
+    padding: 6px 8px;
+    gap: 8px;
+  }
+  .rowTitle {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 374px) {
+  .leaderboardContainer {
+    padding: 12px 8px;
+  }
+  .leaderboardTitle {
+    font-size: 0.72rem;
+  }
+  .timeBtn {
+    font-size: 0.62rem;
+    padding: 3px 4px;
+  }
+  .rankNum {
+    font-size: 0.82rem;
+    width: 20px;
+  }
+  .rowThumb {
+    width: 36px;
+    height: 48px;
+  }
 }

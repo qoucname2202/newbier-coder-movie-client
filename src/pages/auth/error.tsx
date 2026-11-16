@@ -141,7 +141,152 @@ export default function AuthError() {
           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         @media (max-width: 576px) {
-          .error-card { padding: 30px 20px; }
+          .error-container {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 16px 24px;
+            box-sizing: border-box;
+          }
+          .error-card { padding: 30px 20px; width: 100%; max-width: 420px; margin: auto 0; }
+        }
+
+        @media (max-width: 480px) {
+          .error-container {
+            padding: 44px 14px 20px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .error-card {
+            margin: auto 0;
+            padding: 24px 18px;
+            border-radius: 14px;
+          }
+          .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+          }
+          h1 {
+            font-size: 22px;
+            margin-bottom: 14px;
+          }
+          .error-message {
+            font-size: 14px;
+            margin-bottom: 24px;
+          }
+          .error-actions {
+            gap: 12px;
+          }
+          .error-button {
+            padding: 11px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+          }
+        }
+
+        @media (max-width: 421px) {
+          .error-container {
+            padding: 40px 12px 18px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .error-card {
+            margin: auto 0;
+            padding: 20px 14px;
+            border-radius: 12px;
+          }
+          .error-icon {
+            font-size: 42px;
+            margin-bottom: 14px;
+          }
+          h1 {
+            font-size: 20px;
+            margin-bottom: 10px;
+          }
+          .error-message {
+            font-size: 13.5px;
+            margin-bottom: 20px;
+          }
+          .error-actions {
+            gap: 10px;
+          }
+          .error-button {
+            padding: 10px 14px;
+            font-size: 13.5px;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .error-container {
+            padding: 36px 8px 14px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .error-card {
+            margin: auto 0;
+            padding: 16px 10px;
+          }
+          .error-icon {
+            font-size: 36px;
+          }
+          h1 {
+            font-size: 18px;
+          }
+          .error-message {
+            font-size: 13px;
+          }
+          .error-button {
+            padding: 9px 12px;
+            font-size: 13px;
+          }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+          .error-container {
+            padding: 24px 16px 14px;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .error-card {
+            margin: auto 0;
+            padding: 16px 20px;
+            max-width: 420px;
+          }
+          .error-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+          }
+          h1 {
+            font-size: 18px;
+            margin-bottom: 6px;
+          }
+          .error-message {
+            font-size: 13px;
+            margin-bottom: 12px;
+          }
+          .error-actions {
+            flex-direction: row;
+            gap: 10px;
+          }
+          .error-button {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 13px;
+          }
         }
       `}</style>
     </>

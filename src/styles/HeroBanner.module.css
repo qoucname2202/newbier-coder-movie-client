@@ -677,6 +677,7 @@
   .title {
     font-size: 1.3rem;
     line-height: 1.15;
+    word-break: break-word;
   }
 
   .subTitle {
@@ -687,5 +688,95 @@
   .dockCard {
     width: 48px;
     height: 30px;
+  }
+}
+
+@media (max-width: 374px) {
+  .heroBanner {
+    min-height: 500px;
+  }
+
+  .heroContainer {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+    padding-bottom: 0.55rem;
+    gap: 0.35rem;
+  }
+
+  .title {
+    font-size: 1.18rem;
+  }
+
+  .actionRow {
+    gap: 0.35rem;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    padding: 0.44rem 0.55rem;
+    font-size: 0.76rem;
+  }
+
+  .dockCard {
+    width: 40px;
+    height: 25px;
+  }
+}
+
+/* Mobile Landscape (iPhone 6/7/8 ngang, iPhone X-14 ngang, Pro Max ngang) */
+@media (orientation: landscape) and (max-height: 500px) {
+  .heroBanner {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 500px;
+  }
+
+  .heroContainer {
+    padding-top: 52px;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-bottom: 0.45rem;
+    gap: 0.3rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    line-height: 1.15;
+    margin-bottom: 0;
+  }
+
+  .subTitle {
+    display: none;
+  }
+
+  .badgeGroup {
+    gap: 0.25rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .categoryRow {
+    display: none;
+  }
+
+  .actionRow {
+    gap: 0.4rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.76rem;
+  }
+
+  .spotlightDock {
+    margin-top: 0;
+  }
+
+  .dockCard {
+    width: 44px;
+    height: 26px;
   }
 }

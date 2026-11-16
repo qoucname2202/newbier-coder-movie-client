@@ -536,6 +536,36 @@
   }
 }
 
+@media (max-width: 374px) {
+  .sectionContainer {
+    padding: 12px 8px;
+  }
+
+  .carouselTrack {
+    gap: 8px;
+  }
+
+  .carouselItem {
+    flex: 0 0 calc((100% - 8px) / 2);
+    width: calc((100% - 8px) / 2);
+  }
+
+  .skeletonCard {
+    flex: 0 0 calc((100% - 8px) / 2);
+  }
+
+  .filterTab {
+    font-size: 0.72rem;
+    padding: 4px 8px;
+  }
+
+  .navBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.82rem;
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: 200% 0;

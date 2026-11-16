@@ -1131,6 +1131,25 @@
 }
 
 @media (max-width: 480px) {
+  .mainContainer {
+    padding: 60px 12px 0;
+  }
+
+  .mainTitle {
+    font-size: 1.38rem;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  .originTitle {
+    font-size: 0.88rem;
+  }
+
+  .ratingSpotlightCard {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+
   .ratingMainNumber {
     font-size: 1.45rem;
   }
@@ -1144,5 +1163,80 @@
 
   .actorCapsule {
     width: 100%;
+  }
+
+  .toolBtn {
+    padding: 6px 2px;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 374px) {
+  .mainContainer {
+    padding: 56px 8px 0;
+  }
+
+  .mainTitle {
+    font-size: 1.22rem;
+  }
+
+  .interactiveToolbar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .toolBtn {
+    padding: 8px 6px;
+    font-size: 0.72rem;
+  }
+
+  .ratingSpotlightCard {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .ratingMainNumber {
+    font-size: 1.3rem;
+  }
+
+  .ratingScale {
+    font-size: 0.72rem;
+  }
+
+  .ratingVotesLabel {
+    font-size: 0.65rem;
+  }
+
+  .telemetryCapsule,
+  .telemetryCapsuleHighlight,
+  .telemetryCapsuleFire {
+    padding: 4px 8px;
+  }
+
+  .capsulePrimaryText,
+  .capsuleBadgeTag,
+  .capsuleFireText,
+  .capsuleText {
+    font-size: 0.68rem;
+  }
+}
+
+/* Landscape Mode on Phones */
+@media (orientation: landscape) and (max-height: 500px) {
+  .backdropLayer {
+    height: 320px;
+  }
+
+  .mainContainer {
+    padding-top: 50px;
+  }
+
+  .showcaseGrid {
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+  }
+
+  .mainTitle {
+    font-size: 1.4rem;
   }
 }

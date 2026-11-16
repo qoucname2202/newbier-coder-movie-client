@@ -376,7 +376,7 @@ export default function Series() {
             </div>
           )}
 
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 row-cols-xl-5 g-4 mb-4">
+          <div className="row row-cols-2 row-cols-sm-3 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 row-cols-xxl-6 g-3 g-md-4 mb-4">
             {loading && page === 1
               ? [...Array(24)].map((_, i) => (
                   <div key={`skeleton-${i}`} className="col">

@@ -193,8 +193,12 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
             const translateZ = isCenter ? 60 : isMid ? -60 : -180;
             const scale = isCenter ? 1 : isMid ? 0.86 : 0.72;
 
+            const isLandscapeSmall = typeof window !== 'undefined' && window.innerHeight < 500 && window.innerWidth > window.innerHeight;
+
             const translateX = position * (
+              windowWidth < 360 ? 80 :
               windowWidth < 480 ? 95 :
+              isLandscapeSmall ? 130 :
               windowWidth < 768 ? 145 :
               windowWidth < 1200 ? 220 :
               270
@@ -213,8 +217,15 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
               windowWidth < 768 ? (Math.abs(position) <= 1 ? 'visible' as const : 'hidden' as const) :
               'visible' as const;
 
-            const cardWidth = windowWidth < 480 ? 220 : windowWidth < 768 ? 270 : 360;
-            const cardHeight = windowWidth < 480 ? 320 : windowWidth < 768 ? 400 : 510;
+            const cardWidth = windowWidth < 360 ? 180 :
+              windowWidth < 480 ? 210 :
+              isLandscapeSmall ? 200 :
+              windowWidth < 768 ? 260 : 360;
+
+            const cardHeight = windowWidth < 360 ? 260 :
+              windowWidth < 480 ? 300 :
+              isLandscapeSmall ? 250 :
+              windowWidth < 768 ? 380 : 510;
 
             // Always prioritize high-resolution poster_url over low-res thumb_url
             const posterSrc = movie.poster_url || movie.thumb_url || PLACEHOLDER_POSTER;
@@ -359,7 +370,42 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
 
         @media (max-width: 480px) {
           .featured-container {
-            height: 390px;
+            height: 380px;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .featured-container {
+            height: 330px;
+          }
+          .nav-arrow {
+            width: 32px;
+            height: 32px;
+            font-size: 0.8rem;
+          }
+          .nav-prev {
+            left: 8px;
+          }
+          .nav-next {
+            right: 8px;
+          }
+        }
+
+        /* Mobile Landscape mode */
+        @media (orientation: landscape) and (max-height: 500px) {
+          .featured-container {
+            height: 320px;
+          }
+          .nav-arrow {
+            width: 34px;
+            height: 34px;
+            font-size: 0.82rem;
+          }
+          .nav-prev {
+            left: 12px;
+          }
+          .nav-next {
+            right: 12px;
           }
         }
 

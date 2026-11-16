@@ -481,17 +481,23 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
               </div>
             )}
 
-            <label className={styles.rememberRow} htmlFor="login-remember">
-              <input
-                type="checkbox"
-                id="login-remember"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                disabled={isLoading}
-                aria-label={t.remember.ariaLabel}
-              />
-              <span className={styles.rememberLabel}>{t.remember.label}</span>
-            </label>
+            <div className={styles.linksRow}>
+              <label className={styles.rememberRow} htmlFor="login-remember">
+                <input
+                  type="checkbox"
+                  id="login-remember"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={isLoading}
+                  aria-label={t.remember.ariaLabel}
+                />
+                <span className={styles.rememberLabel}>{t.remember.label}</span>
+              </label>
+
+              <Link href="/auth/forgot-password" className={styles.forgotText}>
+                {t.links.forgotPassword}
+              </Link>
+            </div>
 
             <button
               type="submit"
@@ -502,6 +508,13 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
               {isLoading ? 'Processing...' : t.buttons.submit}
             </button>
           </form>
+
+          <div className={styles.signupPrompt}>
+            <span>Bạn chưa có tài khoản?</span>
+            <Link href="/auth/signup" className={styles.signupText}>
+              {t.links.signupNow}
+            </Link>
+          </div>
 
           {/* Social buttons preserved for future re-enable */}
           <div style={{ display: 'none' }} aria-hidden>
