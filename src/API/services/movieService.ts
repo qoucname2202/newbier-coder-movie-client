@@ -14,6 +14,7 @@ import {
 } from '@/config/taxonomyConfig';
 import { pickMovieImage } from '@/utils/imageSource';
 import { apiPath } from '@/config/apiPaths';
+import { ensureSessionReady } from '@/utils/accessTokenStore';
 import { cachedRequest, invalidateMovieCache } from './movieRequestCache';
 
 // The auth service is imported lazily to avoid a circular dependency
@@ -57,6 +58,11 @@ const readJwtExp = (token: string | null): number | null => {
 /**
  * Makes sure the access token is still valid before a request is sent.
  *
+ * - The session is restored FIRST: the access token lives in the MEMORY of
+ *   the tab, so right after a page load it is not there yet. Without this
+ *   wait every list request was sent without the `Authorization` header and
+ *   the backend answered `401 Missing Bearer token`, so all the rails
+ *   (trending, top rated, categories, countries) stayed empty.
  * - The token is still valid for more than 60 seconds: it is returned as is.
  * - The token expires in 60 seconds or less: the refresh runs FIRST.
  * - Single-flight: when many requests run at the same time, only one
@@ -68,6 +74,14 @@ let _tokenRefreshInFlight: Promise<string | null> | null = null;
 
 const ensureFreshToken = async (): Promise<string | null> => {
   if (typeof window === 'undefined') return null;
+
+  // The session restore is awaited BEFORE the token is read, so the token
+  // of the memory is already there when the request goes out.
+  try {
+    await ensureSessionReady();
+  } catch {
+    /* the restore failed: the request goes out without a token */
+  }
 
   // The token is read through the shared helper, so a session-only login
   // (the token lives in `sessionStorage`) is handled the same way as a

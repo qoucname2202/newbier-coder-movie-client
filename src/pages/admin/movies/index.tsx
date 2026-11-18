@@ -9,29 +9,13 @@ import {
   FaPen,
   FaTrash,
   FaChevronLeft,
-  FaChevronRight,
   FaExclamationTriangle,
   FaEye,
-  FaEyeSlash,
   FaFilter,
   FaCalendarAlt,
   FaSync,
-  FaStar,
-  FaStarHalfAlt,
-  FaRegStar,
-  FaArrowUp,
-  FaInfoCircle,
   FaFilm,
-  FaAlignLeft,
-  FaServer,
-  FaCode,
-  FaStream,
-  FaCopy,
-  FaCheckCircle,
-  FaExternalLinkAlt,
-  FaSave,
   FaBolt,
-  FaUser,
   FaDownload,
   FaHeart
 } from 'react-icons/fa';
@@ -64,11 +48,7 @@ import {
 } from '@/features/admin/services/movieAdminService';
 
 import {
-  getMovieRatings,
-  syncMovieRatings,
-  syncAllMovieRatings,
-  RatingStats
-} from '@/features/admin/services/ratingAdminService';
+  syncAllMovieRatings} from '@/features/admin/services/ratingAdminService';
 
 const combinedStyles = {
   ...styles,

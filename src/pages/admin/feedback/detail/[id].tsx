@@ -9,9 +9,8 @@ import { getApiBaseUrl } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
 import { getStoredAccessToken } from '@/API/services/authService';
 import {
-  FaEnvelope, FaArrowLeft, FaClock, FaReply, FaTrash,
-  FaCheckCircle, FaCalendarAlt, FaExclamationTriangle,
-  FaEye, FaUser, FaPaperPlane
+  FaEnvelope, FaArrowLeft, FaReply, FaTrash,
+  FaCheckCircle, FaCalendarAlt, FaExclamationTriangle, FaUser, FaPaperPlane
 } from 'react-icons/fa';
 
 interface FeedbackDetail {

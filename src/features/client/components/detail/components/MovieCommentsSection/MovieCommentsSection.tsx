@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo} from 'react';
 import { useAuth } from '@/context/AuthContext';
 import ratingService from '@/API/services/ratingService';
 import { commentFormSchema } from '@/features/client/components/detail/schemas/movieDetailSchemas';

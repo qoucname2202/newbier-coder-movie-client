@@ -25,7 +25,6 @@ import type { HeroHeaderMovie } from '@/features/client/components/detail/compon
 import type { CastCrewPerson } from '@/features/client/components/detail/components/CastCrewSection/CastCrewSection';
 import type { TrailerMovie } from '@/features/client/components/detail/components/TrailerModal';
 import { hasValidTrailer } from '@/utils/trailer';
-import { MovieSection } from '@/features/shared/components/MovieSection';
 import BackToTop from '@/features/shared/components/UI/BackToTop';
 import styles from '@/styles/MovieDetailPage.module.css';
 

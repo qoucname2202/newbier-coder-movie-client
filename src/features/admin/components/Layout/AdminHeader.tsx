@@ -10,7 +10,6 @@ import {
 import styles from '@/styles/AdminHeader.module.css';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
-import NotificationDropdown from '@/features/admin/components/Notifications/NotificationDropdown';
 import { getNotifications } from '@/features/admin/services/notificationService';
 
 const AdminHeader = () => {

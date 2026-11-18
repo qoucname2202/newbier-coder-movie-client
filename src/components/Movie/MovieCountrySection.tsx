@@ -4,6 +4,7 @@ import { MOVIE_CONFIG } from '@/config/movieConfig';
 import { filterMoviesWithValidTrailer } from '@/utils/trailer';
 import type { MovieLite } from '@/features/shared/components/MovieCard/MovieCardVertical';
 import { apiUrl } from '@/config/apiPaths';
+import authService from '@/API/services/authService';
 
 type CountryMovie = {
   country?: Array<{ slug?: string; name?: string }>;
@@ -31,7 +32,11 @@ const MovieCountrySection: React.FC<MovieCountrySectionProps> = ({ onPlayTrailer
     const fetchCountryMovies = async (): Promise<void> => {
       try {
         setLoading(true);
-        const res = await fetch(apiUrl(`moviesList`) + `?page=1&limit=60`);
+        // The list endpoints of the backend need the Bearer token, so the
+        // header is resolved through the shared auth service (it also
+        // refreshes an expiring token and restores the session).
+        const headers = await authService.getAuthHeader();
+        const res = await fetch(apiUrl(`moviesList`) + `?page=1&limit=60`, { headers });
         if (!res.ok) throw new Error('Failed to fetch country movies');
         const data = await res.json();
         const allMovies: CountryMovie[] = data?.data?.movies || data?.movies || [];

@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-// ServerVersionSelector is still .js, cast for strict TS
+import React from 'react';// ServerVersionSelector is still .js, cast for strict TS
 import ServerVersionSelectorRaw from '@/features/client/components/detail/components/ServerVersionSelector/ServerVersionSelector';
 const ServerVersionSelector = ServerVersionSelectorRaw as unknown as React.FC<Record<string, unknown>>;
 import { WATCH_CONFIG } from '@/config/watchConfig';

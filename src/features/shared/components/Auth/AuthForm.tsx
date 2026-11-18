@@ -13,7 +13,6 @@ import {
 } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { signIn, SignInResponse } from 'next-auth/react';
-import axios from 'axios';
 
 interface FormFields {
   email: string;

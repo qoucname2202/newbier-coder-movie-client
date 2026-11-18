@@ -3,7 +3,6 @@
  * @description Movie rating API client. Uses fetch (not the shared axios
  * instance) because some endpoints are public and don't need credentials.
  */
-import { API_URL } from '@/config/API';
 import { apiUrl } from '@/config/apiPaths';
 import authService, { getStoredAccessToken } from './authService';
 
@@ -153,9 +152,13 @@ const ratingService = {
 
   getMovieRatingStats: async (movieSlug: string): Promise<RatingServiceResponse<MovieRatingStats>> => {
     try {
+      // The endpoint needs the Bearer token, so the header is resolved
+      // through the shared auth service (it also restores the session and
+      // refreshes an expiring token).
+      const authHeaders = await authService.getAuthHeader();
       const res = await fetch(apiUrl(`ratingsStats`, movieSlug), {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', ...authHeaders }
       });
       if (!res.ok) throw new Error(`Failed to fetch rating stats: ${res.status}`);
       return await res.json() as RatingServiceResponse<MovieRatingStats>;
@@ -167,9 +170,12 @@ const ratingService = {
 
   getMovieRatings: async (movieId: string): Promise<RatingServiceResponse<UserRatingItem[]>> => {
     try {
+      // The endpoint needs the Bearer token, so the header is resolved
+      // through the shared auth service.
+      const authHeaders = await authService.getAuthHeader();
       const res = await fetch(apiUrl(`ratingsMovie`, movieId), {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', ...authHeaders }
       });
       if (!res.ok) throw new Error(`Failed to fetch movie ratings: ${res.status}`);
       return await res.json() as RatingServiceResponse<UserRatingItem[]>;

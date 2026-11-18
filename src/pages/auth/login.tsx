@@ -6,7 +6,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signIn } from 'next-auth/react';
-import axios, { AxiosError } from 'axios';
 import { useAuth, type AuthResult } from '@/context/AuthContext';
 import { AUTH_CONFIG } from '@/config/authConfig';
 import styles from '@/styles/Login.module.css';

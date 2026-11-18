@@ -5,12 +5,12 @@ import React, { useState, useEffect, MouseEvent } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Skeleton from '@/features/shared/components/UI/Skeleton';
-import type { SkeletonProps } from '@/features/shared/components/UI/Skeleton';
 import { FaPlayCircle, FaStar, FaFilm, FaChevronDown, FaSync } from 'react-icons/fa';
 import { pickMovieImage, normalizeImageUrl } from '@/utils/imageSource';
 import { getApiBaseUrl } from '@/config/apiBase';
 import styles from '@/styles/Movies.module.css';
 import { apiUrl } from '@/config/apiPaths';
+import authService from '@/API/services/authService';
 
 const CATEGORIES = [
   'Hành Động','Tình Cảm','Hài Hước','Cổ Trang','Tâm Lý','Hình Sự',
@@ -138,7 +138,11 @@ export default function Series() {
       });
 
       const baseUrl = getApiBaseUrl();
-      const response = await fetch(apiUrl(`moviesList`) + `?${queryParams}`);
+      // The list endpoint needs the Bearer token, so the header is resolved
+      // through the shared auth service (it also refreshes an expiring token
+      // and restores the session).
+      const headers = await authService.getAuthHeader();
+      const response = await fetch(apiUrl(`moviesList`) + `?${queryParams}`, { headers });
       const result = (await response.json()) as { data?: { movies?: SeriesMovie[]; pagination?: Pagination } };
 
       if (result.data?.movies) {

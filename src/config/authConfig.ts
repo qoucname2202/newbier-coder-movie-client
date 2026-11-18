@@ -5,7 +5,6 @@
  * contract, UI labels, placeholders and error messages.
  */
 
-import { getApiBaseUrl } from './apiBase';
 import { apiUrl } from './apiPaths';
 
 export const AUTH_CONFIG = {

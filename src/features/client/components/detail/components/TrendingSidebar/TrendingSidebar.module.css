@@ -470,15 +470,30 @@
     flex-wrap: wrap;
     gap: 6px;
   }
+  .leaderboardTitle {
+    font-size: 0.8rem;
+    white-space: normal;
+  }
   .timeBtn {
-    font-size: 0.68rem;
-    padding: 4px 6px;
+    font-size: 0.72rem;
+    padding: 8px 6px;
+    min-height: 34px;
   }
   .championCard {
     padding: 10px;
   }
   .championTitle {
     font-size: 0.88rem;
+  }
+  .stripCard {
+    padding: 10px;
+  }
+  .stripTitle {
+    font-size: 0.8rem;
+  }
+  .rankNumber {
+    font-size: 1rem;
+    width: 22px;
   }
   .metricRow {
     padding: 6px 8px;
@@ -497,8 +512,8 @@
     font-size: 0.72rem;
   }
   .timeBtn {
-    font-size: 0.62rem;
-    padding: 3px 4px;
+    font-size: 0.66rem;
+    padding: 6px 4px;
   }
   .rankNum {
     font-size: 0.82rem;

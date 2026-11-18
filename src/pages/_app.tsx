@@ -6,7 +6,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Head from 'next/head';
 import type { AppProps } from 'next/app';
-import type { ComponentType, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import '../styles/animation.css';
 import '../styles/subscription-details.css';
 import '../styles/feedbackAdmin.css';

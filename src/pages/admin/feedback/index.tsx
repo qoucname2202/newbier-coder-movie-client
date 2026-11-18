@@ -9,12 +9,11 @@ import { getApiBaseUrl, getApiOrigin } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
 import { getStoredAccessToken } from '@/API/services/authService';
 import {
-  FaEye, FaFilter, FaExclamationTriangle,
+  FaEye, FaExclamationTriangle,
   FaClock, FaEnvelope, FaSearch, FaSort,
   FaSortUp, FaSortDown, FaChevronLeft, FaChevronRight,
   FaTrash, FaCheckCircle, FaCalendarAlt,
-  FaSync, FaCheck, FaTimes, FaInbox, FaUser
-} from 'react-icons/fa';
+  FaSync, FaCheck, FaTimes, FaInbox} from 'react-icons/fa';
 
 interface Feedback {
   _id: string;

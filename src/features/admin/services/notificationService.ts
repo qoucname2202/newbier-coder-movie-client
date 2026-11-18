@@ -10,7 +10,6 @@
  * fake success: when the endpoint is live, the response is returned
  * unchanged. The bell will simply show "0" until the backend catches up.
  */
-import axiosInstance from '@/API/config/axiosConfig';
 import type { AxiosError } from 'axios';
 
 export interface AdminNotification {

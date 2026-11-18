@@ -2,7 +2,7 @@
  * @file pages/admin/subscriptions/pending.tsx
  * @description Admin console for approving/rejecting pending Premium subscription requests.
  */
-import React, { useState, useEffect, ChangeEvent, MouseEvent } from 'react';
+import React, { useState, useEffect, ChangeEvent} from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import {

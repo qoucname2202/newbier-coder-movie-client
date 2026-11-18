@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getWatchProgress } from '@/utils/watchProgress';
 import type { WatchServer, WatchEpisode } from '@/features/client/components/detail/components/WatchSidebarPlaylist/WatchSidebarPlaylist';

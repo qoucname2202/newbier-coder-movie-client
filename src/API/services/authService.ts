@@ -6,7 +6,6 @@
  * and user stats calls.
  */
 
-import { AUTH_CONFIG } from '@/config/authConfig';
 import { getApiBaseUrl } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
 import {
@@ -14,13 +13,11 @@ import {
   ensureCsrfToken,
   ensureSessionReady,
   getMemoryAccessToken,
-  getMemoryRememberMe,
   getMemoryUser,
   resetSessionRestore,
   setMemoryAccessToken,
   setMemoryRememberMe,
-  setMemoryUser,
-} from '@/utils/accessTokenStore';
+  setMemoryUser,} from '@/utils/accessTokenStore';
 
 /** Obfuscation key. It is an environment variable so it can be changed when needed. */
 const OBFUSCATION_KEY = process.env.NEXT_PUBLIC_SESSION_OBFUSCATE || 'xK9mP2vL';

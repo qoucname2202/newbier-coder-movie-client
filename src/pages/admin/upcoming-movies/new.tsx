@@ -1,13 +1,11 @@
 // src/pages/admin/upcoming-movies/new.tsx
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import AdminLayout from '@/layouts/AdminLayout';
 import UpcomingMovieForm from '@/features/admin/components/UpcomingMovies/UpcomingMovieForm';
 import { createUpcomingMovie } from '@/features/admin/services/upcomingMovieAdminService';
 import type { UpcomingMovie } from '@/features/admin/services/upcomingMovieAdminService';
 import { Alert } from 'react-bootstrap';
-import { FaArrowLeft } from 'react-icons/fa';
 import styles from '@/styles/AdminUpcomingMovies.module.css';
 
 const AddUpcomingMoviePage: React.FC = () => {

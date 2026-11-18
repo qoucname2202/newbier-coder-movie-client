@@ -45,7 +45,6 @@ import { apiPath } from '@/config/apiPaths';
 import { useClientYears } from '@/features/client/years/hooks/useClientYears';
 import {
   MAIN_NAV_ITEMS,
-  USER_NAV_ITEMS,
   NAVBAR_SEARCH_CONFIG
 } from '@/config/navigationConfig';
 

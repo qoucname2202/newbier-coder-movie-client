@@ -3,6 +3,7 @@ import styles from '@/styles/UserRatingDetails.module.css';
 import { RatingContext } from './RatingStats';
 import { getApiBaseUrl } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
+import authService from '@/API/services/authService';
 
 /** User rating entry */
 export interface UserRating {
@@ -39,7 +40,11 @@ const UserRatingDetails: React.FC<UserRatingDetailsProps> = ({ movieSlug }) => {
 
         const baseApiUrl = getApiBaseUrl();
 
-        const movieResponse = await fetch(apiUrl(`moviesDetail`, movieSlug));
+        // Both endpoints need the Bearer token, so the header is resolved
+        // through the shared auth service.
+        const headers = await authService.getAuthHeader();
+
+        const movieResponse = await fetch(apiUrl(`moviesDetail`, movieSlug), { headers });
         if (!movieResponse.ok) {
           throw new Error(`Failed to fetch movie info: ${movieResponse.status}`);
         }
@@ -51,7 +56,7 @@ const UserRatingDetails: React.FC<UserRatingDetailsProps> = ({ movieSlug }) => {
 
         const movieId = movieData.data._id;
 
-        const ratingsResponse = await fetch(apiUrl(`ratingsMovie`, movieId));
+        const ratingsResponse = await fetch(apiUrl(`ratingsMovie`, movieId), { headers });
         if (!ratingsResponse.ok) {
           throw new Error(`Failed to fetch ratings: ${ratingsResponse.status}`);
         }

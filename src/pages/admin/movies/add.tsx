@@ -8,9 +8,8 @@ import axios from '@/API/config/axiosConfig';
 import {
   FaFilm, FaArrowLeft, FaSave, FaMagic,
   FaCheck, FaImage, FaPlay, FaServer, FaTag,
-  FaUserTie, FaUsers, FaInfoCircle,
-  FaTv, FaStar, FaChevronRight, FaChevronLeft, FaSearch, FaTimes, FaLayerGroup, FaSlidersH,
-  FaCalendarAlt, FaCalendarCheck, FaClock, FaCheckCircle, FaExclamationTriangle, FaBell, FaCog,
+  FaUserTie, FaUsers, FaInfoCircle, FaStar, FaChevronRight, FaChevronLeft, FaSearch, FaTimes, FaLayerGroup, FaSlidersH,
+  FaCalendarAlt, FaCalendarCheck, FaClock, FaCheckCircle, FaBell,
   FaThumbtack, FaTrash, FaEdit
 } from 'react-icons/fa';
 import styles from '@/styles/AdminAddMovie.module.css';
@@ -38,7 +37,6 @@ import {
   PRESET_COUNTRIES,
   POPULAR_DIRECTORS,
   POPULAR_ACTORS,
-  PRESET_SHOWTIMES,
   PRESET_SHOWTIME_TEMPLATES,
   ShowtimeTemplate,
   SERVER_TEMPLATES,

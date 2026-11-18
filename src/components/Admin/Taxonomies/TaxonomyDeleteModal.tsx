@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { FaTrash, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
+import { FaTimes, FaExclamationTriangle } from 'react-icons/fa';
 import styles from '@/styles/AdminTaxonomies.module.css';
 
 interface TaxonomyDeleteModalProps {

@@ -2,9 +2,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import {
-  FaCloudDownloadAlt, FaSync, FaExclamationTriangle,
-  FaBolt, FaDatabase, FaSearch, FaCheckCircle,
-  FaTimes, FaCog, FaCheck, FaInfoCircle,
+  FaCloudDownloadAlt, FaSync, FaExclamationTriangle, FaDatabase, FaSearch,
+  FaTimes,
   FaFire
 } from 'react-icons/fa';
 import movieCrawlService from '@/features/admin/services/movieCrawlService';

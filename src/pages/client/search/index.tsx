@@ -3,7 +3,6 @@
  * @description Full-text search page with autocomplete suggestions, filters, and lazy-load.
  */
 import React, { useState, useEffect, useRef, ChangeEvent, MouseEvent } from 'react';
-import Link from 'next/link';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import movieService from '@/API/services/movieService';
