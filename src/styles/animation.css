@@ -54,3 +54,12 @@
     background-size: 200% 100%;
     animation: skeleton-loading 1.5s infinite ease-in-out;
 }
+
+/* Suppress default browser (Edge / IE) password reveal eye icon across all forms */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+}

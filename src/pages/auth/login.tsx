@@ -424,9 +424,10 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
                 className={styles.eyeButton}
                 onClick={toggleShowPassword}
                 aria-label={showPassword ? t.accessibility.hidePassword : t.accessibility.showPassword}
+                title={showPassword ? t.accessibility.hidePassword : t.accessibility.showPassword}
                 tabIndex={-1}
               >
-                {showPassword ? <FaEye /> : <FaEyeSlash />}
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
 
