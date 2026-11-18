@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Skeleton from '@/features/shared/components/UI/Skeleton';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 
 /**
  * A rotating carousel that shows the spotlight movies of the home page.
@@ -300,20 +301,20 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
                   <div className="poster-info-content">
                     <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
                       <span className="badge-cinema-hot">SPOTLIGHT</span>
-                      {movie.quality && <span className="badge-cinema-quality">{movie.quality}</span>}
-                      {movie.year && <span className="badge-cinema-meta">{movie.year}</span>}
+                      {movie.quality && <span className="badge-cinema-quality">{getTaxonomyName(movie.quality)}</span>}
+                      {movie.year && <span className="badge-cinema-meta">{formatYear(movie.year)}</span>}
                       {movie.episode_current && (
                         <span className="badge-cinema-meta d-none d-sm-inline">
-                          • {movie.episode_current}
+                          • {getTaxonomyName(movie.episode_current)}
                         </span>
                       )}
                     </div>
-                    <h3 className="poster-title" title={movie.name}>
-                      {movie.name}
+                    <h3 className="poster-title" title={getTaxonomyName(movie.name)}>
+                      {getTaxonomyName(movie.name)}
                     </h3>
                     {movie.origin_name && (
                       <p className="poster-origin-title">
-                        {movie.origin_name}
+                        {getTaxonomyName(movie.origin_name)}
                       </p>
                     )}
                   </div>

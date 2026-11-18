@@ -10,6 +10,7 @@ import radarService from '@/API/services/radarService';
 import { TrailerModal } from '@/features/movie-detail';
 import type { TrailerMovie } from '@/features/client/components/detail/components/TrailerModal';
 import { hasValidTrailer } from '@/utils/trailer';
+import { getTaxonomyName, formatYear } from '@/utils/taxonomy';
 import BackToTop from '@/features/shared/components/UI/BackToTop';
 import styles from '@/styles/Rankings.module.css';
 
@@ -22,7 +23,8 @@ interface RankedMovie {
   title?: string;
   poster_url?: string;
   year?: number;
-  genres?: string[];
+  genres?: Array<string | { id?: string | number; name?: string; slug?: string }>;
+  category?: Array<string | { id?: string | number; name?: string; slug?: string }>;
   rank?: number;
   delta_type?: 'up' | 'down' | 'new' | 'same';
   delta_val?: number | string;
@@ -223,13 +225,17 @@ export default function RankingsPage() {
                         {movie.title}
                       </Link>
                       <div className={styles.cardMeta}>
-                        <span>{movie.year || 2024}</span>
-                        {movie.genres && movie.genres.length > 0 && (
-                          <>
-                            <span className={styles.metaDot}>•</span>
-                            <span>{movie.genres[0]}</span>
-                          </>
-                        )}
+                        <span>{formatYear(movie.year, 2024)}</span>
+                        {(() => {
+                          const genreText = getTaxonomyName(movie.genres?.[0] || (Array.isArray(movie.category) ? movie.category[0] : null));
+                          if (!genreText) return null;
+                          return (
+                            <>
+                              <span className={styles.metaDot}>•</span>
+                              <span>{genreText}</span>
+                            </>
+                          );
+                        })()}
                       </div>
                       <div className={styles.metricBadge}>
                         {movie.metric_value} {movie.metric_label || ''}

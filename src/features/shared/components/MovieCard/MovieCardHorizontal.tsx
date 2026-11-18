@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 import styles from '@/styles/MovieCards.module.css';
 import type { MovieLite } from './MovieCardVertical';
 
@@ -129,13 +130,13 @@ const MovieCardHorizontal: React.FC<MovieCardHorizontalProps> = ({
 
         {/* Overlaid Movie Information */}
         <div className={styles.wideInfoOverlay}>
-          <h4 className={styles.wideTitle} title={movie?.name}>
-            {movie?.name}
+          <h4 className={styles.wideTitle} title={getTaxonomyName(movie?.name)}>
+            {getTaxonomyName(movie?.name)}
           </h4>
           <div className={styles.wideMetaRow}>
             {badge && (
               <span className={styles.wideBadge}>
-                {badge}
+                {getTaxonomyName(badge)}
               </span>
             )}
             {ratingText && (
@@ -143,10 +144,10 @@ const MovieCardHorizontal: React.FC<MovieCardHorizontalProps> = ({
                 ★ {ratingText}
               </span>
             )}
-            <span>{movie?.year || new Date().getFullYear()}</span>
+            <span>{formatYear(movie?.year)}</span>
             <span className={styles.metaDot} aria-hidden="true" />
             <span className="text-truncate" style={{ maxWidth: '140px' }}>
-              {movie?.origin_name || (movie?.type === 'series' ? 'Phim bộ' : 'Phim lẻ')}
+              {getTaxonomyName(movie?.origin_name) || (movie?.type === 'series' ? 'Phim bộ' : 'Phim lẻ')}
             </span>
           </div>
         </div>

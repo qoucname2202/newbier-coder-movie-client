@@ -17,6 +17,7 @@ import {
   FALLBACK_POSTER
 } from '@/utils/imageSource';
 import { hasValidTrailer } from '@/utils/trailer';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 
 /** A raw movie coming from the API. The shape is loose. */
 export type SpotlightMovie = Record<string, unknown> & {
@@ -190,10 +191,10 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
   if (!currentMovie) return null;
 
   const movieRating = currentMovie.rating ? Number(currentMovie.rating).toFixed(1) : '8.5';
-  const movieQuality = currentMovie.quality || '4K';
-  const movieLang = currentMovie.lang || 'Vietsub';
-  const movieYear = currentMovie.year || 2024;
-  const movieTime = currentMovie.time || '120 phút';
+  const movieQuality = getTaxonomyName(currentMovie.quality, '4K');
+  const movieLang = getTaxonomyName(currentMovie.lang, 'Vietsub');
+  const movieYear = formatYear(currentMovie.year, 2024);
+  const movieTime = getTaxonomyName(currentMovie.time, '120 phút');
 
   return (
     <section className={styles.bigSlideSection} aria-label="Tiêu Điểm Anime">
@@ -227,7 +228,7 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
           <img
             key={currentMovie._id || currentMovie.slug}
             src={backdropSrc}
-            alt={currentMovie.name}
+            alt={getTaxonomyName(currentMovie.name)}
             className={styles.backdropImage}
             onError={() => {
               setBackdropSrc(FALLBACK_BACKDROP);
@@ -241,14 +242,14 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
           <div className={styles.contentBox}>
             {badge && (
               <div className={styles.badgeHighlight}>
-                <span>{badge}</span>
+                <span>{getTaxonomyName(badge)}</span>
               </div>
             )}
 
-            <h2 className={styles.title}>{currentMovie.name}</h2>
+            <h2 className={styles.title}>{getTaxonomyName(currentMovie.name)}</h2>
 
             {currentMovie.origin_name && (
-              <div className={styles.originTitle}>{currentMovie.origin_name}</div>
+              <div className={styles.originTitle}>{getTaxonomyName(currentMovie.origin_name)}</div>
             )}
 
             <div className={styles.metaRow}>

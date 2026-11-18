@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 import styles from '@/styles/MovieCards.module.css';
 
 /**
@@ -139,14 +140,14 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
             {ratingText}
           </span>
           <span className={styles.qualityBadge}>
-            {movie?.quality || 'FHD'}
+            {getTaxonomyName(movie?.quality, 'FHD')}
           </span>
         </div>
 
         {/* Bottom Episode / Lang Tag */}
         {bottomTag && (
           <span className={styles.episodeBadge}>
-            {bottomTag}
+            {getTaxonomyName(bottomTag)}
           </span>
         )}
 
@@ -164,7 +165,7 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
                 onPlayTrailer(movie);
               }
             }}
-            aria-label={`Xem trailer ${movie?.name}`}
+            aria-label={`Xem trailer ${getTaxonomyName(movie?.name)}`}
             title="Xem trailer"
           >
             <svg
@@ -181,18 +182,18 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
 
       {/* Movie info below poster */}
       <div className={styles.cardInfo}>
-        <h4 className={styles.movieName} title={movie?.name}>
-          {movie?.name}
+        <h4 className={styles.movieName} title={getTaxonomyName(movie?.name)}>
+          {getTaxonomyName(movie?.name)}
         </h4>
         <div className={styles.movieMeta}>
-          <span>{movie?.year || new Date().getFullYear()}</span>
+          <span>{formatYear(movie?.year)}</span>
           <span className={styles.metaDot} aria-hidden="true" />
           <span>{movie?.type === 'series' ? 'Bộ' : 'Lẻ'}</span>
           {movie?.origin_name && (
             <>
               <span className={styles.metaDot} aria-hidden="true" />
               <span className="text-truncate" style={{ maxWidth: '110px' }}>
-                {movie.origin_name}
+                {getTaxonomyName(movie.origin_name)}
               </span>
             </>
           )}

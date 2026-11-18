@@ -13,6 +13,7 @@ import {
   LOCAL_DEFAULT_BACKDROP
 } from '@/config/movieConfig';
 import { hasValidTrailer } from '@/utils/trailer';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 
 /** A category entry used for the pill chips. */
 interface CategoryEntry {
@@ -370,20 +371,20 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ movies = [], loading = false, o
             )}
 
             {activeMovie.lang && (
-              <span className={styles.langBadge}>{activeMovie.lang}</span>
+              <span className={styles.langBadge}>{getTaxonomyName(activeMovie.lang)}</span>
             )}
 
             {activeMovie.year && (
               <>
                 <span className={styles.metaDot} />
-                <span className={styles.metaItem}>{activeMovie.year}</span>
+                <span className={styles.metaItem}>{formatYear(activeMovie.year)}</span>
               </>
             )}
 
             {activeMovie.time && (
               <>
                 <span className={styles.metaDot} />
-                <span className={styles.metaItem}>{activeMovie.time}</span>
+                <span className={styles.metaItem}>{getTaxonomyName(activeMovie.time)}</span>
               </>
             )}
           </div>

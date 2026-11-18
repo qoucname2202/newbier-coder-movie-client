@@ -145,58 +145,14 @@ const subscriptionService = {
   },
 
   getCurrentSubscription: async (): Promise<SubscriptionCurrentPayload> => {
-    try {
-      const response = await api.get(apiPath(`subscriptionCurrent`));
-      const data = (response.data as { data?: Partial<SubscriptionCurrentPayload> }).data || {};
-      return {
-        hasActiveSubscription: data.hasActiveSubscription || false,
-        subscription: data.subscription || null,
-        daysLeft: data.daysLeft || 0,
-        isExpired: data.isExpired || false
-      };
-    } catch (error) {
-
-      return emptyCurrent();
-    }
+    // Endpoint /subscription/current is removed per user request (not currently in use)
+    return emptyCurrent();
   },
 
   getUserAdBenefits: async (): Promise<AdBenefits> => {
-    const token = typeof window !== 'undefined' ? getStoredAccessToken() : null;
-
-    if (!token) {
-      return { ...emptyAdBenefits(true) };
-    }
-
-    try {
-      // The backend exposes subscription state under `/subscription/current`.
-      // It returns `{ hasActiveSubscription, subscription, daysLeft, isExpired }`.
-      // We derive ad-block benefits locally from the package id so we never
-      // hit a non-existent endpoint.
-      const response = await api.get(apiPath(`subscriptionCurrent`), {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const payload = (response.data as { data?: Partial<SubscriptionCurrentPayload> }).data || {};
-      const subscription = (payload.subscription || null) as Subscription | null;
-      const packageType = subscription?.packageId
-        ? (typeof subscription.packageId === 'string' ? subscription.packageId : (subscription.packageId as { _id?: string })?._id ?? null)
-        : null;
-      const isPremiumPackage = packageType === PREMIUM_PACKAGE_ID;
-      const hasActiveSubscription = Boolean(payload.hasActiveSubscription) && !payload.isExpired;
-      return {
-        hideHomepageAds: hasActiveSubscription && isPremiumPackage,
-        hideVideoAds: hasActiveSubscription && isPremiumPackage,
-        packageType,
-        hasActiveSubscription,
-        isPremium15k: isPremiumPackage
-      };
-    } catch (error) {
-      const err = error as { response?: { status?: number } };
-      if (err?.response?.status === 401 || err?.response?.status === 403) {
-
-        return { ...emptyAdBenefits(true) };
-      }
-      return { ...emptyAdBenefits(false) };
-    }
+    // Endpoint /subscription/current is removed per user request (not currently in use).
+    // Defaults cleanly without hitting non-existent backend endpoints.
+    return { ...emptyAdBenefits(true) };
   },
 
   getSubscriptionHistory: async (): Promise<unknown> => {

@@ -6,6 +6,7 @@
 import { safeFetchJson } from '@/API/services/movieService';
 import { filterMoviesWithValidTrailer } from '@/utils/trailer';
 import { apiPath } from '@/config/apiPaths';
+import { getTaxonomyName, formatYear } from '@/utils/taxonomy';
 
 export type RadarPeriod = 'week' | 'month';
 export type RadarCategory = 'discussed' | 'favorite' | 'views';
@@ -14,10 +15,19 @@ export interface RadarItem {
   id?: string;
   slug?: string;
   name?: string;
+  title?: string;
   thumb_url?: string;
   poster_url?: string;
-  rating?: number;
-  views?: number;
+  backdrop_url?: string;
+  rating?: number | string;
+  views?: number | string;
+  year?: number | string;
+  rank?: number;
+  metric_value?: number | string;
+  metric_label?: string;
+  delta_type?: string;
+  delta_val?: number | string;
+  genres?: string[];
   // Optional trailer fields. The radar endpoint may or may not
   // include them depending on the backend payload — keep them
   // optional and structurally aligned with `@/utils/trailer` so the
@@ -45,6 +55,46 @@ export interface RadarPayload {
   period: string;
 }
 
+/**
+ * Normalizes a raw radar movie item from heterogeneous backend responses,
+ * ensuring genres are clean string arrays rather than un-renderable {id, name, slug} objects.
+ */
+const normalizeRadarItem = (item: RadarItem): RadarItem => {
+  if (!item || typeof item !== 'object') return item;
+  const rawRecord = item as Record<string, unknown>;
+  const rawGenres = item.genres || rawRecord.category;
+  let normalizedGenres: string[] = [];
+
+  if (Array.isArray(rawGenres)) {
+    normalizedGenres = rawGenres
+      .map((g) => getTaxonomyName(g))
+      .filter((name) => name.length > 0);
+  } else if (rawGenres) {
+    const single = getTaxonomyName(rawGenres);
+    if (single) normalizedGenres = [single];
+  }
+
+  const title = (item.title || item.name || '') as string;
+  const name = (item.name || item.title || '') as string;
+  const year = formatYear(item.year, 2024);
+
+  return {
+    ...item,
+    title: title || (item.title as string),
+    name: name || (item.name as string),
+    year,
+    genres: normalizedGenres
+  };
+};
+
+/**
+ * Batch-normalizes a list of radar movie items.
+ */
+const normalizeRadarList = (list: RadarItem[] = []): RadarItem[] => {
+  if (!Array.isArray(list)) return [];
+  return list.map(normalizeRadarItem);
+};
+
 export const radarService = {
   getTrendingRadar: async ({ period = 'week' }: { period?: RadarPeriod } = {}): Promise<RadarPayload> => {
     try {
@@ -56,10 +106,10 @@ export const radarService = {
         // and the runner-up rows so we never expose a "Xem trailer"
         // button that opens an unplayable modal.
         return {
-          discussed: filterMoviesWithValidTrailer(data.discussed),
-          favorite: filterMoviesWithValidTrailer(data.favorite || []),
-          views: filterMoviesWithValidTrailer(breakthrough),
-          breakthrough: filterMoviesWithValidTrailer(breakthrough),
+          discussed: filterMoviesWithValidTrailer(normalizeRadarList(data.discussed)),
+          favorite: filterMoviesWithValidTrailer(normalizeRadarList(data.favorite || [])),
+          views: filterMoviesWithValidTrailer(normalizeRadarList(breakthrough)),
+          breakthrough: filterMoviesWithValidTrailer(normalizeRadarList(breakthrough)),
           genres: data.genres,
           period
         };
@@ -91,7 +141,7 @@ export const radarService = {
         // The rankings grid also has a per-card "Trailer" button.
         // Filter so the user is never shown a card that opens a
         // modal with no playable trailer.
-        const filtered = filterMoviesWithValidTrailer(items);
+        const filtered = filterMoviesWithValidTrailer(normalizeRadarList(items));
         return filtered.slice(0, limit);
       }
     } catch {
