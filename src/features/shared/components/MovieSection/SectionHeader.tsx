@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { getTaxonomyName } from '@/utils/taxonomy';
 import styles from '@/styles/MovieCards.module.css';
 
 /**
@@ -30,14 +31,14 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
         <span className={styles.accentBar} aria-hidden="true" />
         <h2 className={styles.headerTitle}>
           {icon && <span className={styles.headerIcon}>{icon}</span>}
-          <span>{title}</span>
-          {badge && <span className={styles.headerBadge}>{badge}</span>}
+          <span>{typeof title === 'string' ? title : getTaxonomyName(title)}</span>
+          {badge && <span className={styles.headerBadge}>{typeof badge === 'string' ? badge : getTaxonomyName(badge)}</span>}
         </h2>
       </div>
 
       {viewAllHref && (
         <Link href={viewAllHref} className={styles.viewAllLink}>
-          <span>{viewAllText}</span>
+          <span>{typeof viewAllText === 'string' ? viewAllText : getTaxonomyName(viewAllText, 'Xem tất cả')}</span>
           <svg
             className={styles.viewAllArrow}
             width="14"

@@ -26,60 +26,31 @@ export class YearClientService implements IYearClientService {
    * @param signal Optional AbortSignal
    * @returns Array of active YearEntity objects sorted chronologically descending
    */
-  async getActiveYears(signal?: AbortSignal): Promise<YearEntity[]> {
+  async getActiveYears(_signal?: AbortSignal): Promise<YearEntity[]> {
     if (this.cachedActiveYears && this.cachedActiveYears.length > 0) {
       return this.cachedActiveYears;
     }
 
-    if (this.inFlightPromise) {
-      return this.inFlightPromise;
-    }
+    // Backend endpoint /years is removed per user request.
+    // Static active release years are loaded and cached locally without API calls.
+    const activeYears = (INITIAL_YEARS || [])
+      .filter((y) => y.isActive !== false)
+      .map((y) => ({
+        id: String(y.id || y.slug),
+        name: String(y.name || y.slug),
+        slug: String(y.slug),
+        description: y.description || '',
+        isActive: true,
+        movieCount: typeof y.movieCount === 'number' ? y.movieCount : 0,
+      }))
+      .sort((a, b) => {
+        const numA = parseInt(a.name, 10) || 0;
+        const numB = parseInt(b.name, 10) || 0;
+        return numB - numA;
+      });
 
-    this.inFlightPromise = (async () => {
-      let candidateYears: YearEntity[] = [];
-
-      try {
-        // The URL is built by `apiUrl()`, so the browser reaches the
-        // same-origin proxy and the backend host never reaches the client
-        // bundle.
-        const response = await axios.get(apiUrl('taxonomyYears'), {
-          signal,
-          headers: {
-            Accept: 'application/json',
-          },
-          timeout: 8000,
-        });
-
-        candidateYears = extractYearList(response.data);
-      } catch {
-        // Fallback to initial mock taxonomies when network/offline
-        candidateYears = (INITIAL_YEARS || []).map((y) => ({
-          id: String(y.id || y.slug),
-          name: String(y.name || y.slug),
-          slug: String(y.slug),
-          description: y.description || '',
-          isActive: y.isActive !== undefined ? Boolean(y.isActive) : true,
-          movieCount: typeof y.movieCount === 'number' ? y.movieCount : 0,
-        }));
-      }
-
-      // CRITICAL BUSINESS RULE:
-      // Filter out any release year where isActive is false.
-      // Inactive years MUST NOT be displayed in client navigation or movie filters.
-      const activeYears = candidateYears
-        .filter((y) => y.isActive !== false)
-        .sort((a, b) => {
-          const numA = parseInt(a.name, 10) || 0;
-          const numB = parseInt(b.name, 10) || 0;
-          return numB - numA;
-        });
-
-      this.cachedActiveYears = activeYears;
-      this.inFlightPromise = null;
-      return activeYears;
-    })();
-
-    return this.inFlightPromise;
+    this.cachedActiveYears = activeYears;
+    return activeYears;
   }
 
   /**

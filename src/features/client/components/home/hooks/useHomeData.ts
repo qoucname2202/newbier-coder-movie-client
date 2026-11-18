@@ -30,6 +30,7 @@ import {
 import movieService from '@/API/services/movieService';
 import upcomingMovieService from '@/API/services/upcomingMovieService';
 import { filterMoviesWithValidTrailer } from '@/utils/trailer';
+import { formatYear } from '@/utils/taxonomy';
 import {
   mockMovies,
   mockAnimationMovies
@@ -170,11 +171,13 @@ const normalizeMovie = (movie: RawMovie | null | undefined, index = 0): Normaliz
 
   const id = (movie._id as string) || (movie.id as string) || `movie-${index}`;
   const name = (movie.name as string) || 'Phim Đang Cập Nhật';
+  const year = formatYear(movie.year, new Date().getFullYear());
 
   return {
     ...movie,
     _id: id,
     name,
+    year,
     poster_url: poster,
     thumb_url: thumb,
     backdrop_url: backdrop

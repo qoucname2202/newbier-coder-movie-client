@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import radarService from '@/API/services/radarService';
 import { hasValidTrailer } from '@/utils/trailer';
+import { getTaxonomyName, getTaxonomyList, formatYear } from '@/utils/taxonomy';
 import styles from './RadarTop10Modal.module.css';
 import type { RadarMovie, DeltaType } from './TrendingRadarSection';
 
@@ -175,13 +176,17 @@ const RadarTop10Modal: React.FC<RadarTop10ModalProps> = ({
             {movie.title}
           </div>
           <div className={styles.movieMeta}>
-            <span>{movie.year || 2024}</span>
-            {movie.genres && movie.genres.length > 0 && (
-              <>
-                <span className={styles.metaDot}>•</span>
-                <span>{movie.genres[0]}</span>
-              </>
-            )}
+            <span>{formatYear(movie.year, 2024)}</span>
+            {(() => {
+              const genreText = getTaxonomyName(movie.genres?.[0] || (Array.isArray(movie.category) ? movie.category[0] : null));
+              if (!genreText) return null;
+              return (
+                <>
+                  <span className={styles.metaDot}>•</span>
+                  <span>{genreText}</span>
+                </>
+              );
+            })()}
             <span className={styles.metaDot}>•</span>
             <span className={styles.metricVal}>{movie.metric_value}</span>
           </div>
@@ -309,13 +314,17 @@ const RadarTop10Modal: React.FC<RadarTop10ModalProps> = ({
                 <div className={styles.confirmInfo}>
                   <div className={styles.confirmMovieName}>{confirmMovie.title}</div>
                   <div className={styles.confirmMeta}>
-                    <span>{confirmMovie.year || 2024}</span>
-                    {confirmMovie.genres && confirmMovie.genres.length > 0 && (
-                      <>
-                        <span className={styles.metaDot}>•</span>
-                        <span>{confirmMovie.genres.join(', ')}</span>
-                      </>
-                    )}
+                    <span>{formatYear(confirmMovie.year, 2024)}</span>
+                    {(() => {
+                      const genresText = getTaxonomyList(confirmMovie.genres || (confirmMovie as Record<string, unknown>).category);
+                      if (!genresText) return null;
+                      return (
+                        <>
+                          <span className={styles.metaDot}>•</span>
+                          <span>{genresText}</span>
+                        </>
+                      );
+                    })()}
                   </div>
                   <div className={styles.confirmMetric}>
                     Chỉ số: {confirmMovie.metric_value} {confirmMovie.metric_label || ''}

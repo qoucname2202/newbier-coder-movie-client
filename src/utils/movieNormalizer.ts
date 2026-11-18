@@ -11,6 +11,7 @@ import {
   MOVIE_FALLBACK_DEFAULTS
 } from '@/config/movieFallbackConfig';
 import { SYSTEM_CONFIG } from '@/config/systemConfig';
+import { formatYear } from '@/utils/taxonomy';
 
 /** A normalized category item. */
 export interface CategoryItem {
@@ -180,10 +181,8 @@ export const resolveMovieCategories = (movie?: Record<string, unknown> | null): 
  * @returns The release year.
  */
 export const resolveMovieYear = (movie?: Record<string, unknown> | null): string | number => {
-  if (movie?.year && String(movie.year).trim() !== '') {
-    return movie.year as string | number;
-  }
-  return MOVIE_FALLBACK_DEFAULTS.year;
+  if (!movie?.year) return MOVIE_FALLBACK_DEFAULTS.year;
+  return formatYear(movie.year, MOVIE_FALLBACK_DEFAULTS.year);
 };
 
 /**

@@ -12,49 +12,9 @@ import authService from '@/API/services/authService';
  * @param userId - The id of the user to check.
  * @returns true when a pending request exists, false otherwise.
  */
-export const checkPaymentSent = async (userId: string): Promise<boolean> => {
-  try {
-    // NOTE: This used to call `/api/subscription/check-pending-for-user`. That
-    // route does not exist in the Next.js API (src/pages/api) nor on the v1
-    // backend, so the request fell into a 404 HTML page and
-    // `response.json()` threw. The real subscription endpoint
-    // (`GET /subscription/current`) is used instead, and the pending state is
-    // derived from `subscription.status`.
-    // The endpoint needs the Bearer token, so the header is resolved
-    // through the shared auth service.
-    const authHeaders = await authService.getAuthHeader();
-    const response = await fetch(apiUrl(`subscriptionCurrent`), {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json', ...authHeaders },
-      credentials: 'include'
-    });
-
-    if (!response.ok) return false;
-
-    const data = await response.json() as {
-      data?: {
-        subscription?: { status?: string; userId?: string | { _id?: string } } | null;
-        hasPendingSubscription?: boolean;
-      };
-      hasPending?: boolean;
-    };
-
-    if (typeof data.data?.hasPendingSubscription === 'boolean') {
-      return data.data.hasPendingSubscription;
-    }
-    if (typeof data.hasPending === 'boolean') return data.hasPending;
-
-    const subscription = data.data?.subscription;
-    if (!subscription || subscription.status !== 'pending') return false;
-
-    const owner = subscription.userId;
-    const ownerId = typeof owner === 'string' ? owner : owner?._id;
-    if (ownerId && userId) return String(ownerId) === String(userId);
-    return true;
-  } catch (error) {
-
-    return false;
-  }
+export const checkPaymentSent = async (_userId: string): Promise<boolean> => {
+  // /subscription/current endpoint is removed per user request (not in use)
+  return false;
 };
 
 /**

@@ -4,6 +4,7 @@ import Skeleton from '@/features/shared/components/UI/Skeleton';
 import SectionHeader from '@/features/shared/components/MovieSection/SectionHeader';
 import { hasValidTrailer } from '@/utils/trailer';
 import radarService from '@/API/services/radarService';
+import { getTaxonomyName, getTaxonomyList, getTaxonomySlug, formatYear } from '@/utils/taxonomy';
 import RadarTop10Modal from './RadarTop10Modal';
 import styles from './TrendingRadarSection.module.css';
 
@@ -21,6 +22,7 @@ export interface RadarMovie {
   poster_url?: string;
   backdrop_url?: string;
   genres?: string[];
+  category?: Array<{ id?: string | number; name?: string; slug?: string }>;
   rank?: number;
   metric_value?: number | string;
   metric_label?: string;
@@ -310,9 +312,9 @@ const TrendingRadarSection: React.FC<TrendingRadarSectionProps> = ({
                       </h4>
 
                       <div className={styles.championMeta}>
-                        <span>{championMovie.year}</span>
+                        <span>{formatYear(championMovie.year)}</span>
                         <span>•</span>
-                        <span>{championMovie.genres?.join(', ')}</span>
+                        <span>{getTaxonomyList(championMovie.genres || championMovie.category)}</span>
                         <span>•</span>
                         <span className="text-warning fw-bold">★ {championMovie.rating}</span>
                       </div>
@@ -370,9 +372,9 @@ const TrendingRadarSection: React.FC<TrendingRadarSectionProps> = ({
                       </h5>
 
                       <div className={styles.rowMeta}>
-                        <span>{movie.year}</span>
+                        <span>{formatYear(movie.year)}</span>
                         <span>•</span>
-                        <span>{movie.genres?.[0] || 'Phim'}</span>
+                        <span>{getTaxonomyName(movie.genres?.[0] || (Array.isArray(movie.category) ? movie.category[0] : null), 'Phim')}</span>
                         <span>•</span>
                         <span className="fw-semibold text-slate-300">
                           {movie.metric_value}
@@ -397,26 +399,28 @@ const TrendingRadarSection: React.FC<TrendingRadarSectionProps> = ({
             </div>
 
             <div className={styles.genreList}>
-              {trendingGenres.map((genre) => (
+              {trendingGenres.map((genre, idx) => (
                 <Link
-                  key={genre._id}
-                  href={`/category/${genre.slug}`}
+                  key={genre._id || genre.slug || `genre-${idx}`}
+                  href={`/category/${getTaxonomySlug(genre)}`}
                   className={styles.genreItem}
                 >
                   <span className={styles.genreRankNumber}>
-                    {genre.rank < 10 ? `0${genre.rank}` : genre.rank}
+                    {(genre.rank ?? idx + 1) < 10 ? `0${genre.rank ?? idx + 1}` : (genre.rank ?? idx + 1)}
                   </span>
 
                   <div className={styles.genreInfoCol}>
-                    <h5 className={styles.genreName} title={genre.name}>
-                      {genre.name}
+                    <h5 className={styles.genreName} title={getTaxonomyName(genre)}>
+                      {getTaxonomyName(genre)}
                     </h5>
 
-                    <div className={styles.genreBottomRow}>
-                      <span className={styles.genreLeading}>
-                        Tiêu biểu: {genre.leading_movie}
-                      </span>
-                    </div>
+                    {genre.leading_movie && (
+                      <div className={styles.genreBottomRow}>
+                        <span className={styles.genreLeading}>
+                          Tiêu biểu: {typeof genre.leading_movie === 'string' ? genre.leading_movie : getTaxonomyName(genre.leading_movie)}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {renderDelta(genre.delta_type, genre.delta_val)}
