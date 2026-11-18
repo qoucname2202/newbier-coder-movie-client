@@ -11,6 +11,7 @@
  */
 import { getApiBaseUrl } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
+import authService from '@/API/services/authService';
 
 const API_URL = getApiBaseUrl();
 
@@ -71,7 +72,14 @@ function getCountdownText(releaseDate: Date): string {
 
 const fetchJson = async (url: string, init?: RequestInit): Promise<unknown> => {
   try {
-    const res = await fetch(url, init);
+    // The endpoints of the backend need the Bearer token, so the header is
+    // resolved through the shared auth service (it also restores the session
+    // and refreshes an expiring token).
+    const authHeaders = await authService.getAuthHeader();
+    const res = await fetch(url, {
+      ...init,
+      headers: { Accept: 'application/json', ...authHeaders, ...(init?.headers || {}) }
+    });
     if (!res.ok) return null;
     return await res.json();
   } catch {

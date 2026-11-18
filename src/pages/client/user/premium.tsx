@@ -2,11 +2,11 @@
  * @file pages/user/premium.tsx
  * @description Premium subscription page with package selection, payment flow, and FAQ.
  */
-import React, { useState, useEffect, MouseEvent } from 'react';
+import React, { useState, useEffect} from 'react';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import {
-  FaCrown, FaCheckCircle, FaTimes, FaLock, FaHourglassHalf,
+  FaCrown, FaCheckCircle, FaTimes, FaHourglassHalf,
   FaInfoCircle, FaQrcode, FaCheckDouble
 } from 'react-icons/fa';
 import subscriptionService from '@/API/services/subscriptionService';

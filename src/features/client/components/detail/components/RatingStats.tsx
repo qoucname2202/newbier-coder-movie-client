@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, createContext, useContext } from 'react';
+import React, { useState, useRef, useEffect, createContext} from 'react';
 import styles from '@/styles/RatingStats.module.css';
 import UserRatingDetails from './UserRatingDetails';
 

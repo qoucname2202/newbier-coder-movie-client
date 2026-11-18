@@ -5,11 +5,10 @@ import AdminRoute from '@/features/shared/components/ProtectedRoute/AdminRoute';
 import styles from '@/styles/AdminReports.module.css';
 import AdminLayout from '@/layouts/AdminLayout';
 import {
-  FaEye, FaCheck, FaTimes, FaFilter, FaExclamationTriangle,
+  FaEye, FaCheck, FaTimes, FaExclamationTriangle,
   FaClock, FaExclamationCircle, FaUser, FaFilm,
-  FaChevronLeft, FaChevronRight, FaEnvelope, FaLink,
-  FaPlay, FaPlayCircle, FaEdit, FaTrash, FaSort,
-  FaSortUp, FaSortDown, FaListUl, FaCheckSquare, FaCalendarAlt,
+  FaChevronLeft, FaChevronRight, FaEnvelope, FaPlayCircle, FaSort,
+  FaSortUp, FaSortDown,
   FaSearch
 } from 'react-icons/fa';
 import { getReports, updateReport } from '@/features/admin/services/reportService';

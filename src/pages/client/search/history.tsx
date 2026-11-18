@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import searchHistoryService from '@/API/services/searchHistoryService';
-import { FaSearch, FaTimes, FaTrash, FaHistory, FaTimesCircle } from 'react-icons/fa';
+import { FaSearch, FaTrash, FaHistory, FaTimesCircle } from 'react-icons/fa';
 
 interface SearchHistoryFilters {
   category?: string;

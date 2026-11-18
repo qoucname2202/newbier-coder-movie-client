@@ -31,7 +31,6 @@ import { ADMIN_PEOPLE_I18N } from '@/config/i18n/admin';
 import { INITIAL_ACTORS as MOCK_ACTORS, INITIAL_DIRECTORS as MOCK_DIRECTORS } from '@/mock/admin';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { toastNotification } from '@/utils/notification/toastNotification';
 
 type PeopleTab = 'actors' | 'directors';
 

@@ -3,7 +3,7 @@
  * @description Fetches and renders banner ads from adService.
  */
 
-import React, { useState, useEffect, MouseEvent } from 'react';
+import React, { useState, useEffect} from 'react';
 import { FaTimes } from 'react-icons/fa';
 import adService, { Advertisement } from '@/API/services/adService';
 import styles from '@/styles/Advertisement.module.css';

@@ -32,8 +32,6 @@ import upcomingMovieService from '@/API/services/upcomingMovieService';
 import { filterMoviesWithValidTrailer } from '@/utils/trailer';
 import {
   mockMovies,
-  mockKoreanMovies,
-  mockChineseMovies,
   mockAnimationMovies
 } from '@/mock/mockMovies';
 

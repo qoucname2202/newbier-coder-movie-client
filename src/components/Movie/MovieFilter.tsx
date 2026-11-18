@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { FaFilter, FaSearch, FaArrowRight, FaCaretDown, FaCaretUp, FaThLarge, FaSlidersH } from 'react-icons/fa';
 import styles from '@/styles/MovieFilter.module.css';
-import { showCinemaAlert } from '@/features/shared/components/UI/CinemaAlert';
 import { useClientYears } from '@/features/client/years/hooks/useClientYears';
 
 /**

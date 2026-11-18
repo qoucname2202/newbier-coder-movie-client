@@ -21,14 +21,11 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import {
   backendLogin,
-  ensureCsrfToken,
   sessionCookieOptions,
   verifyCsrfToken,
-  writeCsrfCookie,
   writeSession,
   readTokenExpiry,
-  stripTokensFromUser,
-} from '@/utils/serverAuthSession';
+  stripTokensFromUser,} from '@/utils/serverAuthSession';
 
 interface ErrorResponse {
   message: string;

@@ -9,7 +9,6 @@ import {
   FaMobileAlt,
   FaUnlock,
   FaCheckCircle,
-  FaTimesCircle,
   FaMapMarkerAlt
 } from 'react-icons/fa';
 import styles from '@/styles/LoginHistoryModal.module.css';

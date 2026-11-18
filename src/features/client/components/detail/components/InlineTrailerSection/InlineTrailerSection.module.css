@@ -316,8 +316,16 @@
 }
 
 @media (max-width: 767px) {
+  .sectionWrapper {
+    margin-top: 20px;
+  }
+
+  .sectionTitle {
+    font-size: 1.05rem;
+  }
+
   .posterCover {
-    min-height: 220px;
+    min-height: 200px;
     padding-top: 56.25%;
   }
 
@@ -327,19 +335,34 @@
     font-size: 1.15rem;
   }
 
+  .playPromptText {
+    font-size: 0.78rem;
+  }
+
   .bottomInfoBar {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .trailerMovieTitle {
+    font-size: 1rem;
   }
 
   .btnWatchTrailerNow {
     display: none;
   }
 
+  .floatingBadges {
+    top: 10px;
+    left: 10px;
+  }
+
   .noTrailerFallback {
     flex-direction: column;
     text-align: center;
     align-items: center;
+    padding: 24px 16px;
   }
 }

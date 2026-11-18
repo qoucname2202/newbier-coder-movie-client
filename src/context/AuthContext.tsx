@@ -22,9 +22,7 @@ import {
   ensureSessionReady,
   getMemoryAccessToken,
   getMemoryUser,
-  setMemoryAccessToken,
-  setMemoryUser,
-} from '@/utils/accessTokenStore';
+  setMemoryUser,} from '@/utils/accessTokenStore';
 
 /** Obfuscation helpers, used to hide the user info in DevTools. */
 const OBFUSCATION_KEY = process.env.NEXT_PUBLIC_SESSION_OBFUSCATE || 'xK9mP2vL';

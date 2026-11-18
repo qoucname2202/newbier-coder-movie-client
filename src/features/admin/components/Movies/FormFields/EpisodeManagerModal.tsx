@@ -20,15 +20,11 @@ import {
   FaList,
   FaSearch,
   FaPaste,
-  FaExternalLinkAlt,
   FaChevronLeft,
   FaChevronRight,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
-  FaLayerGroup,
-  FaCheckSquare,
-  FaSquare
-} from 'react-icons/fa';
+  FaLayerGroup} from 'react-icons/fa';
 import styles from '@/styles/EpisodeManager.module.css';
 import { showCinemaAlert } from '@/features/shared/components/UI/CinemaAlert';
 

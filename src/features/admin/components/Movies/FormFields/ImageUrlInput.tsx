@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from '@/styles/AdminMoviesEnhanced.module.css';
-import { FaImage, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 
 interface ImageUrlInputProps {
   id: string;

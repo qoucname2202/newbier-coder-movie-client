@@ -18,6 +18,64 @@
   .sectionContainer {
     padding: 16px;
   }
+
+  .sectionTitle {
+    font-size: 1.05rem;
+  }
+
+  .sortTabs {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .sortBtn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .ratingScoreboard {
+    padding: 14px;
+  }
+
+  /* Ten stars at a 32px tap target need 320px, which does not fit a
+     320px-wide phone. The stars shrink a little and the row is allowed
+     to wrap. */
+  .starBtn {
+    min-width: 26px;
+    min-height: 30px;
+    font-size: 1rem;
+  }
+
+  .interactiveStars {
+    gap: 0;
+  }
+
+  .barRow {
+    font-size: 0.68rem;
+  }
+
+  .breakdownBars {
+    padding: 0;
+  }
+
+  .commentFormCard {
+    padding: 14px;
+  }
+
+  .formFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .formSubmitGroup {
+    justify-content: space-between;
+  }
+
+  .btnSubmit {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 /* Header Row */
@@ -68,6 +126,7 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 32px;
 }
 
 .sortBtn:hover {
@@ -85,7 +144,10 @@
 /* Rating Scoreboard */
 .ratingScoreboard {
   display: grid;
-  grid-template-columns: 160px 1fr 240px;
+  /* `minmax(0, ...)` instead of the bare `1fr`: the automatic minimum size of
+     a grid track is its content size, so the breakdown bars pushed the whole
+     grid wider than the card on narrow screens. */
+  grid-template-columns: 160px minmax(0, 1fr) minmax(0, 240px);
   gap: 20px;
   align-items: center;
   background: rgba(255, 255, 255, 0.02);
@@ -97,7 +159,7 @@
 
 @media (max-width: 991px) {
   .ratingScoreboard {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
 }
@@ -107,6 +169,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  min-width: 0;
 }
 
 .bigScoreRow {
@@ -147,6 +210,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 0 10px;
+  min-width: 0;
 }
 
 .barRow {
@@ -154,6 +218,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.72rem;
+  min-width: 0;
 }
 
 .starLabel {
@@ -165,6 +230,7 @@
 
 .barTrack {
   flex: 1;
+  min-width: 0;
   height: 6px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 3px;
@@ -194,6 +260,9 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   padding: 12px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .votePrompt {
@@ -205,7 +274,10 @@
 .interactiveStars {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 2px;
+  max-width: 100%;
 }
 
 .starBtn {
@@ -216,6 +288,12 @@
   cursor: pointer;
   padding: 0 1px;
   transition: transform 0.15s ease, color 0.15s ease;
+  /* A tap target of at least 32px, so the stars are usable on a phone. */
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .starBtn:hover {
@@ -554,9 +632,10 @@
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s ease;
+  min-height: 32px;
 }
 
 .actionBtn:hover {

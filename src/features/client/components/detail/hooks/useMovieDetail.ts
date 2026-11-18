@@ -19,7 +19,6 @@ import { useMovieStore } from '@/stores/useMovieStore';
 import { useCommentStore } from '@/stores/useCommentStore';
 import { MOVIE_CONFIG } from '@/config/movieConfig';
 import { SYSTEM_CONFIG } from '@/config/systemConfig';
-import { filterMoviesWithValidTrailer } from '@/utils/trailer';
 import {
   resolveMovieBackdrop,
   resolveMovieSubTitle,

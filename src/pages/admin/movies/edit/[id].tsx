@@ -5,18 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import AdminLayout from '@/layouts/AdminLayout';
 import AdminRoute from '@/features/shared/components/ProtectedRoute/AdminRoute';
-import { toast } from 'react-toastify';
 import {
   FaFilm, FaArrowLeft, FaSave,
   FaCheck, FaImage, FaPlay, FaServer, FaTag,
   FaUserTie, FaUsers, FaInfoCircle,
   FaStar, FaChevronRight, FaChevronLeft, FaSearch, FaTimes, FaLayerGroup, FaSlidersH,
   FaCalendarCheck, FaClock, FaBell,
-  FaThumbtack, FaExternalLinkAlt, FaCopy,
-  FaTrash, FaPlus, FaArrowUp
-} from 'react-icons/fa';
+  FaThumbtack, FaExternalLinkAlt, FaCopy} from 'react-icons/fa';
 import axios from '@/API/config/axiosConfig';
-import { endpoints } from '@/config/API';
 import styles from '@/styles/AdminAddMovie.module.css';
 import CinemaSelect from '@/features/admin/components/Movies/FormFields/CinemaSelect';
 import TagAutocompletePicker from '@/features/admin/components/Movies/FormFields/TagAutocompletePicker';

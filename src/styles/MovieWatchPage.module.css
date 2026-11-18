@@ -358,13 +358,35 @@
     padding: 14px 12px 0;
   }
 
+  .cockpitLayout {
+    gap: 18px;
+  }
+
+  .playerColumn {
+    gap: 16px;
+  }
+
   .videoMetaHeader {
     padding: 14px 12px;
   }
 
   .movieMainTitle {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     word-break: break-word;
+  }
+
+  .movieSubTitle {
+    font-size: 0.82rem;
+    margin: 4px 0 8px 0;
+  }
+
+  .synopsisCard {
+    padding: 16px 14px;
+  }
+
+  .synopsisText {
+    font-size: 0.88rem;
+    line-height: 1.65;
   }
 
   .metaActions {
@@ -375,7 +397,24 @@
     flex: 1;
     justify-content: center;
     font-size: 0.8rem;
-    padding: 7px 10px;
+    padding: 9px 10px;
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .breadcrumbInner {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .breadcrumbs {
+    font-size: 0.78rem;
+    gap: 6px;
+  }
+
+  .backLink {
+    font-size: 0.82rem;
   }
 }
 
@@ -390,12 +429,12 @@
   }
 
   .movieMainTitle {
-    font-size: 1.15rem;
+    font-size: 1.08rem;
   }
 
   .actionBtn {
     font-size: 0.74rem;
-    padding: 6px 8px;
+    padding: 8px 6px;
     gap: 4px;
   }
 }

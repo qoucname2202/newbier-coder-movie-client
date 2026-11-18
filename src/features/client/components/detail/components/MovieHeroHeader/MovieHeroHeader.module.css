@@ -11,7 +11,10 @@
   padding-bottom: 24px;
 }
 
-/* Atmospheric Backdrop */
+/* Atmospheric Backdrop
+   The artwork is a fixed-height banner (so the 21:9 crop is preserved on
+   desktop) and it always fades into the page background at the bottom, so
+   no hard edge is visible where the banner ends. */
 .backdropLayer {
   position: absolute;
   top: 0;
@@ -31,7 +34,19 @@
 
 @media (max-width: 767px) {
   .backdropLayer {
-    height: 440px;
+    height: 460px;
+  }
+}
+
+@media (max-width: 480px) {
+  .backdropLayer {
+    height: 420px;
+  }
+}
+
+@media (max-width: 374px) {
+  .backdropLayer {
+    height: 400px;
   }
 }
 
@@ -41,7 +56,11 @@
   object-fit: cover;
   object-position: top center;
   filter: blur(2px) brightness(1.2) saturate(1.15);
+  /* The image is scaled up slightly for the cinematic bleed. It is clipped
+     by the parent layer, but the scale itself must not push the element
+     past the right edge, so the origin is centred. */
   transform: scale(1.05);
+  transform-origin: center top;
 }
 
 .backdropGradient {
@@ -139,10 +158,97 @@
   }
 }
 
+/* Mobile / Tablet Portrait: the hero keeps the cinema 2-column feel instead
+   of stacking the whole poster above the content. The poster becomes a
+   narrow column on the left, the title + rating sit next to it and the
+   action buttons slide under the title. Everything below (telemetry,
+   details, cast, storyline) spans the full width. */
 @media (max-width: 767px) {
   .showcaseGrid {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: 140px minmax(0, 1fr);
+    grid-template-areas:
+      'poster head'
+      'poster actions'
+      'telemetry telemetry'
+      'details details'
+      'cast cast'
+      'story story';
+    gap: 14px 16px;
+    align-items: start;
+  }
+
+  /* The columns are flattened so their children can take part in the
+     grid template of the parent. The selector is more specific than the
+     base `.leftCol` / `.rightCol` rules, so it wins regardless of the
+     order of the two declarations. */
+  .showcaseGrid > .leftCol,
+  .showcaseGrid > .rightCol {
+    display: contents;
+  }
+
+  .posterWrapper {
+    grid-area: poster;
+    border-radius: 12px;
+  }
+
+  .actionButtonGroup {
+    grid-area: actions;
+  }
+
+  /* The 4 action tiles do not fit in the narrow right column, so they
+     switch to a 2x2 grid with a comfortable tap height. */
+  .interactiveToolbar {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 0;
+  }
+
+  .toolBtn {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 9px 10px;
+    font-size: 0.74rem;
+    min-height: 40px;
+  }
+
+  .toolBtn i {
+    font-size: 0.9rem;
+  }
+
+  .headerTopRow {
+    grid-area: head;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .telemetryCapsulesDeck {
+    grid-area: telemetry;
+  }
+
+  .detailsBentoCard {
+    grid-area: details;
+  }
+
+  .bentoCardCast {
+    grid-area: cast;
+  }
+
+  .editorialStorylineCard {
+    grid-area: story;
+  }
+}
+
+@media (max-width: 400px) {
+  .showcaseGrid {
+    grid-template-columns: 124px minmax(0, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .showcaseGrid {
+    grid-template-columns: 108px minmax(0, 1fr);
   }
 }
 
@@ -151,14 +257,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-@media (max-width: 767px) {
-  .leftCol {
-    max-width: 320px;
-    margin: 0 auto;
-    width: 100%;
-  }
 }
 
 /* Poster Card */
@@ -175,6 +273,57 @@
 
 .posterWrapper:hover {
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8), 0 0 0 1.5px rgba(229, 9, 20, 0.5);
+}
+
+@media (max-width: 767px) {
+  .posterWrapper {
+    border-radius: 12px;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  /* The trailer overlay is hover-only on desktop, which is unusable on a
+     touch device. It is always visible on small screens instead. */
+  .playOverlay {
+    opacity: 1;
+    background: linear-gradient(180deg, rgba(12, 15, 22, 0.15) 0%, rgba(12, 15, 22, 0.55) 100%);
+    backdrop-filter: none;
+    gap: 6px;
+  }
+
+  .playCirclePulse {
+    width: 40px;
+    height: 40px;
+  }
+
+  .playCirclePulse svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .playOverlayText {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+  }
+
+  .qualityBadge,
+  .ratingBadge {
+    top: 6px;
+    font-size: 0.62rem;
+    padding: 2px 6px;
+  }
+
+  .qualityBadge {
+    left: 6px;
+  }
+
+  .ratingBadge {
+    right: 6px;
+  }
+
+  .statusRibbon {
+    font-size: 0.62rem;
+    padding: 12px 6px 6px;
+  }
 }
 
 .posterImg {
@@ -367,6 +516,7 @@
   gap: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-height: 52px;
 }
 
 .toolBtn i {
@@ -1040,6 +1190,7 @@
 .storylineClamped {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1136,13 +1287,14 @@
   }
 
   .mainTitle {
-    font-size: 1.38rem;
+    font-size: 1.15rem;
     line-height: 1.2;
     word-break: break-word;
   }
 
   .originTitle {
-    font-size: 0.88rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
   }
 
   .ratingSpotlightCard {
@@ -1151,14 +1303,23 @@
   }
 
   .ratingMainNumber {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
+  }
+
+  .ratingScale {
+    font-size: 0.76rem;
+  }
+
+  .ratingVotesLabel {
+    font-size: 0.68rem;
+    white-space: normal;
   }
 
   .capsulePrimaryText,
   .capsuleBadgeTag,
   .capsuleFireText,
   .capsuleText {
-    font-size: 0.74rem;
+    font-size: 0.72rem;
   }
 
   .actorCapsule {
@@ -1166,8 +1327,37 @@
   }
 
   .toolBtn {
-    padding: 6px 2px;
-    font-size: 0.68rem;
+    padding: 8px 8px;
+    font-size: 0.72rem;
+  }
+
+  .btnWatchPrimary {
+    padding: 11px 12px;
+    font-size: 0.86rem;
+  }
+
+  .btnWatchSecondary {
+    padding: 9px 12px;
+    font-size: 0.8rem;
+  }
+
+  .detailsBentoCard,
+  .bentoCardCast {
+    padding: 12px 12px;
+  }
+
+  .detailLabel {
+    font-size: 0.64rem;
+  }
+
+  .detailValue {
+    font-size: 0.82rem;
+  }
+
+  .detailIconCircle {
+    width: 32px;
+    height: 32px;
+    font-size: 0.78rem;
   }
 }
 
@@ -1177,7 +1367,7 @@
   }
 
   .mainTitle {
-    font-size: 1.22rem;
+    font-size: 1.05rem;
   }
 
   .interactiveToolbar {
@@ -1187,7 +1377,7 @@
 
   .toolBtn {
     padding: 8px 6px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
   }
 
   .ratingSpotlightCard {
@@ -1196,7 +1386,7 @@
   }
 
   .ratingMainNumber {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
   }
 
   .ratingScale {

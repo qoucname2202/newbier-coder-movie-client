@@ -1,7 +1,7 @@
 // src/components/Admin/Movies/MovieDetailModal.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { useRouter } from 'next/router';
 import {
   FaTimes,

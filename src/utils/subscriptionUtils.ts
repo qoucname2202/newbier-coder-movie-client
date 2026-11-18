@@ -3,8 +3,8 @@
  *
  * Utility functions that check the subscription and the payment state.
  */
-import { getApiBaseUrl } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
+import authService from '@/API/services/authService';
 
 /**
  * Checks whether the user has a pending payment request.
@@ -20,9 +20,12 @@ export const checkPaymentSent = async (userId: string): Promise<boolean> => {
     // `response.json()` threw. The real subscription endpoint
     // (`GET /subscription/current`) is used instead, and the pending state is
     // derived from `subscription.status`.
+    // The endpoint needs the Bearer token, so the header is resolved
+    // through the shared auth service.
+    const authHeaders = await authService.getAuthHeader();
     const response = await fetch(apiUrl(`subscriptionCurrent`), {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
       credentials: 'include'
     });
 

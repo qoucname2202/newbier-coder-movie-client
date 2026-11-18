@@ -12,10 +12,7 @@ import {
   FaEye,
   FaEdit,
   FaClock,
-  FaEnvelope,
-  FaCheckCircle,
-  FaExclamationTriangle
-} from 'react-icons/fa';
+  FaEnvelope} from 'react-icons/fa';
 import {
   MOCK_DASHBOARD_STATS,
   MOCK_ANALYTICS_DATA,

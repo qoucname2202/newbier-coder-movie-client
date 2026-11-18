@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaTimes, FaPlus, FaChevronDown, FaCheck } from 'react-icons/fa';
+import { FaTimes, FaPlus, FaChevronDown} from 'react-icons/fa';
 import styles from '@/styles/AdminAddMovie.module.css';
 
 interface TagAutocompletePickerProps {

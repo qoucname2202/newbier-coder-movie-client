@@ -4,7 +4,7 @@ import {
   buildMovieTrailerSearchLink,
   type TrailerResolution
 } from '@/utils/trailer';
-import { pickImageSrc, BACKDROP_FIELDS, POSTER_FIELDS } from '@/utils/imageSource';
+import { pickImageSrc, BACKDROP_FIELDS} from '@/utils/imageSource';
 import { LOCAL_DEFAULT_BACKDROP, LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
 import styles from './InlineTrailerSection.module.css';
 

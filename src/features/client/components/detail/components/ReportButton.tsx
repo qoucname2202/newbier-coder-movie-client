@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { getApiBaseUrl } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
+import authService from '@/API/services/authService';
 
 export interface ReportButtonProps {
   movieId?: string;
@@ -13,9 +13,12 @@ const ReportButton: React.FC<ReportButtonProps> = ({ movieId }) => {
 
   const handleSubmit = async (): Promise<void> => {
     try {
+      // The endpoint needs the Bearer token, so the header is resolved
+      // through the shared auth service.
+      const authHeaders = await authService.getAuthHeader();
       await fetch(apiUrl(`reportCreate`), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           movieId,
           type: reportType,

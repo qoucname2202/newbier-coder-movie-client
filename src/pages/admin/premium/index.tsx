@@ -3,11 +3,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import AdminRoute from '@/features/shared/components/ProtectedRoute/AdminRoute';
-import { FaCheck, FaTimes, FaEye, FaStar, FaUser, FaFilm, FaClock, FaSync, FaCrown, FaMoneyBillWave, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaEye, FaUser, FaClock, FaSync, FaCrown, FaMoneyBillWave, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
 import styles from '@/styles/AdminDashboard.module.css';
 import { useTheme } from 'next-themes';
-import axios from '@/API/config/axiosConfig';
-import { getApiBaseUrl, resolvePublicAssetUrl } from '@/config/apiBase';
+import { resolvePublicAssetUrl } from '@/config/apiBase';
 import { useRouter } from 'next/router';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';

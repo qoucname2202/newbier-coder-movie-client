@@ -5,7 +5,7 @@
 import React, { useEffect, useState, createContext, useContext, ReactNode } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useWebSocket, type WebSocketMessage } from '@/context/WebSocketContext';
+import { useWebSocket} from '@/context/WebSocketContext';
 import {
   getNotifications,
   markNotificationAsRead,

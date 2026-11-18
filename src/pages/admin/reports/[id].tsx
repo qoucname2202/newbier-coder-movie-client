@@ -6,7 +6,7 @@ import styles from '@/styles/AdminReportDetail.module.css';
 import AdminLayout from '@/layouts/AdminLayout';
 import {
   FaArrowLeft, FaCheck, FaTimes, FaClock, FaExclamationTriangle,
-  FaUser, FaFilm, FaExclamationCircle, FaEdit, FaTrash,
+  FaUser, FaFilm, FaEdit, FaTrash,
   FaEnvelope, FaLink, FaCommentAlt, FaPlayCircle
 } from 'react-icons/fa';
 import { getReportById, updateReport } from '@/features/admin/services/reportService';

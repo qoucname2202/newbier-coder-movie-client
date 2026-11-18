@@ -1,7 +1,7 @@
 // src/components/Admin/UpcomingMovies/ReleasedMovieLink.tsx
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Button, Alert } from 'react-bootstrap';
+import { Button} from 'react-bootstrap';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import axiosInstance from '@/config/axiosAdminConfig';
 import { apiPath } from '@/config/apiPaths';

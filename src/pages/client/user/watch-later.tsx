@@ -2,7 +2,6 @@
  * @file pages/user/watch-later.tsx
  */
 import React, { useState, useEffect, useMemo, MouseEvent } from 'react';
-import Navbar from '@/features/shared/components/Layout/Navbar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Link from 'next/link';

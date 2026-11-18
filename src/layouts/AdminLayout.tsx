@@ -9,7 +9,6 @@ import AdminLoadingBar from '@/features/admin/components/Loading/AdminLoadingBar
 import AdminRouteLoader from '@/features/admin/components/Loading/AdminRouteLoader';
 import styles from '@/styles/Admin.module.css';
 import dynamic from 'next/dynamic';
-import { WebSocketProvider } from '@/context/WebSocketContext';
 
 const AdminLTEScript = dynamic(() => import('admin-lte/dist/js/adminlte.min.js'), {
   ssr: false
