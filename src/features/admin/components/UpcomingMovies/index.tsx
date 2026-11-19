@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Table, Button, Spinner, Form, InputGroup, Row, Col, Card, Alert, Badge, Modal } from 'react-bootstrap';
+import { formatYear, getTaxonomyList } from '@/utils/taxonomy';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaFileExport } from 'react-icons/fa';
 import AdminLayout from '@/layouts/AdminLayout';
 import { getUpcomingMovies, deleteUpcomingMovie, releaseUpcomingMovie } from '@/features/admin/services/upcomingMovieAdminService';
@@ -247,12 +248,12 @@ const UpcomingMoviesPage: React.FC = () => {
                                 )}
                               </td>
                               <td>
-                                <div><strong>Năm:</strong> {movie.year}</div>
+                                <div><strong>Năm:</strong> {formatYear(movie.year)}</div>
                                 <div>
-                                  <strong>Thể loại:</strong> {movie.category?.map(c => c.name).join(', ') || 'Không có'}
+                                  <strong>Thể loại:</strong> {getTaxonomyList(movie.category) || 'Không có'}
                                 </div>
                                 <div>
-                                  <strong>Quốc gia:</strong> {movie.country?.map(c => c.name).join(', ') || 'Không có'}
+                                  <strong>Quốc gia:</strong> {getTaxonomyList(movie.country) || 'Không có'}
                                 </div>
                               </td>
                               <td className="text-center">

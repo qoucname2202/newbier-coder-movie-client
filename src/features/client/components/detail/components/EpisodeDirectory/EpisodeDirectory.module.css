@@ -17,10 +17,47 @@
 @media (max-width: 576px) {
   .container {
     padding: 16px 12px;
+    overflow: hidden;
+  }
+
+  .headerBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .headerTitleWrap {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .headerTitle {
     font-size: 1.05rem;
+  }
+
+  .serverTabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .serverTab {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.74rem;
+    padding: 5px 10px;
+  }
+
+  .processContainer {
+    padding: 10px 12px;
+  }
+
+  .processMetaRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
 
   .filterToolbar {
@@ -31,35 +68,75 @@
 
   .groupTabsScroll {
     width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .groupTabBtn {
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .controlsRight {
     width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  .searchInput {
+  .btnSortOrder {
+    flex-shrink: 0;
+    font-size: 0.74rem;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+
+  .searchWrapper {
     flex: 1;
-    width: auto;
     min-width: 0;
   }
 
+  .searchInput {
+    width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
   .searchInput:focus {
-    width: auto;
+    width: 100% !important;
   }
 
   .chipsGrid {
-    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
     gap: 6px;
   }
 
   .chip {
-    padding: 12px 6px;
+    padding: 10px 4px;
+    font-size: 0.78rem;
+    min-width: 0;
   }
 
   .singleSourceCard {
     flex-direction: column;
+    align-items: stretch;
+    padding: 14px 12px;
+    gap: 12px;
+  }
+
+  .singleSourceLeft {
+    flex-direction: column;
     align-items: flex-start;
-    padding: 14px;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .sourceFeatures {
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
   }
 
   .btnWatchSingle {
@@ -68,12 +145,48 @@
   }
 
   .resumeBanner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
     padding: 12px;
   }
 
   .btnResumePlay {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 412px) {
+  .container {
+    padding: 14px 10px;
+  }
+
+  .chipsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+    gap: 5px;
+  }
+
+  .chip {
+    padding: 8px 3px;
+    font-size: 0.74rem;
+  }
+
+  .epCountBadge {
+    font-size: 0.72rem;
+    padding: 2px 7px;
+  }
+}
+
+@media (max-width: 360px) {
+  .chipsGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .chip {
+    padding: 7px 2px;
+    font-size: 0.7rem;
   }
 }
 

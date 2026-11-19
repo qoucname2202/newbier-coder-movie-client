@@ -50,6 +50,8 @@ export const AUTH_CONFIG = {
     },
     validation: {
       requiredFields: 'Vui lòng nhập tài khoản và mật khẩu',
+      requiredEmail: 'Vui lòng nhập email hoặc tên đăng nhập',
+      requiredPassword: 'Vui lòng nhập mật khẩu',
       invalidEmail: 'Email hoặc Username không hợp lệ',
       invalidCredentials: 'Invalid credentials',
       wrongPassword: 'Invalid credentials',
@@ -60,14 +62,14 @@ export const AUTH_CONFIG = {
       loginSuccess: 'Đăng nhập thành công! Đang chuyển hướng...'
     },
     serverStarting: {
-      title: 'Server is starting up',
+      title: 'Đang kết nối hệ thống máy chủ',
       message:
-        'The server is not ready yet. Please wait a moment, the system will retry automatically.',
-      retrying: 'Retrying...',
-      attempts: 'Attempt {0}',
+        'Hệ thống đang khởi động các dịch vụ truyền phát. Quá trình này có thể mất vài giây, hệ thống sẽ tự động kết nối lại cho bạn.',
+      retrying: 'Đang kết nối lại',
+      attempts: 'Lần thử {0}',
       giveUp:
-        'The server is still not responding. Please try again in a few minutes or check your network connection.',
-      button: 'Retry now'
+        'Máy chủ phản hồi chậm hoặc đang bảo trì định kỳ. Quý khách vui lòng thử kết nối lại hoặc quay lại sau ít phút.',
+      button: 'Thử kết nối lại ngay'
     },
     buttons: {
       submit: 'SignIn',

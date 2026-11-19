@@ -4,6 +4,7 @@ import { Form, Button, Row, Col, Card, Tab, Nav, Image, Alert } from 'react-boot
 import type { UpcomingMovie } from '@/features/admin/services/upcomingMovieAdminService';
 import BackToListButton from '@/features/admin/components/Common/BackToListButton';
 import BackToTopButton from '@/features/admin/components/Common/BackToTopButton';
+import { formatYear, getTaxonomyList } from '@/utils/taxonomy';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import styles from './UpcomingMovieForm.module.css';
@@ -775,10 +776,10 @@ const UpcomingMovieForm: React.FC<UpcomingMovieFormProps> = ({
                               </Col>
                               <Col md={6}>
                                 <div className="movie-details">
-                                  <p><strong>Năm sản xuất:</strong> {formData.year}</p>
+                                  <p><strong>Năm sản xuất:</strong> {formatYear(formData.year)}</p>
                                   <p><strong>Ngày phát hành:</strong> {releaseDate ? releaseDate.toLocaleDateString('vi-VN') : 'Chưa xác định'}</p>
-                                  <p><strong>Thể loại:</strong> {formData.category?.map(c => c.name).join(', ') || 'Chưa xác định'}</p>
-                                  <p><strong>Quốc gia:</strong> {formData.country?.map(c => c.name).join(', ') || 'Chưa xác định'}</p>
+                                  <p><strong>Thể loại:</strong> {getTaxonomyList(formData.category) || 'Chưa xác định'}</p>
+                                  <p><strong>Quốc gia:</strong> {getTaxonomyList(formData.country) || 'Chưa xác định'}</p>
                                   <p><strong>Đạo diễn:</strong> {formData.director?.join(', ') || 'Chưa xác định'}</p>
                                   <p><strong>Diễn viên:</strong> {formData.actor?.join(', ') || 'Chưa xác định'}</p>
                                   <p><strong>Chất lượng:</strong> {formData.quality || 'Chưa xác định'}</p>

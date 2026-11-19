@@ -302,3 +302,70 @@
     justify-content: center;
   }
 }
+
+@media (max-width: 412px) {
+  .playlistCard {
+    padding: 12px 10px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .titleGroup {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .groupSelectWrap {
+    width: 100%;
+  }
+  .groupSelect {
+    width: 100%;
+  }
+  .versionSection {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .versionList {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .versionBtn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 6px 10px;
+    font-size: 0.74rem;
+  }
+  .episodesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+    gap: 5px;
+  }
+  .epButton {
+    padding: 7px 4px;
+    min-width: 0;
+  }
+  .epText {
+    font-size: 0.74rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .episodesGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .epButton {
+    padding: 6px 2px;
+  }
+  .epText {
+    font-size: 0.7rem;
+  }
+}

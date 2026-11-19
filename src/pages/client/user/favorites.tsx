@@ -30,6 +30,7 @@ import favoritesService, {
   FavoritesServiceError,
   type FavoriteMovie
 } from '@/API/services/favoritesService';
+import { formatYear } from '@/utils/taxonomy';
 import { useAuth } from '@/context/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -700,7 +701,7 @@ export default function FavoritesPage({ inProfilePage = false }: { inProfilePage
                     <div className={styles.movieMetaContainer}>
                       {movie.year ? (
                         <span className={styles.movieMeta}>
-                          <i className="bi bi-calendar-event-fill"></i> {movie.year}
+                          <i className="bi bi-calendar-event-fill"></i> {formatYear(movie.year)}
                         </span>
                       ) : null}
                       {movie.type && (

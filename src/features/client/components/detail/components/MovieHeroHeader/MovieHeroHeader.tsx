@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { LOCAL_DEFAULT_BACKDROP, LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
 import { getWatchProgress } from '@/utils/watchProgress';
 import { pickImageSrc, BACKDROP_FIELDS, POSTER_FIELDS } from '@/utils/imageSource';
+import { formatYear, getTaxonomyName, getTaxonomySlug } from '@/utils/taxonomy';
 import type { WatchEpisode, WatchServer } from '@/features/client/components/detail/components/WatchSidebarPlaylist/WatchSidebarPlaylist';
 import styles from './MovieHeroHeader.module.css';
 
@@ -319,14 +320,14 @@ export const MovieHeroHeader: React.FC<MovieHeroHeaderProps> = ({
           <Link href={isSeries ? '/browse/series' : '/browse/movies'} className={styles.breadItem}>
             {isSeries ? 'Phim Bộ' : 'Phim Lẻ'}
           </Link>
-          {categories.length > 0 && categories[0]?.name && (
+          {categories.length > 0 && getTaxonomyName(categories[0]) && (
             <>
               <span className={styles.breadDivider}>/</span>
               <Link
-                href={`/genre/${encodeURIComponent(categories[0].slug || '')}`}
+                href={`/genre/${encodeURIComponent(getTaxonomySlug(categories[0]))}`}
                 className={styles.breadItem}
               >
-                {categories[0].name}
+                {getTaxonomyName(categories[0])}
               </Link>
             </>
           )}
@@ -554,7 +555,7 @@ export const MovieHeroHeader: React.FC<MovieHeroHeaderProps> = ({
                   <span className={styles.capsuleIconBox}>
                     <i className="far fa-calendar-alt text-warning" />
                   </span>
-                  <span className={styles.capsuleText}>Năm {movie.year}</span>
+                  <span className={styles.capsuleText}>Năm {formatYear(movie.year)}</span>
                 </div>
               )}
 
@@ -661,16 +662,21 @@ export const MovieHeroHeader: React.FC<MovieHeroHeaderProps> = ({
                 </div>
                 <div className={styles.genresDeck}>
                   {categories.length > 0 ? (
-                    categories.map((cat, idx) => (
-                      <Link
-                        key={cat.slug || String(idx)}
-                        href={`/genre/${encodeURIComponent(cat.slug || '')}`}
-                        className={styles.genreCapsulePill}
-                        title={`Khám phá phim thể loại ${cat.name}`}
-                      >
-                        <span>{cat.name}</span>
-                      </Link>
-                    ))
+                    categories.map((cat, idx) => {
+                      const name = getTaxonomyName(cat);
+                      const slug = getTaxonomySlug(cat);
+                      if (!name) return null;
+                      return (
+                        <Link
+                          key={slug || String(idx)}
+                          href={`/genre/${encodeURIComponent(slug)}`}
+                          className={styles.genreCapsulePill}
+                          title={`Khám phá phim thể loại ${name}`}
+                        >
+                          <span>{name}</span>
+                        </Link>
+                      );
+                    })
                   ) : (
                     <span className={styles.emptyText}>Đang cập nhật thể loại</span>
                   )}

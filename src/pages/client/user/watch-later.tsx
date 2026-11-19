@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
 import watchlistService from '@/API/services/watchlistService';
+import { formatYear } from '@/utils/taxonomy';
 import styles from '@/styles/Favorites.module.css';
 
 type SortOption = 'newest' | 'oldest' | 'name_asc' | 'name_desc' | 'rating';
@@ -299,7 +300,7 @@ const WatchLater = ({ inProfilePage = false }: { inProfilePage?: boolean }) => {
                     <div className={styles.movieMetaContainer}>
                       {movie.year && (
                         <span className={styles.movieMeta}>
-                          <i className="bi bi-calendar-event-fill"></i> {movie.year}
+                          <i className="bi bi-calendar-event-fill"></i> {formatYear(movie.year)}
                         </span>
                       )}
                       {movie.duration && (

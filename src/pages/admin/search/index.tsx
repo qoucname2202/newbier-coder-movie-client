@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import movieService from '@/API/services/movieService';
 import searchSuggestionService from '@/API/services/searchSuggestionService';
 import { useAuth } from '@/context/AuthContext';
+import { formatYear, getTaxonomyList } from '@/utils/taxonomy';
 import AdminLayout from '@/layouts/AdminLayout';
 import Swal from 'sweetalert2';
 
@@ -480,9 +481,9 @@ export default function AdminSearchPage(): ReactElement | null {
                                     <div dangerouslySetInnerHTML={{ __html: query ? highlightSearchTerms(m.name || '', query) : (m.name || '') }} />
                                     <small className="text-muted d-block">{m.origin_name}</small>
                                   </td>
-                                  <td>{m.category?.join(', ')}</td>
-                                  <td>{m.country?.join(', ')}</td>
-                                  <td>{m.year}</td>
+                                  <td>{getTaxonomyList(m.category)}</td>
+                                  <td>{getTaxonomyList(m.country)}</td>
+                                  <td>{formatYear(m.year)}</td>
                                   <td>{m.view_total || 0}</td>
                                   <td>
                                     <Link href={`/admin/movies/edit/${m.slug}`} className="btn btn-sm btn-primary me-2"><i className="fas fa-edit" /></Link>

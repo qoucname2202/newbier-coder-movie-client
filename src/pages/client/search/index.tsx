@@ -10,6 +10,7 @@ import searchHistoryService from '@/API/services/searchHistoryService';
 import searchSuggestionService from '@/API/services/searchSuggestionService';
 import { useAuth } from '@/context/AuthContext';
 import BackToTop from '@/features/shared/components/UI/BackToTop';
+import { formatYear } from '@/utils/taxonomy';
 import MovieFilter, { INITIAL_MOVIE_FILTER_STATE, MovieFilterState } from '@/components/Movie/MovieFilter';
 import { filterStateToQueryParams } from '@/components/Movie/MovieFilter';
 
@@ -469,7 +470,7 @@ export default function SearchPage() {
                               <button className="play-button"><i className="bi bi-play-fill" /></button>
                             </div>
                             <div className="movie-badges year-quality">
-                              {movie.year && <span className="badge bg-danger">{movie.year}</span>}
+                              {movie.year && <span className="badge bg-danger">{formatYear(movie.year)}</span>}
                               {movie.quality && <span className="badge bg-primary ms-1">{movie.quality}</span>}
                             </div>
                             <div className="movie-badges episode-status">

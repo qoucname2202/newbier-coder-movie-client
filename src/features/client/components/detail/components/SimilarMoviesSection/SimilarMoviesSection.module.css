@@ -20,6 +20,7 @@
 @media (max-width: 576px) {
   .sectionContainer {
     padding: 16px 12px;
+    overflow: hidden;
   }
 
   .sectionHeading {
@@ -35,6 +36,7 @@
     flex-wrap: nowrap;
     padding-bottom: 2px;
     width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
 
   .filterBtn {
@@ -53,6 +55,39 @@
 
   .metaContainer {
     min-height: 60px;
+  }
+}
+
+@media (max-width: 412px) {
+  .sectionContainer {
+    padding: 14px 10px;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .headerLeftCol {
+    width: 100%;
+  }
+
+  .sectionHeading {
+    font-size: 0.98rem;
+  }
+
+  .navBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .metaContainer {
+    min-height: 52px;
+  }
+
+  .movieTitle {
+    font-size: 0.8rem;
   }
 }
 

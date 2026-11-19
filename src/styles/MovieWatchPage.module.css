@@ -345,11 +345,22 @@
 /* Responsive */
 @media (max-width: 1100px) {
   .cockpitLayout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .playerColumn {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .playlistColumn {
     position: static;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -364,6 +375,9 @@
 
   .playerColumn {
     gap: 16px;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .videoMetaHeader {
@@ -403,8 +417,15 @@
 }
 
 @media (max-width: 480px) {
+  .cockpitContainer {
+    padding: 10px 10px 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   .breadcrumbInner {
-    padding: 0 12px;
+    padding: 0 10px;
     gap: 8px;
   }
 
@@ -416,26 +437,72 @@
   .backLink {
     font-size: 0.82rem;
   }
+
+  .videoMetaHeader {
+    padding: 12px 10px;
+    border-radius: 12px;
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .movieMainTitle {
+    font-size: 1.15rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .tagRow {
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .metaActions {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+  }
+
+  .actionBtn {
+    flex: 1;
+    font-size: 0.76rem;
+    padding: 8px 6px;
+    min-height: 36px;
+    min-width: 0;
+  }
+
+  .synopsisCard {
+    padding: 12px 10px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 @media (max-width: 374px) {
   .cockpitContainer {
-    padding: 10px 6px 0;
+    padding: 8px 6px 0;
+  }
+
+  .breadcrumbInner {
+    padding: 0 6px;
   }
 
   .videoMetaHeader {
-    padding: 12px 8px;
+    padding: 10px 8px;
     border-radius: 12px;
   }
 
   .movieMainTitle {
-    font-size: 1.08rem;
+    font-size: 1.05rem;
   }
 
   .actionBtn {
-    font-size: 0.74rem;
-    padding: 8px 6px;
-    gap: 4px;
+    font-size: 0.7rem;
+    padding: 7px 4px;
+    gap: 3px;
   }
 }
 

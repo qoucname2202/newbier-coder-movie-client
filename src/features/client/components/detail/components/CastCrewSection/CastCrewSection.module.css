@@ -17,6 +17,7 @@
 @media (max-width: 576px) {
   .castCrewContainer {
     padding: 16px 12px;
+    overflow: hidden;
   }
 
   .sectionTitle {
@@ -32,6 +33,8 @@
   .filterTabs {
     overflow-x: auto;
     padding-bottom: 2px;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
   }
 
   .filterBtn {
@@ -47,6 +50,41 @@
 
   .castRail {
     gap: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 412px) {
+  .castCrewContainer {
+    padding: 14px 10px;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .castRail {
+    gap: 10px;
+  }
+
+  .avatarCircle {
+    width: 60px;
+    height: 60px;
+  }
+
+  .personCard {
+    width: 74px;
+  }
+
+  .personName {
+    font-size: 0.74rem;
+  }
+
+  .personRole {
+    font-size: 0.64rem;
   }
 }
 

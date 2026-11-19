@@ -158,22 +158,19 @@
   }
 }
 
-/* Mobile / Tablet Portrait: the hero keeps the cinema 2-column feel instead
-   of stacking the whole poster above the content. The poster becomes a
-   narrow column on the left, the title + rating sit next to it and the
-   action buttons slide under the title. Everything below (telemetry,
-   details, cast, storyline) spans the full width. */
+/* Mobile / Tablet Portrait: the hero keeps the cinema 2-column feel for poster and header info,
+   while expanding the primary watch CTA and interactive 4-button dock to full width for comfortable touch targets. */
 @media (max-width: 767px) {
   .showcaseGrid {
-    grid-template-columns: 140px minmax(0, 1fr);
+    grid-template-columns: 135px minmax(0, 1fr);
     grid-template-areas:
       'poster head'
-      'poster actions'
+      'actions actions'
       'telemetry telemetry'
       'details details'
       'cast cast'
       'story story';
-    gap: 14px 16px;
+    gap: 14px 14px;
     align-items: start;
   }
 
@@ -193,26 +190,49 @@
 
   .actionButtonGroup {
     grid-area: actions;
+    width: 100%;
+    margin-top: 4px;
+    gap: 8px;
   }
 
-  /* The 4 action tiles do not fit in the narrow right column, so they
-     switch to a 2x2 grid with a comfortable tap height. */
+  /* Dedicated 4-column modern cinema action dock */
   .interactiveToolbar {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-top: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+    margin-top: 2px;
   }
 
   .toolBtn {
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 9px 10px;
-    font-size: 0.74rem;
-    min-height: 40px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px 4px;
+    min-height: 52px;
+    border-radius: 10px;
+    background: rgba(22, 27, 34, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+
+  .toolBtn span {
+    font-size: clamp(0.68rem, 2.2vw, 0.76rem);
+    font-weight: 600;
+    color: #e6edf3;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
   }
 
   .toolBtn i {
-    font-size: 0.9rem;
+    font-size: clamp(0.95rem, 3.2vw, 1.05rem);
+  }
+
+  .toolBtn:active {
+    transform: scale(0.96);
   }
 
   .headerTopRow {
@@ -239,16 +259,57 @@
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 412px) {
   .showcaseGrid {
-    grid-template-columns: 124px minmax(0, 1fr);
+    grid-template-columns: 120px minmax(0, 1fr);
     gap: 12px;
+  }
+
+  .interactiveToolbar {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .toolBtn {
+    padding: 8px 3px;
+    min-height: 48px;
+    border-radius: 9px;
   }
 }
 
 @media (max-width: 360px) {
   .showcaseGrid {
-    grid-template-columns: 108px minmax(0, 1fr);
+    grid-template-columns: 105px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .interactiveToolbar {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+
+  .toolBtn {
+    padding: 7px 2px;
+    min-height: 46px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 320px) {
+  .showcaseGrid {
+    grid-template-columns: 95px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .interactiveToolbar {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+
+  .toolBtn {
+    padding: 6px 2px;
+    min-height: 44px;
+    border-radius: 7px;
   }
 }
 
@@ -460,6 +521,9 @@
   box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45);
   transition: all 0.25s ease;
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btnWatchPrimary:hover {
@@ -484,6 +548,9 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btnWatchSecondary:hover {
@@ -1371,13 +1438,13 @@
   }
 
   .interactiveToolbar {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
   }
 
   .toolBtn {
-    padding: 8px 6px;
-    font-size: 0.7rem;
+    padding: 7px 2px;
+    font-size: 0.65rem;
   }
 
   .ratingSpotlightCard {

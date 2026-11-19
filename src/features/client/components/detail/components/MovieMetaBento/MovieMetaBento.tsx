@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getTaxonomyList } from '@/utils/taxonomy';
 import styles from './MovieMetaBento.module.css';
 
 /**
@@ -45,8 +46,8 @@ const MovieMetaBento: React.FC<MovieMetaBentoProps> = ({ movie }) => {
   const content = movie.content || 'Nội dung bộ phim đang được cập nhật.';
   const isLong = content.length > 280;
 
-  const countries = movie.country?.map((c) => c.name).join(', ') || 'Đang cập nhật';
-  const categories = movie.category?.map((c) => c.name).join(', ') || 'Đang cập nhật';
+  const countries = getTaxonomyList(movie.country) || 'Đang cập nhật';
+  const categories = getTaxonomyList(movie.category) || 'Đang cập nhật';
   const directorNames = movie.directors && movie.directors.length > 0
     ? movie.directors.map((d) => d.name).join(', ')
     : (movie.director ? String(movie.director) : 'Đang cập nhật');

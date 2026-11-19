@@ -5,13 +5,28 @@ const OFFLINE_URL = '/offline';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      // Cache the offline page and necessary assets
-      return cache.addAll([
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Safe, resilient caching for offline shell assets.
+      // We use individual fetch & put to avoid atomic rejection of cache.addAll
+      // if any individual asset is missing (e.g. 404).
+      const criticalAssets = [
         OFFLINE_URL,
         '/favicon.ico',
-        // Add more critical assets that should be available offline
-      ]);
+        '/img/icons.png'
+      ];
+
+      await Promise.allSettled(
+        criticalAssets.map(async (assetUrl) => {
+          try {
+            const response = await fetch(assetUrl);
+            if (response && response.ok) {
+              await cache.put(assetUrl, response);
+            }
+          } catch {
+            // Silently ignore asset caching failures during install
+          }
+        })
+      );
     })
   );
   // Force the waiting service worker to become the active service worker

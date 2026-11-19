@@ -3,6 +3,7 @@ import Link from 'next/link';
 import movieService from '@/API/services/movieService';
 import { pickImageSrc, POSTER_FIELDS } from '@/utils/imageSource';
 import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
+import { formatYear } from '@/utils/taxonomy';
 import { formatEpisodeProgress, RecommendedMovie } from '@/features/client/components/detail/components/TrendingSidebar/TrendingSidebar';
 import styles from './SimilarMoviesSection.module.css';
 
@@ -395,7 +396,7 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
                       <div className={styles.metaRow}>
                         <span className={styles.ratingBadge}>★ {safeRating}</span>
                         <span>•</span>
-                        <span className={styles.yearText}>{movie.year || '2024'}</span>
+                        <span className={styles.yearText}>{formatYear(movie.year)}</span>
                         {movie.time && (
                           <>
                             <span>•</span>

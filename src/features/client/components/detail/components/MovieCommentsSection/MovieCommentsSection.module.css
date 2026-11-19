@@ -16,7 +16,8 @@
 
 @media (max-width: 576px) {
   .sectionContainer {
-    padding: 16px;
+    padding: 16px 12px;
+    overflow: hidden;
   }
 
   .sectionTitle {
@@ -26,7 +27,9 @@
   .sortTabs {
     width: 100%;
     overflow-x: auto;
+    flex-wrap: nowrap;
     padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sortBtn {
@@ -75,6 +78,44 @@
   .btnSubmit {
     flex: 1;
     justify-content: center;
+  }
+}
+
+@media (max-width: 412px) {
+  .sectionContainer {
+    padding: 14px 10px;
+  }
+
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .sortTabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ratingScoreboard {
+    padding: 10px 8px;
+    gap: 10px;
+  }
+
+  .starBtn {
+    min-width: 22px;
+    min-height: 28px;
+    font-size: 0.88rem;
+  }
+
+  .commentFormCard {
+    padding: 12px 10px;
+  }
+
+  .commentItem {
+    padding: 12px 10px;
   }
 }
 

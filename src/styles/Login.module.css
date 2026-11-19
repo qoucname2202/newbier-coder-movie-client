@@ -87,6 +87,13 @@
   width: 100%;
 }
 
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
 .inputWrapper {
   position: relative;
   display: flex;
@@ -105,9 +112,22 @@
   box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.05);
 }
 
-.inputWrapper.inputError {
+.inputWrapper.inputError,
+.inputWrapper.inputWrapperError {
   border-color: #ef4444 !important;
   background-color: #ffffff;
+}
+
+.fieldError {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ef4444;
+  font-size: 12.5px;
+  font-weight: 500;
+  margin-top: 2px;
+  padding-left: 4px;
+  animation: fadeIn 0.2s ease-in;
 }
 
 .inputIcon {
@@ -208,76 +228,192 @@
   animation: fadeIn 0.2s ease-in;
 }
 
-/* "The server is still starting" notice */
+/* "The server is still starting" notice - Cinema Dark Glassmorphism */
 .waitingBox {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 10px;
-  color: #b45309;
-  background-color: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 10px;
-  padding: 10px 12px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 14px;
+  padding: 14px 16px;
   font-size: 13px;
-  font-weight: 500;
-  margin-top: -6px;
-  margin-bottom: 2px;
-  animation: fadeIn 0.2s ease-in;
+  margin-top: -4px;
+  margin-bottom: 8px;
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
 }
 
-.waitingContent {
+.waitingBox::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
+  background-size: 200% 100%;
+  animation: shimmerMove 2s linear infinite;
+}
+
+@keyframes shimmerMove {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.waitingBoxFailed {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.5), 0 0 20px rgba(239, 68, 68, 0.12);
+}
+
+.waitingBoxFailed::before {
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 50%, #ef4444 100%);
+}
+
+.waitingHeader {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 10px;
+}
+
+.waitingIconWrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.pulseRadar {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #60a5fa;
+}
+
+.pulseRing {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(96, 165, 250, 0.7);
+  animation: radarWave 1.6s infinite cubic-bezier(0, 0.2, 0.8, 1);
+}
+
+@keyframes radarWave {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.waitingFailedIcon {
+  color: #ef4444;
+  font-size: 15px;
+}
+
+.waitingTitleGroup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   flex: 1;
-  min-width: 0;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .waitingTitle {
   font-weight: 700;
-  color: #92400e;
+  color: #f1f5f9;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+}
+
+.waitingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
 }
 
 .waitingMessage {
-  color: #b45309;
+  color: #cbd5e1;
+  font-size: 12.5px;
   font-weight: 400;
-  line-height: 1.4;
-}
-
-.waitingMeta {
-  color: #d97706;
-  font-size: 12px;
-  font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .spinner {
   animation: spin 1s linear infinite;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .retryButton {
-  background: #b45309;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: #ffffff;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  padding: 7px 12px;
-  font-size: 12px;
+  padding: 8px 14px;
+  font-size: 12.5px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
-  transition: background 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+  margin-top: 2px;
 }
 
 .retryButton:hover:not(:disabled) {
-  background: #92400e;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5);
 }
 
 .retryButton:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+}
+
+.retryIcon {
+  transition: transform 0.3s ease;
+}
+
+.retryButton:hover:not(:disabled) .retryIcon {
+  transform: rotate(180deg);
 }
 
 @keyframes spin {
@@ -378,6 +514,13 @@
 .submitButton:disabled {
   opacity: 0.65;
   cursor: not-allowed;
+}
+
+.btnLoadingContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 /* Divider */
