@@ -92,7 +92,6 @@ export const AP = {
   subscriptionSubscribe: '/subscription/subscribe',
   subscriptionConfirmPayment: '/subscription/confirm-payment',
   subscriptionCancel: '/subscription/cancel',
-  subscriptionCurrent: '/subscription/current',
   subscriptionHistory: '/subscription/history',
   subscriptionAutoRenewal: '/subscription/auto-renewal',
   subscriptionPending: '/subscription/pending',

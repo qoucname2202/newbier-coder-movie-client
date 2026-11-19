@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import searchHistoryService from '@/API/services/searchHistoryService';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 import { FaSearch, FaTrash, FaHistory, FaTimesCircle } from 'react-icons/fa';
 
 interface SearchHistoryFilters {
@@ -270,9 +271,9 @@ export function SearchHistoryContent({
                     </div>
                     {(item.filters?.category || item.filters?.country || item.filters?.year) && (
                       <div className="search-filters">
-                        {item.filters?.category && <span className="filter-badge">{item.filters.category}</span>}
-                        {item.filters?.country && <span className="filter-badge">{item.filters.country}</span>}
-                        {item.filters?.year && <span className="filter-badge">{item.filters.year}</span>}
+                        {item.filters?.category && <span className="filter-badge">{getTaxonomyName(item.filters.category)}</span>}
+                        {item.filters?.country && <span className="filter-badge">{getTaxonomyName(item.filters.country)}</span>}
+                        {item.filters?.year && <span className="filter-badge">{formatYear(item.filters.year)}</span>}
                       </div>
                     )}
                     <div className="search-time">{formatTimeAgo(item.createdAt)}</div>

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import movieService from '@/API/services/movieService';
 import { LOCAL_DEFAULT_POSTER, LOCAL_DEFAULT_BACKDROP } from '@/config/movieFallbackConfig';
 import { pickImageSrc, POSTER_FIELDS, BACKDROP_FIELDS } from '@/utils/imageSource';
+import { formatYear } from '@/utils/taxonomy';
 import styles from './TrendingSidebar.module.css';
 
 /**
@@ -249,7 +250,7 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
                       {formatEpisodeProgress(championMovie)}
                     </span>
                     <span>•</span>
-                    <span>{championMovie.year || '2024'}</span>
+                    <span>{formatYear(championMovie.year)}</span>
                     <span>•</span>
                     <span>{championMovie.quality || '4K Ultra HD'}</span>
                   </div>
@@ -312,7 +313,7 @@ export const TrendingSidebar: React.FC<TrendingSidebarProps> = ({
                         {episodeProgress && (
                           <span className={styles.stripEpisodeBadge}>{episodeProgress}</span>
                         )}
-                        <span className={styles.stripYear}>{movie.year || '2024'}</span>
+                        <span className={styles.stripYear}>{formatYear(movie.year)}</span>
                       </div>
                       <span className={styles.stripHeatScore}>{heatScore}°</span>
                     </div>

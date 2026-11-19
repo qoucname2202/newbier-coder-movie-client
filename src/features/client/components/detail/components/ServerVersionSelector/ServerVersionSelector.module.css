@@ -155,3 +155,34 @@
   color: #ff4757;
   font-size: 0.72rem;
 }
+
+@media (max-width: 576px) {
+  .wrapper {
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .selectorLabel {
+    font-size: 0.74rem;
+    flex-shrink: 0;
+  }
+
+  .btnGroup {
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    gap: 4px;
+  }
+
+  .versionBtn {
+    padding: 5px 10px;
+    font-size: 0.74rem;
+    gap: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}

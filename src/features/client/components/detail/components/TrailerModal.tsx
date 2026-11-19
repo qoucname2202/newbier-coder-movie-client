@@ -10,6 +10,7 @@ import {
   type TrailerResolution
 } from '@/utils/trailer';
 import { SYSTEM_CONFIG } from '@/config/systemConfig';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 import styles from './TrailerModal.module.css';
 
 /**
@@ -325,13 +326,17 @@ const TrailerModal: React.FC<TrailerModalProps> = ({ movie, onClose }) => {
             )}
 
             <div className={styles.trailerMetaTags}>
-              {meta.year && <span className={styles.trailerMetaTag}>{meta.year}</span>}
+              {meta.year && <span className={styles.trailerMetaTag}>{formatYear(meta.year)}</span>}
               {Array.isArray(meta.categories) &&
-                meta.categories.slice(0, 3).map((cat) => (
-                  <span key={cat.slug || cat.name} className={styles.trailerMetaTag}>
-                    {cat.name}
-                  </span>
-                ))}
+                meta.categories.slice(0, 3).map((cat, idx) => {
+                  const catName = getTaxonomyName(cat);
+                  if (!catName) return null;
+                  return (
+                    <span key={cat?.slug || catName || String(idx)} className={styles.trailerMetaTag}>
+                      {catName}
+                    </span>
+                  );
+                })}
               {meta.duration && (
                 <span className={styles.trailerMetaTag}>{meta.duration} phút</span>
               )}

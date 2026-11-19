@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Skeleton from '@/features/shared/components/UI/Skeleton';
 import { FaPlayCircle, FaStar, FaFilm, FaChevronDown, FaSync } from 'react-icons/fa';
 import { pickMovieImage, normalizeImageUrl } from '@/utils/imageSource';
+import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 import { getApiBaseUrl } from '@/config/apiBase';
 import styles from '@/styles/Movies.module.css';
 import { apiUrl } from '@/config/apiPaths';
@@ -371,9 +372,9 @@ export default function Series() {
               <div className="col-12">
                 <div className="d-flex flex-wrap gap-2 align-items-center">
                   <span className="text-white me-2">Lọc theo:</span>
-                  {filters.category && <span className="badge bg-danger p-2">Thể loại: {filters.category}</span>}
-                  {filters.country && <span className="badge bg-danger p-2">Quốc gia: {filters.country}</span>}
-                  {filters.year && <span className="badge bg-danger p-2">Năm: {filters.year}</span>}
+                  {filters.category && <span className="badge bg-danger p-2">Thể loại: {getTaxonomyName(filters.category)}</span>}
+                  {filters.country && <span className="badge bg-danger p-2">Quốc gia: {getTaxonomyName(filters.country)}</span>}
+                  {filters.year && <span className="badge bg-danger p-2">Năm: {formatYear(filters.year)}</span>}
                   <button className="btn btn-sm btn-outline-secondary rounded-pill" onClick={clearAllFilters} type="button">Xóa tất cả</button>
                 </div>
               </div>
@@ -425,7 +426,7 @@ export default function Series() {
                             <Link href={`/movie/${s.slug}`} className={styles.playButton}><FaPlayCircle size={48} /></Link>
                           </div>
                           <div className={styles.movieInfo}>
-                            {s.year && <span className="badge bg-danger me-1">{s.year}</span>}
+                            {s.year && <span className="badge bg-danger me-1">{formatYear(s.year)}</span>}
                             {s.quality && <span className="badge bg-primary me-1">{s.quality}</span>}
                             {s.lang && <span className="badge bg-info">{s.lang || 'Vietsub'}</span>}
                           </div>

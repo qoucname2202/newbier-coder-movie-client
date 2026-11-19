@@ -91,6 +91,8 @@ const nextConfig: NextConfig = {
       { source: "/user/premium", destination: "/client/user/premium" },
       { source: "/user/profile", destination: "/client/user/profile" },
       { source: "/user/watch-later", destination: "/client/user/watch-later" },
+      // Offline fallback page for PWA / Service Worker
+      { source: "/offline", destination: "/common/offline" },
     ];
 
     // The MEDIA proxy only.

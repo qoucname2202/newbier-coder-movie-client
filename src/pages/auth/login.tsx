@@ -6,6 +6,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signIn } from 'next-auth/react';
+import { toast, ToastContainer } from 'react-toastify';
 import { useAuth, type AuthResult } from '@/context/AuthContext';
 import { AUTH_CONFIG } from '@/config/authConfig';
 import styles from '@/styles/Login.module.css';
@@ -20,7 +21,8 @@ import {
   FaExclamationCircle,
   FaCheckCircle,
   FaArrowLeft,
-  FaSpinner
+  FaSpinner,
+  FaRedo
 } from 'react-icons/fa';
 
 /**
@@ -40,6 +42,7 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
@@ -131,7 +134,14 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
     if (result.success) {
       setServerStarting(false);
       setServerRetryFailed(false);
+      toast.dismiss('server-starting-toast');
       setMessage(t.notifications.loginSuccess);
+      toast.success(t.notifications.loginSuccess, {
+        toastId: 'login-success-toast',
+        position: 'top-right',
+        autoClose: 2000,
+        theme: 'dark'
+      });
       setTimeout(() => {
         const redirectQuery = router.query.redirect;
         const redirectUrl =
@@ -165,14 +175,36 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
    */
   const scheduleRetry = useCallback((attempt: number): void => {
     const delay = SERVER_RETRY_DELAYS_MS[attempt - 1];
+    const SERVER_TOAST_ID = 'server-starting-toast';
+
     if (!delay) {
       setServerRetryFailed(true);
+      setServerStarting(false);
       setIsLoading(false);
+      toast.error(
+        'Máy chủ phản hồi chậm hoặc đang khởi động. Quý khách vui lòng thử kết nối lại sau ít phút.',
+        {
+          toastId: SERVER_TOAST_ID,
+          position: 'top-right',
+          autoClose: 6000,
+          theme: 'dark'
+        }
+      );
       return;
     }
 
     setServerRetryAttempt(attempt);
     setServerStarting(true);
+
+    toast.info(
+      `Hệ thống máy chủ đang khởi động. Đang tự động kết nối lại (Lần thử ${attempt})...`,
+      {
+        toastId: SERVER_TOAST_ID,
+        position: 'top-right',
+        autoClose: 5000,
+        theme: 'dark'
+      }
+    );
 
     if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
     retryTimerRef.current = setTimeout(() => {
@@ -189,6 +221,7 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
           if (!result.success) {
             setServerStarting(false);
             setServerRetryFailed(false);
+            toast.dismiss(SERVER_TOAST_ID);
             setError(result.error || t.validation.invalidCredentials);
           }
         } catch (err) {
@@ -200,6 +233,7 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
           }
           setServerStarting(false);
           setServerRetryFailed(false);
+          toast.dismiss(SERVER_TOAST_ID);
           setError(e?.message || t.validation.invalidCredentials);
         } finally {
           setIsLoading(false);
@@ -219,10 +253,22 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
     setError('');
     setMessage('');
 
-    if (!email.trim() || !password) {
-      setError(t.validation.requiredFields);
+    const trimmedEmail = email.trim();
+    const nextFieldErrors: { email?: string; password?: string } = {};
+
+    if (!trimmedEmail) {
+      nextFieldErrors.email = (t.validation as Record<string, string>)?.requiredEmail || 'Vui lòng nhập email hoặc tên đăng nhập';
+    }
+    if (!password) {
+      nextFieldErrors.password = (t.validation as Record<string, string>)?.requiredPassword || 'Vui lòng nhập mật khẩu';
+    }
+
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
       return;
     }
+
+    setFieldErrors({});
 
     // A new attempt starts a new retry cycle.
     if (retryTimerRef.current) {
@@ -233,7 +279,7 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
     setServerRetryFailed(false);
 
     try {
-      if (isLoading) return;
+      if (isLoading || serverStarting) return;
       setIsLoading(true);
       const result = await attemptLogin();
 
@@ -328,11 +374,36 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setEmail(e.target.value);
+    if (fieldErrors.email) {
+      setFieldErrors((prev) => ({ ...prev, email: undefined }));
+    }
     if (error) setError('');
   };
+
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setPassword(e.target.value);
+    if (fieldErrors.password) {
+      setFieldErrors((prev) => ({ ...prev, password: undefined }));
+    }
     if (error) setError('');
+  };
+
+  const handleEmailBlur = (): void => {
+    if (!email.trim()) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: (t.validation as Record<string, string>)?.requiredEmail || 'Vui lòng nhập email hoặc tên đăng nhập'
+      }));
+    }
+  };
+
+  const handlePasswordBlur = (): void => {
+    if (!password) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        password: (t.validation as Record<string, string>)?.requiredPassword || 'Vui lòng nhập mật khẩu'
+      }));
+    }
   };
   const toggleShowPassword = (e: MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault();
@@ -372,6 +443,8 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
         <meta name="description" content={t.meta.description} />
       </Head>
 
+      <ToastContainer position="top-right" autoClose={4000} theme="dark" hideProgressBar={false} />
+
       <div className={styles.formSide} suppressHydrationWarning>
         <Link href="/" className={styles.backHome}>
           <FaArrowLeft size={13} />
@@ -385,92 +458,74 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
           </div>
 
           <form className={styles.form} onSubmit={handleLogin} noValidate>
-            <div className={styles.inputWrapper}>
-              <span className={styles.inputIcon}>
-                <FaRegEnvelope />
-              </span>
-              <input
-                type="email"
-                name="email"
-                id="login-email"
-                className={styles.inputField}
-                placeholder={t.placeholders.email}
-                value={email}
-                onChange={handleEmailChange}
-                disabled={isLoading}
-                autoComplete="email"
-                required
-              />
+            <div className={styles.inputGroup}>
+              <div className={`${styles.inputWrapper} ${fieldErrors.email ? styles.inputWrapperError : ''}`}>
+                <span className={styles.inputIcon}>
+                  <FaRegEnvelope />
+                </span>
+                <input
+                  type="text"
+                  name="email"
+                  id="login-email"
+                  className={styles.inputField}
+                  placeholder={t.placeholders.email}
+                  value={email}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
+                  disabled={isLoading || serverStarting}
+                  autoComplete="username email"
+                  required
+                />
+              </div>
+              {fieldErrors.email && (
+                <div className={styles.fieldError} role="alert">
+                  <FaExclamationCircle size={12} />
+                  <span>{fieldErrors.email}</span>
+                </div>
+              )}
             </div>
 
-            <div className={`${styles.inputWrapper} ${error ? styles.inputError : ''}`}>
-              <span className={styles.inputIcon}>
-                <FaLock />
-              </span>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                id="login-password"
-                className={styles.inputField}
-                placeholder={t.placeholders.password}
-                value={password}
-                onChange={handlePasswordChange}
-                disabled={isLoading}
-                autoComplete="current-password"
-                required
-              />
-              <button
-                type="button"
-                className={styles.eyeButton}
-                onClick={toggleShowPassword}
-                aria-label={showPassword ? t.accessibility.hidePassword : t.accessibility.showPassword}
-                title={showPassword ? t.accessibility.hidePassword : t.accessibility.showPassword}
-                tabIndex={-1}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
+            <div className={styles.inputGroup}>
+              <div className={`${styles.inputWrapper} ${fieldErrors.password ? styles.inputWrapperError : (error ? styles.inputError : '')}`}>
+                <span className={styles.inputIcon}>
+                  <FaLock />
+                </span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  id="login-password"
+                  className={styles.inputField}
+                  placeholder={t.placeholders.password}
+                  value={password}
+                  onChange={handlePasswordChange}
+                  onBlur={handlePasswordBlur}
+                  disabled={isLoading || serverStarting}
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  className={styles.eyeButton}
+                  onClick={toggleShowPassword}
+                  aria-label={showPassword ? t.accessibility.hidePassword : t.accessibility.showPassword}
+                  title={showPassword ? t.accessibility.hidePassword : t.accessibility.showPassword}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+              {fieldErrors.password && (
+                <div className={styles.fieldError} role="alert">
+                  <FaExclamationCircle size={12} />
+                  <span>{fieldErrors.password}</span>
+                </div>
+              )}
             </div>
 
             {error && (
               <div className={styles.errorBox}>
                 <FaExclamationCircle size={14} />
                 <span>{error}</span>
-              </div>
-            )}
-
-            {serverStarting && (
-              <div className={styles.waitingBox} role="status" aria-live="polite">
-                <FaSpinner size={14} className={styles.spinner} />
-                <div className={styles.waitingContent}>
-                  <strong className={styles.waitingTitle}>{t.serverStarting.title}</strong>
-                  <span className={styles.waitingMessage}>
-                    {serverRetryFailed
-                      ? t.serverStarting.giveUp
-                      : t.serverStarting.message}
-                  </span>
-                  <span className={styles.waitingMeta}>
-                    {serverRetryFailed
-                      ? ''
-                      : t.serverStarting.retrying +
-                        (serverRetryAttempt > 0
-                          ? ` ${t.serverStarting.attempts.replace('{0}', String(serverRetryAttempt))}`
-                          : '')}
-                  </span>
-                </div>
-                {serverRetryFailed && (
-                  <button
-                    type="button"
-                    className={styles.retryButton}
-                    onClick={() => {
-                      setServerRetryFailed(false);
-                      retryCountRef.current = 0;
-                      scheduleRetry(1);
-                    }}
-                    disabled={isLoading}
-                  >
-                    {t.serverStarting.button}
-                  </button>
-                )}
               </div>
             )}
 
@@ -488,7 +543,7 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
                   id="login-remember"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  disabled={isLoading}
+                  disabled={isLoading || serverStarting}
                   aria-label={t.remember.ariaLabel}
                 />
                 <span className={styles.rememberLabel}>{t.remember.label}</span>
@@ -503,9 +558,16 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
               type="submit"
               id="login-submit"
               className={styles.submitButton}
-              disabled={isLoading}
+              disabled={isLoading || serverStarting}
             >
-              {isLoading ? 'Processing...' : t.buttons.submit}
+              {isLoading || serverStarting ? (
+                <span className={styles.btnLoadingContent}>
+                  <FaSpinner className={styles.spinner} size={14} />
+                  <span>Processing...</span>
+                </span>
+              ) : (
+                t.buttons.submit
+              )}
             </button>
           </form>
 

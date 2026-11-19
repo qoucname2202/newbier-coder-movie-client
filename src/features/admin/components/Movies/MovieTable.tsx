@@ -1,6 +1,7 @@
 // src/components/Admin/Movies/MovieTable.tsx
 import React from 'react';
 import { Table, Button, Row, Col } from 'react-bootstrap';
+import { formatYear, getTaxonomyList } from '@/utils/taxonomy';
 import BackToTopButton from '@/features/admin/components/Common/BackToTopButton';
 
 export interface Movie {
@@ -88,12 +89,12 @@ const MovieTable: React.FC<MovieTableProps> = ({ movies, onEdit, onDelete }) => 
                 </td>
                 <td>{movie.name}</td>
                 <td>{movie.origin_name}</td>
-                <td>{movie.year}</td>
+                <td>{formatYear(movie.year)}</td>
                 <td>
-                  {movie.category?.map(cat => cat.name).join(', ')}
+                  {getTaxonomyList(movie.category)}
                 </td>
                 <td>
-                  {movie.country?.map(c => c.name).join(', ')}
+                  {getTaxonomyList(movie.country)}
                 </td>
                 <td>{movie.quality}</td>
                 <td>{movie.lang}</td>

@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
               />
             </div>
             <p className="footer-description">
-              Trang web xem phim trực tuyến với hàng ngàn bộ phim mới và phổ biến từ nhiều quốc gia và nhiều thể loại khác nhau.
+              Phát triển bởi <strong>NewbieCoder Team</strong>. Nền tảng xem phim trực tuyến với hàng ngàn bộ phim mới và phổ biến từ nhiều quốc gia và nhiều thể loại khác nhau.
               Trải nghiệm xem phim tuyệt vời với chất lượng cao.
             </p>
             {/* <div className="social-links">
@@ -64,15 +64,11 @@ const Footer: React.FC = () => {
             <ul className="contact-info">
               <li>
                 <FaMapMarkerAlt className="contact-icon" />
-                <span>TỔ 9 Ấp 4 Xã Suối Nho, Huyện Định Quán, Tỉnh Đồng Nai </span>
-              </li>
-              <li>
-                <FaPhoneAlt className="contact-icon" />
-                <span>0986585532</span>
+                <span>Hồ Chí Minh</span>
               </li>
               <li>
                 <FaEnvelope className="contact-icon" />
-                <span>quangnguyen31072004@gmail.com</span>
+                <span>Support: <a href="mailto:duongquocnam224400@gmail.com" className="support-email">duongquocnam224400@gmail.com</a></span>
               </li>
             </ul>
             {/* newsletter removed */}
@@ -83,7 +79,7 @@ const Footer: React.FC = () => {
 
         <div className="footer-bottom">
           <p className="copyright">
-            &copy; {currentYear} Web Made  <FaHeart className="heart-icon" /> in Vietnam
+            &copy; {currentYear} <strong>NewbieCoder Team</strong>. All rights reserved. Made with <FaHeart className="heart-icon" /> in Vietnam
           </p>
           <div className="footer-bottom-links">
             <Link href="/privacy-policy">Chính sách bảo mật</Link>
@@ -268,6 +264,18 @@ const Footer: React.FC = () => {
           }
         }
 
+        .support-email {
+          color: #e6edf3;
+          text-decoration: none;
+          word-break: break-all;
+          transition: color 0.2s ease;
+        }
+
+        .support-email:hover {
+          color: #e50914;
+          text-decoration: underline;
+        }
+
         .footer-bottom-links {
           display: flex;
           gap: 20px;
@@ -293,6 +301,12 @@ const Footer: React.FC = () => {
 
           .footer-bottom-links {
             justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+          }
+
+          .contact-info li {
+            word-break: break-word;
           }
         }
       `}</style>

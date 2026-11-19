@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { pickImageSrc, POSTER_FIELDS, BACKDROP_FIELDS } from '@/utils/imageSource';
 import { LOCAL_DEFAULT_POSTER, LOCAL_DEFAULT_BACKDROP } from '@/config/movieFallbackConfig';
+import { formatYear } from '@/utils/taxonomy';
 import styles from './CuratorRecommendation.module.css';
 
 /**
@@ -129,7 +130,7 @@ export const CuratorRecommendation: React.FC<CuratorRecommendationProps> = ({
               {/* Spotlight Content Overlay */}
               <div className={styles.spotlightDetails}>
                 <div className={styles.spotlightMetaRow}>
-                  <span className={styles.metaYear}>{spotlightMovie.year || '2024'}</span>
+                  <span className={styles.metaYear}>{formatYear(spotlightMovie.year)}</span>
                   <span>•</span>
                   <span className={styles.metaQuality}>{spotlightMovie.quality || '4K Ultra HD'}</span>
                   {spotlightMovie.time && (
@@ -214,7 +215,7 @@ export const CuratorRecommendation: React.FC<CuratorRecommendationProps> = ({
                 <div className={styles.orbitInfo}>
                   <h5 className={styles.orbitTitle}>{movie.name}</h5>
                   <div className={styles.orbitMeta}>
-                    <span>{movie.year || '2024'}</span>
+                    <span>{formatYear(movie.year)}</span>
                     <span>•</span>
                     <span>{movie.quality || 'Full HD'}</span>
                     {movie.rating && (

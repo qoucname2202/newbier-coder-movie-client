@@ -325,8 +325,16 @@
   }
 
   .posterCover {
-    min-height: 200px;
-    padding-top: 56.25%;
+    min-height: 0;
+    padding-top: 0;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+
+  .responsiveIframeWrap {
+    padding-top: 0;
+    aspect-ratio: 16 / 9;
+    width: 100%;
   }
 
   .playButtonPulse {

@@ -74,7 +74,6 @@ interface RetryableRequest extends AxiosRequestConfig {
  * added by axios), so the paths are used to recognize an endpoint here.
  */
 const AUTH_REQUIRED_PATHS = new Set<string>([
-  AP.subscriptionCurrent,
   AP.subscriptionHistory,
   AP.subscriptionAdminSubscriptions,
   AP.subscriptionAdminPendingSubscriptions,
@@ -246,27 +245,6 @@ axiosInstance.interceptors.response.use(
     }
     // ---- END MOCK-MODE 404 SHIM -------------------------------------------
 
-    // ---- MOCK-MODE 401 SHIM -----------------------------------------------
-    // The deployed backend returns 401 on /subscription/current for
-    // unauthenticated users. The AdContext treats that as "auth error,
-    // retry", which spams the console. We short-circuit that specific
-    // endpoint so it returns a clean "no subscription" payload.
-    if (status === 401) {
-      if (matchesEndpoint(url, AP.subscriptionCurrent)) {
-        return {
-          data: {
-            data: {
-              hasActiveSubscription: false,
-              subscription: null,
-              daysLeft: 0,
-              isExpired: false
-            }
-          },
-          status: 200, statusText: 'OK (mock-empty)', headers: {}, config: cfg
-        } as never;
-      }
-    }
-    // ---- END MOCK-MODE 401 SHIM -------------------------------------------
 
     const originalRequest = cfg as RetryableRequest;
 

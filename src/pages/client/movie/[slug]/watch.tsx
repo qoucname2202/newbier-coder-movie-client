@@ -23,6 +23,7 @@ import {
   getPinnedEpisode,
   togglePinnedEpisode
 } from '@/utils/watchProgress';
+import { formatYear } from '@/utils/taxonomy';
 import { WATCH_CONFIG } from '@/config/watchConfig';
 import styles from '@/styles/MovieWatchPage.module.css';
 
@@ -337,7 +338,7 @@ const MovieWatchPage: React.FC<MovieWatchPageProps> = ({ initialSlug }) => {
                       {typeof movie?.quality === 'string' && movie.quality.trim() ? (
                         <span className={styles.metaDot} aria-hidden="true" />
                       ) : null}
-                      <span className={styles.infoText}>{String(movie.year)}</span>
+                      <span className={styles.infoText}>{formatYear(movie.year)}</span>
                     </>
                   ) : null}
 
