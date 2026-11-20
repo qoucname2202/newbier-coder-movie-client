@@ -65,7 +65,7 @@ export function createTaxonomyItem({
 export const TAXONOMY_COUNTRIES = {
   'han-quoc': createTaxonomyItem({
     slug: 'han-quoc',
-    backendSlugs: ['hàn-quốc', 'han-quoc'],
+    backendSlugs: ['han-quoc', 'hàn-quốc'],
     nameVi: 'Hàn Quốc',
     nameEn: 'South Korea',
     badge: 'K-DRAMA',
@@ -74,7 +74,7 @@ export const TAXONOMY_COUNTRIES = {
   }),
   'trung-quoc': createTaxonomyItem({
     slug: 'trung-quoc',
-    backendSlugs: ['trung-quốc', 'trung-quoc'],
+    backendSlugs: ['trung-quoc', 'trung-quốc'],
     nameVi: 'Trung Quốc',
     nameEn: 'China',
     badge: 'C-DRAMA',
@@ -152,7 +152,7 @@ export const TAXONOMY_COUNTRIES = {
 export const TAXONOMY_CATEGORIES = {
   'hoat-hinh': createTaxonomyItem({
     slug: 'hoat-hinh',
-    backendSlugs: ['hoạt-hình', 'hoat-hinh'],
+    backendSlugs: ['hoat-hinh', 'hoạt-hình'],
     nameVi: 'Hoạt Hình & Anime',
     nameEn: 'Animation & Anime',
     badge: 'ANIME & CARTOON',

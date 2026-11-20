@@ -105,22 +105,20 @@ const ensureFreshToken = async (): Promise<string | null> => {
   if (_tokenRefreshInFlight) return _tokenRefreshInFlight;
 
   const refreshPromise = (async (): Promise<string | null> => {
-    const auth = await getAuthService();
-    if (!auth) return token;
     try {
-      const refreshed = await auth.refreshToken();
-      // The token changed, so the entries that failed with a 401 are
-      // dropped: they would otherwise survive for the short TTL and the
-      // page would keep showing the empty fallback.
+      const { refreshAccessToken } = await import('@/auth/authToken');
+      const refreshed = await refreshAccessToken();
       if (refreshed) invalidateMovieCache();
       return refreshed;
-    } catch (refreshErr) {
-      const err = refreshErr as { code?: string; message?: string };
-      if (SYSTEM_CONFIG.debugMovies) {
-        // eslint-disable-next-line no-console
-
+    } catch {
+      // Refresh token rejected / expired: clear dead session & redirect to login
+      try {
+        const { handleSessionHardFailure } = await import('@/auth/authToken');
+        handleSessionHardFailure();
+      } catch {
+        // ignore
       }
-      return token;
+      return null;
     }
   })();
 
@@ -287,9 +285,40 @@ export async function safeFetchJson<T = unknown>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      // A controlled diagnostic: only the endpoint, the status and the
-      // message are logged. The token, the cookies and the Authorization
-      // header are never written to the console.
+      if (response.status === 401 && headers.Authorization) {
+        // Backend answered 401 Unauthorized on an authenticated request:
+        // Attempt a transparent single-flight refresh.
+        try {
+          const { refreshAccessToken } = await import('@/auth/authToken');
+          const freshToken = await refreshAccessToken();
+          if (freshToken) {
+            headers.Authorization = `Bearer ${freshToken}`;
+            const retryRes = await fetch(url, { ...options, headers, signal });
+            if (retryRes.ok) {
+              const json = (await retryRes.json()) as EnvelopeResponse;
+              return json as unknown as T;
+            }
+          }
+        } catch {
+          // Refresh failed / expired:
+          // 1. Clear dead token from memory
+          const { setAccessToken, handleSessionHardFailure } = await import('@/auth/authToken');
+          setAccessToken(null, false);
+          delete headers.Authorization;
+          handleSessionHardFailure(true);
+
+          // 2. Retry request as guest without Authorization header so public movie endpoints succeed!
+          try {
+            const guestRes = await fetch(url, { ...options, headers, signal });
+            if (guestRes.ok) {
+              const json = (await guestRes.json()) as EnvelopeResponse;
+              return json as unknown as T;
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
       return fallback;
     }
 
@@ -482,7 +511,7 @@ const movieService = {
     // Tier 1: query the backend route `/countries/{slug}/movies`.
     for (const v of variants) {
       const list = await cachedFetchMovieList(
-        apiPath(`moviesByCountry`, encodeURIComponent(v)),
+        apiPath(`moviesByCountry`, v),
         fetchLimit,
         { signal }
       );
@@ -566,7 +595,7 @@ const movieService = {
     // Tier 1: query the backend route `/categories/{slug}/movies`.
     for (const v of variants) {
       const list = await cachedFetchMovieList(
-        apiPath(`categoriesBySlugMovies`, encodeURIComponent(v)),
+        apiPath(`categoriesBySlugMovies`, v),
         fetchLimit,
         { signal }
       );
