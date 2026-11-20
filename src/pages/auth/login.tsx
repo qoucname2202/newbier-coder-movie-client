@@ -134,7 +134,6 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
     if (result.success) {
       setServerStarting(false);
       setServerRetryFailed(false);
-      toast.dismiss('server-starting-toast');
       setMessage(t.notifications.loginSuccess);
       toast.success(t.notifications.loginSuccess, {
         toastId: 'login-success-toast',
@@ -175,36 +174,17 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
    */
   const scheduleRetry = useCallback((attempt: number): void => {
     const delay = SERVER_RETRY_DELAYS_MS[attempt - 1];
-    const SERVER_TOAST_ID = 'server-starting-toast';
 
     if (!delay) {
       setServerRetryFailed(true);
       setServerStarting(false);
       setIsLoading(false);
-      toast.error(
-        'Máy chủ phản hồi chậm hoặc đang khởi động. Quý khách vui lòng thử kết nối lại sau ít phút.',
-        {
-          toastId: SERVER_TOAST_ID,
-          position: 'top-right',
-          autoClose: 6000,
-          theme: 'dark'
-        }
-      );
+      setError('Máy chủ phản hồi chậm hoặc đang khởi động. Quý khách vui lòng thử kết nối lại sau ít phút.');
       return;
     }
 
     setServerRetryAttempt(attempt);
     setServerStarting(true);
-
-    toast.info(
-      `Hệ thống máy chủ đang khởi động. Đang tự động kết nối lại (Lần thử ${attempt})...`,
-      {
-        toastId: SERVER_TOAST_ID,
-        position: 'top-right',
-        autoClose: 5000,
-        theme: 'dark'
-      }
-    );
 
     if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
     retryTimerRef.current = setTimeout(() => {
@@ -221,7 +201,6 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
           if (!result.success) {
             setServerStarting(false);
             setServerRetryFailed(false);
-            toast.dismiss(SERVER_TOAST_ID);
             setError(result.error || t.validation.invalidCredentials);
           }
         } catch (err) {
@@ -233,7 +212,6 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
           }
           setServerStarting(false);
           setServerRetryFailed(false);
-          toast.dismiss(SERVER_TOAST_ID);
           setError(e?.message || t.validation.invalidCredentials);
         } finally {
           setIsLoading(false);

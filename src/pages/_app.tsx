@@ -13,6 +13,8 @@ import '../styles/feedbackAdmin.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { SessionProvider } from 'next-auth/react';
 import { AuthProvider, withAccountStatus, withAuth } from '@/context/AuthContext';
+import { ReauthProvider, ReauthModal } from '@/services/http';
+import { initAuthTokenListeners } from '@/auth/authToken';
 import { useEffect, useState, useCallback } from 'react';
 
 /** Obfuscation helpers — they hide the user info in DevTools */
@@ -102,14 +104,14 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPageProps
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       require('bootstrap/dist/js/bootstrap.bundle.min.js');
       registerServiceWorker();
-      // Remove the legacy `img_loaded_*` keys that older versions wrote
-      // for every rendered poster. The flag now lives in React state, so
-      // no new key is created any more.
       cleanupLegacyImageLoadedKeys();
-      // Remove the legacy token keys: the tokens now live in an encrypted
-      // `HttpOnly` cookie (server side) and in the memory of the tab, so a
-      // token left in the Web Storage would only be a liability.
       cleanupLegacyTokenKeys();
+
+      // Khởi tạo Access Token Lifecycle & Background Tab Resilient Listeners
+      const cleanupAuthListeners = initAuthTokenListeners();
+      return () => {
+        cleanupAuthListeners();
+      };
     }
   }, []);
 
@@ -232,7 +234,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPageProps
   return (
     <SessionProvider session={session as never}>
       <AuthProvider>
-        <AdContextProvider>
+        <ReauthProvider>
+          <AdContextProvider>
           <Head>
             <title>MovieStreaming</title>
             <meta name="description" content="Xem phim trực tuyến miễn phí HD" />
@@ -242,8 +245,10 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPageProps
           <NetworkStatusBar />
           <OfflineNotice />
           <CinemaAlert />
+          <ReauthModal />
           {getWrappedComponent()}
         </AdContextProvider>
+      </ReauthProvider>
 
         <style jsx global>{`
           body {

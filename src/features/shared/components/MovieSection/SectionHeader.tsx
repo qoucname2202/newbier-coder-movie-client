@@ -29,15 +29,21 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
     <header className={`${styles.sectionHeader} ${className}`}>
       <div className={styles.headerLeft}>
         <span className={styles.accentBar} aria-hidden="true" />
-        <h2 className={styles.headerTitle}>
-          {icon && <span className={styles.headerIcon}>{icon}</span>}
-          <span>{typeof title === 'string' ? title : getTaxonomyName(title)}</span>
-          {badge && <span className={styles.headerBadge}>{typeof badge === 'string' ? badge : getTaxonomyName(badge)}</span>}
-        </h2>
+        <div className={styles.headerTitleWrap}>
+          <h2 className={styles.headerTitle}>
+            {icon && <span className={styles.headerIcon}>{icon}</span>}
+            <span className={styles.titleText}>{typeof title === 'string' ? title : getTaxonomyName(title)}</span>
+          </h2>
+          {badge && (
+            <span className={styles.headerBadge}>
+              {typeof badge === 'string' ? badge : getTaxonomyName(badge)}
+            </span>
+          )}
+        </div>
       </div>
 
       {viewAllHref && (
-        <Link href={viewAllHref} className={styles.viewAllLink}>
+        <Link href={viewAllHref} className={styles.viewAllLink} title="Xem tất cả">
           <span>{typeof viewAllText === 'string' ? viewAllText : getTaxonomyName(viewAllText, 'Xem tất cả')}</span>
           <svg
             className={styles.viewAllArrow}

@@ -92,7 +92,7 @@ export const endpoints = {
    * `useMovieDetail.ts` already does.
    */
   favorites: {
-    getAll: () => route('usersMeFavorites'),
+    getAll: (page = 1, limit = 20) => buildUrl(route('usersMeFavorites'), { page, limit }),
     add: (movieSlug: string) => route('moviesFavorite', movieSlug),
     remove: (movieSlug: string) => route('moviesFavorite', movieSlug),
     check: (movieSlug: string) => buildUrl(route('usersMeFavorites'), { slug: movieSlug })

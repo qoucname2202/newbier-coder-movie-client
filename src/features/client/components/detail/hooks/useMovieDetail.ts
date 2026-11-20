@@ -357,6 +357,30 @@ export const useMovieDetail = (slug: string | undefined | null): UseMovieDetailR
     };
   }, []);
 
+  // Synchronize favorite status for the current authenticated user
+  useEffect(() => {
+    if (!slug) return;
+    let isSubscribed = true;
+    const token = typeof window !== 'undefined' ? getStoredAccessToken() : null;
+    if (!token) {
+      setIsFavorite(false);
+      return;
+    }
+
+    import('@/API/services/favoritesService')
+      .then(({ default: favoritesService }) => favoritesService.checkFavoriteStatus(slug))
+      .then((fav) => {
+        if (isSubscribed) setIsFavorite(fav);
+      })
+      .catch(() => {
+        if (isSubscribed) setIsFavorite(false);
+      });
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [slug]);
+
   /**
    * Fetches the full details of a movie from its slug.
    *
@@ -682,6 +706,19 @@ export const useMovieDetail = (slug: string | undefined | null): UseMovieDetailR
    */
   const toggleFavorite = useCallback(async (): Promise<void> => {
     if (!slug) return;
+
+    // Authentication check: user must be signed in to add or remove favorites
+    const token = typeof window !== 'undefined' ? getStoredAccessToken() : null;
+    if (!token) {
+      const { toast } = await import('react-toastify');
+      toast.warning('Bạn cần đăng nhập để thêm phim vào danh sách yêu thích!', {
+        position: 'top-right',
+        autoClose: 3500,
+        theme: 'dark'
+      });
+      return;
+    }
+
     setFavoriteLoading(true);
     try {
       const { default: favoritesService } = await import('@/API/services/favoritesService');
@@ -689,12 +726,6 @@ export const useMovieDetail = (slug: string | undefined | null): UseMovieDetailR
         ? await favoritesService.removeFromFavorites(slug)
         : await favoritesService.addToFavorites({
             slug,
-            // The movie that is currently displayed is sent along, so the
-            // service can save a snapshot. The backend
-            // `GET /users/me/favorites` only returns the `movieId` (without
-            // the movie object), so without this snapshot the cards of the
-            // favorites page would show "Untitled" and a placeholder image
-            // the next time the page is opened.
             name: movie?.name,
             origin_name: movie?.origin_name,
             poster_url: movie?.poster_url,
@@ -707,15 +738,32 @@ export const useMovieDetail = (slug: string | undefined | null): UseMovieDetailR
           } as Parameters<typeof favoritesService.addToFavorites>[0]);
 
       if (result.success) {
-        setIsFavorite((prev) => !prev);
+        const nextState = !isFavorite;
+        setIsFavorite(nextState);
+        const { toast } = await import('react-toastify');
+        toast.success(
+          nextState ? 'Đã thêm phim vào danh sách yêu thích!' : 'Đã xóa phim khỏi danh sách yêu thích!',
+          {
+            position: 'top-right',
+            autoClose: 2500,
+            theme: 'dark'
+          }
+        );
       } else {
-        // The state is not changed when the API fails. The code used to
-        // toggle optimistically on every error branch, so the UI showed
-        // "saved" even though the server had refused.
-        setError('request-error');
+        const { toast } = await import('react-toastify');
+        toast.error(result.message || 'Không thể cập nhật danh sách yêu thích', {
+          position: 'top-right',
+          autoClose: 3500,
+          theme: 'dark'
+        });
       }
     } catch {
-      setError('request-error');
+      const { toast } = await import('react-toastify');
+      toast.error('Có lỗi xảy ra khi kết nối máy chủ', {
+        position: 'top-right',
+        autoClose: 3500,
+        theme: 'dark'
+      });
     } finally {
       setFavoriteLoading(false);
     }
