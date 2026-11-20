@@ -119,7 +119,7 @@ export default function FavoritesPage({ inProfilePage = false }: { inProfilePage
     setError(null);
 
     try {
-      const movies = await favoritesService.getFavorites();
+      const movies = await favoritesService.getFavorites(1, 20);
 
       // The page was left while the request was pending, so do not update state.
       if (!isMountedRef.current) return false;

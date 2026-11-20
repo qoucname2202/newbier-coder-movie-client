@@ -697,9 +697,9 @@ const favoritesService = {
    *
    * @returns The list of favorite movies, in the UI shape.
    */
-  getFavorites: async (): Promise<FavoriteMovie[]> => {
+  getFavorites: async (page: number = 1, limit: number = 20): Promise<FavoriteMovie[]> => {
     try {
-      const response = await axiosInstance.get(endpoints.favorites.getAll());
+      const response = await axiosInstance.get(endpoints.favorites.getAll(page, limit));
       const payload = response.data;
 
       const envelopeError = readEnvelopeError(payload);

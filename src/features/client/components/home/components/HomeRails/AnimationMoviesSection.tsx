@@ -21,7 +21,7 @@ export interface AnimationMoviesSectionProps {
 
 const AnimationMoviesSection: React.FC<AnimationMoviesSectionProps> = ({
   cardSize = 'md',
-  title = 'Phim Hoạt Hình & Anime Đỉnh Cao',
+  title = 'Phim Hoạt Hình & Anime',
   badge = 'ANIME & CARTOON',
   viewAllHref = '/genre/hoat-hinh',
   load,
