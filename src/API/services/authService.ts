@@ -1,4 +1,4 @@
-﻿/**
+/**
  * authService.ts
  *
  * Unified authentication service for the whole frontend.
@@ -392,6 +392,7 @@ const clearLocalSession = (): void => {
     localStorage.removeItem(STORAGE_KEYS.user);
     localStorage.removeItem(STORAGE_KEYS.isAccountLocked);
     localStorage.removeItem(REMEMBER_ME_KEY);
+    localStorage.removeItem('mv_has_active_session');
     // The persisted user store is wiped: it holds the favorite cache and
     // the auth state of the previous session.
     localStorage.removeItem(STORAGE_KEYS.userStore);

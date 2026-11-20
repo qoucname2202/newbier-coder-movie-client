@@ -109,8 +109,14 @@ const proxy = async (req: NextApiRequest, res: NextApiResponse): Promise<void> =
   }
 
   // The path of the endpoint, with the remaining segments appended, so a
-  // route can accept a variable number of them.
-  const extra = params.map((value) => encodeURIComponent(value));
+  // route can accept a variable number of them. Safely prevents double-encoding.
+  const extra = params.map((value) => {
+    try {
+      return encodeURIComponent(decodeURIComponent(value));
+    } catch {
+      return encodeURIComponent(value);
+    }
+  });
   const rawPath = [`/${head}`, ...extra].join('/');
 
   // The path is remapped when the server route map declares an override

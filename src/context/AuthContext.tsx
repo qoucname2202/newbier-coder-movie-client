@@ -316,8 +316,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const fromToken = decodeJwtUser(accessToken);
           if (!cancelled) setUser(fromToken);
         } else {
-          const currentUser = authService.getCurrentUser() as AuthUser | null;
-          if (currentUser && !cancelled) setUser(currentUser);
+          // If there is no access token in memory or cookie, the user is NOT authenticated.
+          // Do NOT revive a stale ghost user from storage without a valid access token!
+          if (!cancelled) setUser(null);
         }
       } catch (err) {
         if (!cancelled) setError('Could not check authentication status');
@@ -328,8 +329,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     void checkLoggedIn();
 
+    const handleSessionExpired = (): void => {
+      setUser(null);
+      setLoading(false);
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('auth:session_expired', handleSessionExpired);
+    }
+
     return () => {
       cancelled = true;
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('auth:session_expired', handleSessionExpired);
+      }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -736,7 +748,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     uploadAvatar,
     refreshUser,
     updateAvatarInUI,
-    isAuthenticated: !!user,
+    isAuthenticated: Boolean(user && (getMemoryAccessToken() || session?.user)),
     isAdmin: user?.role?.toLowerCase() === 'admin' || user?.isAdmin === true,
     isAccountLocked,
     showAccountLockedBanner,
