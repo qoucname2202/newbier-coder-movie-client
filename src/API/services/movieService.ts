@@ -7,29 +7,10 @@
  */
 
 import { MOVIE_CONFIG } from '@/config/movieConfig';
-import { SYSTEM_CONFIG } from '@/config/systemConfig';
-import {
-  resolveCountryTaxonomy,
-  resolveCategoryTaxonomy
-} from '@/config/taxonomyConfig';
 import { pickMovieImage } from '@/utils/imageSource';
 import { apiPath } from '@/config/apiPaths';
 import { ensureSessionReady } from '@/utils/accessTokenStore';
 import { cachedRequest, invalidateMovieCache } from './movieRequestCache';
-
-// The auth service is imported lazily to avoid a circular dependency
-// between the auth and the movie modules.
-const getAuthService = async (): Promise<{
-  refreshToken: () => Promise<string>;
-  logout: () => Promise<void>;
-} | null> => {
-  try {
-    const mod = await import('./authService');
-    return (mod.default || mod) as { refreshToken: () => Promise<string>; logout: () => Promise<void> };
-  } catch {
-    return null;
-  }
-};
 
 /**
  * Reads the expiry date of a JWT.
@@ -94,7 +75,17 @@ const ensureFreshToken = async (): Promise<string | null> => {
     token = null;
   }
 
-  if (!token) return null;
+  if (!token) {
+    try {
+      const { ensureFreshToken: getFreshToken, hasActiveSessionMarker } = await import('@/auth/authToken');
+      if (hasActiveSessionMarker()) {
+        return await getFreshToken();
+      }
+    } catch {
+      return null;
+    }
+    return null;
+  }
 
   const exp = readJwtExp(token);
   if (!exp) return token;
@@ -114,7 +105,7 @@ const ensureFreshToken = async (): Promise<string | null> => {
       // Refresh token rejected / expired: clear dead session & redirect to login
       try {
         const { handleSessionHardFailure } = await import('@/auth/authToken');
-        handleSessionHardFailure();
+        handleSessionHardFailure(true);
       } catch {
         // ignore
       }
@@ -198,7 +189,7 @@ export const extractMovieList = (json: unknown): RawMovie[] => {
     Array.isArray(v) ? (v as RawMovie[]).map(withImageAliases) : null;
 
   // 1. The array sits directly in one of the known envelope keys.
-  let found = tryArray(env.responseData)
+  const found = tryArray(env.responseData)
     || tryArray((env.responseData as { data?: unknown[] } | undefined)?.data)
     || tryArray((env.responseData as { items?: unknown[] } | undefined)?.items)
     || tryArray((env.responseData as { movies?: unknown[] } | undefined)?.movies)
@@ -248,6 +239,15 @@ export async function safeFetchJson<T = unknown>(
   const base = getBaseUrl();
   if (!base) return fallback;
 
+  try {
+    const { isSessionTerminated } = await import('@/auth/authToken');
+    if (isSessionTerminated()) {
+      return fallback;
+    }
+  } catch {
+    // ignore
+  }
+
   const url = endpoint.startsWith('http')
     ? endpoint
     : `${base}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
@@ -285,8 +285,8 @@ export async function safeFetchJson<T = unknown>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      if (response.status === 401 && headers.Authorization) {
-        // Backend answered 401 Unauthorized on an authenticated request:
+      if (response.status === 401) {
+        // Backend answered 401 Unauthorized:
         // Attempt a transparent single-flight refresh.
         try {
           const { refreshAccessToken } = await import('@/auth/authToken');
@@ -301,23 +301,19 @@ export async function safeFetchJson<T = unknown>(
           }
         } catch {
           // Refresh failed / expired:
-          // 1. Clear dead token from memory
+          // Clear dead session and trigger login teardown immediately.
+          // DO NOT retry as guest to avoid triggering 500 error cascades.
           const { setAccessToken, handleSessionHardFailure } = await import('@/auth/authToken');
           setAccessToken(null, false);
           delete headers.Authorization;
           handleSessionHardFailure(true);
-
-          // 2. Retry request as guest without Authorization header so public movie endpoints succeed!
-          try {
-            const guestRes = await fetch(url, { ...options, headers, signal });
-            if (guestRes.ok) {
-              const json = (await guestRes.json()) as EnvelopeResponse;
-              return json as unknown as T;
-            }
-          } catch {
-            // ignore
-          }
+          return fallback;
         }
+
+        const { setAccessToken, handleSessionHardFailure } = await import('@/auth/authToken');
+        setAccessToken(null, false);
+        delete headers.Authorization;
+        handleSessionHardFailure(true);
       }
       return fallback;
     }
@@ -499,82 +495,26 @@ const movieService = {
   getMoviesByCountry: async (countrySlug: string, limit = 20, signal?: AbortSignal): Promise<RawMovie[]> => {
     if (!countrySlug) return [];
 
-    const meta = resolveCountryTaxonomy(countrySlug);
-    const variants: string[] = meta?.backendSlugs || [countrySlug];
-
-    // The service over-fetches: only a small part of the movies have a
-    // `trailer`, and the caller (the country rail) filters the trailer after
-    // that. Fetching 4 times the limit keeps enough data after the filter,
-    // so the rail does not end up empty.
-    const fetchLimit = Math.max(limit * 4, 40);
-
-    // Tier 1: query the backend route `/countries/{slug}/movies`.
-    for (const v of variants) {
-      const list = await cachedFetchMovieList(
-        apiPath(`moviesByCountry`, v),
-        fetchLimit,
-        { signal }
-      );
-      if (Array.isArray(list) && list.length > 0) return list;
+    try {
+      const { isSessionTerminated } = await import('@/auth/authToken');
+      if (isSessionTerminated()) return [];
+    } catch {
+      // ignore
     }
 
-    // Tier 2: search by keyword as a fallback.
-    const keyword = meta?.searchKeyword;
-    if (keyword) {
-      const searchList = await cachedFetchMovieList(
-        apiPath(`moviesSearch`) + `?q=${encodeURIComponent(keyword)}`,
-        fetchLimit,
-        { signal }
-      );
-      if (Array.isArray(searchList) && searchList.length > 0) return searchList;
-    }
+    const cleanSlug = countrySlug.trim().toLowerCase();
+    const fetchLimit = Math.max(limit * 2, 20);
 
-    // Tier 3: fetch the general movie list and filter it on the client side.
-    //
-    // OLD BUG: `countrySlug.split('-')[0]` was used as the keyword match, so
-    // "han" or "trung" was matched. Those fragments are too short and they
-    // also match unrelated strings ("trung" matches "trung-thu-2024" and
-    // "han" matches "hanh"), which filled the list with movies from other
-    // countries. Some of them had no valid poster and showed a broken image.
-    //
-    // FIX: the full `slug` AND the full `name` of the country object are
-    // matched (case-insensitive), and the last token of the slug split by
-    // "-" is checked too. For example "han-quoc" matches
-    // `country.slug === "han-quoc"` or a `country.name` containing
-    // "han quoc" (South Korea).
-    const all = await cachedFetchMovieList(apiPath(`moviesList`) + '?page=1&limit=100', undefined, { signal });
-    if (Array.isArray(all) && all.length > 0) {
-      const slugTokens = countrySlug.split('-').filter(Boolean);
-      const filtered = all.filter((m) => {
-        const countryList = (m.country as unknown[] | undefined) || (m.countries as unknown[] | undefined) || [];
-        return countryList.some?.((c) => {
-          const country = c as { slug?: string; name?: string };
-          const s = (country.slug || '').toLowerCase();
-          const n = (country.name || '').toLowerCase();
-          // The exact slug is checked first, then every token of the slug
-          // inside `country.slug`, and only at the end `country.name`.
-          if (s === countrySlug) return true;
-          if (slugTokens.every((tok) => s.includes(tok))) return true;
-          if (n.includes(countrySlug)) return true;
-          return false;
-        });
-      });
-      if (filtered.length > 0) {
-        return typeof limit === 'number' ? filtered.slice(0, fetchLimit) : filtered;
-      }
-    }
-
-    return [];
+    const list = await cachedFetchMovieList(
+      apiPath(`moviesByCountry`, cleanSlug),
+      fetchLimit,
+      { signal }
+    );
+    return Array.isArray(list) ? list : [];
   },
 
   /**
-   * Loads the movies of a category with a multi-level fallback:
-   * 1. Query the slug registered in the backend through `taxonomyConfig`.
-   * 2. Search by the keyword defined in `taxonomyConfig`.
-   * 3. The legacy endpoint `/movies/category/${slug}` was REMOVED, because
-   *    the backend answers 404 for that route and it only produced useless
-   *    error logs. When Tier 1 and Tier 2 both return nothing, an empty
-   *    array is returned instead of calling a route that does not exist.
+   * Loads the movies of a category by slug.
    *
    * @param categorySlug - The slug of the category.
    * @param limit - The maximum number of movies returned.
@@ -584,39 +524,22 @@ const movieService = {
   getMoviesByCategory: async (categorySlug: string, limit = 20, signal?: AbortSignal): Promise<RawMovie[]> => {
     if (!categorySlug) return [];
 
-    const meta = resolveCategoryTaxonomy(categorySlug);
-    const variants: string[] = meta?.backendSlugs || [categorySlug];
-
-    // The service over-fetches: only a small part of the movies have a
-    // `trailer`, and the caller usually filters the trailer after that.
-    // Fetching 3 times the limit keeps enough data after the filter.
-    const fetchLimit = Math.max(limit * 3, 24);
-
-    // Tier 1: query the backend route `/categories/{slug}/movies`.
-    for (const v of variants) {
-      const list = await cachedFetchMovieList(
-        apiPath(`categoriesBySlugMovies`, v),
-        fetchLimit,
-        { signal }
-      );
-      if (Array.isArray(list) && list.length > 0) return list;
+    try {
+      const { isSessionTerminated } = await import('@/auth/authToken');
+      if (isSessionTerminated()) return [];
+    } catch {
+      // ignore
     }
 
-    // Tier 2: search by keyword as a fallback.
-    const keyword = meta?.searchKeyword;
-    if (keyword) {
-      const searchList = await cachedFetchMovieList(
-        apiPath(`moviesSearch`) + `?q=${encodeURIComponent(keyword)}`,
-        fetchLimit,
-        { signal }
-      );
-      if (Array.isArray(searchList) && searchList.length > 0) return searchList;
-    }
+    const cleanSlug = categorySlug.trim().toLowerCase();
+    const fetchLimit = Math.max(limit * 2, 24);
 
-    // There is no fallback on `/movies/category/${slug}` anymore, because
-    // that endpoint answers 404 on the backend. An empty array is returned
-    // to stay safe.
-    return [];
+    const list = await cachedFetchMovieList(
+      apiPath(`categoriesBySlugMovies`, cleanSlug),
+      fetchLimit,
+      { signal }
+    );
+    return Array.isArray(list) ? list : [];
   },
 
   /** Loads the details of a movie by slug. */
@@ -624,19 +547,24 @@ const movieService = {
     safeFetchJson<EnvelopeResponse>(apiPath(`moviesDetail`, slug), { signal }, null),
 
   /**
-   * Multi-source fallback resolution cho Top 10 movies.
+   * Multi-source resolution cho Top 10 movies:
+   * 1. Trending movies
+   * 2. Top-rated movies
    */
   getTop10Movies: async (signal?: AbortSignal): Promise<RawMovie[]> => {
+    try {
+      const { isSessionTerminated } = await import('@/auth/authToken');
+      if (isSessionTerminated()) return [];
+    } catch {
+      // ignore
+    }
+
     // 1. The trending movies.
     let movies = await movieService.getTrendingMovies(signal);
     if (Array.isArray(movies) && movies.length > 0) return movies.slice(0, 10);
 
     // 2. The top rated movies.
     movies = await movieService.getTopRatedMovies(signal);
-    if (Array.isArray(movies) && movies.length > 0) return movies.slice(0, 10);
-
-    // 3. The first page of the general movie list.
-    movies = await movieService.getMoviesPage(1, 10, signal);
     if (Array.isArray(movies) && movies.length > 0) return movies.slice(0, 10);
 
     return [];

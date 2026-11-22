@@ -1,6 +1,6 @@
 // Public/sw.js - Service Worker for offline functionality
 
-const CACHE_NAME = 'moviestreaming-offline-v1';
+const CACHE_NAME = 'moviestreaming-offline-v3';
 const OFFLINE_URL = '/offline';
 
 self.addEventListener('install', (event) => {
@@ -60,8 +60,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // 2. NEVER intercept or cache backend API routes or internal Next.js dev sockets
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/webpack-hmr')) {
+  // 2. NEVER intercept or cache backend API routes, auth pages, or internal Next.js assets
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/auth/') ||
+    url.pathname.startsWith('/_next/')
+  ) {
     return;
   }
 
@@ -71,16 +75,21 @@ self.addEventListener('fetch', (event) => {
 
   if (isHtmlNavigation) {
     event.respondWith(
-      fetch(event.request).catch(async () => {
-        // If navigation fails due to offline/network error, serve the cached offline page
-        const cached = await caches.match(OFFLINE_URL);
-        if (cached) return cached;
-        return new Response('Bạn đang ngoại tuyến. Vui lòng kiểm tra lại kết nối mạng.', {
-          status: 503,
-          statusText: 'Service Unavailable',
-          headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-        });
-      })
+      fetch(event.request)
+        .then((response) => response)
+        .catch(async () => {
+          try {
+            const cached = await caches.match(OFFLINE_URL);
+            if (cached) return cached;
+          } catch {
+            // ignore cache match error
+          }
+          return new Response('Bạn đang ngoại tuyến. Vui lòng kiểm tra lại kết nối mạng.', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+          });
+        })
     );
   } else {
     // For non-HTML static assets (images, css, js), use network-first with cache fallback

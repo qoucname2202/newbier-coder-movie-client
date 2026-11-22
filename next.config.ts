@@ -69,9 +69,14 @@ const nextConfig: NextConfig = {
     const rewrites: { source: string; destination: string }[] = [
       // Homepage: physical file is at /client (src/pages/client/index.tsx).
       { source: "/", destination: "/client" },
+      // Formats
+      { source: "/formats/:slug/movies", destination: "/client/formats/:slug" },
+      { source: "/dinh-dang/:slug/movies", destination: "/client/formats/:slug" },
+      { source: "/browse/movies", destination: "/client/formats/phim-le" },
       // Browse
       { source: "/browse/:path*", destination: "/client/browse/:path*" },
       // Country / Genre (dynamic slug)
+      { source: "/quoc-gia/:slug", destination: "/client/country/:slug" },
       { source: "/country/:slug", destination: "/client/country/:slug" },
       { source: "/genre/:slug", destination: "/client/genre/:slug" },
       // Movie: detail + nested watch

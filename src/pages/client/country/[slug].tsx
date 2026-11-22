@@ -1,152 +1,157 @@
 /**
  * @file pages/country/[slug].tsx
- * @description Country landing page: lists movies from a given country slug.
+ * @description Enterprise Country Landing & Movie Listing Page.
+ *
+ * Features:
+ * 1. Synchronized URL query state (/quoc-gia/han-quoc?page=2&sort=moi-nhat&year=2024).
+ * 2. High-performance responsive grid: 2 cols (mobile), 3-4 (tablet), 5-6 (desktop).
+ * 3. Core info movie cards with WebP/AVIF support and fallback image resiliency.
+ * 4. Microdata Breadcrumb (Trang chủ › Quốc gia › [Tên quốc gia]).
+ * 5. Shimmer skeleton loading & accessible pagination.
+ * 6. User-friendly error recovery with retry trigger.
  */
-import React, { useEffect, useState } from 'react';
+
+import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import movieService from '@/API/services/movieService';
-import { resolveCountryTaxonomy } from '@/config/taxonomyConfig';
-import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
-import Skeleton from '@/features/shared/components/UI/Skeleton';
+import { FaExclamationTriangle, FaFilm, FaRedoAlt } from 'react-icons/fa';
+import {
+  useCountryMovies,
+  CountryBreadcrumb,
+  CountryFilterBar,
+  CountryMovieCard,
+  CountryPagination,
+  CountrySkeletonGrid
+} from '@/features/client/countries';
+import BackToTop from '@/features/shared/components/UI/BackToTop';
+import styles from '@/styles/CountryPage.module.css';
 
-interface MovieCard {
-  _id?: string;
-  slug?: string;
-  name?: string;
-  origin_name?: string;
-  thumb_url?: string;
-  poster_url?: string;
-  year?: number | string;
-  [key: string]: unknown;
-}
-
-const CountryPage: React.FC = () => {
+export default function CountryPage() {
   const router = useRouter();
-  const { slug } = router.query;
-  const [movies, setMovies] = useState<MovieCard[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const rawSlug = router.query.slug;
+  const slug = typeof rawSlug === 'string' ? rawSlug.trim().toLowerCase() : '';
 
-  const countryMeta = slug ? resolveCountryTaxonomy(typeof slug === 'string' ? slug : '') : null;
-  const countryTitle = countryMeta?.nameVi || (slug ? String(slug).replace(/-/g, ' ') : 'Country');
-  const slugString = typeof slug === 'string' ? slug : '';
+  const {
+    movies,
+    pagination,
+    countryName,
+    isLoading,
+    error,
+    sort,
+    year,
+    page,
+    changePage,
+    changeSort,
+    changeYear,
+    retry,
+  } = useCountryMovies({ slug });
 
-  useEffect(() => {
-    if (!slugString) return;
-    let isSubscribed = true;
-
-    const fetchCountryMovies = async () => {
-      setLoading(true);
-      try {
-        const list = await movieService.getMoviesByCountry(slugString, 30);
-        if (isSubscribed) {
-          setMovies(Array.isArray(list) ? (list as MovieCard[]) : []);
-        }
-      } catch {
-        if (isSubscribed) setMovies([]);
-      } finally {
-        if (isSubscribed) setLoading(false);
-      }
-    };
-
-    fetchCountryMovies();
-    return () => {
-      isSubscribed = false;
-    };
-  }, [slugString]);
+  const displayName = countryName || slug.replace(/-/g, ' ').toUpperCase() || 'Quốc gia';
+  const pageTitle = `Phim ${displayName} Mới Nhất - Tuyển Tập Phim ${displayName} Hay Chọn Lọc`;
+  const pageDesc = `Xem danh sách phim ${displayName} mới nhất, phim ${displayName} hay chọn lọc, chất lượng cao HD Vietsub và Thuyết minh cập nhật liên tục.`;
+  const canonicalUrl = `https://xomphim-mocha.vercel.app/quoc-gia/${slug}`;
 
   return (
     <>
       <Head>
-        <title>{countryTitle} Movies - Watch Online | MovieStreaming</title>
-        <meta name="description" content={`Curated ${countryTitle} movies, updated regularly, HD quality with subtitles.`} />
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="video.other" />
       </Head>
 
-      <div className="container-fluid px-3 px-lg-5 py-4" style={{ minHeight: '80vh', paddingTop: '90px' }}>
-        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-          <div>
-            <nav aria-label="breadcrumb">
-              <ol className="breadcrumb mb-1 text-secondary" style={{ fontSize: '0.85rem' }}>
-                <li className="breadcrumb-item"><Link href="/" className="text-secondary text-decoration-none">Home</Link></li>
-                <li className="breadcrumb-item"><Link href="/search" className="text-secondary text-decoration-none">Country</Link></li>
-                <li className="breadcrumb-item active text-danger" aria-current="page">{countryTitle}</li>
-              </ol>
-            </nav>
-            <h1 className="h3 text-white fw-bold text-uppercase m-0">{countryTitle} Movies</h1>
-          </div>
-          <span className="badge bg-danger bg-opacity-25 text-danger px-3 py-2 border border-danger border-opacity-25 rounded-pill">
-            {movies.length} movies
-          </span>
-        </div>
+      <main className={styles.pageWrapper}>
+        <div className={styles.container}>
+          {/* Breadcrumb Navigation with Schema.org JSON-LD */}
+          <CountryBreadcrumb countryName={displayName} countrySlug={slug} />
 
-        {loading ? (
-          <div className="row g-3">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="col-6 col-sm-4 col-md-3 col-lg-2">
-                <div className="card bg-dark border-0 rounded-3 overflow-hidden">
-                  <Skeleton height="260px" borderRadius="8px" />
-                  <div className="p-2">
-                    <Skeleton height="16px" width="80%" />
-                    <Skeleton height="12px" width="50%" className="mt-1" />
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Header Row: Title & Badge */}
+          <div className={styles.headerRow}>
+            <div className={styles.titleArea}>
+              <h1 className={styles.pageTitle}>Phim {displayName}</h1>
+              <span className={styles.countryBadge}>QUỐC GIA</span>
+            </div>
           </div>
-        ) : movies.length > 0 ? (
-          <div className="row g-3">
-            {movies.map((movie) => (
-              <div key={movie._id || movie.slug} className="col-6 col-sm-4 col-md-3 col-lg-2">
-                <Link href={`/movie/${movie.slug}`} className="text-decoration-none">
-                  <div className="card bg-dark border-0 rounded-3 overflow-hidden movie-card-hover h-100">
-                    <div style={{ aspectRatio: '2 / 3', width: '100%', position: 'relative', overflow: 'hidden' }}>
-                      <img
-                        src={movie.poster_url || movie.thumb_url || LOCAL_DEFAULT_POSTER}
-                        alt={movie.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        loading="lazy"
-                        onError={(e) => { (e.target as HTMLImageElement).src = LOCAL_DEFAULT_POSTER; }}
-                      />
-                      <span className="badge bg-danger position-absolute top-0 start-0 m-2" style={{ fontSize: '0.7rem' }}>
-                        {movie.year || 'HD'}
-                      </span>
-                    </div>
-                    <div className="p-2 text-white">
-                      <h6 className="text-truncate m-0 fw-semibold" style={{ fontSize: '0.9rem' }} title={movie.name}>
-                        {movie.name}
-                      </h6>
-                      <p className="text-secondary text-truncate m-0" style={{ fontSize: '0.78rem' }}>
-                        {movie.origin_name || movie.name}
-                      </p>
-                    </div>
-                  </div>
+
+          {/* Filter Bar with Sort & Year Selectors */}
+          <CountryFilterBar
+            currentSort={sort}
+            currentYear={year}
+            totalItems={pagination.totalItems}
+            onSortChange={changeSort}
+            onYearChange={changeYear}
+          />
+
+          {/* Loading Skeleton */}
+          {isLoading && <CountrySkeletonGrid count={18} />}
+
+          {/* Error Recovery State */}
+          {!isLoading && error && (
+            <div className={styles.stateContainer} role="alert">
+              <FaExclamationTriangle className={styles.stateIcon} aria-hidden="true" />
+              <h2 className={styles.stateTitle}>Đã có lỗi xảy ra</h2>
+              <p className={styles.stateDesc}>{error}</p>
+              <button type="button" className={styles.actionBtn} onClick={retry}>
+                <FaRedoAlt aria-hidden="true" />
+                <span>Thử lại</span>
+              </button>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && movies.length === 0 && (
+            <div className={styles.stateContainer}>
+              <FaFilm className={styles.stateIcon} style={{ color: '#64748b' }} aria-hidden="true" />
+              <h2 className={styles.stateTitle}>Không có phim nào</h2>
+              <p className={styles.stateDesc}>
+                Hiện tại chưa tìm thấy danh sách phim nào thuộc quốc gia {displayName}{' '}
+                {year !== 'all' ? `trong năm ${year}` : ''}. Bạn vui lòng chọn lại tiêu chí tìm kiếm khác hoặc quay lại sau.
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {year !== 'all' && (
+                  <button
+                    type="button"
+                    className={styles.actionBtn}
+                    onClick={() => changeYear('all')}
+                  >
+                    Xem tất cả các năm
+                  </button>
+                )}
+                <Link href="/" className={styles.actionBtn} style={{ background: '#334155' }}>
+                  <span>Về trang chủ</span>
                 </Link>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-5 text-secondary">
-            <p className="mb-3">No movies from this country yet.</p>
-            <Link href="/search" className="btn btn-outline-danger btn-sm rounded-pill px-4">
-              Explore other countries
-            </Link>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
 
-      <style jsx>{`
-        .movie-card-hover {
-          transition: transform 0.25s ease, box-shadow 0.25s ease;
-          background: #161b22 !important;
-        }
-        .movie-card-hover:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 24px rgba(229, 9, 20, 0.35);
-        }
-      `}</style>
+          {/* Success Movie Grid */}
+          {!isLoading && !error && movies.length > 0 && (
+            <>
+              <div className={styles.movieGrid} aria-label={`Danh sách phim ${displayName}`}>
+                {movies.map((movie) => (
+                  <CountryMovieCard
+                    key={String(movie._id || movie.slug || movie.id)}
+                    movie={movie}
+                  />
+                ))}
+              </div>
+
+              {/* Accessible Pagination */}
+              <CountryPagination
+                currentPage={page}
+                totalPages={pagination.totalPages}
+                onPageChange={changePage}
+              />
+            </>
+          )}
+        </div>
+      </main>
+
+      <BackToTop />
     </>
   );
-};
-
-export default CountryPage;
+}

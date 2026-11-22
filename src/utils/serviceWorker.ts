@@ -13,6 +13,9 @@ export function registerServiceWorker(): void {
     navigator.serviceWorker
       .register('/sw.js')
       .then((registration) => {
+        // Trigger immediate background update check so outdated workers are retired
+        registration.update().catch(() => {});
+
         const installing = registration.installing;
         if (installing) {
           installing.addEventListener('statechange', () => {

@@ -302,6 +302,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         })();
 
+        if (accessToken) {
+          try {
+            const { setAccessToken } = await import('@/auth/authToken');
+            setAccessToken(accessToken, false);
+          } catch {
+            // ignore
+          }
+        }
+
         if (accessToken && storedUser) {
           try {
             if (!cancelled) setUser(JSON.parse(storedUser));
@@ -319,6 +328,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // If there is no access token in memory or cookie, the user is NOT authenticated.
           // Do NOT revive a stale ghost user from storage without a valid access token!
           if (!cancelled) setUser(null);
+
+          try {
+            const { hasActiveSessionMarker, handleSessionHardFailure } = await import('@/auth/authToken');
+            if (hasActiveSessionMarker()) {
+              handleSessionHardFailure(true);
+              return;
+            }
+          } catch {
+            // ignore
+          }
         }
       } catch (err) {
         if (!cancelled) setError('Could not check authentication status');
@@ -779,6 +798,9 @@ export const withAuth = <P extends Record<string, unknown>>(Component: React.Com
 
     useEffect(() => {
       if (!loading && !user) {
+        if (router.pathname.startsWith(LOGIN_ROUTE) || router.asPath.startsWith(LOGIN_ROUTE)) {
+          return;
+        }
         router.replace(LOGIN_ROUTE);
       }
     }, [user, loading, router]);

@@ -62,6 +62,7 @@ export const setLastUserInteractionTimestampForTesting = (ts: number): void => {
  * Marks that a logged-in user session is active.
  */
 export const markUserSessionActive = (): void => {
+  resetSessionTerminated();
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(SESSION_MARKER_KEY, '1');
@@ -161,6 +162,13 @@ let proactiveTimerId: ReturnType<typeof setTimeout> | null = null;
  */
 let broadcastChannel: BroadcastChannel | null = null;
 
+let sessionTerminated = false;
+
+export const isSessionTerminated = (): boolean => sessionTerminated;
+export const resetSessionTerminated = (): void => {
+  sessionTerminated = false;
+};
+
 /**
  * Decodes the JWT payload on the client without verifying the cryptographic signature.
  * (Cryptographic verification is the server's responsibility).
@@ -201,6 +209,11 @@ export const decodeJwt = (token: string): JwtPayload | null => {
  */
 export const getSafeRedirectPath = (path?: string): string => {
   const target = path || (typeof window !== 'undefined' ? window.location.pathname + window.location.search : '/');
+
+  // Prevent redirect loops back to auth pages
+  if (target.startsWith('/auth/') || target.startsWith('/auth/login') || target.startsWith('/auth/register')) {
+    return encodeURIComponent('/');
+  }
 
   // Reject protocol-relative URLs (//) and absolute URLs (http://, https://)
   if (!target.startsWith('/') || target.startsWith('//') || target.includes('://')) {
@@ -347,26 +360,32 @@ export const scheduleProactiveRefresh = (token: string): void => {
  * 3. Redirects to `/auth/login?redirect=<safe_current_url>`.
  */
 export const refreshAccessToken = async (): Promise<string> => {
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/login')) {
+    throw new Error('Already on login page');
+  }
+
   if (sharedRefreshPromise) {
     return sharedRefreshPromise;
   }
 
   sharedRefreshPromise = (async (): Promise<string> => {
     try {
+      const { ensureCsrfToken } = await import('@/utils/accessTokenStore');
+      const csrfToken = await ensureCsrfToken();
+
       const response = await fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json'
+          Accept: 'application/json',
+          ...(csrfToken ? { 'x-csrf-token': csrfToken } : {})
         }
       });
 
       if (!response.ok) {
         // Refresh token is expired, invalid, or rejected
-        if (response.status === 401 || response.status === 403) {
-          handleSessionHardFailure(true);
-        }
+        handleSessionHardFailure(true);
 
         const err = new Error(`Token refresh failed with status ${response.status}`);
         (err as Error & { status: number }).status = response.status;
@@ -381,6 +400,7 @@ export const refreshAccessToken = async (): Promise<string> => {
 
       const freshToken = data.accessToken || data.token;
       if (!freshToken) {
+        handleSessionHardFailure(true);
         throw new Error('Refresh response missing access token');
       }
 
@@ -421,32 +441,46 @@ export const isProtectedRoute = (path?: string): boolean => {
  * Wipes in-memory session, broadcasts logout, and redirects to login if user had a session.
  */
 export const handleSessionHardFailure = (forceRedirect: boolean = true): void => {
+  sessionTerminated = true;
   const hadSession = hasActiveSessionMarker();
   clearUserSessionMarker();
-  setAccessToken(null, true);
+  setAccessToken(null, false);
   setMemoryUser(null);
 
   if (typeof window !== 'undefined') {
-    // 1. Wipe all local/session storage auth tokens & user objects
+    // 1. Abort all pending HTTP requests immediately to cut off cascading network calls
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { requestAbortRegistry } = require('@/services/http/sessionTeardown');
+      requestAbortRegistry?.abortAll();
+    } catch { /* ignore */ }
+
+    // 2. Wipe all local/session storage auth tokens & user objects
     try {
       localStorage.removeItem('user');
       sessionStorage.removeItem('user');
       localStorage.removeItem('auth_token');
       sessionStorage.removeItem('auth_token');
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authToken');
       localStorage.removeItem('remember_me');
       localStorage.removeItem(SESSION_MARKER_KEY);
       localStorage.removeItem('user-store');
+      localStorage.removeItem('backendToken');
+      sessionStorage.removeItem('backendToken');
     } catch { /* ignore */ }
 
-    // 2. Dispatch event to reset React context
+    // 3. Dispatch event to reset React context
     window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { terminal: true } }));
 
-    // 3. Redirect to /auth/login if user had a logged-in session or forceRedirect is set
+    // 4. Redirect to /auth/login immediately using replace to avoid history loops
     const currentPath = window.location.pathname;
     if (!currentPath.startsWith('/auth/login')) {
-      if (hadSession || forceRedirect || isProtectedRoute(currentPath)) {
+      if (hadSession || forceRedirect || isProtectedRoute(currentPath) || currentPath === '/' || currentPath === '/client') {
         const safeRedirect = getSafeRedirectPath();
-        window.location.href = `/auth/login?redirect=${safeRedirect}`;
+        window.location.replace(`/auth/login?redirect=${safeRedirect}`);
       }
     }
   }
@@ -467,6 +501,14 @@ export const handleSessionHardFailure = (forceRedirect: boolean = true): void =>
  * @returns Guaranteed fresh access token.
  */
 export const ensureFreshToken = async (thresholdSeconds: number = 30): Promise<string> => {
+  if (sessionTerminated) {
+    throw new Error('Session terminated');
+  }
+
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/login')) {
+    throw new Error('Already on login page');
+  }
+
   // 1. Single-flight reuse
   if (sharedRefreshPromise) {
     return sharedRefreshPromise;
@@ -532,6 +574,10 @@ export const initAuthTokenListeners = (): (() => void) => {
 
   // 1. Handler for tab returning to foreground
   const handleForegroundWakeup = async (): Promise<void> => {
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/login')) {
+      return;
+    }
+
     if (document.visibilityState === 'visible') {
       if (!hasActiveSessionMarker()) return;
 
@@ -616,8 +662,10 @@ const handleIncomingSyncMessage = (message?: AuthSyncMessage): void => {
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { remote: true } }));
-      const safeRedirect = getSafeRedirectPath();
-      window.location.href = `/auth/login?redirect=${safeRedirect}`;
+      if (!window.location.pathname.startsWith('/auth/login')) {
+        const safeRedirect = getSafeRedirectPath();
+        window.location.href = `/auth/login?redirect=${safeRedirect}`;
+      }
     }
   }
 };
