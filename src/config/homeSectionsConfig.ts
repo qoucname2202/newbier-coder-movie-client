@@ -197,11 +197,21 @@ export async function fetchFirstAvailable(
   steps: Array<() => Promise<unknown[]>> = [],
   fallback: unknown[] = []
 ): Promise<unknown[]> {
+  try {
+    const { isSessionTerminated } = await import('@/auth/authToken');
+    if (isSessionTerminated()) return [];
+  } catch {
+    // ignore
+  }
+
   const mode = SYSTEM_CONFIG.dataMode || 'api_only';
   if (mode === 'mock_only') return fallback;
 
   for (const step of steps) {
     try {
+      const { isSessionTerminated } = await import('@/auth/authToken');
+      if (isSessionTerminated()) return [];
+
       const data = await step();
       if (Array.isArray(data) && data.length > 0) return data;
     } catch {
@@ -310,8 +320,7 @@ const fetchAnimePool = (mock: unknown[] = []): Promise<unknown[]> =>
  */
 const loadSpotlightAnime = (mock: unknown[] = []): Promise<unknown[]> =>
   fetchFirstAvailable([
-    async () => sortSpotlightFirst(await fetchAnimePool()).slice(0, SPOTLIGHT_COUNT),
-    () => movieService.getHeroMovies(SPOTLIGHT_COUNT)
+    async () => sortSpotlightFirst(await fetchAnimePool()).slice(0, SPOTLIGHT_COUNT)
   ], mock);
 
 /**
@@ -340,8 +349,7 @@ export const HOME_SECTIONS: Record<string, HomeSection> = {
     limit: 6,
     loadAfterScroll: false,
     load: (mock = []) => fetchFirstAvailable([
-      () => movieService.getHeroMovies(6),
-      () => movieService.getMoviesPage(1, 6)
+      () => movieService.getHeroMovies(6)
     ], mock)
   }),
 
@@ -370,8 +378,7 @@ export const HOME_SECTIONS: Record<string, HomeSection> = {
     loadAfterScroll: false,
     load: (mock = []) => fetchFirstAvailable([
       () => movieService.getTrendingMovies(),
-      () => movieService.getTopRatedMovies(),
-      () => movieService.getMoviesPage(1, 10)
+      () => movieService.getTopRatedMovies()
     ], mock)
   }),
 

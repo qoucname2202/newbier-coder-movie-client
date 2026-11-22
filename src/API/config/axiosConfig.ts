@@ -281,7 +281,7 @@ axiosInstance.interceptors.response.use(
         if (refreshErr?.code === 'REFRESH_REJECTED') {
           const { default: authService } = await import('../services/authService');
           try { await authService.logout(); } catch { /* noop */ }
-          if (typeof window !== 'undefined') {
+          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/login')) {
             window.location.href = '/auth/login';
           }
         }
@@ -314,7 +314,9 @@ axiosInstance.interceptors.response.use(
             try { window.sessionStorage.removeItem('backendToken'); } catch { /* noop */ }
           }
         }
-        window.location.href = '/auth/login';
+        if (!window.location.pathname.startsWith('/auth/login')) {
+          window.location.href = '/auth/login';
+        }
       }
     }
 

@@ -65,74 +65,66 @@ export function createTaxonomyItem({
 export const TAXONOMY_COUNTRIES = {
   'han-quoc': createTaxonomyItem({
     slug: 'han-quoc',
-    backendSlugs: ['han-quoc', 'hàn-quốc'],
+    backendSlugs: ['han-quoc'],
     nameVi: 'Hàn Quốc',
     nameEn: 'South Korea',
     badge: 'K-DRAMA',
-    searchKeyword: 'han',
     baseRoute: '/country'
   }),
   'trung-quoc': createTaxonomyItem({
     slug: 'trung-quoc',
-    backendSlugs: ['trung-quoc', 'trung-quốc'],
+    backendSlugs: ['trung-quoc'],
     nameVi: 'Trung Quốc',
     nameEn: 'China',
     badge: 'C-DRAMA',
-    searchKeyword: 'trung',
     baseRoute: '/country'
   }),
   'nhat-ban': createTaxonomyItem({
     slug: 'nhat-ban',
-    backendSlugs: ['nhật-bản', 'nhat-ban'],
+    backendSlugs: ['nhat-ban'],
     nameVi: 'Nhật Bản',
     nameEn: 'Japan',
     badge: 'J-DRAMA',
-    searchKeyword: 'nhat',
     baseRoute: '/country'
   }),
   'au-my': createTaxonomyItem({
     slug: 'au-my',
-    backendSlugs: ['âu-mỹ', 'au-my'],
+    backendSlugs: ['au-my'],
     nameVi: 'Âu Mỹ',
     nameEn: 'Western / Hollywood',
     badge: 'HOLLYWOOD',
-    searchKeyword: 'my',
     baseRoute: '/country'
   }),
   'thai-lan': createTaxonomyItem({
     slug: 'thai-lan',
-    backendSlugs: ['thái-lan', 'thai-lan'],
+    backendSlugs: ['thai-lan'],
     nameVi: 'Thái Lan',
     nameEn: 'Thailand',
     badge: 'T-DRAMA',
-    searchKeyword: 'thai',
     baseRoute: '/country'
   }),
   'viet-nam': createTaxonomyItem({
     slug: 'viet-nam',
-    backendSlugs: ['việt-nam', 'viet-nam'],
+    backendSlugs: ['viet-nam'],
     nameVi: 'Việt Nam',
     nameEn: 'Vietnam',
     badge: 'V-CINEMA',
-    searchKeyword: 'viet',
     baseRoute: '/country'
   }),
   'hong-kong': createTaxonomyItem({
     slug: 'hong-kong',
-    backendSlugs: ['hồng-kông', 'hong-kong'],
+    backendSlugs: ['hong-kong'],
     nameVi: 'Hồng Kông',
     nameEn: 'Hong Kong',
     badge: 'HK-CINEMA',
-    searchKeyword: 'hong kong',
     baseRoute: '/country'
   }),
   'dai-loan': createTaxonomyItem({
     slug: 'dai-loan',
-    backendSlugs: ['đài-loan', 'dai-loan'],
+    backendSlugs: ['dai-loan'],
     nameVi: 'Đài Loan',
     nameEn: 'Taiwan',
     badge: 'TW-DRAMA',
-    searchKeyword: 'dai loan',
     baseRoute: '/country'
   }),
   'anh': createTaxonomyItem({
@@ -141,7 +133,6 @@ export const TAXONOMY_COUNTRIES = {
     nameVi: 'Anh',
     nameEn: 'United Kingdom',
     badge: 'UK',
-    searchKeyword: 'anh',
     baseRoute: '/country'
   })
 } as const;
@@ -152,74 +143,66 @@ export const TAXONOMY_COUNTRIES = {
 export const TAXONOMY_CATEGORIES = {
   'hoat-hinh': createTaxonomyItem({
     slug: 'hoat-hinh',
-    backendSlugs: ['hoat-hinh', 'hoạt-hình'],
+    backendSlugs: ['hoat-hinh'],
     nameVi: 'Hoạt Hình & Anime',
     nameEn: 'Animation & Anime',
     badge: 'ANIME & CARTOON',
-    searchKeyword: 'hoat',
     baseRoute: '/genre'
   }),
   'hanh-dong': createTaxonomyItem({
     slug: 'hanh-dong',
-    backendSlugs: ['hành-động', 'hanh-dong'],
+    backendSlugs: ['hanh-dong'],
     nameVi: 'Hành Động',
     nameEn: 'Action',
     badge: 'ACTION',
-    searchKeyword: 'hanh dong',
     baseRoute: '/genre'
   }),
   'tinh-cam': createTaxonomyItem({
     slug: 'tinh-cam',
-    backendSlugs: ['tình-cảm', 'lãng-mạn', 'tinh-cam'],
+    backendSlugs: ['tinh-cam'],
     nameVi: 'Tình Cảm',
     nameEn: 'Romance',
     badge: 'ROMANCE',
-    searchKeyword: 'tinh cam',
     baseRoute: '/genre'
   }),
   'kinh-di': createTaxonomyItem({
     slug: 'kinh-di',
-    backendSlugs: ['kinh-dị', 'kinh-di'],
+    backendSlugs: ['kinh-di'],
     nameVi: 'Kinh Dị',
     nameEn: 'Horror',
     badge: 'HORROR',
-    searchKeyword: 'kinh di',
     baseRoute: '/genre'
   }),
   'co-trang': createTaxonomyItem({
     slug: 'co-trang',
-    backendSlugs: ['cổ-trang', 'co-trang'],
+    backendSlugs: ['co-trang'],
     nameVi: 'Cổ Trang',
     nameEn: 'Period Drama',
     badge: 'PERIOD',
-    searchKeyword: 'co trang',
     baseRoute: '/genre'
   }),
   'hai-huoc': createTaxonomyItem({
     slug: 'hai-huoc',
-    backendSlugs: ['phim-hài', 'hài-hước', 'hai-huoc'],
+    backendSlugs: ['hai-huoc'],
     nameVi: 'Hài Hước',
     nameEn: 'Comedy',
     badge: 'COMEDY',
-    searchKeyword: 'hai',
     baseRoute: '/genre'
   }),
   'khoa-hoc-vien-tuong': createTaxonomyItem({
     slug: 'khoa-hoc-vien-tuong',
-    backendSlugs: ['khoa-học-viễn-tưởng', 'gia-tuong', 'khoa-hoc-vien-tuong'],
+    backendSlugs: ['khoa-hoc-vien-tuong'],
     nameVi: 'Khoa Học Viễn Tưởng',
     nameEn: 'Sci-Fi',
     badge: 'SCI-FI',
-    searchKeyword: 'vien tuong',
     baseRoute: '/genre'
   }),
   'tam-ly': createTaxonomyItem({
     slug: 'tam-ly',
-    backendSlugs: ['tâm-lý', 'chính-kịch', 'tam-ly'],
+    backendSlugs: ['tam-ly'],
     nameVi: 'Tâm Lý - Chính Kịch',
     nameEn: 'Drama',
     badge: 'DRAMA',
-    searchKeyword: 'tam ly',
     baseRoute: '/genre'
   })
 } as const;

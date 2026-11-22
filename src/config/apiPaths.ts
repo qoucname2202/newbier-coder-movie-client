@@ -49,6 +49,7 @@ export const AP = {
   moviesFavorite: '/movies/{0}/favorite',
   moviesVisibility: '/movies/{0}/visibility',
   moviesByCountry: '/countries/{0}/movies',
+  moviesByFormat: '/formats/{0}/movies',
   categoriesBySlugMovies: '/categories/{0}/movies',
   authLogin: '/auth/login',
   authRegister: '/auth/register',

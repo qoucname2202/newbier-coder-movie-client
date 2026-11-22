@@ -35,6 +35,9 @@ import {
   mockMovies,
   mockAnimationMovies
 } from '@/mock/mockMovies';
+import { isSessionTerminated } from '@/auth/authToken';
+
+const allowMock = SYSTEM_CONFIG.dataMode === 'mock_only' || SYSTEM_CONFIG.useMockData;
 
 /** A raw movie coming from the backend. The shape is loose and every field is optional. */
 export type RawMovie = Record<string, unknown>;
@@ -368,11 +371,13 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
    * The result is written to the Zustand store after a successful fetch.
    */
   const fetchHeroMovies = useCallback(async (): Promise<void> => {
+    if (isSessionTerminated()) return;
     try {
       const heroSection = HOME_SECTIONS['hero'];
       const movies = heroSection?.load ? await heroSection.load([]) : [];
+      if (isSessionTerminated()) return;
       let finalList = movies;
-      if (!Array.isArray(movies) || movies.length === 0) {
+      if (!isSessionTerminated() && (!Array.isArray(movies) || movies.length === 0) && allowMock) {
         finalList = mockMovies as unknown as typeof movies;
       }
       if (isMountedRef.current && finalList.length > 0) {
@@ -387,7 +392,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
 
         // The state is not set when the list is empty, so React does not
         // re-render for nothing.
-        if (finalHeroList.length > 0) {
+        if (finalHeroList.length > 0 && !isSessionTerminated()) {
           setFeaturedMovies(compactHeroMovies(finalHeroList));
           // The cache of the 'hero' section is written.
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -395,7 +400,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
         }
       }
     } catch (err) {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && allowMock && !isSessionTerminated()) {
         const filtered = filterMoviesWithValidTrailer(mockMovies as unknown as RawMovie[]);
         setFeaturedMovies(compactHeroMovies(filtered));
       }
@@ -411,14 +416,16 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
    * an empty list (for example on a 401).
    */
   const fetchTop10Movies = useCallback(async (): Promise<void> => {
+    if (isSessionTerminated()) return;
     try {
       const top10Section = HOME_SECTIONS['top10'];
       const movies = top10Section?.load ? await top10Section.load([]) : [];
+      if (isSessionTerminated()) return;
       let finalList = movies;
-      if (!Array.isArray(movies) || movies.length === 0) {
+      if (!isSessionTerminated() && (!Array.isArray(movies) || movies.length === 0) && allowMock) {
         finalList = mockMovies as unknown as typeof movies;
       }
-      if (isMountedRef.current && finalList.length > 0) {
+      if (isMountedRef.current && finalList.length > 0 && !isSessionTerminated()) {
         const filtered = filterMoviesWithValidTrailer(finalList);
         const compact = normalizeAndCompact(filtered.slice(0, 10));
         const normalized: RankedMovie[] = compact.map((m, idx) => ({
@@ -434,7 +441,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
         setHomeCache('top10', compact as any);
       }
     } catch (err) {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && allowMock && !isSessionTerminated()) {
         const filtered = filterMoviesWithValidTrailer(mockMovies as unknown as RawMovie[]);
         const normalized: RankedMovie[] = normalizeAndCompact(filtered.slice(0, 10)).map((m, idx) => ({
           ...m,
@@ -456,6 +463,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
    * production deployment).
    */
   const fetchLatestMovies = useCallback(async (pageNumber = 1, isLoadMore = false): Promise<void> => {
+    if (isSessionTerminated()) return;
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -468,14 +476,16 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
         ? await movieService.getHomeMovies()
         : await movieService.getMoviesPage(pageNumber, 24);
 
+      if (isSessionTerminated()) return;
+
       // The fallback: the backend returns an empty list or a 401, so the
       // local mock movies are used. This keeps the home page visible
       // during a maintenance of the backend authentication.
-      if ((!Array.isArray(rawMovies) || rawMovies.length === 0) && pageNumber === 1) {
+      if (!isSessionTerminated() && (!Array.isArray(rawMovies) || rawMovies.length === 0) && pageNumber === 1 && allowMock) {
         rawMovies = mockMovies as unknown as RawMovie[];
       }
 
-      if (rawMovies.length > 0 && isMountedRef.current) {
+      if (rawMovies.length > 0 && isMountedRef.current && !isSessionTerminated()) {
         // The movies without a valid trailer are removed BEFORE they reach
         // the rails. The home page shows a play button on every movie of
         // these lists, so a movie without a usable trailer must never
@@ -520,6 +530,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
    * loading buffer.
    */
   const loadUpcoming = useCallback(async (): Promise<void> => {
+    if (isSessionTerminated()) return;
     if (upcomingLoaded || upcomingLoading) return;
     setUpcomingLoading(true);
 
@@ -539,7 +550,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
       };
       clearTimeout(timeoutTimer);
 
-      if (timeoutTriggered) return;
+      if (timeoutTriggered || isSessionTerminated()) return;
 
       const elapsed = Date.now() - startTime;
       if (elapsed < MIN_LOADING_TIME) {
@@ -580,16 +591,18 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
    * returns an empty list (for example on a 401).
    */
   const fetchBigSlideMovies = useCallback(async (): Promise<void> => {
+    if (isSessionTerminated()) return;
     try {
       const bigSlideSection = HOME_SECTIONS['big_slide'];
       const movies = bigSlideSection?.load
         ? ((await bigSlideSection.load([])) as unknown as RawMovie[])
         : undefined;
+      if (isSessionTerminated()) return;
       let finalList = movies;
-      if (!Array.isArray(movies) || movies.length === 0) {
+      if (!isSessionTerminated() && (!Array.isArray(movies) || movies.length === 0) && allowMock) {
         finalList = mockAnimationMovies as unknown as RawMovie[];
       }
-      if (isMountedRef.current && Array.isArray(finalList) && finalList.length > 0) {
+      if (isMountedRef.current && Array.isArray(finalList) && finalList.length > 0 && !isSessionTerminated()) {
         // The Anime Spotlight also shows a "watch trailer" button on its
         // card, so only the items with a resolvable trailer are kept.
         const filtered = filterMoviesWithValidTrailer(finalList);
@@ -599,7 +612,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
         setHomeCache('bigSlide', filtered as any);
       }
     } catch (err) {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && allowMock && !isSessionTerminated()) {
         const filtered = filterMoviesWithValidTrailer(mockAnimationMovies as unknown as RawMovie[]);
         setAnimeSpotlightMovies(filtered);
       }

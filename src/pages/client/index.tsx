@@ -75,6 +75,22 @@ interface HomeProps {
 
 export default function Home({ initialSnapshot }: HomeProps): ReactElement {
   const { isAuthenticated, isAccountLocked, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      if (typeof window !== 'undefined') {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { hasActiveSessionMarker, handleSessionHardFailure } = require('@/auth/authToken');
+          if (hasActiveSessionMarker()) {
+            handleSessionHardFailure(true);
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }, [authLoading, isAuthenticated]);
   const {
     featuredMovies,
     topMovies,
@@ -139,6 +155,15 @@ export default function Home({ initialSnapshot }: HomeProps): ReactElement {
     // it).
     if (!unlockedBatches.has(0) || unlockedBatches.has(1)) return;
     if (preloadStartedRef.current) return;
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { isSessionTerminated } = require('@/auth/authToken');
+      if (isSessionTerminated()) return;
+    } catch {
+      // ignore
+    }
+
     preloadStartedRef.current = true;
 
     // Batch 1 has just been unlocked, so dispatch the data fetch early

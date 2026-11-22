@@ -68,7 +68,7 @@ export const GENRE_NAV_ITEMS: TaxonomyNavItem[] = Object.values(TAXONOMY_CATEGOR
 export const COUNTRY_NAV_ITEMS: TaxonomyNavItem[] = Object.values(TAXONOMY_COUNTRIES).map((country) => ({
   name: country.nameVi,
   slug: country.slug,
-  href: country.href,
+  href: `/quoc-gia/${country.slug}`,
   badge: country.badge
 }));
 
@@ -99,8 +99,8 @@ export const MAIN_NAV_ITEMS: NavbarNavItem[] = [
     id: 'phim-le',
     label: 'Phim Lẻ',
     type: 'link',
-    href: ROUTES.MOVIES,
-    matchPrefix: '/movies'
+    href: '/formats/phim-le/movies?page=1&limit=20',
+    matchPrefix: '/formats/phim-le'
   },
   {
     id: 'phim-bo',
@@ -115,7 +115,7 @@ export const MAIN_NAV_ITEMS: NavbarNavItem[] = [
     type: 'dropdown',
     dropdownType: 'countries',
     items: COUNTRY_NAV_ITEMS,
-    matchPrefix: '/country'
+    matchPrefix: '/quoc-gia'
   },
   {
     id: 'nam-phat-hanh',

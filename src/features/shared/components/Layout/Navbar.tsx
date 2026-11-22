@@ -43,6 +43,7 @@ import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
 import { TMDB_CONFIG } from '@/config/systemConfig';
 import { apiPath } from '@/config/apiPaths';
 import { useClientYears } from '@/features/client/years/hooks/useClientYears';
+import { useClientCountries } from '@/features/client/countries';
 import {
   MAIN_NAV_ITEMS,
   NAVBAR_SEARCH_CONFIG
@@ -237,6 +238,7 @@ const Navbar: React.FC = () => {
   const [mobileCountriesOpen, setMobileCountriesOpen] = useState<boolean>(false);
   const [mobileYearsOpen, setMobileYearsOpen] = useState<boolean>(false);
   const { activeYears } = useClientYears();
+  const { countries: activeCountries } = useClientCountries();
   const dropdownCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Dual Search Dropdown States
@@ -310,7 +312,11 @@ const Navbar: React.FC = () => {
   };
 
   const isGenreActive = (): boolean => router.pathname.startsWith('/genre');
-  const isCountryActive = (): boolean => router.pathname.startsWith('/country');
+  const isCountryActive = (): boolean =>
+    router.pathname.startsWith('/country') ||
+    router.pathname.startsWith('/quoc-gia') ||
+    router.asPath.startsWith('/country') ||
+    router.asPath.startsWith('/quoc-gia');
   const isYearActive = (): boolean => Boolean(router.query.year);
 
   const handleDropdownMouseEnter = (type: 'genres' | 'countries' | 'years'): void => {
@@ -934,11 +940,12 @@ const Navbar: React.FC = () => {
                 const isLocked = lockedDropdown === navItem.dropdownType;
 
                 const active =
-                  (navItem.matchPrefix ? router.pathname.startsWith(navItem.matchPrefix) : false) ||
+                  (navItem.matchPrefix ? router.pathname.startsWith(navItem.matchPrefix) || router.asPath.startsWith(navItem.matchPrefix) : false) ||
                   isLocked ||
+                  (isCountries && isCountryActive()) ||
                   (isYears && isYearActive());
 
-                // Strictly filter out inactive years for client rendering
+                // Strictly filter out inactive items and resolve dynamic client navigation
                 const subItems: NavSubItem[] = isYears
                   ? activeYears
                       .filter((y) => y.isActive !== false)
@@ -947,6 +954,18 @@ const Navbar: React.FC = () => {
                         name: y.name,
                         href: `/search?year=${encodeURIComponent(y.name)}`,
                       }))
+                  : isCountries
+                  ? (activeCountries && activeCountries.length > 0
+                      ? activeCountries.map((c) => ({
+                          slug: c.slug,
+                          name: c.name,
+                          href: `/quoc-gia/${c.slug}`,
+                        }))
+                      : (navItem.items || []).map((c) => ({
+                          slug: c.slug,
+                          name: c.name,
+                          href: `/quoc-gia/${c.slug}`,
+                        })))
                   : navItem.items || [];
                 const popoverClass = isGenres
                   ? 'genres-popover'
@@ -1384,8 +1403,10 @@ const Navbar: React.FC = () => {
         }
 
         .countries-popover {
-          width: 520px;
+          width: 560px;
           max-width: calc(100vw - 32px);
+          max-height: 480px;
+          overflow-y: auto;
           left: 50%;
           transform: translateX(-50%);
         }

@@ -383,6 +383,13 @@ const clearLocalSession = (): void => {
   // The tokens of the tab are gone.
   clearMemorySession();
   resetSessionRestore();
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { setAccessToken } = require('@/auth/authToken');
+    setAccessToken(null, false);
+  } catch {
+    /* ignore */
+  }
 
   try {
     // The legacy token keys are removed, so a token written by a previous
@@ -517,6 +524,13 @@ const authService = {
     setMemoryRememberMe(rememberMe);
     setMemoryUser((data?.user as Record<string, unknown>) ?? null);
     resetSessionRestore();
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { setAccessToken } = require('@/auth/authToken');
+      setAccessToken(rawAccessToken, true);
+    } catch {
+      /* ignore */
+    }
 
     const user = resolveUserFromProfile(
       data?.user as Record<string, unknown> | null | undefined,

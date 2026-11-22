@@ -122,7 +122,7 @@ export const performSessionTeardown = (options?: {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { local: true } }));
 
-    if (redirectToLogin) {
+    if (redirectToLogin && !window.location.pathname.startsWith('/auth/login')) {
       window.location.href = redirectUrl;
     }
   }
