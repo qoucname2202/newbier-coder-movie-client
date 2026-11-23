@@ -11,7 +11,7 @@
  * 6. User-friendly error recovery with retry trigger.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -22,8 +22,13 @@ import {
   CountryFilterBar,
   CountryMovieCard,
   CountryPagination,
-  CountrySkeletonGrid
+  CountrySkeletonGrid,
+  type CountryMovieItem,
+  type RawMovie
 } from '@/features/client/countries';
+import { TrailerModal } from '@/features/movie-detail';
+import type { TrailerMovie } from '@/features/client/components/detail/components/TrailerModal';
+import movieService from '@/API/services/movieService';
 import BackToTop from '@/features/shared/components/UI/BackToTop';
 import styles from '@/styles/CountryPage.module.css';
 
@@ -31,6 +36,8 @@ export default function CountryPage() {
   const router = useRouter();
   const rawSlug = router.query.slug;
   const slug = typeof rawSlug === 'string' ? rawSlug.trim().toLowerCase() : '';
+
+  const [activeTrailerMovie, setActiveTrailerMovie] = useState<TrailerMovie | null>(null);
 
   const {
     movies,
@@ -46,6 +53,58 @@ export default function CountryPage() {
     changeYear,
     retry,
   } = useCountryMovies({ slug });
+
+  const handleOpenTrailer = async (movie: CountryMovieItem | RawMovie): Promise<void> => {
+    const raw = movie as Record<string, unknown>;
+    const movieSlug = String(raw.slug || raw._id || raw.id || '');
+    const movieName = String(raw.name || raw.title || '');
+    const initialTrailer: TrailerMovie = {
+      _id: String(raw.id || raw._id || ''),
+      slug: movieSlug,
+      name: movieName,
+      title: movieName,
+      origin_name: String(raw.originName || raw.origin_name || ''),
+      poster_url: String(raw.posterUrl || raw.poster_url || ''),
+      thumb_url: String(raw.thumbUrl || raw.thumb_url || ''),
+      trailer_url: (raw.trailerUrl || raw.trailer_url) as string | undefined,
+      trailerUrl: (raw.trailerUrl || raw.trailer_url) as string | undefined,
+      year: (raw.year as string | number) || undefined,
+      duration: (raw.duration as string | number) || undefined,
+      quality: (raw.quality as string) || undefined
+    };
+
+    setActiveTrailerMovie(initialTrailer);
+
+    // Eagerly resolve full detail if trailerUrl was missing from listing payload
+    if (!initialTrailer.trailerUrl && !initialTrailer.trailer_url && movieSlug) {
+      try {
+        const detailRes = await movieService.getMovieDetails(movieSlug);
+        const data = detailRes?.responseData;
+        const moviePayload =
+          (data as { movie?: Record<string, unknown> })?.movie ||
+          (data as Record<string, unknown>) ||
+          (detailRes as { movie?: Record<string, unknown> })?.movie;
+        if (moviePayload && typeof moviePayload === 'object') {
+          const trailerUrl =
+            (moviePayload as { trailer_url?: string; trailerUrl?: string }).trailer_url ||
+            (moviePayload as { trailerUrl?: string }).trailerUrl;
+          if (trailerUrl) {
+            setActiveTrailerMovie((prev) => {
+              if (!prev || prev.slug !== movieSlug) return prev;
+              return {
+                ...prev,
+                trailer_url: trailerUrl,
+                trailerUrl: trailerUrl,
+                ...moviePayload
+              };
+            });
+          }
+        }
+      } catch {
+        // Graceful fallback to initialTrailer
+      }
+    }
+  };
 
   const displayName = countryName || slug.replace(/-/g, ' ').toUpperCase() || 'Quốc gia';
   const pageTitle = `Phim ${displayName} Mới Nhất - Tuyển Tập Phim ${displayName} Hay Chọn Lọc`;
@@ -136,6 +195,7 @@ export default function CountryPage() {
                   <CountryMovieCard
                     key={String(movie._id || movie.slug || movie.id)}
                     movie={movie}
+                    onPlayTrailer={handleOpenTrailer}
                   />
                 ))}
               </div>
@@ -149,6 +209,14 @@ export default function CountryPage() {
             </>
           )}
         </div>
+
+        {/* Cinema Interactive Trailer Modal */}
+        {activeTrailerMovie && (
+          <TrailerModal
+            movie={activeTrailerMovie}
+            onClose={() => setActiveTrailerMovie(null)}
+          />
+        )}
       </main>
 
       <BackToTop />

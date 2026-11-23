@@ -11,7 +11,7 @@
  * 6. User-friendly error recovery and empty states with retry triggers.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -22,8 +22,12 @@ import {
   FormatFilterBar,
   FormatMovieCard,
   FormatPagination,
-  FormatSkeletonGrid
+  FormatSkeletonGrid,
+  type FormatMovieItem
 } from '@/features/client/formats';
+import { TrailerModal } from '@/features/movie-detail';
+import type { TrailerMovie } from '@/features/client/components/detail/components/TrailerModal';
+import movieService from '@/API/services/movieService';
 import BackToTop from '@/features/shared/components/UI/BackToTop';
 import styles from '@/styles/FormatPage.module.css';
 
@@ -31,6 +35,8 @@ export default function FormatPage() {
   const router = useRouter();
   const rawSlug = router.query.slug;
   const slug = typeof rawSlug === 'string' && rawSlug ? rawSlug.trim().toLowerCase() : 'phim-le';
+
+  const [activeTrailerMovie, setActiveTrailerMovie] = useState<TrailerMovie | null>(null);
 
   const {
     movies,
@@ -40,12 +46,58 @@ export default function FormatPage() {
     error,
     sort,
     year,
-    page,
     changePage,
     changeSort,
     changeYear,
     retry
   } = useFormatMovies({ slug, defaultLimit: 20 });
+
+  const handleOpenTrailer = async (movie: FormatMovieItem): Promise<void> => {
+    const initialTrailer: TrailerMovie = {
+      _id: movie.id,
+      slug: movie.slug,
+      name: movie.name,
+      title: movie.name,
+      origin_name: movie.originName,
+      poster_url: movie.posterUrl,
+      thumb_url: movie.thumbUrl,
+      trailer_url: movie.trailerUrl || undefined,
+      trailerUrl: movie.trailerUrl || undefined,
+      year: movie.year || undefined,
+      duration: movie.duration || undefined,
+      quality: movie.quality || undefined
+    };
+
+    setActiveTrailerMovie(initialTrailer);
+
+    // Eagerly resolve full detail if trailerUrl was missing from listing payload
+    if (!movie.trailerUrl) {
+      try {
+        const detailRes = await movieService.getMovieDetails(movie.slug);
+        const data = detailRes?.responseData;
+        const moviePayload = (data as { movie?: Record<string, unknown> })?.movie ||
+                             (data as Record<string, unknown>) ||
+                             (detailRes as { movie?: Record<string, unknown> })?.movie;
+        if (moviePayload && typeof moviePayload === 'object') {
+          const trailerUrl = (moviePayload as { trailer_url?: string; trailerUrl?: string }).trailer_url ||
+                             (moviePayload as { trailerUrl?: string }).trailerUrl;
+          if (trailerUrl) {
+            setActiveTrailerMovie((prev) => {
+              if (!prev || prev.slug !== movie.slug) return prev;
+              return {
+                ...prev,
+                trailer_url: trailerUrl,
+                trailerUrl: trailerUrl,
+                ...moviePayload
+              };
+            });
+          }
+        }
+      } catch {
+        // Keep initialTrailer
+      }
+    }
+  };
 
   const pageTitle = `${formatTitle} Hay Chọn Lọc Mới Nhất 2026 - Xem Phim Online Vietsub HD`;
   const pageDesc = `Tuyển tập danh sách ${formatTitle} mới nhất, xem online chất lượng cao HD, FullHD, Vietsub, Thuyết minh miễn phí cập nhật liên tục.`;
@@ -133,7 +185,11 @@ export default function FormatPage() {
             <>
               <div className={styles.movieGrid}>
                 {movies.map((movie) => (
-                  <FormatMovieCard key={movie.id || movie.slug} movie={movie} />
+                  <FormatMovieCard
+                    key={movie.id || movie.slug}
+                    movie={movie}
+                    onPlayTrailer={handleOpenTrailer}
+                  />
                 ))}
               </div>
 
@@ -146,6 +202,14 @@ export default function FormatPage() {
             </>
           )}
         </div>
+
+        {/* Cinema Interactive Trailer Modal */}
+        {activeTrailerMovie && (
+          <TrailerModal
+            movie={activeTrailerMovie}
+            onClose={() => setActiveTrailerMovie(null)}
+          />
+        )}
       </main>
 
       <BackToTop />

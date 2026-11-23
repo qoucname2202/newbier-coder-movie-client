@@ -391,27 +391,30 @@ const clearLocalSession = (): void => {
     /* ignore */
   }
 
+  // Clear 100% of browser localStorage and sessionStorage
   try {
-    // The legacy token keys are removed, so a token written by a previous
-    // version of the app can never be sent again.
-    STORAGE_KEYS.legacyAccessTokens.forEach((key) => localStorage.removeItem(key));
-    localStorage.removeItem(STORAGE_KEYS.legacyRefreshToken);
-    localStorage.removeItem(STORAGE_KEYS.user);
-    localStorage.removeItem(STORAGE_KEYS.isAccountLocked);
-    localStorage.removeItem(REMEMBER_ME_KEY);
-    localStorage.removeItem('mv_has_active_session');
-    // The persisted user store is wiped: it holds the favorite cache and
-    // the auth state of the previous session.
-    localStorage.removeItem(STORAGE_KEYS.userStore);
+    localStorage.clear();
   } catch {
     /* localStorage can be disabled (private mode) */
   }
   try {
-    window.sessionStorage.removeItem(STORAGE_KEYS.legacySessionBackendToken);
-    window.sessionStorage.removeItem(STORAGE_KEYS.user);
-    STORAGE_KEYS.legacyAccessTokens.forEach((key) => window.sessionStorage.removeItem(key));
+    window.sessionStorage.clear();
   } catch {
     /* sessionStorage can be disabled */
+  }
+
+  // Clear all accessible client-side cookies
+  try {
+    document.cookie.split(';').forEach((cookie) => {
+      const eqPos = cookie.indexOf('=');
+      const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+      if (name) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname};`;
+      }
+    });
+  } catch {
+    /* ignore */
   }
 
   // The components that keep the auth state in React (the AuthProvider and
@@ -419,6 +422,7 @@ const clearLocalSession = (): void => {
   // right away instead of after the next reload.
   try {
     window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { terminal: true } }));
   } catch {
     /* the event is not supported */
   }
@@ -630,6 +634,17 @@ const authService = {
       }
     } finally {
       clearLocalSession();
+      if (typeof window !== 'undefined') {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { handleSessionHardFailure } = require('@/auth/authToken');
+          handleSessionHardFailure(true);
+        } catch {
+          if (!window.location.pathname.startsWith('/auth/login')) {
+            window.location.replace('/auth/login');
+          }
+        }
+      }
     }
   },
 

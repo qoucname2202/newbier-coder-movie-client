@@ -197,6 +197,19 @@ export const decodeJwt = (token: string): JwtPayload | null => {
 };
 
 /**
+ * Checks if a given JWT access token is expired or invalid.
+ *
+ * @param token - The raw JWT token string.
+ * @returns true if expired (exp <= now) or malformed, false if still valid.
+ */
+export const isTokenExpired = (token: string): boolean => {
+  const payload = decodeJwt(token);
+  if (!payload?.exp) return true;
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  return payload.exp <= nowSeconds;
+};
+
+/**
  * Sanitizes a redirect path to ensure it is strictly an internal, relative URL.
  *
  * CRITICAL SECURITY DEFENSE:
@@ -300,13 +313,7 @@ export const clearProactiveTimer = (): void => {
 };
 
 /**
- * Schedules a proactive token refresh approximately 60 seconds before expiration.
- *
- * BROWSER BACKGROUND THROTTLING EXPLANATION:
- * Modern browsers heavily throttle or suspend setTimeout timers in background tabs
- * (delaying them to 1-minute intervals or pausing them completely when tabs are discarded).
- * Therefore, this timer is an optimization for active tabs.
- * The `visibilitychange` listener serves as the definitive safety net when the user returns.
+ * Schedules a proactive timer that terminates the session when the access token reaches its expiration.
  *
  * @param token - Current access token.
  */
@@ -317,37 +324,14 @@ export const scheduleProactiveRefresh = (token: string): void => {
   if (!payload?.exp) return;
 
   const nowSeconds = Math.floor(Date.now() / 1000);
-  // Schedule refresh 60 seconds prior to exp
-  const targetRefreshTime = payload.exp - 60;
-  const delayMs = Math.max((targetRefreshTime - nowSeconds) * 1000, 0);
+  const delayMs = Math.max((payload.exp - nowSeconds) * 1000, 0);
 
   // JavaScript setTimeout max safe integer is 2^31 - 1 (~24.8 days)
   if (delayMs > 2147483647) return;
 
-  proactiveTimerId = setTimeout(async () => {
-    try {
-      const tokenExp = payload.exp;
-      if (!tokenExp) {
-        handleSessionHardFailure(true);
-        return;
-      }
-
-      // If user is inactive / away and not watching video:
-      if (!isUserActiveOnTab() && !isVideoPlaying()) {
-        // Schedule final expiration timer for token.exp
-        const expDelayMs = Math.max((tokenExp - Math.floor(Date.now() / 1000)) * 1000, 0);
-        clearProactiveTimer();
-        proactiveTimerId = setTimeout(() => {
-          if (!isUserActiveOnTab() && !isVideoPlaying()) {
-            handleSessionHardFailure(true);
-          }
-        }, expDelayMs);
-        return;
-      }
-      await ensureFreshToken(60);
-    } catch {
-      handleSessionHardFailure(true);
-    }
+  proactiveTimerId = setTimeout(() => {
+    // When the access_token expires, immediately logout, wipe all storage, and force login
+    handleSessionHardFailure(true);
   }, delayMs);
 };
 
@@ -440,48 +424,68 @@ export const isProtectedRoute = (path?: string): boolean => {
  * Handles terminal refresh failure (Refresh token dead or session expired while inactive):
  * Wipes in-memory session, broadcasts logout, and redirects to login if user had a session.
  */
+/**
+ * Handles terminal refresh failure or token expiration:
+ * Revokes backend session, wipes in-memory tokens, clears 100% of browser storage,
+ * broadcasts logout to all tabs, and forces the user to log in again.
+ */
 export const handleSessionHardFailure = (forceRedirect: boolean = true): void => {
   sessionTerminated = true;
-  const hadSession = hasActiveSessionMarker();
   clearUserSessionMarker();
-  setAccessToken(null, false);
+  setAccessToken(null, true);
   setMemoryUser(null);
+  clearProactiveTimer();
 
   if (typeof window !== 'undefined') {
-    // 1. Abort all pending HTTP requests immediately to cut off cascading network calls
+    // 1. Revoke session on backend via keepalive POST
+    try {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true
+      }).catch(() => {});
+    } catch { /* ignore */ }
+
+    // 2. Abort all pending HTTP requests immediately to cut off cascading network calls
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { requestAbortRegistry } = require('@/services/http/sessionTeardown');
       requestAbortRegistry?.abortAll();
     } catch { /* ignore */ }
 
-    // 2. Wipe all local/session storage auth tokens & user objects
+    // 3. Clear entire browser storage: localStorage and sessionStorage
     try {
-      localStorage.removeItem('user');
-      sessionStorage.removeItem('user');
-      localStorage.removeItem('auth_token');
-      sessionStorage.removeItem('auth_token');
-      localStorage.removeItem('token');
-      sessionStorage.removeItem('token');
-      localStorage.removeItem('authToken');
-      sessionStorage.removeItem('authToken');
-      localStorage.removeItem('remember_me');
-      localStorage.removeItem(SESSION_MARKER_KEY);
-      localStorage.removeItem('user-store');
-      localStorage.removeItem('backendToken');
-      sessionStorage.removeItem('backendToken');
+      localStorage.clear();
     } catch { /* ignore */ }
 
-    // 3. Dispatch event to reset React context
-    window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { terminal: true } }));
+    try {
+      sessionStorage.clear();
+    } catch { /* ignore */ }
 
-    // 4. Redirect to /auth/login immediately using replace to avoid history loops
+    // 4. Clear all accessible browser cookies
+    try {
+      document.cookie.split(';').forEach((cookie) => {
+        const eqPos = cookie.indexOf('=');
+        const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+        if (name) {
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname};`;
+        }
+      });
+    } catch { /* ignore */ }
+
+    // 5. Dispatch event to reset React context and local listeners
+    try {
+      window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { terminal: true } }));
+      window.dispatchEvent(new Event('storage'));
+    } catch { /* ignore */ }
+
+    // 6. Force user to log in again: redirect immediately to /auth/login
     const currentPath = window.location.pathname;
-    if (!currentPath.startsWith('/auth/login')) {
-      if (hadSession || forceRedirect || isProtectedRoute(currentPath) || currentPath === '/' || currentPath === '/client') {
-        const safeRedirect = getSafeRedirectPath();
-        window.location.replace(`/auth/login?redirect=${safeRedirect}`);
-      }
+    if (forceRedirect && !currentPath.startsWith('/auth/login')) {
+      const safeRedirect = getSafeRedirectPath();
+      window.location.replace(`/auth/login?redirect=${safeRedirect}`);
     }
   }
 };
@@ -490,12 +494,12 @@ export const handleSessionHardFailure = (forceRedirect: boolean = true): void =>
  * Ensures the memory access token is valid and fresh.
  *
  * LOGIC:
- * 1. If a refresh is already running, reuse the existing shared promise.
- * 2. If no token in memory, check if user had session and whether they are active or watching.
- * 3. Decode `exp` from JWT.
- * 4. If token is expired (remaining <= 0) and user is away / not watching video, fail cleanly to login.
- * 5. If remaining lifetime <= `thresholdSeconds` (default: 30s), refresh proactively.
- * 6. Otherwise, return the current token.
+ * 1. If session is terminated, throw immediately.
+ * 2. If already on login page, abort.
+ * 3. Single-flight reuse if refresh is currently in flight.
+ * 4. If token is expired (remaining <= 0), immediately trigger hard logout, clear storage, and redirect.
+ * 5. If token is expiring soon (remaining <= thresholdSeconds), proactively refresh.
+ * 6. Return fresh/healthy token.
  *
  * @param thresholdSeconds - Threshold buffer in seconds (default: 30).
  * @returns Guaranteed fresh access token.
@@ -519,11 +523,12 @@ export const ensureFreshToken = async (thresholdSeconds: number = 30): Promise<s
   // 2. No token present
   if (!currentToken) {
     if (hasActiveSessionMarker()) {
-      if (!isUserActiveOnTab() && !isVideoPlaying()) {
+      try {
+        return await refreshAccessToken();
+      } catch {
         handleSessionHardFailure(true);
-        throw new Error('Session expired while inactive');
+        throw new Error('Session expired');
       }
-      return refreshAccessToken();
     }
     return refreshAccessToken();
   }
@@ -531,21 +536,18 @@ export const ensureFreshToken = async (thresholdSeconds: number = 30): Promise<s
   // 3. Decode JWT exp
   const payload = decodeJwt(currentToken);
   if (!payload?.exp) {
-    // Malformed or non-expiring token -> refresh to verify
-    return refreshAccessToken();
+    // Malformed token -> logout and clean up
+    handleSessionHardFailure(true);
+    throw new Error('Invalid token');
   }
 
   const nowSeconds = Math.floor(Date.now() / 1000);
   const remainingLifetime = payload.exp - nowSeconds;
 
-  // 4. Token expired (remaining <= 0)
+  // 4. Token expired (remaining <= 0): Logout out of system, clear all storage, force login!
   if (remainingLifetime <= 0) {
-    // If user is away and not watching movie or interacting, expire session and redirect to login
-    if (!isUserActiveOnTab() && !isVideoPlaying()) {
-      handleSessionHardFailure(true);
-      throw new Error('Token expired while inactive');
-    }
-    return refreshAccessToken();
+    handleSessionHardFailure(true);
+    throw new Error('Access token expired. User logged out and storage cleared.');
   }
 
   // 5. Token expiring soon (< thresholdSeconds)
@@ -587,8 +589,8 @@ export const initAuthTokenListeners = (): (() => void) => {
 
       const isExpired = !payload?.exp || (payload.exp - nowSeconds) <= 0;
 
-      // When returning to tab, if token expired while user was away and not watching video:
-      if (isExpired && !isVideoPlaying()) {
+      // When returning to tab, if token expired, immediately logout, clear all storage, and redirect
+      if (isExpired) {
         handleSessionHardFailure(true);
         return;
       }
@@ -661,10 +663,28 @@ const handleIncomingSyncMessage = (message?: AuthSyncMessage): void => {
     clearProactiveTimer();
 
     if (typeof window !== 'undefined') {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch { /* ignore */ }
+
+      try {
+        document.cookie.split(';').forEach((cookie) => {
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+          if (name) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname};`;
+          }
+        });
+      } catch { /* ignore */ }
+
       window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { remote: true } }));
+      window.dispatchEvent(new Event('storage'));
+
       if (!window.location.pathname.startsWith('/auth/login')) {
         const safeRedirect = getSafeRedirectPath();
-        window.location.href = `/auth/login?redirect=${safeRedirect}`;
+        window.location.replace(`/auth/login?redirect=${safeRedirect}`);
       }
     }
   }

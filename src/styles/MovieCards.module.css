@@ -70,18 +70,22 @@
 }
 
 .headerBadge {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   font-weight: 800;
-  padding: 0.18rem 0.5rem;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
   color: #ffffff;
-  border: none;
-  box-shadow: 0 2px 6px rgba(229, 9, 20, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.45);
   white-space: nowrap;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
 }
 
 .viewAllLink {
@@ -122,31 +126,40 @@
 }
 
 /* ==========================================================================
-   2. CLASSIC VERTICAL CARD
+   2. CLASSIC VERTICAL CARD (High-Conversion Cinema Standard & Avatar Sample)
    ========================================================================== */
 .cardVertical {
   display: flex;
   flex-direction: column;
   position: relative;
-  margin: 0 5px;
-  padding-top: 8px;
-  margin-top: -8px;
-  outline: none;
-  text-decoration: none;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0c131d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   cursor: pointer;
+  text-decoration: none;
+  outline: none;
   user-select: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.35s ease;
+  will-change: transform, box-shadow;
+}
+
+.cardVertical:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(229, 9, 20, 0.45);
+  box-shadow: 0 20px 42px -10px rgba(0, 0, 0, 0.85),
+              0 0 28px -4px rgba(229, 9, 20, 0.28);
 }
 
 .posterContainer {
   position: relative;
   width: 100%;
   aspect-ratio: 2 / 3;
-  border-radius: 8px;
   overflow: hidden;
-  background: #161f2e;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #090e17;
 }
 
 .posterImg {
@@ -154,13 +167,429 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  opacity: 0;
   -webkit-user-drag: none;
   user-select: none;
   pointer-events: none;
-  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.35s ease,
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.35s ease;
+  will-change: transform;
 }
 
-/* Floating corner badges */
+.posterImgLoaded {
+  opacity: 1;
+}
+
+.cardVertical:hover .posterImg {
+  transform: scale(1.08);
+  filter: brightness(0.94);
+}
+
+/* Ambient Top and Bottom Depth Vignettes */
+.posterTopFade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(7, 10, 16, 0.8) 0%, rgba(7, 10, 16, 0.2) 65%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.posterBottomFade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: linear-gradient(0deg, #0c131d 0%, rgba(12, 19, 29, 0.85) 45%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Top Header Overlay: #1 Trending Badge & Heart Favorite Button */
+.topHeaderOverlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 3;
+}
+
+.trendingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  white-space: nowrap;
+  line-height: 1;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cardVertical:hover .trendingBadge {
+  transform: translateY(-1px);
+}
+
+.badgeIcon {
+  font-size: 0.72rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+}
+
+/* 1. HOT (#HOT): Fiery Red & Amber Flame */
+.badgeHot {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95) 0%, rgba(249, 115, 22, 0.95) 100%);
+  border: 1px solid rgba(254, 202, 202, 0.5);
+  box-shadow: 0 3px 14px rgba(239, 68, 68, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.badgeHot .badgeIcon {
+  color: #fef08a;
+  animation: flameFlicker 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes flameFlicker {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px #facc15); }
+  100% { transform: scale(1.18); filter: drop-shadow(0 0 7px #f59e0b); }
+}
+
+/* 2. TOP-TRENDING / TOP 10: Golden Crown Royalty */
+.badgeTrending {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
+  border: 1px solid rgba(254, 240, 138, 0.55);
+  box-shadow: 0 3px 14px rgba(245, 158, 11, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+.badgeTrending .badgeIcon {
+  color: #fef08a;
+}
+
+/* 3. K-DRAMA (#K-DRAM): Romantic Violet-Pink Neon */
+.badgeKdrama {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.95) 0%, rgba(236, 72, 153, 0.95) 100%);
+  border: 1px solid rgba(244, 114, 182, 0.55);
+  box-shadow: 0 3px 14px rgba(236, 72, 153, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.badgeKdrama .badgeIcon {
+  color: #ffffff;
+}
+
+/* 4. C-DRAMA (#C-DRAM): Imperial Crimson & Gold */
+.badgeCdrama {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(185, 28, 28, 0.95) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.65);
+  box-shadow: 0 3px 14px rgba(220, 38, 38, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+.badgeCdrama .badgeIcon {
+  color: #fde047;
+}
+
+/* 5. ANIME: Cyber Cyan & Electric Violet */
+.badgeAnime {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.95) 0%, rgba(139, 92, 246, 0.95) 100%);
+  border: 1px solid rgba(165, 243, 252, 0.5);
+  box-shadow: 0 3px 14px rgba(6, 182, 212, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.badgeAnime .badgeIcon {
+  color: #a5f3fc;
+}
+
+/* 6. MỚI NHẤT / NEW: Emerald Brilliance */
+.badgeNew {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
+  border: 1px solid rgba(110, 231, 183, 0.5);
+  box-shadow: 0 3px 14px rgba(16, 185, 129, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+.badgeNew .badgeIcon {
+  color: #d1fae5;
+}
+
+/* 7. Default Glassmorphic */
+.badgeDefault {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+}
+.badgeDefault .badgeIcon {
+  color: #f59e0b;
+}
+
+.favoriteBtn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
+  z-index: 4;
+}
+
+.favoriteBtn:hover {
+  transform: scale(1.14);
+  background: #ffffff;
+}
+
+.heartIcon {
+  font-size: 0.92rem;
+  color: #64748b;
+  transition: color 0.2s ease, transform 0.25s ease;
+}
+
+.heartIconActive {
+  color: #ef4444;
+  transform: scale(1.08);
+}
+
+/* Center Play Overlay with Double Radar Ripple (Only Play Button, No Text) */
+.playOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 2;
+}
+
+.cardVertical:hover .playOverlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.playCircle {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e50914;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.65);
+  transform: scale(0.85);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cardVertical:hover .playCircle {
+  transform: scale(1);
+}
+
+.cardVertical:hover .playCircle:hover {
+  transform: scale(1.12);
+}
+
+.playCircle::before,
+.playCircle::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(229, 9, 20, 0.7);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cardVertical:hover .playCircle::before {
+  animation: pulseRing 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.cardVertical:hover .playCircle::after {
+  animation: pulseRing 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite 0.6s;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Card Information Block (Avatar Sample Pattern) */
+.cardInfo {
+  padding: 10px 12px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  background: #0c131d;
+  position: relative;
+  z-index: 2;
+}
+
+.movieName {
+  margin: 0 0 3px 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+  transition: color 0.2s ease;
+}
+
+.cardVertical:hover .movieName {
+  color: #ff4d58;
+}
+
+.genresContainer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 9px 0;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.genreChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2.5px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+  line-height: 1.25;
+  transition: all 0.22s ease;
+  letter-spacing: -0.01em;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.genreChipPrimary {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+  font-weight: 600;
+}
+
+.cardVertical:hover .genreChipPrimary {
+  background: rgba(229, 9, 20, 0.16);
+  border-color: rgba(229, 9, 20, 0.4);
+  color: #fca5a5;
+}
+
+.cardVertical:hover .genreChip {
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #f1f5f9;
+}
+
+/* Backward compatibility for genresText */
+.genresText {
+  margin: 0 0 9px 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #8fa0b5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+/* Badges Row */
+.pillBadgesRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.pillAge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1.2px solid #10b981;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pillDuration {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pillDurationIcon {
+  font-size: 0.66rem;
+  color: #94a3b8;
+}
+
+.pillRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pillRatingIcon {
+  font-size: 0.7rem;
+  color: #facc15;
+}
+
+/* Backward compatibility classes */
 .topBadges {
   position: absolute;
   top: 8px;
@@ -175,36 +604,68 @@
 
 .ratingBadge {
   background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  color: #fbbf24;
-  font-size: 0.7rem;
+  border: 1px solid rgba(250, 204, 21, 0.5);
+  color: #fef08a;
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
+  padding: 2.5px 7px;
+  border-radius: 6px;
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .ratingStar {
-  font-size: 0.65rem;
-  color: #f59e0b;
+  font-size: 0.68rem;
+  color: #facc15;
 }
 
 .qualityBadge {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #f1f5f9;
   font-size: 0.65rem;
   font-weight: 700;
-  padding: 0.14rem 0.45rem;
-  border-radius: 3px;
-  letter-spacing: 0.06em;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
-  backdrop-filter: blur(6px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 6px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  background: rgba(15, 23, 42, 0.85);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.qualityBadge4k {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.45) 100%);
+  color: #fef08a;
+  border: 1px solid rgba(250, 204, 21, 0.65);
+}
+
+.qualityBadgeFhd {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.35) 0%, rgba(14, 116, 144, 0.45) 100%);
+  color: #a5f3fc;
+  border: 1px solid rgba(34, 211, 238, 0.65);
+}
+
+.qualityBadgeHd {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(4, 120, 87, 0.45) 100%);
+  color: #a7f3d0;
+  border: 1px solid rgba(52, 211, 153, 0.65);
+}
+
+.qualityBadgeCam {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.92) 0%, rgba(178, 7, 16, 0.92) 100%);
+  color: #ffffff;
+  border: 1px solid #e50914;
+}
+
+.qualityBadgeTrailer {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.92) 0%, rgba(194, 65, 12, 0.92) 100%);
+  color: #ffffff;
+  border: 1px solid #f97316;
 }
 
 .episodeBadge {
@@ -212,119 +673,66 @@
   bottom: 8px;
   left: 8px;
   z-index: 2;
-  background: rgba(99, 102, 241, 0.88);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.92) 0%, rgba(79, 70, 229, 0.92) 100%);
   color: #ffffff;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  padding: 0.16rem 0.48rem;
-  border-radius: 4px;
+  padding: 2.5px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(165, 180, 252, 0.35);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   pointer-events: none;
 }
 
-.posterBottomFade {
+.bookmarkBtn {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 45%;
-  background: linear-gradient(180deg, transparent 0%, rgba(13, 17, 23, 0.85) 100%);
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* Play button overlay */
-.playOverlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(13, 17, 23, 0.35);
-  backdrop-filter: blur(2px);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.cardVertical:hover .playOverlay {
-  opacity: 1;
-}
-
-.playCircle {
-  width: 46px;
-  height: 46px;
+  bottom: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #e50914;
-  border: none;
-  outline: none;
-  color: #ffffff;
+  background: rgba(15, 23, 42, 0.8);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  box-shadow: 0 0 20px rgba(229, 9, 20, 0.75);
-  transform: scale(0.85);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: auto;
   cursor: pointer;
+  z-index: 4;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 
-.playCircle:hover {
-  background: #f40612;
-  transform: scale(1.1) !important;
-  box-shadow: 0 0 26px rgba(229, 9, 20, 0.95);
-}
-
-.playCircle:active {
-  transform: scale(0.92) !important;
-}
-
-.cardVertical:hover .posterContainer {
-  transform: translateY(-4px);
-  border-color: rgba(229, 9, 20, 0.45);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(229, 9, 20, 0.2);
-}
-
-.cardVertical:hover .posterImg {
-  transform: scale(1.05);
-}
-
-.cardVertical:hover .playOverlay {
-  opacity: 1;
-}
-
-.cardVertical:hover .playCircle {
-  transform: scale(1);
-}
-
-.cardInfo {
-  padding: 0.6rem 0.15rem 0.2rem 0.15rem;
-}
-
-.movieName {
-  font-size: 0.88rem;
-  font-weight: 700;
+.bookmarkBtn:hover {
+  background: #e50914;
   color: #ffffff;
-  margin: 0 0 0.2rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.2s ease;
+  border-color: #e50914;
+  transform: scale(1.14);
 }
 
-.cardVertical:hover .movieName {
-  color: #ff4d58;
+.bookmarkBtnActive {
+  background: #e50914;
+  color: #ffffff;
+  border-color: #e50914;
 }
 
 .movieMeta {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.74rem;
+  justify-content: space-between;
+  font-size: 0.75rem;
   color: #94a3b8;
+  margin-top: auto;
+}
+
+.metaLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .metaDot {
@@ -332,6 +740,15 @@
   height: 3px;
   border-radius: 50%;
   background: #64748b;
+}
+
+.metaRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #facc15;
+  font-weight: 700;
+  font-size: 0.72rem;
 }
 
 /* ==========================================================================
