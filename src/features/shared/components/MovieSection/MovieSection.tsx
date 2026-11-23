@@ -136,6 +136,7 @@ export interface MovieSectionProps {
   columns?: number;
   title?: string;
   badge?: string;
+  showRank?: boolean;
   icon?: React.ReactNode;
   viewAllHref?: string;
   viewAllText?: string;
@@ -154,6 +155,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({
   columns = 5,
   title,
   badge,
+  showRank = false,
   icon,
   viewAllHref,
   viewAllText = 'Xem tất cả',
@@ -189,13 +191,21 @@ const MovieSection: React.FC<MovieSectionProps> = ({
     dots: false,
     infinite: false,
     speed: 450,
-    slidesToShow: mounted && isMobile ? 2 : 5,
-    slidesToScroll: mounted && isMobile ? 2 : 5,
+    slidesToShow: mounted && isMobile ? 2 : 6,
+    slidesToScroll: mounted && isMobile ? 2 : 6,
     swipeToSlide: false,
     draggable: true,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
     responsive: [
+      {
+        breakpoint: 2200,
+        settings: { slidesToShow: 7, slidesToScroll: 7 }
+      },
+      {
+        breakpoint: 1440,
+        settings: { slidesToShow: 6, slidesToScroll: 6 }
+      },
       {
         breakpoint: 1200,
         settings: { slidesToShow: 5, slidesToScroll: 5 }
@@ -297,7 +307,12 @@ const MovieSection: React.FC<MovieSectionProps> = ({
                   key={movie._id || movie.slug || String(index)}
                   className={`col-item col-cols-${columns} mb-3`}
                 >
-                  <MovieCardVertical movie={movie} onPlayTrailer={onPlayTrailer} />
+                  <MovieCardVertical
+                    movie={movie}
+                    rank={showRank ? index + 1 : undefined}
+                    badge={typeof badge === 'string' ? badge : undefined}
+                    onPlayTrailer={onPlayTrailer}
+                  />
                 </div>
               ))
             )}
@@ -387,6 +402,8 @@ const MovieSection: React.FC<MovieSectionProps> = ({
                   ) : (
                     <MovieCardVertical
                       movie={movie}
+                      rank={showRank ? index + 1 : undefined}
+                      badge={typeof badge === 'string' ? badge : undefined}
                       onPlayTrailer={onPlayTrailer}
                     />
                   )}

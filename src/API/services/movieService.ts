@@ -91,6 +91,15 @@ const ensureFreshToken = async (): Promise<string | null> => {
   if (!exp) return token;
 
   const msUntilExpiry = exp - Date.now();
+  if (msUntilExpiry <= 0) {
+    try {
+      const { handleSessionHardFailure } = await import('@/auth/authToken');
+      handleSessionHardFailure(true);
+    } catch {
+      // ignore
+    }
+    return null;
+  }
   if (msUntilExpiry > 60_000) return token;
 
   if (_tokenRefreshInFlight) return _tokenRefreshInFlight;
@@ -287,33 +296,17 @@ export async function safeFetchJson<T = unknown>(
     if (!response.ok) {
       if (response.status === 401) {
         // Backend answered 401 Unauthorized:
-        // Attempt a transparent single-flight refresh.
+        // Access token is expired or revoked. Under strict enterprise session policy,
+        // clear entire browser storage, terminate session, and force login immediately.
         try {
-          const { refreshAccessToken } = await import('@/auth/authToken');
-          const freshToken = await refreshAccessToken();
-          if (freshToken) {
-            headers.Authorization = `Bearer ${freshToken}`;
-            const retryRes = await fetch(url, { ...options, headers, signal });
-            if (retryRes.ok) {
-              const json = (await retryRes.json()) as EnvelopeResponse;
-              return json as unknown as T;
-            }
-          }
-        } catch {
-          // Refresh failed / expired:
-          // Clear dead session and trigger login teardown immediately.
-          // DO NOT retry as guest to avoid triggering 500 error cascades.
           const { setAccessToken, handleSessionHardFailure } = await import('@/auth/authToken');
           setAccessToken(null, false);
           delete headers.Authorization;
           handleSessionHardFailure(true);
-          return fallback;
+        } catch {
+          // ignore
         }
-
-        const { setAccessToken, handleSessionHardFailure } = await import('@/auth/authToken');
-        setAccessToken(null, false);
-        delete headers.Authorization;
-        handleSessionHardFailure(true);
+        return fallback;
       }
       return fallback;
     }

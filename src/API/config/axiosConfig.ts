@@ -246,8 +246,6 @@ axiosInstance.interceptors.response.use(
     // ---- END MOCK-MODE 404 SHIM -------------------------------------------
 
 
-    const originalRequest = cfg as RetryableRequest;
-
     // Account-locked signal from the backend: bounce to the locked page.
     const responseData = error.response?.data as { isAccountLocked?: boolean } | undefined;
     if (status === 403 && responseData?.isAccountLocked === true) {
@@ -258,66 +256,22 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // 401: try a single silent refresh, then retry the original request.
-    // We never retry auth endpoints themselves (login/refresh/logout) to
-    // avoid infinite refresh loops.
-    const isAuthEndpoint = matchesAnyEndpoint(url, AUTH_ENDPOINT_PATHS);
-
-    if (status === 401 && !originalRequest._retry && !isAuthEndpoint) {
-      originalRequest._retry = true;
-      try {
-        const { default: authService } = await import('../services/authService');
-        await authService.refreshToken();
-        // Retry the original request with the freshly-stored token.
-        const newToken = readAuthToken();
-        if (newToken) {
-          originalRequest.headers = originalRequest.headers || {};
-          (originalRequest.headers as Record<string, string>).Authorization = `Bearer ${newToken}`;
-        }
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        // Refresh was rejected (refresh token expired/invalid) — full logout.
-        const refreshErr = refreshError as { code?: string };
-        if (refreshErr?.code === 'REFRESH_REJECTED') {
-          const { default: authService } = await import('../services/authService');
-          try { await authService.logout(); } catch { /* noop */ }
-          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/login')) {
-            window.location.href = '/auth/login';
-          }
-        }
-        return Promise.reject(error);
-      }
-    }
-
-    // 401 on auth endpoints, or refresh already failed: hard logout.
+    // 401 Unauthorized: Access token expired or invalid.
+    // Immediately log out, wipe entire browser storage, and force user to log in again.
     if (status === 401) {
       if (typeof window !== 'undefined') {
-        // The cleanup is centralized in `authService._clearLocalSession`, so
-        // every logout path removes exactly the same keys (including the
-        // persisted user store and the legacy token keys).
         try {
-          const { default: authService } = await import('../services/authService');
-          authService._clearLocalSession();
+          const { handleSessionHardFailure } = await import('@/auth/authToken');
+          handleSessionHardFailure(true);
         } catch {
-          // Fallback: the keys are removed one by one.
-          try { localStorage.removeItem('auth_token'); } catch { /* noop */ }
-          try { localStorage.removeItem('token'); } catch { /* noop */ }
-          try { localStorage.removeItem('refresh_token'); } catch { /* noop */ }
-          try { localStorage.removeItem('user'); } catch { /* noop */ }
-          try { localStorage.removeItem('remember_me'); } catch { /* noop */ }
-          try { localStorage.removeItem('authToken'); } catch { /* noop */ }
-          try { localStorage.removeItem('user-store'); } catch { /* noop */ }
-          if (window.sessionStorage) {
-            try { window.sessionStorage.removeItem('auth_token'); } catch { /* noop */ }
-            try { window.sessionStorage.removeItem('token'); } catch { /* noop */ }
-            try { window.sessionStorage.removeItem('user'); } catch { /* noop */ }
-            try { window.sessionStorage.removeItem('backendToken'); } catch { /* noop */ }
+          try { localStorage.clear(); } catch { /* noop */ }
+          try { sessionStorage.clear(); } catch { /* noop */ }
+          if (!window.location.pathname.startsWith('/auth/login')) {
+            window.location.replace('/auth/login');
           }
         }
-        if (!window.location.pathname.startsWith('/auth/login')) {
-          window.location.href = '/auth/login';
-        }
       }
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

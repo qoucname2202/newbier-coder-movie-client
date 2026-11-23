@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { FaFire, FaHeart, FaDragon, FaCrown, FaBolt, FaStar } from 'react-icons/fa';
 import { getTaxonomyName } from '@/utils/taxonomy';
 import styles from '@/styles/MovieCards.module.css';
 
@@ -7,6 +8,53 @@ import styles from '@/styles/MovieCards.module.css';
  * @file SectionHeader.tsx
  * @description Cinematic section heading with gradient accent bar, typography, and interactive link.
  */
+
+const resolveHeaderBadgeInfo = (badge?: string) => {
+  if (!badge) return null;
+  const raw = String(badge).trim();
+  const lower = raw.toLowerCase();
+
+  if (lower.includes('hot')) {
+    return {
+      icon: <FaFire style={{ color: '#fef08a', fontSize: '0.68rem' }} aria-hidden="true" />,
+      className: styles.badgeHot
+    };
+  }
+  if (lower.includes('k-dram') || lower.includes('korean') || lower.includes('hàn')) {
+    return {
+      icon: <FaHeart style={{ color: '#ffffff', fontSize: '0.62rem' }} aria-hidden="true" />,
+      className: styles.badgeKdrama
+    };
+  }
+  if (lower.includes('c-dram') || lower.includes('chinese') || lower.includes('trung')) {
+    return {
+      icon: <FaDragon style={{ color: '#fde047', fontSize: '0.68rem' }} aria-hidden="true" />,
+      className: styles.badgeCdrama
+    };
+  }
+  if (lower.includes('trend') || lower.includes('top')) {
+    return {
+      icon: <FaCrown style={{ color: '#fef08a', fontSize: '0.68rem' }} aria-hidden="true" />,
+      className: styles.badgeTrending
+    };
+  }
+  if (lower.includes('anime') || lower.includes('cartoon') || lower.includes('hoạt')) {
+    return {
+      icon: <FaBolt style={{ color: '#a5f3fc', fontSize: '0.68rem' }} aria-hidden="true" />,
+      className: styles.badgeAnime
+    };
+  }
+  if (lower.includes('mới') || lower.includes('new') || lower.includes('latest')) {
+    return {
+      icon: <FaStar style={{ color: '#d1fae5', fontSize: '0.68rem' }} aria-hidden="true" />,
+      className: styles.badgeNew
+    };
+  }
+  return {
+    icon: <FaFire style={{ color: '#fef08a', fontSize: '0.68rem' }} aria-hidden="true" />,
+    className: styles.headerBadge
+  };
+};
 
 export interface SectionHeaderProps {
   title: string;
@@ -25,6 +73,9 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
   viewAllText = 'Xem tất cả',
   className = ''
 }) => {
+  const badgeInfo = resolveHeaderBadgeInfo(badge);
+  const badgeText = typeof badge === 'string' ? badge : getTaxonomyName(badge);
+
   return (
     <header className={`${styles.sectionHeader} ${className}`}>
       <div className={styles.headerLeft}>
@@ -35,8 +86,9 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
             <span className={styles.titleText}>{typeof title === 'string' ? title : getTaxonomyName(title)}</span>
           </h2>
           {badge && (
-            <span className={styles.headerBadge}>
-              {typeof badge === 'string' ? badge : getTaxonomyName(badge)}
+            <span className={`${styles.headerBadge} ${badgeInfo?.className || ''}`}>
+              {badgeInfo?.icon}
+              <span>{badgeText}</span>
             </span>
           )}
         </div>

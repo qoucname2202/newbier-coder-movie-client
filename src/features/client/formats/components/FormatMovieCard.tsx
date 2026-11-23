@@ -12,7 +12,7 @@
  * 7. Next.js Link covering the entire card hit area with resilient image fallback.
  */
 
-import React, { useState, useEffect, MouseEvent } from 'react';
+import React, { useState, MouseEvent } from 'react';
 import Link from 'next/link';
 import { FaPlay, FaStar, FaClock, FaBookmark, FaRegBookmark, FaExclamationCircle } from 'react-icons/fa';
 import { resolveImageUrl } from '@/config/movieConfig';
@@ -32,19 +32,29 @@ import styles from '@/styles/FormatPage.module.css';
 
 export interface FormatMovieCardProps {
   movie: FormatMovieItem;
+  onPlayTrailer?: (movie: FormatMovieItem) => void;
 }
 
 const LOCAL_WATCH_LATER_KEY = 'user_local_watch_later';
 
-export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie }) => {
+export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayTrailer }) => {
   const rawPoster = (movie.posterUrl || movie.poster_url || movie.thumbUrl || movie.thumb_url || '') as string;
   const initialPosterSrc = resolveImageUrl(rawPoster) || LOCAL_DEFAULT_POSTER;
   const [imgSrc, setImgSrc] = useState<string>(initialPosterSrc);
+  const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
 
   const titleVi = movie.name || (movie.title as string) || 'Phim mới';
   const titleOrigin = movie.originName || (movie.origin_name as string) || titleVi;
   const slug = movie.slug || (movie._id as string) || (movie.id as string) || '';
   const yearText = formatYear(movie.year as string | number);
+
+  const handleTrailerClick = (e: MouseEvent<HTMLButtonElement>): void => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onPlayTrailer) {
+      onPlayTrailer(movie);
+    }
+  };
 
   // 1. Duration badge (Priority for feature movies)
   const formattedDuration = formatDuration(
@@ -67,23 +77,20 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie }) => {
   const ratingText = rawRating > 0 ? rawRating.toFixed(1) : null;
 
   // 5. Watch Later bookmark state
-  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
-  const [bookmarkLoading, setBookmarkLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!slug) return;
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(() => {
+    if (typeof window === 'undefined' || !slug) return false;
     try {
       const saved = localStorage.getItem(LOCAL_WATCH_LATER_KEY);
       if (saved) {
         const set: string[] = JSON.parse(saved);
-        if (Array.isArray(set) && set.includes(slug)) {
-          setIsBookmarked(true);
-        }
+        return Array.isArray(set) && set.includes(slug);
       }
     } catch {
       // ignore
     }
-  }, [slug]);
+    return false;
+  });
+  const [bookmarkLoading, setBookmarkLoading] = useState<boolean>(false);
 
   const handleToggleBookmark = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
@@ -131,19 +138,15 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie }) => {
   };
 
   // 6. Watch progress bar detection
-  const [progressPercent, setProgressPercent] = useState<number | null>(null);
-  useEffect(() => {
-    if (!slug) return;
+  const [progressPercent] = useState<number | null>(() => {
+    if (typeof window === 'undefined' || !slug) return null;
     try {
       const progress = getWatchProgress(slug);
-      if (progress && progress.updatedAt) {
-        // If there's recorded watch history, show a representative progress indicator
-        setProgressPercent(40);
-      }
+      return progress && progress.updatedAt ? 40 : null;
     } catch {
-      // ignore
+      return null;
     }
-  }, [slug]);
+  });
 
   // Quality badge CSS class selection
   const getQualityClass = (): string => {
@@ -188,18 +191,22 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie }) => {
           <img
             src={imgSrc}
             alt={titleVi}
-            className={styles.posterImg}
+            className={`${styles.posterImg} ${isImageLoaded ? styles.posterImgLoaded : ''}`}
             loading="lazy"
             decoding="async"
             sizes="(max-width: 576px) 50vw, (max-width: 992px) 33vw, 18vw"
+            onLoad={() => setIsImageLoaded(true)}
             onError={() => {
               if (imgSrc !== LOCAL_DEFAULT_POSTER) {
                 setImgSrc(LOCAL_DEFAULT_POSTER);
               }
+              setIsImageLoaded(true);
             }}
           />
         </picture>
 
+        {/* Ambient Top and Bottom Depth Gradients */}
+        <div className={styles.topFade} aria-hidden="true" />
         <div className={styles.bottomFade} aria-hidden="true" />
 
         {/* Top-left Badges: Quality & Translation */}
@@ -217,10 +224,10 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie }) => {
           )}
         </div>
 
-        {/* Top-right Badge: Duration or Year */}
+        {/* Top-right Badge: Duration for Feature Movie */}
         {formattedDuration && (
           <span className={styles.badgeDurationTopRight} title={`Thời lượng: ${formattedDuration}`}>
-            <FaClock aria-hidden="true" style={{ fontSize: '0.62rem' }} />
+            <FaClock className={styles.clockIcon} aria-hidden="true" />
             <span>{formattedDuration}</span>
           </span>
         )}
@@ -251,11 +258,19 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie }) => {
           </div>
         )}
 
-        {/* Play Icon on Hover */}
-        <div className={styles.playOverlay} aria-hidden="true">
-          <div className={styles.playCircle}>
-            <FaPlay style={{ marginLeft: '2px', fontSize: '0.9rem' }} />
-          </div>
+        {/* Cinema Play Icon on Hover & Interactive Trailer Button (No extra text label) */}
+        <div className={styles.playOverlay}>
+          <button
+            type="button"
+            className={styles.trailerPlayActionBtn}
+            onClick={handleTrailerClick}
+            aria-label={`Xem trailer phim ${titleVi}`}
+            title={`Xem trailer ${titleVi}`}
+          >
+            <div className={styles.playCircle}>
+              <FaPlay className={styles.playIcon} aria-hidden="true" />
+            </div>
+          </button>
         </div>
       </div>
 
@@ -268,11 +283,24 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie }) => {
           {titleOrigin}
         </p>
 
+        {/* Category Pills (if available) */}
+        {Array.isArray(movie.category) && movie.category.length > 0 && (
+          <div className={styles.categoryPills}>
+            {movie.category.slice(0, 2).map((cat) => (
+              <span key={cat.slug || cat.name || cat.id} className={styles.categoryPill}>
+                {cat.name}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className={styles.cardFooterMeta}>
-          <span className={styles.metaYear}>{yearText || '2026'}</span>
+          <div className={styles.metaLeft}>
+            <span className={styles.metaYear}>{yearText || '2026'}</span>
+          </div>
           {ratingText && (
-            <span className={styles.metaRating} title={`Điểm đánh giá: ${ratingText}`}>
-              <FaStar aria-hidden="true" style={{ fontSize: '0.72rem' }} />
+            <span className={styles.metaRating} title={`Điểm đánh giá: ${ratingText}/10`}>
+              <FaStar className={styles.ratingStarIcon} aria-hidden="true" />
               <span>{ratingText}</span>
             </span>
           )}

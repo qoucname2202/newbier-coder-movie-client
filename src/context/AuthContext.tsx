@@ -258,6 +258,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const bridgedUser = getMemoryUser();
 
           if (bridgedToken) {
+            try {
+              const { isTokenExpired, handleSessionHardFailure } = await import('@/auth/authToken');
+              if (isTokenExpired(bridgedToken)) {
+                if (!cancelled) setUser(null);
+                handleSessionHardFailure(true);
+                return;
+              }
+            } catch {
+              // ignore
+            }
+
             const userWithToken: AuthUser = {
               ...(session.user as AuthUser),
               ...((bridgedUser ?? {}) as AuthUser)
@@ -304,7 +315,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         if (accessToken) {
           try {
-            const { setAccessToken } = await import('@/auth/authToken');
+            const { setAccessToken, isTokenExpired, handleSessionHardFailure } = await import('@/auth/authToken');
+            if (isTokenExpired(accessToken)) {
+              if (!cancelled) setUser(null);
+              handleSessionHardFailure(true);
+              return;
+            }
             setAccessToken(accessToken, false);
           } catch {
             // ignore
