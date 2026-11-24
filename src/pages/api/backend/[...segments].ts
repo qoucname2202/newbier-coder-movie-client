@@ -3,6 +3,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { getServerApiBaseUrl } from '@/config/apiBase';
+import { clearSession } from '@/utils/serverAuthSession';
 
 // The TLS limit is applied as soon as this module is loaded, so every
 // forwarded request uses it (see `src/utils/serverTls.ts`).
@@ -164,8 +165,24 @@ const proxy = async (req: NextApiRequest, res: NextApiResponse): Promise<void> =
       redirect: 'manual',
     });
 
-    // The status and the content type are relayed.
-    res.status(upstream.status);
+    const buffer = Buffer.from(await upstream.arrayBuffer());
+
+    let finalStatus = upstream.status;
+    const bodyText = buffer.toString('utf8');
+    const isTokenExpired =
+      upstream.status === 401 ||
+      (upstream.status === 500 &&
+        (bodyText.includes('Authentication token is invalid or expired') ||
+          bodyText.includes('00000204') ||
+          bodyText.includes('jwt expired') ||
+          bodyText.includes('TokenExpiredError')));
+
+    if (isTokenExpired) {
+      clearSession(res);
+      finalStatus = 401;
+    }
+
+    res.status(finalStatus);
 
     const upstreamType = upstream.headers.get('content-type');
     if (upstreamType) res.setHeader('content-type', upstreamType);
@@ -174,8 +191,6 @@ const proxy = async (req: NextApiRequest, res: NextApiResponse): Promise<void> =
     // keep working exactly as before.
     const setCookies = upstream.headers.getSetCookie?.() ?? [];
     if (setCookies.length) res.setHeader('set-cookie', setCookies);
-
-    const buffer = Buffer.from(await upstream.arrayBuffer());
 
     res.send(buffer);
   } catch (error) {

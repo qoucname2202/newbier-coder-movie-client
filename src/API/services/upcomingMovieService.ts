@@ -80,7 +80,17 @@ const fetchJson = async (url: string, init?: RequestInit): Promise<unknown> => {
       ...init,
       headers: { Accept: 'application/json', ...authHeaders, ...(init?.headers || {}) }
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        try {
+          const { handleSessionHardFailure } = await import('@/auth/authToken');
+          handleSessionHardFailure(true);
+        } catch {
+          // ignore
+        }
+      }
+      return null;
+    }
     return await res.json();
   } catch {
     return null;

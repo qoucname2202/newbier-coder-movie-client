@@ -9,6 +9,7 @@ import { signIn } from 'next-auth/react';
 import { toast, ToastContainer } from 'react-toastify';
 import { useAuth, type AuthResult } from '@/context/AuthContext';
 import { getMemoryAccessToken } from '@/utils/accessTokenStore';
+import { isSessionTerminated } from '@/auth/authToken';
 import { AUTH_CONFIG } from '@/config/authConfig';
 import styles from '@/styles/Login.module.css';
 import type { NextPage } from 'next';
@@ -88,6 +89,7 @@ const Login: NextPage & { getLayout?: (page: ReactElement) => ReactElement } = (
   // session.
   useEffect(() => {
     if (authLoading) return;
+    if (isSessionTerminated()) return;
     // CRITICAL: Only redirect away from login if user actually has an active access token!
     // A stale user in storage without access token must stay on login.
     if (!isAuthenticated || !getMemoryAccessToken()) return;

@@ -11,6 +11,11 @@ import { pickMovieImage } from '@/utils/imageSource';
 import { apiPath } from '@/config/apiPaths';
 import { ensureSessionReady } from '@/utils/accessTokenStore';
 import { cachedRequest, invalidateMovieCache } from './movieRequestCache';
+import {
+  setAccessToken,
+  handleSessionHardFailure,
+  isSessionTerminated,
+} from '@/auth/authToken';
 
 /**
  * Reads the expiry date of a JWT.
@@ -56,6 +61,8 @@ let _tokenRefreshInFlight: Promise<string | null> | null = null;
 const ensureFreshToken = async (): Promise<string | null> => {
   if (typeof window === 'undefined') return null;
 
+  if (isSessionTerminated()) return null;
+
   // The session restore is awaited BEFORE the token is read, so the token
   // of the memory is already there when the request goes out.
   try {
@@ -77,9 +84,14 @@ const ensureFreshToken = async (): Promise<string | null> => {
 
   if (!token) {
     try {
-      const { ensureFreshToken: getFreshToken, hasActiveSessionMarker } = await import('@/auth/authToken');
+      const { ensureFreshToken: getFreshToken, hasActiveSessionMarker, handleSessionHardFailure } = await import('@/auth/authToken');
       if (hasActiveSessionMarker()) {
-        return await getFreshToken();
+        try {
+          return await getFreshToken();
+        } catch {
+          handleSessionHardFailure(true);
+          return null;
+        }
       }
     } catch {
       return null;
@@ -92,12 +104,7 @@ const ensureFreshToken = async (): Promise<string | null> => {
 
   const msUntilExpiry = exp - Date.now();
   if (msUntilExpiry <= 0) {
-    try {
-      const { handleSessionHardFailure } = await import('@/auth/authToken');
-      handleSessionHardFailure(true);
-    } catch {
-      // ignore
-    }
+    handleSessionHardFailure(true);
     return null;
   }
   if (msUntilExpiry > 60_000) return token;
@@ -278,6 +285,10 @@ export async function safeFetchJson<T = unknown>(
     //   on its own with a 401.
     const token = await ensureFreshToken();
 
+    if (isSessionTerminated()) {
+      return fallback;
+    }
+
     const headers: Record<string, string> = {
       Accept: 'application/json',
       ...(options.headers || {})
@@ -294,18 +305,12 @@ export async function safeFetchJson<T = unknown>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      if (response.status === 401) {
-        // Backend answered 401 Unauthorized:
-        // Access token is expired or revoked. Under strict enterprise session policy,
-        // clear entire browser storage, terminate session, and force login immediately.
-        try {
-          const { setAccessToken, handleSessionHardFailure } = await import('@/auth/authToken');
-          setAccessToken(null, false);
-          delete headers.Authorization;
-          handleSessionHardFailure(true);
-        } catch {
-          // ignore
-        }
+      if (response.status === 401 || response.status === 403 || (response.status === 500 && (Boolean(headers.Authorization) || url.includes('/api/backend')))) {
+        // Backend answered 401 Unauthorized, 403 Forbidden, or 500 Internal Server Error (expired/invalid JWT on backend):
+        // Under strict enterprise session policy, clear entire browser storage, terminate session, and force login immediately.
+        setAccessToken(null, false);
+        delete headers.Authorization;
+        handleSessionHardFailure(true);
         return fallback;
       }
       return fallback;

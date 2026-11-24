@@ -213,18 +213,30 @@ export const writeSession = (res: NextApiResponse, payload: AuthSessionPayload):
 };
 
 /**
- * Clears the session cookie.
+ * Clears the session cookie and all related authentication cookies (including NextAuth).
  *
  * @param res - The response.
  */
 export const clearSession = (res: NextApiResponse): void => {
-  res.setHeader(
-    'Set-Cookie',
-    `${AUTH_SESSION_COOKIE_NAME}=; ${serializeCookieOptions({
-      ...sessionCookieOptions(false),
-      maxAge: 0,
-    })}`
-  );
+  const isSecure = process.env.NODE_ENV === 'production';
+  const expiredBase = 'Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+
+  const cookieNamesToClear = [
+    { name: AUTH_SESSION_COOKIE_NAME, httpOnly: true },
+    { name: CSRF_COOKIE_NAME, httpOnly: false },
+    { name: 'next-auth.session-token', httpOnly: true },
+    { name: '__Secure-next-auth.session-token', httpOnly: true },
+    { name: 'next-auth.csrf-token', httpOnly: false },
+    { name: 'next-auth.callback-url', httpOnly: false },
+    { name: '__Host-next-auth.csrf-token', httpOnly: false },
+  ];
+
+  const clearHeaders = cookieNamesToClear.map(({ name, httpOnly }) => {
+    const requireSecure = name.startsWith('__Secure-') || name.startsWith('__Host-') || isSecure;
+    return `${name}=; ${expiredBase}${httpOnly ? '; HttpOnly' : ''}${requireSecure ? '; Secure' : ''}`;
+  });
+
+  res.setHeader('Set-Cookie', clearHeaders);
 };
 
 /**

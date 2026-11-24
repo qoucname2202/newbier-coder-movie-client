@@ -16,6 +16,10 @@ import {
   setMemoryAccessToken,
   setMemoryUser
 } from '@/utils/accessTokenStore';
+import { signOut } from 'next-auth/react';
+import { useMovieStore } from '@/stores/useMovieStore';
+import { useUserStore } from '@/stores/useUserStore';
+import { requestAbortRegistry } from '@/services/http/sessionTeardown';
 
 /**
  * Standard JWT Payload with expiration and subject claims.
@@ -95,7 +99,8 @@ export const hasActiveSessionMarker = (): boolean => {
       localStorage.getItem(SESSION_MARKER_KEY) === '1' ||
       Boolean(getMemoryAccessToken()) ||
       Boolean(localStorage.getItem('user')) ||
-      Boolean(sessionStorage.getItem('user'))
+      Boolean(sessionStorage.getItem('user')) ||
+      Boolean(localStorage.getItem('auth_token'))
     );
   } catch {
     return false;
@@ -163,10 +168,12 @@ let proactiveTimerId: ReturnType<typeof setTimeout> | null = null;
 let broadcastChannel: BroadcastChannel | null = null;
 
 let sessionTerminated = false;
+let isHardFailureInProgress = false;
 
 export const isSessionTerminated = (): boolean => sessionTerminated;
 export const resetSessionTerminated = (): void => {
   sessionTerminated = false;
+  isHardFailureInProgress = false;
 };
 
 /**
@@ -430,14 +437,22 @@ export const isProtectedRoute = (path?: string): boolean => {
  * broadcasts logout to all tabs, and forces the user to log in again.
  */
 export const handleSessionHardFailure = (forceRedirect: boolean = true): void => {
+  if (isHardFailureInProgress) {
+    if (forceRedirect && typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/login')) {
+      window.location.replace('/auth/login');
+    }
+    return;
+  }
+  isHardFailureInProgress = true;
+
   sessionTerminated = true;
   clearUserSessionMarker();
-  setAccessToken(null, true);
+  setAccessToken(null, false);
   setMemoryUser(null);
   clearProactiveTimer();
 
   if (typeof window !== 'undefined') {
-    // 1. Revoke session on backend via keepalive POST
+    // 1. Revoke session on backend via keepalive POST (cookies are cleared by backend/server)
     try {
       fetch('/api/auth/logout', {
         method: 'POST',
@@ -447,14 +462,26 @@ export const handleSessionHardFailure = (forceRedirect: boolean = true): void =>
       }).catch(() => {});
     } catch { /* ignore */ }
 
-    // 2. Abort all pending HTTP requests immediately to cut off cascading network calls
+    // 2. Sign out NextAuth client so NextAuth session is invalidated and cookies cleared
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { requestAbortRegistry } = require('@/services/http/sessionTeardown');
+      signOut({ redirect: false }).catch(() => {});
+    } catch { /* ignore */ }
+
+    // 3. Clear Zustand stores in-memory cache and state
+    try {
+      useUserStore?.getState?.()?.logout?.();
+    } catch { /* ignore */ }
+
+    try {
+      useMovieStore?.getState?.()?.clearAllCache?.();
+    } catch { /* ignore */ }
+
+    // 4. Abort all pending HTTP requests immediately to cut off cascading network calls
+    try {
       requestAbortRegistry?.abortAll();
     } catch { /* ignore */ }
 
-    // 3. Clear entire browser storage: localStorage and sessionStorage
+    // 5. Clear entire browser storage: localStorage and sessionStorage
     try {
       localStorage.clear();
     } catch { /* ignore */ }
@@ -463,7 +490,7 @@ export const handleSessionHardFailure = (forceRedirect: boolean = true): void =>
       sessionStorage.clear();
     } catch { /* ignore */ }
 
-    // 4. Clear all accessible browser cookies
+    // 6. Clear all accessible browser cookies
     try {
       document.cookie.split(';').forEach((cookie) => {
         const eqPos = cookie.indexOf('=');
@@ -475,17 +502,16 @@ export const handleSessionHardFailure = (forceRedirect: boolean = true): void =>
       });
     } catch { /* ignore */ }
 
-    // 5. Dispatch event to reset React context and local listeners
+    // 7. Dispatch event to reset React context and local listeners
     try {
       window.dispatchEvent(new CustomEvent('auth:session_expired', { detail: { terminal: true } }));
       window.dispatchEvent(new Event('storage'));
     } catch { /* ignore */ }
 
-    // 6. Force user to log in again: redirect immediately to /auth/login
+    // 8. Force user to log in again: redirect immediately to /auth/login
     const currentPath = window.location.pathname;
     if (forceRedirect && !currentPath.startsWith('/auth/login')) {
-      const safeRedirect = getSafeRedirectPath();
-      window.location.replace(`/auth/login?redirect=${safeRedirect}`);
+      window.location.replace('/auth/login');
     }
   }
 };
@@ -530,7 +556,7 @@ export const ensureFreshToken = async (thresholdSeconds: number = 30): Promise<s
         throw new Error('Session expired');
       }
     }
-    return refreshAccessToken();
+    throw new Error('No active session');
   }
 
   // 3. Decode JWT exp
