@@ -325,6 +325,7 @@ export default function SearchPage() {
         <title>Duyệt tìm phim | Movie Streaming</title>
       </Head>
       <div className="container pt-3 pb-5">
+        <h1 className="visually-hidden">Duyệt Tìm Phim - Movie Streaming</h1>
         {/* Search Bar */}
         <div className="mb-3">
           <form onSubmit={handleSearch} className="position-relative" style={{ maxWidth: '640px' }}>

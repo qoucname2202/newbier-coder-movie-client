@@ -133,7 +133,7 @@ const Layout: React.FC<LayoutProps> = ({ children, Component }) => {
 
       <style jsx global>{`
         :root {
-          --navbar-height: 64px;
+          --navbar-height: calc(64px + env(safe-area-inset-top, 0px));
         }
 
         .layout-main {
@@ -145,6 +145,7 @@ const Layout: React.FC<LayoutProps> = ({ children, Component }) => {
         .standard-page-main {
           padding-top: var(--navbar-height, 64px);
           min-height: calc(100vh - var(--navbar-height, 64px));
+          min-height: calc(100dvh - var(--navbar-height, 64px));
         }
 
         .full-bleed-main {

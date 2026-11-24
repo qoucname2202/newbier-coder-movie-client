@@ -159,7 +159,7 @@ const WatchLater = ({ inProfilePage = false }: { inProfilePage?: boolean }) => {
     <>
       <div className={inProfilePage ? '' : 'container pt-3 pb-5'}>
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-          {!inProfilePage && <h2 className="text-white">Danh Sách Xem Sau</h2>}
+          {!inProfilePage && <h1 className="h2 text-white mb-0">Danh Sách Xem Sau</h1>}
           {inProfilePage && <h3 className="section-header">Danh sách xem sau</h3>}
 
           <div className="d-flex gap-2 mt-2 mt-md-0">

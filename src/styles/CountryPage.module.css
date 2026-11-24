@@ -235,39 +235,33 @@
   }
 }
 
-/* Tablet Portrait & Medium Screens (800x1236, 900x1156, 1024x1342): Exactly 5 items/row */
+/* Tablet Portrait & Medium Screens (768px - 991px): 4 items/row */
 @media (min-width: 768px) {
   .movieGrid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
   }
 }
 
-@media (min-width: 1024px) {
+/* Medium Desktop (992px - 1199px): 5 items/row */
+@media (min-width: 992px) {
   .movieGrid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 16px;
   }
 }
 
+/* Large Desktop (>= 1200px): Exactly 6 items/row */
 @media (min-width: 1200px) {
   .movieGrid {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 16px;
+    gap: 18px;
   }
 }
 
-/* Widescreen Displays (1440x900, 1680x1050, 2496x1664): Exactly 8 items/row */
-@media (min-width: 1380px) {
+@media (min-width: 1600px) {
   .movieGrid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-    gap: 16px;
-  }
-}
-
-@media (min-width: 2000px) {
-  .movieGrid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 20px;
   }
 }
@@ -327,24 +321,19 @@
   filter: brightness(0.92);
 }
 
+/* Poster is 100% visible: no dark overlay covering faces/art */
 .topFade {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 42%;
-  background: linear-gradient(to bottom, rgba(10, 13, 20, 0.78) 0%, rgba(10, 13, 20, 0.25) 60%, transparent 100%);
-  pointer-events: none;
-  z-index: 1;
+  display: none;
 }
 
+/* Subtle bottom vignette limited to lowest 22% for corner badges readability */
 .bottomFade {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60%;
-  background: linear-gradient(to top, #111520 0%, rgba(17, 21, 32, 0.65) 50%, transparent 100%);
+  height: 22%;
+  background: linear-gradient(to top, rgba(17, 21, 32, 0.5) 0%, transparent 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -535,10 +524,8 @@
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  background: rgba(10, 14, 23, 0.6);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  transition: opacity 0.25s ease;
+  background: transparent;
   z-index: 3;
   pointer-events: none;
 }

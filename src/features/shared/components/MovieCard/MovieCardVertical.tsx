@@ -13,6 +13,7 @@ import {
   FaTv
 } from 'react-icons/fa';
 import { getTaxonomyName } from '@/utils/taxonomy';
+import { cleanMovieTitle } from '@/utils/movieNormalizer';
 import { getWatchProgress } from '@/utils/watchProgress';
 import watchLaterService from '@/API/services/watchLaterService';
 import styles from '@/styles/MovieCards.module.css';
@@ -230,14 +231,14 @@ const resolveBadgeTheme = (
   // 9. Default fallback
   if (movieType === 'series') {
     return {
-      label: '#Trending Drama',
+      label: 'Trending Drama',
       icon: <FaTv className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeKdrama
     };
   }
 
   return {
-    label: '#1 Trending',
+    label: 'Top Trending',
     icon: <FaCrown className={styles.badgeIcon} aria-hidden="true" />,
     className: styles.badgeTrending
   };
@@ -432,8 +433,8 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
 
   if (!movie) return null;
 
-  const movieName = getTaxonomyName(movie.name);
-  const movieOriginName = movie.origin_name ? getTaxonomyName(movie.origin_name) : '';
+  const movieName = cleanMovieTitle(getTaxonomyName(movie.name));
+  const movieOriginName = movie.origin_name ? cleanMovieTitle(getTaxonomyName(movie.origin_name)) : '';
 
   // Extract rating with graceful fallback
   const rawRating: number | string | undefined = movie.vote_average || movie.rating || movie.tmdb?.vote_average;

@@ -351,3 +351,12 @@ export const resolveMovieDirectors = (movie?: Record<string, unknown> | null): D
 
   return [];
 };
+
+/**
+ * Safely removes the '#' (hash) character from movie card titles in the rendering layer
+ * without altering database data or URL slugs.
+ */
+export const cleanMovieTitle = (title?: string | null): string => {
+  if (!title || typeof title !== 'string') return '';
+  return title.replace(/#/g, '').trim();
+};

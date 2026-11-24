@@ -483,7 +483,7 @@ export default function FavoritesPage({ inProfilePage = false }: { inProfilePage
     <>
       <div className={inProfilePage ? '' : 'container pt-3 pb-5'}>
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-          {!inProfilePage && <h2 className="text-white">Phim yêu thích</h2>}
+          {!inProfilePage && <h1 className="h2 text-white mb-0">Phim yêu thích</h1>}
           {inProfilePage && <h3 className="section-header" style={{ marginTop: '20px' }}>Phim yêu thích</h3>}
 
           <div className="d-flex flex-wrap gap-2">

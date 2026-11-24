@@ -25,7 +25,7 @@ import { filterMoviesWithValidTrailer } from '@/utils/trailer';
  * It was reduced from 2000ms to 1200ms to improve the perceived performance.
  */
 export const BATCH_LOADING_CONFIG = {
-  delayMs: 1200
+  delayMs: 0
 } as const;
 
 /** The dictionary of the UI labels. */

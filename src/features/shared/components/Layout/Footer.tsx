@@ -93,7 +93,7 @@ const Footer: React.FC = () => {
         .footer {
           background-color: #141414;
           color: #FFFFFF;
-          padding: 50px 0 20px;
+          padding: 50px 0 calc(20px + env(safe-area-inset-bottom, 0px));
           border-top: 1px solid rgba(255, 255, 255, 0.1);
           width: 100%;
           position: relative;
