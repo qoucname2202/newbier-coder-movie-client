@@ -158,7 +158,7 @@ const resolveBadgeTheme = (
   // 1. HOT Badge (#HOT) -> Glowing Fiery Red/Amber
   if (lower.includes('hot')) {
     return {
-      label: raw.startsWith('#') ? raw : `#${raw}`,
+      label: raw,
       icon: <FaFire className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeHot
     };
@@ -167,7 +167,7 @@ const resolveBadgeTheme = (
   // 2. K-DRAMA (#K-DRAM, #K-DRAMA) -> Romantic Violet-Pink
   if (lower.includes('k-dram') || lower.includes('korean') || lower.includes('hàn')) {
     return {
-      label: raw.startsWith('#') ? raw : (raw ? `#${raw}` : '#K-DRAMA'),
+      label: raw ? `${raw}` : 'K-DRAMA',
       icon: <FaHeart className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeKdrama
     };
@@ -176,7 +176,7 @@ const resolveBadgeTheme = (
   // 3. C-DRAMA (#C-DRAM, #C-DRAMA) -> Imperial Dragon Crimson & Gold
   if (lower.includes('c-dram') || lower.includes('chinese') || lower.includes('trung')) {
     return {
-      label: raw.startsWith('#') ? raw : (raw ? `#${raw}` : '#C-DRAMA'),
+      label: raw ? `${raw}` : 'C-DRAMA',
       icon: <FaDragon className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeCdrama
     };
@@ -195,7 +195,7 @@ const resolveBadgeTheme = (
   // 5. ANIME & CARTOON -> Cyber Bolt Cyan & Violet
   if (lower.includes('anime') || lower.includes('cartoon') || lower.includes('hoạt')) {
     return {
-      label: raw.startsWith('#') ? raw : (raw ? `#${raw}` : '#ANIME'),
+      label: raw ? `${raw}` : 'ANIME',
       icon: <FaBolt className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeAnime
     };
@@ -204,7 +204,7 @@ const resolveBadgeTheme = (
   // 6. MỚI NHẤT / NEW / LATEST -> Emerald Star
   if (lower.includes('mới') || lower.includes('new') || lower.includes('latest')) {
     return {
-      label: raw.startsWith('#') ? raw : `#${raw}`,
+      label: raw,
       icon: <FaStar className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeNew
     };
@@ -213,7 +213,7 @@ const resolveBadgeTheme = (
   // 7. Generic custom badge passed from section
   if (raw) {
     return {
-      label: raw.startsWith('#') ? raw : `#${raw}`,
+      label: raw,
       icon: <FaFireAlt className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeDefault
     };
@@ -222,7 +222,7 @@ const resolveBadgeTheme = (
   // 8. Rank number (e.g. 1, 2, 3...)
   if (typeof rank === 'number' && rank > 0) {
     return {
-      label: `#${rank} Trending`,
+      label: `Trending`,
       icon: rank === 1 ? <FaCrown className={styles.badgeIcon} aria-hidden="true" /> : <FaFireAlt className={styles.badgeIcon} aria-hidden="true" />,
       className: styles.badgeTrending
     };
@@ -607,5 +607,3 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
 };
 
 export default MovieCardVertical;
-
-

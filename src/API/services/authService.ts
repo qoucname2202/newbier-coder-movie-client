@@ -8,6 +8,7 @@
 
 import { getApiBaseUrl } from '@/config/apiBase';
 import { apiUrl } from '@/config/apiPaths';
+import { setAccessToken, handleSessionHardFailure } from '@/auth/authToken';
 import {
   clearMemorySession,
   ensureCsrfToken,
@@ -383,13 +384,7 @@ const clearLocalSession = (): void => {
   // The tokens of the tab are gone.
   clearMemorySession();
   resetSessionRestore();
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { setAccessToken } = require('@/auth/authToken');
-    setAccessToken(null, false);
-  } catch {
-    /* ignore */
-  }
+  setAccessToken(null, false);
 
   // Clear 100% of browser localStorage and sessionStorage
   try {
@@ -528,13 +523,7 @@ const authService = {
     setMemoryRememberMe(rememberMe);
     setMemoryUser((data?.user as Record<string, unknown>) ?? null);
     resetSessionRestore();
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { setAccessToken } = require('@/auth/authToken');
-      setAccessToken(rawAccessToken, true);
-    } catch {
-      /* ignore */
-    }
+    setAccessToken(rawAccessToken, true);
 
     const user = resolveUserFromProfile(
       data?.user as Record<string, unknown> | null | undefined,
@@ -635,15 +624,7 @@ const authService = {
     } finally {
       clearLocalSession();
       if (typeof window !== 'undefined') {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const { handleSessionHardFailure } = require('@/auth/authToken');
-          handleSessionHardFailure(true);
-        } catch {
-          if (!window.location.pathname.startsWith('/auth/login')) {
-            window.location.replace('/auth/login');
-          }
-        }
+        handleSessionHardFailure(true);
       }
     }
   },

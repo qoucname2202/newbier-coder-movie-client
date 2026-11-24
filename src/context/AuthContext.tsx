@@ -23,6 +23,13 @@ import {
   getMemoryAccessToken,
   getMemoryUser,
   setMemoryUser,} from '@/utils/accessTokenStore';
+import {
+  handleSessionHardFailure,
+  hasActiveSessionMarker,
+  isSessionTerminated,
+  setAccessToken,
+  isTokenExpired,
+} from '@/auth/authToken';
 
 /** Obfuscation helpers, used to hide the user info in DevTools. */
 const OBFUSCATION_KEY = process.env.NEXT_PUBLIC_SESSION_OBFUSCATE || 'xK9mP2vL';
@@ -258,15 +265,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const bridgedUser = getMemoryUser();
 
           if (bridgedToken) {
-            try {
-              const { isTokenExpired, handleSessionHardFailure } = await import('@/auth/authToken');
-              if (isTokenExpired(bridgedToken)) {
-                if (!cancelled) setUser(null);
-                handleSessionHardFailure(true);
-                return;
-              }
-            } catch {
-              // ignore
+            if (isTokenExpired(bridgedToken)) {
+              if (!cancelled) setUser(null);
+              signOut({ redirect: false }).catch(() => {});
+              handleSessionHardFailure(true);
+              return;
             }
 
             const userWithToken: AuthUser = {
@@ -281,6 +284,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
             if (!cancelled) setUser(userWithToken);
             setLoading(false);
+            return;
+          } else {
+            // NextAuth session exists on client, but backend session is dead/expired.
+            // Terminate NextAuth and clear session cleanly to prevent infinite refresh loop.
+            if (!cancelled) setUser(null);
+            signOut({ redirect: false }).catch(() => {});
+            handleSessionHardFailure(true);
             return;
           }
         }
@@ -314,17 +324,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         })();
 
         if (accessToken) {
-          try {
-            const { setAccessToken, isTokenExpired, handleSessionHardFailure } = await import('@/auth/authToken');
-            if (isTokenExpired(accessToken)) {
-              if (!cancelled) setUser(null);
-              handleSessionHardFailure(true);
-              return;
-            }
-            setAccessToken(accessToken, false);
-          } catch {
-            // ignore
+          if (isTokenExpired(accessToken)) {
+            if (!cancelled) setUser(null);
+            handleSessionHardFailure(true);
+            return;
           }
+          setAccessToken(accessToken, false);
         }
 
         if (accessToken && storedUser) {
@@ -345,14 +350,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Do NOT revive a stale ghost user from storage without a valid access token!
           if (!cancelled) setUser(null);
 
-          try {
-            const { hasActiveSessionMarker, handleSessionHardFailure } = await import('@/auth/authToken');
-            if (hasActiveSessionMarker()) {
-              handleSessionHardFailure(true);
-              return;
-            }
-          } catch {
-            // ignore
+          if (hasActiveSessionMarker()) {
+            handleSessionHardFailure(true);
+            return;
           }
         }
       } catch (err) {
@@ -783,7 +783,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     uploadAvatar,
     refreshUser,
     updateAvatarInUI,
-    isAuthenticated: Boolean(user && (getMemoryAccessToken() || session?.user)),
+    isAuthenticated: Boolean(user && getMemoryAccessToken()),
     isAdmin: user?.role?.toLowerCase() === 'admin' || user?.isAdmin === true,
     isAccountLocked,
     showAccountLockedBanner,
@@ -809,20 +809,20 @@ export const useAuth = (): AuthContextValue => {
 
 export const withAuth = <P extends Record<string, unknown>>(Component: React.ComponentType<P>) => {
   const AuthenticatedComponent: React.FC<P> = (props) => {
-    const { user, loading } = useAuth();
+    const { user, loading, isAuthenticated } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-      if (!loading && !user) {
+      if (!loading && (!user || !isAuthenticated)) {
         if (router.pathname.startsWith(LOGIN_ROUTE) || router.asPath.startsWith(LOGIN_ROUTE)) {
           return;
         }
-        router.replace(LOGIN_ROUTE);
+        handleSessionHardFailure(true);
       }
-    }, [user, loading, router]);
+    }, [user, loading, isAuthenticated, router]);
 
     if (loading) return <div suppressHydrationWarning>Loading...</div>;
-    if (!user) return null;
+    if (!user || !isAuthenticated) return null;
     return <Component {...props} />;
   };
   return AuthenticatedComponent;

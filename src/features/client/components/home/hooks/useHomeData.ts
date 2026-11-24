@@ -37,7 +37,7 @@ import {
 } from '@/mock/mockMovies';
 import { isSessionTerminated } from '@/auth/authToken';
 
-const allowMock = SYSTEM_CONFIG.dataMode === 'mock_only' || SYSTEM_CONFIG.useMockData;
+const allowMock = SYSTEM_CONFIG.dataMode === 'mock_only';
 
 /** A raw movie coming from the backend. The shape is loose and every field is optional. */
 export type RawMovie = Record<string, unknown>;
@@ -633,9 +633,7 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
   // already has its cache, the fetch is skipped and `loading` is `false`
   // right away.
   useEffect(() => {
-    if (initialSnapshot?.featuredMovies?.length) {
-      // eslint-disable-next-line no-console
-
+    if (initialSnapshot?.featuredMovies?.length || isSessionTerminated()) {
       return;
     }
 
@@ -694,11 +692,11 @@ export const useHomeData = (initialSnapshot: HomeDataSnapshot | null = null): Us
       const nextPage = page + 1;
       let rawMovies = await movieService.getMoviesPage(nextPage, 24);
 
-      if ((!Array.isArray(rawMovies) || rawMovies.length === 0) && mockMovies.length > 0) {
-        // eslint-disable-next-line no-console
+      if (isSessionTerminated()) return;
 
+      if (allowMock && (!Array.isArray(rawMovies) || rawMovies.length === 0) && mockMovies.length > 0) {
         // The mock movies are cycled, so the infinite scroll always has
-        // data to show.
+        // data to show in mock_only mode.
         const cycleIdx = ((nextPage - 2) * 24) % mockMovies.length;
         const cycled: RawMovie[] = [];
         for (let i = 0; i < 24; i++) {

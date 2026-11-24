@@ -26,6 +26,11 @@ import { hasValidTrailer } from '@/utils/trailer';
 import BackToTop from '@/features/shared/components/UI/BackToTop';
 import { useAuth } from '@/context/AuthContext';
 import {
+  hasActiveSessionMarker,
+  handleSessionHardFailure,
+  isSessionTerminated,
+} from '@/auth/authToken';
+import {
   HOME_SECTION_ORDER,
   HOME_SECTIONS,
   BATCH_LOADING_CONFIG,
@@ -83,15 +88,7 @@ export default function Home({ initialSnapshot }: HomeProps): ReactElement {
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       if (typeof window !== 'undefined') {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const { hasActiveSessionMarker, handleSessionHardFailure } = require('@/auth/authToken');
-          if (hasActiveSessionMarker()) {
-            handleSessionHardFailure(true);
-          }
-        } catch {
-          // ignore
-        }
+        handleSessionHardFailure(true);
       }
     }
   }, [authLoading, isAuthenticated]);
@@ -160,13 +157,7 @@ export default function Home({ initialSnapshot }: HomeProps): ReactElement {
     if (!unlockedBatches.has(0) || unlockedBatches.has(1)) return;
     if (preloadStartedRef.current) return;
 
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { isSessionTerminated } = require('@/auth/authToken');
-      if (isSessionTerminated()) return;
-    } catch {
-      // ignore
-    }
+    if (isSessionTerminated()) return;
 
     preloadStartedRef.current = true;
 

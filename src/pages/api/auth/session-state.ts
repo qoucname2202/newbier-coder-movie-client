@@ -81,7 +81,7 @@ export default async function handler(
   // token the session cannot be renewed.
   if (!session.refreshToken) {
     clearSession(res);
-    return res.status(401).json({ authenticated: false });
+    return res.status(401).json({ authenticated: false, message: 'Session expired' });
   }
 
   const result = await backendRefresh(session.refreshToken);
@@ -89,7 +89,7 @@ export default async function handler(
   if (!result.ok || !result.tokens) {
     // The refresh token was rejected: the session is over.
     clearSession(res);
-    return res.status(401).json({ authenticated: false });
+    return res.status(401).json({ authenticated: false, message: 'Session expired' });
   }
 
   const { accessToken, refreshToken, user } = result.tokens;

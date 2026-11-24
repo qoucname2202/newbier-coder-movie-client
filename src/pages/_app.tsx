@@ -305,7 +305,10 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPageProps
       <AuthProvider>
         <ReauthProvider>
           <AdContextProvider>
-            <div className={`${beVietnamPro.variable} ${beVietnamPro.className} app-typography-wrapper`}>
+            <div
+              className={`${beVietnamPro.variable} ${beVietnamPro.className} app-typography-wrapper`}
+              suppressHydrationWarning
+            >
               <Head>
                 <title>MovieStreaming</title>
                 <meta name="description" content="Xem phim trực tuyến miễn phí HD" />

@@ -38,19 +38,21 @@ export default async function handler(
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  if (!verifyCsrfToken(req)) {
-    return res.status(403).json({ message: 'Invalid CSRF token' });
-  }
-
+  // NOTE: On logout or terminal session teardown, CSRF token may be expired or missing.
+  // We MUST ALWAYS clear cookies and revoke tokens on logout, never block logout with 403.
   const session = readSession(req);
 
   // The session is terminated on the backend first, so the refresh token
   // is revoked there as well.
   if (session) {
-    await backendLogout(session.accessToken, session.refreshToken);
+    try {
+      await backendLogout(session.accessToken, session.refreshToken);
+    } catch {
+      // Backend may already have revoked or expired the tokens
+    }
   }
 
-  // The cookie is cleared, whatever the backend answered.
+  // The cookies are always cleared, whatever the backend answered.
   clearSession(res);
 
   return res.status(200).json({ success: true, authenticated: false });
