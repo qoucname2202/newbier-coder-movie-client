@@ -7,10 +7,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Head from 'next/head';
 import type { AppProps } from 'next/app';
 import type { ReactNode } from 'react';
+import { Be_Vietnam_Pro } from 'next/font/google';
 import '../styles/animation.css';
 import '../styles/subscription-details.css';
 import '../styles/feedbackAdmin.css';
 import 'react-toastify/dist/ReactToastify.css';
+
+const beVietnamPro = Be_Vietnam_Pro({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin', 'vietnamese'],
+  display: 'swap',
+  variable: '--font-sans',
+  fallback: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+});
 import { SessionProvider } from 'next-auth/react';
 import { AuthProvider, withAccountStatus, withAuth } from '@/context/AuthContext';
 import { ReauthProvider, ReauthModal } from '@/services/http';
@@ -92,6 +101,66 @@ type AppPageProps = AppProps & { session?: unknown };
 interface PageWithLayout {
   (props: Record<string, unknown>): ReactNode;
   getLayout?: (page: ReactNode) => ReactNode;
+}
+
+function GlobalRouteProgressBar(): ReactNode {
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const handleStart = () => {
+      setLoading(true);
+      setProgress(30);
+      timer = setInterval(() => {
+        setProgress((prev) => (prev < 85 ? prev + 15 : prev));
+      }, 150);
+    };
+    const handleComplete = () => {
+      clearInterval(timer);
+      setProgress(100);
+      setTimeout(() => {
+        setLoading(false);
+        setProgress(0);
+      }, 200);
+    };
+
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleComplete);
+    router.events.on('routeChangeError', handleComplete);
+
+    return () => {
+      clearInterval(timer);
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleComplete);
+      router.events.off('routeChangeError', handleComplete);
+    };
+  }, [router]);
+
+  if (!loading && progress === 0) return null;
+
+  return (
+    <div
+      role="progressbar"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={progress}
+      aria-label="Đang chuyển trang"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: `${progress}%`,
+        height: '3px',
+        background: 'linear-gradient(90deg, #e50914, #ff5964, #ffb300)',
+        boxShadow: '0 0 10px rgba(229, 9, 20, 0.8), 0 0 5px rgba(255, 89, 100, 0.6)',
+        zIndex: 99999,
+        transition: 'width 0.2s ease, opacity 0.2s ease',
+        pointerEvents: 'none',
+      }}
+    />
+  );
 }
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPageProps): ReactNode {
@@ -236,27 +305,107 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPageProps
       <AuthProvider>
         <ReauthProvider>
           <AdContextProvider>
-          <Head>
-            <title>MovieStreaming</title>
-            <meta name="description" content="Xem phim trực tuyến miễn phí HD" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link rel="icon" href="/img/icons.png" />
-          </Head>
-          <NetworkStatusBar />
-          <OfflineNotice />
-          <CinemaAlert />
-          <ReauthModal />
-          {getWrappedComponent()}
-        </AdContextProvider>
-      </ReauthProvider>
+            <div className={`${beVietnamPro.variable} ${beVietnamPro.className} app-typography-wrapper`}>
+              <Head>
+                <title>MovieStreaming</title>
+                <meta name="description" content="Xem phim trực tuyến miễn phí HD" />
+                <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+                <link rel="icon" href="/img/icons.png" />
+              </Head>
+              <GlobalRouteProgressBar />
+              <NetworkStatusBar />
+              <OfflineNotice />
+              <CinemaAlert />
+              <ReauthModal />
+              {getWrappedComponent()}
+            </div>
+          </AdContextProvider>
+        </ReauthProvider>
 
         <style jsx global>{`
+          :root {
+            --font-sans: ${beVietnamPro.style.fontFamily}, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+          }
+          html {
+            font-size: 100%;
+          }
           body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #121212;
+            color: #e6e6e6;
+            font-family: var(--font-sans), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-size: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+            line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            text-align: left;
+          }
+          .app-typography-wrapper {
+            font-family: inherit;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+          }
+          /* Headings: responsive scale with clamp and comfortable line-heights */
+          h1, .h1 {
+            font-size: clamp(1.75rem, 1.25rem + 2vw, 3rem);
+            line-height: 1.25;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+          }
+          h2, .h2 {
+            font-size: clamp(1.375rem, 1.15rem + 1vw, 2rem);
+            line-height: 1.28;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.015em;
+          }
+          h3, .h3 {
+            font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+            line-height: 1.3;
+            font-weight: 600;
+            color: #ffffff;
+          }
+          h4, .h4 {
+            font-size: clamp(1rem, 0.95rem + 0.3vw, 1.25rem);
+            line-height: 1.35;
+            font-weight: 600;
+            color: #f8fafc;
+          }
+          h5, .h5 {
+            font-size: 1.0625rem;
+            line-height: 1.4;
+            font-weight: 600;
+            color: #f1f5f9;
+          }
+          h6, .h6 {
+            font-size: 0.9375rem;
+            line-height: 1.4;
+            font-weight: 600;
+            color: #e2e8f0;
+          }
+          /* Paragraphs and text blocks: max line length for readability */
+          p, .prose, .reading-text, .describe, .movie-description, .movieDescription, .storyline {
+            max-width: 70ch;
+            text-align: left;
+            line-height: 1.6;
+          }
+          /* Form inputs: min 16px to prevent iOS Safari auto-zoom */
+          input, select, textarea, .form-control {
+            font-size: 1rem !important;
+          }
+          /* Touch targets: min 44px on mobile devices */
+          @media (max-width: 768px) {
+            button:not(.btn-close):not([class*='slick']):not([class*='dot']):not([class*='badge']):not([class*='pill']):not([class*='carousel']),
+            .btn,
+            .nav-link,
+            a[role='button'] {
+              min-height: 44px;
+              min-width: 44px;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+            }
           }
           html, body {
             scrollbar-width: none;
@@ -280,7 +429,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppPageProps
             background: rgba(255, 255, 255, 0.18);
             border-radius: 4px;
           }
-          .text-muted, .form-text { color: #94a3b8 !important; }
+          /* High contrast muted and secondary text (WCAG AA >= 4.5:1) */
+          .text-muted, .text-secondary, .form-text { color: #94a3b8 !important; }
           ::placeholder, .form-control::placeholder, input::placeholder, textarea::placeholder {
             color: #94a3b8 !important;
             opacity: 1 !important;

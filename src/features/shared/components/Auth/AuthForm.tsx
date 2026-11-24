@@ -144,10 +144,10 @@ const AuthForm: React.FC<AuthFormProps> = ({
       <div className={authBoxClass}>
         <div className="form-container">
           <div className="form-section">
-            <h2>
+            <h1 className="auth-form-title">
               {isSignup ? 'Sign up' : 'Login'}
               <span className="accent-dot">.</span>
-            </h2>
+            </h1>
 
             {error && <div className="error-message">{error}</div>}
             {message && <div className="success-message">{message}</div>}
@@ -358,7 +358,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
 
         <div className="welcome-section">
           <div className="welcome-content">
-            <h1>{isSignup ? 'Join Us Today' : 'Welcome Back'}</h1>
+            <h2 className="auth-welcome-title">{isSignup ? 'Join Us Today' : 'Welcome Back'}</h2>
             <p>
               {isSignup
                 ? 'Create an account to start enjoying unlimited streaming.'
@@ -558,8 +558,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
           width: 100%;
         }
 
+        .form-section h1,
         .form-section h2 {
-          font-size: 32px;
+          font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
           color: #fff;
           margin-bottom: 25px;
           font-weight: 700;
@@ -814,8 +815,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
           max-width: 320px;
         }
 
+        .welcome-content h2,
         .welcome-content h1 {
-          font-size: 28px;
+          font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.75rem);
           margin-bottom: 16px;
           font-weight: 700;
           letter-spacing: -0.5px;
@@ -1005,6 +1007,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           .form-container {
             padding: 24px 18px;
           }
+          .form-section h1,
           .form-section h2 {
             font-size: 24px;
             margin-bottom: 20px;
@@ -1014,7 +1017,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           }
           .input-group input {
             padding: 12px 14px 12px 38px;
-            font-size: 14.5px;
+            font-size: 16px;
           }
           .input-icon {
             left: 11px;
@@ -1023,6 +1026,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           .auth-button {
             padding: 12px;
             font-size: 15px;
+            min-height: 44px;
           }
           .switch-auth {
             margin-top: 18px;
@@ -1033,6 +1037,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             left: 12px;
             padding: 6px 12px;
             font-size: 12px;
+            min-height: 44px;
           }
         }
 
@@ -1053,6 +1058,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           .form-container {
             padding: 20px 14px;
           }
+          .form-section h1,
           .form-section h2 {
             font-size: 22px;
             margin-bottom: 16px;
@@ -1062,7 +1068,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           }
           .input-group input {
             padding: 11px 12px 11px 34px;
-            font-size: 14px;
+            font-size: 16px;
             border-radius: 8px;
           }
           .input-icon {
@@ -1079,6 +1085,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             padding: 11px;
             font-size: 14.5px;
             border-radius: 8px;
+            min-height: 44px;
           }
           .social-login {
             margin-top: 14px;
@@ -1088,6 +1095,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             padding: 10px;
             font-size: 13px;
             border-radius: 8px;
+            min-height: 44px;
           }
           .switch-auth {
             margin-top: 16px;
@@ -1099,6 +1107,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
             padding: 5px 10px;
             font-size: 11.5px;
             gap: 5px;
+            min-height: 44px;
           }
         }
 
@@ -1117,6 +1126,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           .form-container {
             padding: 16px 10px;
           }
+          .form-section h1,
           .form-section h2 {
             font-size: 20px;
             margin-bottom: 12px;
@@ -1126,7 +1136,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           }
           .input-group input {
             padding: 10px 10px 10px 30px;
-            font-size: 13px;
+            font-size: 16px;
           }
           .input-icon {
             left: 8px;
@@ -1135,6 +1145,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           .auth-button {
             padding: 10px;
             font-size: 14px;
+            min-height: 44px;
           }
           .switch-auth {
             font-size: 12px;
@@ -1164,6 +1175,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           .form-container {
             padding: 14px 16px;
           }
+          .form-section h1,
           .form-section h2 {
             font-size: 18px;
             margin-bottom: 10px;
@@ -1173,11 +1185,12 @@ const AuthForm: React.FC<AuthFormProps> = ({
           }
           .input-group input {
             padding: 8px 10px 8px 30px;
-            font-size: 13px;
+            font-size: 16px;
           }
           .auth-button {
             padding: 8px;
             font-size: 13.5px;
+            min-height: 44px;
           }
           .switch-auth {
             margin-top: 8px;

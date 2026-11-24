@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
+import { cleanMovieTitle } from '@/utils/movieNormalizer';
 import styles from '@/styles/MovieCards.module.css';
 import type { MovieLite } from './MovieCardVertical';
 
@@ -130,13 +131,13 @@ const MovieCardHorizontal: React.FC<MovieCardHorizontalProps> = ({
 
         {/* Overlaid Movie Information */}
         <div className={styles.wideInfoOverlay}>
-          <h4 className={styles.wideTitle} title={getTaxonomyName(movie?.name)}>
-            {getTaxonomyName(movie?.name)}
+          <h4 className={styles.wideTitle} title={cleanMovieTitle(getTaxonomyName(movie?.name))}>
+            {cleanMovieTitle(getTaxonomyName(movie?.name))}
           </h4>
           <div className={styles.wideMetaRow}>
             {badge && (
               <span className={styles.wideBadge}>
-                {getTaxonomyName(badge)}
+                {cleanMovieTitle(getTaxonomyName(badge))}
               </span>
             )}
             {ratingText && (

@@ -106,7 +106,7 @@ export default function NoAccessPage() {
           justify-content: center;
           background: linear-gradient(135deg, #0d111f 0%, #1a1f35 100%);
           padding: 20px;
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: var(--font-sans), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
         .unauthorized-card {
           background: rgba(26, 26, 26, 0.9);

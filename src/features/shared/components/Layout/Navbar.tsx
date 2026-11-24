@@ -409,10 +409,17 @@ const Navbar: React.FC = () => {
   };
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = (): void => {
-      setIsScrolled(window.scrollY > 30);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 30);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -1263,7 +1270,8 @@ const Navbar: React.FC = () => {
 
       <style jsx global>{`
         .navbar {
-          height: 64px;
+          height: calc(64px + env(safe-area-inset-top, 0px));
+          padding-top: env(safe-area-inset-top, 0px);
           transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
                       backdrop-filter 0.3s ease,
                       box-shadow 0.3s ease,
@@ -2014,7 +2022,7 @@ const Navbar: React.FC = () => {
             background: rgba(8, 11, 16, 0.98);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            padding: 70px 1.25rem 2rem;
+            padding: calc(70px + env(safe-area-inset-top, 0px)) 1.25rem calc(2rem + env(safe-area-inset-bottom, 0px));
             z-index: 1100;
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2060,13 +2068,13 @@ const Navbar: React.FC = () => {
 
           .search-dual-dropdown {
             position: fixed;
-            top: 64px;
-            left: 10px;
-            right: 10px;
+            top: calc(64px + env(safe-area-inset-top, 0px));
+            left: calc(10px + env(safe-area-inset-left, 0px));
+            right: calc(10px + env(safe-area-inset-right, 0px));
             width: auto;
             max-width: none;
-            max-height: calc(85vh - 64px);
-            max-height: calc(85dvh - 64px);
+            max-height: calc(85vh - 64px - env(safe-area-inset-top, 0px));
+            max-height: calc(85dvh - 64px - env(safe-area-inset-top, 0px));
             border-radius: 14px;
           }
 
@@ -2079,7 +2087,8 @@ const Navbar: React.FC = () => {
 
         @media (max-width: 374px) {
           .navbar {
-            height: 58px;
+            height: calc(58px + env(safe-area-inset-top, 0px));
+            padding-top: env(safe-area-inset-top, 0px);
           }
           .navbar-logo {
             width: 95px;
@@ -2089,12 +2098,12 @@ const Navbar: React.FC = () => {
             padding: 0.25rem 0.6rem;
           }
           .mobile-search-input {
-            font-size: 12.5px;
+            font-size: 16px !important;
           }
           .search-dual-dropdown {
-            top: 58px;
-            left: 6px;
-            right: 6px;
+            top: calc(58px + env(safe-area-inset-top, 0px));
+            left: calc(6px + env(safe-area-inset-left, 0px));
+            right: calc(6px + env(safe-area-inset-right, 0px));
           }
         }
 
@@ -2155,7 +2164,7 @@ const Navbar: React.FC = () => {
             background: transparent;
             border: none;
             color: #ffffff;
-            font-size: 13.5px;
+            font-size: 16px;
             width: 100%;
             outline: none;
           }

@@ -19,6 +19,7 @@ import { FaPlay, FaStar, FaBookmark, FaRegBookmark, FaExclamationCircle } from '
 import { resolveImageUrl } from '@/config/movieConfig';
 import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
 import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
+import { cleanMovieTitle } from '@/utils/movieNormalizer';
 import { getWatchProgress } from '@/utils/watchProgress';
 import watchLaterService from '@/API/services/watchLaterService';
 import type { CountryMovieItem, RawMovie } from '../types/country.types';
@@ -60,8 +61,8 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
   const [imgSrc, setImgSrc] = useState<string>(initialPosterSrc);
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
 
-  const titleVi = (movie.name || movie.title || 'Phim mới') as string;
-  const titleOrigin = (movie.originName || movie.origin_name || movie.original_title || titleVi) as string;
+  const titleVi = cleanMovieTitle((movie.name || movie.title || 'Phim mới') as string);
+  const titleOrigin = cleanMovieTitle((movie.originName || movie.origin_name || movie.original_title || titleVi) as string);
   const slug = (movie.slug || movie._id || movie.id || '') as string;
   const yearText = formatYear(movie.year as string | number);
 
@@ -301,14 +302,16 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
           {titleVi}
         </h3>
 
-        <p className={styles.movieSubTitle} title={titleOrigin}>
-          {titleOrigin}
-        </p>
+        {titleOrigin && titleOrigin !== titleVi && (
+          <p className={styles.movieSubTitle} title={titleOrigin}>
+            {titleOrigin}
+          </p>
+        )}
 
-        {/* Category Pills (if available) */}
+        {/* Category Pills (up to 3 tags) */}
         {Array.isArray(movie.category) && movie.category.length > 0 && (
           <div className={styles.categoryPills}>
-            {movie.category.slice(0, 2).map((cat) => (
+            {movie.category.slice(0, 3).map((cat) => (
               <span key={(cat as { slug?: string; name?: string })?.slug || (cat as { name?: string })?.name || String(cat)} className={styles.categoryPill}>
                 {(cat as { name?: string })?.name || String(cat)}
               </span>
@@ -322,6 +325,9 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
               {yearText}
               {movie.type === 'series' ? ' • Bộ' : movie.type === 'single' ? ' • Lẻ' : ''}
             </span>
+            {Array.isArray(movie.country) && movie.country[0]?.name && (
+              <span className={styles.metaCountry}> • {movie.country[0].name}</span>
+            )}
           </div>
 
           {ratingText && (

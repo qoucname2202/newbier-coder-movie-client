@@ -39,10 +39,26 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
   const [windowWidth, setWindowWidth] = useState<number>(1200);
   const [touchStart, setTouchStart] = useState<number>(0);
   const [touchEnd, setTouchEnd] = useState<number>(0);
+  const [isVisible, setIsVisible] = useState<boolean>(true);
+  const containerRef = useRef<HTMLElement>(null);
   const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const candidateMovies: FeaturedMovie[] = movies && movies.length > 0 ? movies.slice(0, 5) : [];
   const totalItems = candidateMovies.length;
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -80,16 +96,16 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
     changeSlide(nextIdx);
   }, [activeIndex, totalItems, changeSlide]);
 
-  // Auto-slide every 5.5 seconds
+  // Auto-slide every 5.5 seconds only when visible in viewport
   useEffect(() => {
-    if (totalItems <= 1) return;
+    if (totalItems <= 1 || !isVisible) return;
     const interval = setInterval(() => {
       if (!isTransitioning) {
         handleNext();
       }
     }, 5500);
     return () => clearInterval(interval);
-  }, [totalItems, isTransitioning, handleNext]);
+  }, [totalItems, isTransitioning, isVisible, handleNext]);
 
   useEffect(() => {
     return () => {
@@ -139,7 +155,7 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
   const currentMovie = candidateMovies[activeIndex] || candidateMovies[0];
 
   return (
-    <section className="featured-3d-wrapper mb-4 mb-lg-5" aria-label="Phim Nổi Bật 3D">
+    <section ref={containerRef} className="featured-3d-wrapper mb-4 mb-lg-5" aria-label="Phim Nổi Bật 3D">
       <div
         className="position-relative featured-container"
         onTouchStart={handleTouchStart}
@@ -290,8 +306,8 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
                           window.location.href = `/movie/${movie.slug}`;
                         }
                       }}
-                      title={`Xem trailer ${movie.name}`}
-                      aria-label={`Xem trailer ${movie.name}`}
+                      title={`Xem trailer ${getTaxonomyName(movie.name).replace(/#/g, '').trim()}`}
+                      aria-label={`Xem trailer ${getTaxonomyName(movie.name).replace(/#/g, '').trim()}`}
                     >
                       <i className="fas fa-play" />
                     </button>
@@ -309,12 +325,12 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
                         </span>
                       )}
                     </div>
-                    <h3 className="poster-title" title={getTaxonomyName(movie.name)}>
-                      {getTaxonomyName(movie.name)}
+                    <h3 className="poster-title" title={getTaxonomyName(movie.name).replace(/#/g, '').trim()}>
+                      {getTaxonomyName(movie.name).replace(/#/g, '').trim()}
                     </h3>
                     {movie.origin_name && (
                       <p className="poster-origin-title">
-                        {getTaxonomyName(movie.origin_name)}
+                        {getTaxonomyName(movie.origin_name).replace(/#/g, '').trim()}
                       </p>
                     )}
                   </div>
@@ -553,6 +569,7 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
           transform: translate(-50%, -50%);
           width: 54px;
           height: 54px;
+          aspect-ratio: 1;
           border-radius: 50%;
           background: #e50914;
           color: #ffffff;
@@ -560,7 +577,8 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
           align-items: center;
           justify-content: center;
           font-size: 1.2rem;
-          padding-left: 3px;
+          padding: 0;
+          margin: 0;
           box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), 0 2px 10px rgba(229, 9, 20, 0.5);
           border: none;
           outline: none;
@@ -568,6 +586,14 @@ const FeaturedCarousel3D: React.FC<FeaturedCarousel3DProps> = ({ movies = [], lo
           transition: transform 0.25s ease, box-shadow 0.25s ease;
           pointer-events: auto;
           cursor: pointer;
+        }
+
+        .center-play-button i {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          line-height: 1;
+          transform: translateX(1.5px);
         }
 
         .active-card:hover .center-play-button {

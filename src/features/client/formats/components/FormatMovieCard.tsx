@@ -18,6 +18,7 @@ import { FaPlay, FaStar, FaClock, FaBookmark, FaRegBookmark, FaExclamationCircle
 import { resolveImageUrl } from '@/config/movieConfig';
 import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
 import { formatYear } from '@/utils/taxonomy';
+import { cleanMovieTitle } from '@/utils/movieNormalizer';
 import { getWatchProgress } from '@/utils/watchProgress';
 import watchLaterService from '@/API/services/watchLaterService';
 import {
@@ -43,8 +44,8 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
   const [imgSrc, setImgSrc] = useState<string>(initialPosterSrc);
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
 
-  const titleVi = movie.name || (movie.title as string) || 'Phim mới';
-  const titleOrigin = movie.originName || (movie.origin_name as string) || titleVi;
+  const titleVi = cleanMovieTitle(movie.name || (movie.title as string) || 'Phim mới');
+  const titleOrigin = cleanMovieTitle(movie.originName || (movie.origin_name as string) || titleVi);
   const slug = movie.slug || (movie._id as string) || (movie.id as string) || '';
   const yearText = formatYear(movie.year as string | number);
 
@@ -276,17 +277,19 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
 
       {/* Card Content Body */}
       <div className={styles.cardBody}>
-        <h2 className={styles.movieTitle} title={titleVi}>
+        <h3 className={styles.movieTitle} title={titleVi}>
           {titleVi}
-        </h2>
-        <p className={styles.movieSubTitle} title={titleOrigin}>
-          {titleOrigin}
-        </p>
+        </h3>
+        {titleOrigin && titleOrigin !== titleVi && (
+          <p className={styles.movieSubTitle} title={titleOrigin}>
+            {titleOrigin}
+          </p>
+        )}
 
-        {/* Category Pills (if available) */}
+        {/* Category Pills (up to 3 tags) */}
         {Array.isArray(movie.category) && movie.category.length > 0 && (
           <div className={styles.categoryPills}>
-            {movie.category.slice(0, 2).map((cat) => (
+            {movie.category.slice(0, 3).map((cat) => (
               <span key={cat.slug || cat.name || cat.id} className={styles.categoryPill}>
                 {cat.name}
               </span>
@@ -297,6 +300,9 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
         <div className={styles.cardFooterMeta}>
           <div className={styles.metaLeft}>
             <span className={styles.metaYear}>{yearText || '2026'}</span>
+            {Array.isArray(movie.country) && movie.country[0]?.name && (
+              <span className={styles.metaCountry}> • {movie.country[0].name}</span>
+            )}
           </div>
           {ratingText && (
             <span className={styles.metaRating} title={`Điểm đánh giá: ${ratingText}/10`}>
