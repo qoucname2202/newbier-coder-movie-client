@@ -66,8 +66,14 @@ const WatchSidebarPlaylist: React.FC<WatchSidebarPlaylistProps> = ({
     return episodes.slice(start, start + GROUP_SIZE);
   }, [episodes, activeGroupIndex]);
 
-  // Auto-scroll active episode button into view
+  const isFirstMountRef = useRef<boolean>(true);
+
+  // Auto-scroll active episode button into view only on explicit user episode selection, never on initial mount/reload
   useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
     if (activeBtnRef.current) {
       activeBtnRef.current.scrollIntoView({
         behavior: 'smooth',

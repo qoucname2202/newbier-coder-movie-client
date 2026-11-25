@@ -255,16 +255,26 @@
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 9999px;
   cursor: pointer;
+  outline: none;
   transition: all 0.2s ease;
 }
 
-.btnTrailer:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
+.btnTrailer:hover,
+.btnTrailer:focus,
+.btnTrailer:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.btnTrailer:active {
+  transform: translateY(0);
 }
 
 /* Floating Slide Thumbnail Selectors (Minimalist Quick-Switch) */
@@ -323,13 +333,30 @@
   object-fit: cover;
 }
 
-/* Progress bar line under active slide */
+@keyframes slideProgressLinear {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Progress bar line under active slide - 60fps GPU animated */
 .progressBar {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 2.5px;
-  background: #e50914;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #e50914 0%, #ff4d4f 100%);
   z-index: 4;
-  transition: width 0.1s linear;
+  transform-origin: left center;
+  animation-name: slideProgressLinear;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.progressBarPaused {
+  animation-play-state: paused;
 }

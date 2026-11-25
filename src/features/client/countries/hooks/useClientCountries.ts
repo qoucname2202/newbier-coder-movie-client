@@ -24,8 +24,13 @@ export interface UseClientCountriesReturn {
 export function useClientCountries({
   service = defaultService,
 }: UseClientCountriesOptions = {}): UseClientCountriesReturn {
-  const [countries, setCountries] = useState<CountryEntity[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [countries, setCountries] = useState<CountryEntity[]>(() => {
+    return service.getCachedCountries ? service.getCachedCountries() : [];
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    const cached = service.getCachedCountries ? service.getCachedCountries() : [];
+    return cached.length === 0;
+  });
   const [error, setError] = useState<string | null>(null);
 
   const loadCountries = useCallback(
@@ -46,12 +51,7 @@ export function useClientCountries({
   );
 
   useEffect(() => {
-    const controller = new AbortController();
-    loadCountries(controller.signal);
-
-    return () => {
-      controller.abort();
-    };
+    loadCountries();
   }, [loadCountries]);
 
   return {

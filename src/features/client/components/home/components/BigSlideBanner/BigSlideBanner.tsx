@@ -116,10 +116,8 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [progress, setProgress] = useState<number>(0);
   const [backdropSrc, setBackdropSrc] = useState<string>(FALLBACK_BACKDROP);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // The index is clamped inside the valid range. When the prop `movies`
   // changes and the filter removes some movies, `currentIndex` never
@@ -130,9 +128,6 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
   const currentMovie: SpotlightMovie | undefined = displayMovies[safeIndex] || displayMovies[0];
 
   // The `backdropSrc` is updated every time the `currentMovie` changes.
-  // It is done in an effect instead of the render, so the `img` element
-  // is mounted again (which keeps the old behavior of the BigSlideBanner)
-  // and so it can fall back to the placeholder when the URL is empty.
   useEffect(() => {
     if (!currentMovie) {
       setBackdropSrc(FALLBACK_BACKDROP);
@@ -146,34 +141,21 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
     setBackdropSrc(src);
   }, [currentMovie]);
 
-  // Auto-play logic with progress bar
+  // Smooth auto-play rotation
   useEffect(() => {
     if (!displayMovies || displayMovies.length <= 1) return;
 
     if (isPaused) {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
       return;
     }
 
-    setProgress(0);
-    const intervalStep = 50;
-    const totalSteps = autoPlayInterval / intervalStep;
-    let currentStep = 0;
-
-    progressTimerRef.current = setInterval(() => {
-      currentStep += 1;
-      setProgress((currentStep / totalSteps) * 100);
-    }, intervalStep);
-
     timerRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % displayMovies.length);
-      setProgress(0);
     }, autoPlayInterval);
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
     };
   }, [currentIndex, isPaused, displayMovies, autoPlayInterval]);
 
@@ -181,7 +163,6 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
     if (displayMovies.length === 0) return;
     const safeClamped = Math.max(0, Math.min(index, displayMovies.length - 1));
     setCurrentIndex(safeClamped);
-    setProgress(0);
   };
 
   if (loading && !currentMovie) {
@@ -315,10 +296,11 @@ const BigSlideBanner: React.FC<BigSlideBannerProps> = ({
             </div>
           )}
 
-          {/* Auto-Slide Progress Bar */}
+          {/* Auto-Slide Hardware Accelerated Progress Bar */}
           <div
-            className={styles.progressBar}
-            style={{ width: `${Math.min(progress, 100)}%` }}
+            key={safeIndex}
+            className={`${styles.progressBar} ${isPaused ? styles.progressBarPaused : ''}`}
+            style={{ animationDuration: `${autoPlayInterval}ms` }}
           />
         </div>
       </div>

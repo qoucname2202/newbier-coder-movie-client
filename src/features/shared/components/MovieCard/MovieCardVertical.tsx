@@ -309,11 +309,14 @@ const formatMovieDuration = (
     }
   }
 
-  if (episodeCurrent && typeof episodeCurrent === 'string' && episodeCurrent.trim()) {
-    return episodeCurrent.trim();
+  if (episodeCurrent && typeof episodeCurrent === 'string') {
+    const trimmed = episodeCurrent.trim();
+    if (trimmed && trimmed !== '...' && trimmed !== '..' && trimmed !== '.' && trimmed.toLowerCase() !== 'null') {
+      return trimmed;
+    }
   }
 
-  return '1h 45m';
+  return 'Full';
 };
 
 /**
@@ -441,7 +444,6 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
   const ratingText: string = rawRating ? Number(rawRating).toFixed(1) : '8.2';
 
   // Derived taxonomy and badges
-  const badgeTheme = resolveBadgeTheme(rank, badge, movie.type);
   const ageRating = resolveAgeRating(movie);
   const durationText = formatMovieDuration(movie.time, movie.episode_current);
   const friendlyGenres = extractFriendlyGenres(movie, movieOriginName);
@@ -516,13 +518,8 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
         <div className={styles.posterTopFade} aria-hidden="true" />
         <div className={styles.posterBottomFade} aria-hidden="true" />
 
-        {/* Top Header: Themed Icon Badge (Left) & Heart Button (Right) */}
+        {/* Top Header: Heart Favorite Button (Strictly circular, tags removed per UI spec) */}
         <div className={styles.topHeaderOverlay}>
-          <span className={`${styles.trendingBadge} ${badgeTheme.className}`}>
-            {badgeTheme.icon}
-            <span>{badgeTheme.label}</span>
-          </span>
-
           <button
             type="button"
             className={styles.favoriteBtn}

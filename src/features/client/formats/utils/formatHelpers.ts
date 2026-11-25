@@ -11,13 +11,16 @@
  * @returns Formatted duration string.
  */
 export function formatDuration(duration?: string | number | null, fallback = ''): string {
+  // If fallback contains only dots or invalid tokens, neutralize it
+  const cleanFallback = String(fallback || '').replace(/[.\s]/g, '') ? fallback : '';
+
   if (duration === null || duration === undefined || duration === '') {
-    return fallback;
+    return cleanFallback;
   }
 
   // If already a number
   if (typeof duration === 'number') {
-    if (duration <= 0) return fallback;
+    if (duration <= 0) return cleanFallback;
     const hours = Math.floor(duration / 60);
     const minutes = duration % 60;
     if (hours > 0) {
@@ -27,7 +30,9 @@ export function formatDuration(duration?: string | number | null, fallback = '')
   }
 
   const str = String(duration).trim();
-  if (!str) return fallback;
+  if (!str || str === '...' || str === '..' || str === '.' || str.toLowerCase() === 'null') {
+    return cleanFallback;
+  }
 
   // Extract all digit groups
   const digitsMatch = str.match(/(\d+)/g);
@@ -49,6 +54,11 @@ export function formatDuration(duration?: string | number | null, fallback = '')
       }
       return `${totalMinutes} phút`;
     }
+  }
+
+  // If string contains only dots or no usable text, return cleanFallback
+  if (str.replace(/[.\s]/g, '').length === 0) {
+    return cleanFallback;
   }
 
   return str;

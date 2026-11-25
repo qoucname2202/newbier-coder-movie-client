@@ -102,6 +102,16 @@ const MovieWatchPage: React.FC<MovieWatchPageProps> = ({ initialSlug }) => {
   const [shareCopied, setShareCopied] = useState<boolean>(false);
   const [pinnedEpisodeIndex, setPinnedEpisodeIndex] = useState<number>(-1);
 
+  // Guarantee that on initial page load / browser reload, the page always starts at top (0,0) showing player
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   useEffect(() => {
     if (!slug) return;
     const pinned = getPinnedEpisode(slug);

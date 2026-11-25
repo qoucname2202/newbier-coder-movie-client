@@ -13,9 +13,12 @@ import { CountryFilterParamsSchema } from '../schemas/country.schema';
 import { TAXONOMY_COUNTRIES, resolveCountryTaxonomy } from '@/config/taxonomyConfig';
 import { safeFetchJson } from '@/API/services/movieService';
 import movieService from '@/API/services/movieService';
+import axiosInstance from '@/API/config/axiosConfig';
+import { getApiBaseUrl } from '@/config/apiBase';
 
 export interface ICountryClientService {
   getAllCountries(signal?: AbortSignal): Promise<CountryEntity[]>;
+  getCachedCountries?(): CountryEntity[];
   getMoviesByCountry(
     slug: string,
     params?: CountryFilterParams,
@@ -32,16 +35,13 @@ export class CountryClientService implements ICountryClientService {
   private inFlightCountriesPromise: Promise<CountryEntity[]> | null = null;
 
   /**
-   * Retrieves all countries from API to populate the Navbar menu.
-   * Caches in memory and sessionStorage to minimize network overhead.
+   * Synchronously returns cached countries from memory or sessionStorage if available.
+   * Enables zero-flicker instant rendering for Navbar and Country components.
    */
-  async getAllCountries(signal?: AbortSignal): Promise<CountryEntity[]> {
-    // 1. In-memory cache hit
+  getCachedCountries(): CountryEntity[] {
     if (this.inMemoryCountries && this.inMemoryCountries.length > 0) {
       return this.inMemoryCountries;
     }
-
-    // 2. Browser sessionStorage cache hit
     if (typeof window !== 'undefined') {
       try {
         const cached = window.sessionStorage.getItem(COUNTRIES_SESSION_KEY);
@@ -56,6 +56,25 @@ export class CountryClientService implements ICountryClientService {
         /* storage disabled or quota exceeded */
       }
     }
+    return [];
+  }
+
+  /**
+   * Retrieves all countries from API to populate the Navbar menu.
+   * Caches in memory and sessionStorage to minimize network overhead.
+   * Guarantees always fetching real data without requiring auth session.
+   */
+  async getAllCountries(signal?: AbortSignal): Promise<CountryEntity[]> {
+    // 1. In-memory cache hit
+    if (this.inMemoryCountries && this.inMemoryCountries.length > 0) {
+      return this.inMemoryCountries;
+    }
+
+    // 2. Browser sessionStorage cache hit
+    const cached = this.getCachedCountries();
+    if (cached.length > 0) {
+      return cached;
+    }
 
     // 3. Deduplicate concurrent requests
     if (this.inFlightCountriesPromise) {
@@ -64,11 +83,29 @@ export class CountryClientService implements ICountryClientService {
 
     this.inFlightCountriesPromise = (async (): Promise<CountryEntity[]> => {
       try {
-        // Query the countries API with limit 100 to retrieve all registered countries
-        const endpoint = '/countries?page=1&limit=100&sort=name';
-        const response = await safeFetchJson<Record<string, unknown>>(endpoint, { signal });
+        // Query the public /countries endpoint with limit 100 to retrieve all registered countries.
+        // Public endpoints must not require a Bearer token or be aborted by guest session teardown.
+        let responseData: unknown = null;
 
-        const rawList = this.extractItems(response);
+        try {
+          const res = await axiosInstance.get('/countries', {
+            params: { page: 1, limit: 100, sort: 'name' },
+            signal
+          });
+          responseData = res.data;
+        } catch {
+          // Direct fallback fetch if axios interceptor caught anything
+          const base = getApiBaseUrl();
+          const directRes = await fetch(`${base}/countries?page=1&limit=100&sort=name`, {
+            headers: { Accept: 'application/json' },
+            signal
+          });
+          if (directRes.ok) {
+            responseData = await directRes.json();
+          }
+        }
+
+        const rawList = this.extractItems(responseData);
 
         if (Array.isArray(rawList) && rawList.length > 0) {
           const normalized: CountryEntity[] = rawList
@@ -101,11 +138,11 @@ export class CountryClientService implements ICountryClientService {
             return normalized;
           }
         }
-      } catch (err) {
-        // Log gracefully without crashing
+      } catch {
+        // Network or parsing error: proceed to runtime fallback
       }
 
-      // 4. Fallback to TAXONOMY_COUNTRIES
+      // 4. Fallback to TAXONOMY_COUNTRIES only when network is completely unreachable
       const fallbackList: CountryEntity[] = Object.values(TAXONOMY_COUNTRIES).map((c) => ({
         id: c.slug,
         name: c.nameVi,
@@ -115,6 +152,7 @@ export class CountryClientService implements ICountryClientService {
         href: `/quoc-gia/${c.slug}`
       }));
 
+      // Cache fallback in memory for test stability, but do NOT overwrite sessionStorage with fallback
       this.inMemoryCountries = fallbackList;
       return fallbackList;
     })().finally(() => {

@@ -209,7 +209,7 @@
   pointer-events: none;
 }
 
-/* Top Header Overlay: #1 Trending Badge & Heart Favorite Button */
+/* Top Header Overlay: Clean Floating Action (Tags opposite heart removed per spec) */
 .topHeaderOverlay {
   position: absolute;
   top: 10px;
@@ -217,7 +217,7 @@
   right: 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   z-index: 3;
 }
 
@@ -328,9 +328,16 @@
 }
 
 .favoriteBtn {
-  width: 35px;
-  height: 35px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  max-width: 34px;
+  max-height: 34px;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
   border-radius: 50%;
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);

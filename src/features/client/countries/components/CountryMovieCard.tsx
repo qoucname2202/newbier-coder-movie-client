@@ -21,6 +21,7 @@ import { LOCAL_DEFAULT_POSTER } from '@/config/movieFallbackConfig';
 import { formatYear, getTaxonomyName } from '@/utils/taxonomy';
 import { cleanMovieTitle } from '@/utils/movieNormalizer';
 import { getWatchProgress } from '@/utils/watchProgress';
+import { formatDuration } from '@/features/client/formats/utils/formatHelpers';
 import watchLaterService from '@/API/services/watchLaterService';
 import type { CountryMovieItem, RawMovie } from '../types/country.types';
 import styles from '@/styles/CountryPage.module.css';
@@ -46,14 +47,7 @@ const getQualityTier = (quality?: string | null): QualityTier => {
   return 'standard';
 };
 
-const getLanguageType = (lang?: string | null): LanguageType => {
-  if (!lang) return 'vietsub';
-  const l = lang.trim().toLowerCase();
-  if (l.includes('thuyết minh') || l.includes('thuyet minh') || l.includes('thuyet-minh')) return 'thuyet-minh';
-  if (l.includes('lồng tiếng') || l.includes('long tieng') || l.includes('dub')) return 'long-tieng';
-  if (l.includes('raw') || l.includes('gốc')) return 'raw';
-  return 'vietsub';
-};
+
 
 export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPlayTrailer }) => {
   const rawPoster = (movie.posterUrl || movie.poster_url || movie.thumbUrl || movie.thumb_url || '') as string;
@@ -73,19 +67,32 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
 
   // Translation / Lang badge
   const rawLang = (movie.lang || movie.language || 'Vietsub') as string;
-  const langType = getLanguageType(rawLang);
   const langBadge = getTaxonomyName(rawLang);
 
-  // Episode current / Status / Year
-  const episodeCurrent = (movie.episodeCurrent || movie.episode_current || '') as string;
-  const episodeCount = Array.isArray(movie.episodes) && movie.episodes[0]?.server_data?.length;
-  const topBadgeRight = episodeCurrent
-    ? episodeCurrent
-    : episodeCount
-    ? `Tập ${episodeCount}`
-    : movie.type === 'series'
-    ? 'Phim bộ'
-    : yearText;
+  // Episode current / Status / Duration (Fix single movies showing "...")
+  const isSeries = movie.type === 'series' || (Array.isArray(movie.episodes) && (movie.episodes[0]?.server_data?.length || 0) > 1);
+  const episodeRaw = (movie.episodeCurrent || movie.episode_current || '') as string;
+  const isInvalidEpisode = !episodeRaw || episodeRaw.trim() === '...' || episodeRaw.trim() === '..' || episodeRaw.trim() === '.' || episodeRaw.toLowerCase() === 'null';
+
+  let topBadgeRight: string | null = null;
+  if (isSeries) {
+    if (!isInvalidEpisode) {
+      topBadgeRight = episodeRaw.startsWith('Tập') ? episodeRaw : `Tập ${episodeRaw}`;
+    } else {
+      const epCount = Array.isArray(movie.episodes) && movie.episodes[0]?.server_data?.length;
+      topBadgeRight = epCount ? `Tập ${epCount}` : 'Phim bộ';
+    }
+  } else {
+    // Single movie (Phim lẻ) - NEVER display "..."!
+    const rawTime = (movie.time || movie.duration) as string | undefined;
+    const dur = formatDuration(rawTime, '');
+    topBadgeRight = dur || 'Full';
+  }
+
+  // Primary Genre for clean footer
+  const primaryGenre = Array.isArray(movie.category) && movie.category[0]?.name
+    ? movie.category[0].name
+    : (Array.isArray(movie.country) && movie.country[0]?.name ? movie.country[0].name : (isSeries ? 'Phim Bộ' : 'Phim Lẻ'));
 
   // Rating
   const rawRating = Number(
@@ -190,20 +197,6 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
     }
   };
 
-  // Language badge CSS class selection
-  const getLangClass = (): string => {
-    switch (langType) {
-      case 'vietsub':
-        return styles.badgeLangVietsub;
-      case 'thuyet-minh':
-        return styles.badgeLangThuyetMinh;
-      case 'long-tieng':
-        return styles.badgeLangLongTieng;
-      default:
-        return styles.badgeLangRaw;
-    }
-  };
-
   return (
     <Link
       href={`/movie/${slug}`}
@@ -233,7 +226,7 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
         <div className={styles.topFade} aria-hidden="true" />
         <div className={styles.bottomFade} aria-hidden="true" />
 
-        {/* Top-left Badges: Quality & Translation */}
+        {/* Top-left Badge: Quality Tier */}
         <div className={styles.badgesTopLeft}>
           <span className={`${styles.badgeQuality} ${getQualityClass()}`}>
             {(qualityTier === 'cam' || qualityTier === 'trailer') && (
@@ -241,14 +234,9 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
             )}
             {qualityBadge}
           </span>
-          {langBadge && (
-            <span className={`${styles.badgeLang} ${getLangClass()}`}>
-              {langBadge}
-            </span>
-          )}
         </div>
 
-        {/* Top-right Badge: Episode / Status / Year */}
+        {/* Top-right Badge: Episode / Status / Duration */}
         {topBadgeRight && (
           <span className={styles.badgeEpisodeTopRight} title={`Trạng thái: ${topBadgeRight}`}>
             {topBadgeRight}
@@ -308,26 +296,10 @@ export const CountryMovieCard: React.FC<CountryMovieCardProps> = ({ movie, onPla
           </p>
         )}
 
-        {/* Category Pills (up to 3 tags) */}
-        {Array.isArray(movie.category) && movie.category.length > 0 && (
-          <div className={styles.categoryPills}>
-            {movie.category.slice(0, 3).map((cat) => (
-              <span key={(cat as { slug?: string; name?: string })?.slug || (cat as { name?: string })?.name || String(cat)} className={styles.categoryPill}>
-                {(cat as { name?: string })?.name || String(cat)}
-              </span>
-            ))}
-          </div>
-        )}
-
         <div className={styles.cardFooterMeta}>
           <div className={styles.metaLeft}>
-            <span className={styles.metaYear}>
-              {yearText}
-              {movie.type === 'series' ? ' • Bộ' : movie.type === 'single' ? ' • Lẻ' : ''}
-            </span>
-            {Array.isArray(movie.country) && movie.country[0]?.name && (
-              <span className={styles.metaCountry}> • {movie.country[0].name}</span>
-            )}
+            <span className={styles.metaYear}>{yearText || '2026'}</span>
+            <span className={styles.metaCategory}> • {primaryGenre}</span>
           </div>
 
           {ratingText && (
