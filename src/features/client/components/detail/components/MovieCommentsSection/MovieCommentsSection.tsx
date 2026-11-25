@@ -12,18 +12,13 @@ import styles from './MovieCommentsSection.module.css';
  * profanity and length validation, optimistic likes, and nested reply threads.
  */
 
-const STAR_LABELS: Record<number, string> = {
-  1: '1★ - Rất thất vọng',
-  2: '2★ - Kịch bản tệ',
-  3: '3★ - Dưới trung bình',
-  4: '4★ - Hơi thất vọng',
-  5: '5★ - Bình thường',
-  6: '6★ - Tạm ổn',
-  7: '7★ - Đáng xem',
-  8: '8★ - Phim hay, cuốn hút',
-  9: '9★ - Rất hay, đáng xem lại',
-  10: '10★ - Tuyệt phẩm xuất sắc'
-};
+const RATING_LEVELS = [
+  { star: 1, score: 2, label: 'Không thích (2/10)', mood: '👎' },
+  { star: 2, score: 4, label: 'Trung bình (4/10)', mood: '😐' },
+  { star: 3, score: 6, label: 'Đáng xem (6/10)', mood: '👍' },
+  { star: 4, score: 8, label: 'Phim rất hay (8/10)', mood: '🔥' },
+  { star: 5, score: 10, label: 'Tuyệt phẩm điện ảnh (10/10)', mood: '🌟' }
+] as const;
 
 export interface CommentItem {
   id?: string;
@@ -110,7 +105,8 @@ export const MovieCommentsSection: React.FC<MovieCommentsSectionProps> = ({
   const [inputText, setInputText] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [hoverStar, setHoverStar] = useState<number>(0);
+  const [hoverTier, setHoverTier] = useState<number>(0);
+  const [selectedTier, setSelectedTier] = useState<number>(5);
   const [selectedStar, setSelectedStar] = useState<number>(10);
   const [hasRated, setHasRated] = useState<boolean>(false);
   const [ratingNotice, setRatingNotice] = useState<string | null>(null);
@@ -142,15 +138,19 @@ export const MovieCommentsSection: React.FC<MovieCommentsSectionProps> = ({
     return list;
   }, [localComments, comments, sortBy]);
 
-  // Handle star rating submission
-  const handleRate = async (star: number): Promise<void> => {
-    setSelectedStar(star);
+  // Handle cinema star tier rating
+  const handleRateTier = async (tier: number): Promise<void> => {
+    setSelectedTier(tier);
+    const score = tier * 2;
+    setSelectedStar(score);
     setHasRated(true);
-    setRatingNotice(`Bạn đã đánh giá ${star}/10★: ${STAR_LABELS[star]}`);
+
+    const level = RATING_LEVELS.find((l) => l.star === tier);
+    setRatingNotice(`Bạn đã đánh giá ${score}/10★: ${level?.label || ''}`);
 
     if (movieSlug) {
       try {
-        await ratingService.createOrUpdateRating(movieSlug, star);
+        await ratingService.createOrUpdateRating(movieSlug, score);
       } catch {
         // Safe fallback
       }
@@ -300,92 +300,69 @@ export const MovieCommentsSection: React.FC<MovieCommentsSectionProps> = ({
         </div>
       </div>
 
-      {/* 2. Interactive Rating Scoreboard with Breakdown Bars */}
-      <div className={styles.ratingScoreboard}>
-        <div className={styles.scoreLeft}>
-          <div className={styles.bigScoreRow}>
-            <span className={styles.bigScore}>{numericRating.toFixed(1)}</span>
-            <span className={styles.maxScore}>/ 10</span>
+      {/* 2. Cinema Audience Score & Community Rating Spotlight */}
+      <div className={styles.ratingSpotlightCard}>
+        {/* Left: Overall Audience Score */}
+        <div className={styles.scoreSummaryCol}>
+          <div className={styles.scoreBadgeBox}>
+            <span className={styles.scoreBadgeNumber}>{numericRating.toFixed(1)}</span>
+            <span className={styles.scoreBadgeScale}>/10</span>
           </div>
-          <div className={styles.starsGold}>
-            {'★★★★★'.split('').map((s, i) => (
-              <span key={i}>{s}</span>
-            ))}
-          </div>
-          <span className={styles.voteCount}>
-            {Number(ratingCount || 1420).toLocaleString('vi-VN')} lượt bình chọn
-          </span>
-        </div>
-
-        {/* Rating Breakdown Bars */}
-        <div className={styles.breakdownBars}>
-          <div className={styles.barRow}>
-            <span className={styles.starLabel}>5 ★</span>
-            <div className={styles.barTrack}>
-              <div className={styles.barFill} style={{ width: '82%' }} />
+          <div className={styles.scoreMetaInfo}>
+            <div className={styles.recommendPill}>
+              <i className="fas fa-fire me-1" />
+              <span>{Math.min(98, Math.max(78, Math.round(numericRating * 10)))}% Khán giả khuyên xem</span>
             </div>
-            <span className={styles.barPercent}>82%</span>
-          </div>
-          <div className={styles.barRow}>
-            <span className={styles.starLabel}>4 ★</span>
-            <div className={styles.barTrack}>
-              <div className={styles.barFill} style={{ width: '12%' }} />
+            <div className={styles.voteCountRow}>
+              <span className={styles.voteCountText}>
+                Dựa trên <strong>{Number(ratingCount || 1420).toLocaleString('vi-VN')}</strong> lượt đánh giá
+              </span>
             </div>
-            <span className={styles.barPercent}>12%</span>
-          </div>
-          <div className={styles.barRow}>
-            <span className={styles.starLabel}>3 ★</span>
-            <div className={styles.barTrack}>
-              <div className={styles.barFill} style={{ width: '4%' }} />
-            </div>
-            <span className={styles.barPercent}>4%</span>
-          </div>
-          <div className={styles.barRow}>
-            <span className={styles.starLabel}>2 ★</span>
-            <div className={styles.barTrack}>
-              <div className={styles.barFill} style={{ width: '1%' }} />
-            </div>
-            <span className={styles.barPercent}>1%</span>
-          </div>
-          <div className={styles.barRow}>
-            <span className={styles.starLabel}>1 ★</span>
-            <div className={styles.barTrack}>
-              <div className={styles.barFill} style={{ width: '1%' }} />
-            </div>
-            <span className={styles.barPercent}>1%</span>
           </div>
         </div>
 
-        {/* User Interactive Rating Widget */}
-        <div className={styles.votingWidget}>
-          <span className={styles.votePrompt}>Chấm điểm bộ phim:</span>
-          <div className={styles.interactiveStars}>
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => {
-              const isLit = (hoverStar || selectedStar) >= star;
+        {/* Divider */}
+        <div className={styles.spotlightDivider} />
+
+        {/* Right: Interactive User Rating */}
+        <div className={styles.userVoteCol}>
+          <div className={styles.voteHeaderRow}>
+            <span className={styles.votePromptTitle}>Đánh giá của bạn:</span>
+            <span className={styles.activeTierFeedback}>
+              {hoverTier > 0
+                ? `${RATING_LEVELS[hoverTier - 1].mood} ${RATING_LEVELS[hoverTier - 1].label}`
+                : hasRated
+                ? `${RATING_LEVELS[selectedTier - 1].mood} Đã lưu: ${RATING_LEVELS[selectedTier - 1].label}`
+                : 'Chạm để bình chọn điểm phim'}
+            </span>
+          </div>
+
+          <div className={styles.starsTierRow}>
+            {RATING_LEVELS.map((level) => {
+              const activeLevel = hoverTier || (hasRated ? selectedTier : 0);
+              const isFilled = activeLevel >= level.star;
               return (
                 <button
-                  key={star}
+                  key={level.star}
                   type="button"
-                  className={`${styles.starBtn} ${isLit ? styles.starBtnLit : ''}`}
-                  onMouseEnter={() => setHoverStar(star)}
-                  onMouseLeave={() => setHoverStar(0)}
-                  onClick={() => handleRate(star)}
-                  title={STAR_LABELS[star]}
-                  aria-label={STAR_LABELS[star]}
+                  className={`${styles.starTierBtn} ${isFilled ? styles.starTierBtnFilled : ''}`}
+                  onMouseEnter={() => setHoverTier(level.star)}
+                  onMouseLeave={() => setHoverTier(0)}
+                  onClick={() => handleRateTier(level.star)}
+                  aria-label={level.label}
+                  title={level.label}
                 >
-                  ★
+                  <i className={`fas fa-star ${styles.starIcon}`} />
                 </button>
               );
             })}
           </div>
-          <span className={styles.starFeedback}>
-            {STAR_LABELS[hoverStar || selectedStar] || ''}
-          </span>
+
           {ratingNotice && (
-            <span className={styles.ratingNoticeToast}>
+            <div className={styles.ratingSavedToast}>
               <i className="fas fa-check-circle me-1" />
-              {ratingNotice}
-            </span>
+              <span>{ratingNotice}</span>
+            </div>
           )}
         </div>
       </div>

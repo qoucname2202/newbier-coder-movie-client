@@ -1,0 +1,960 @@
+/**
+ * @file Footer.module.css
+ * @description Premium Cinema Dark Styling for the Application Footer.
+ * Perfectly balanced 2-pillar responsive architecture (Brand/Community & Help/Multi-Device).
+ * Flawlessly responsive from 4K down to small mobile devices (<= 412px, 390px, 360px, 320px)
+ * with strict overflow-x prevention, fluid typography, and touch-friendly controls.
+ */
+
+.footerWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  background: radial-gradient(120% 100% at 50% 0%, rgba(229, 9, 20, 0.08) 0%, rgba(12, 17, 26, 0.98) 28%, #070a10 100%);
+  color: #94a3b8;
+  border-top: 1px solid rgba(229, 9, 20, 0.25);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+/* Ambient Crimson Top Light Beam */
+.topLightBeam {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #e50914 50%, transparent 100%);
+  opacity: 0.85;
+  filter: drop-shadow(0 0 10px #e50914);
+  pointer-events: none;
+}
+
+.footerContainer {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 52px 24px calc(28px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+/* ==========================================================================
+   1. VIP CINEMA NEWSLETTER ROW
+   ========================================================================== */
+.newsletterCard {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, rgba(22, 27, 34, 0.85) 0%, rgba(30, 41, 59, 0.45) 50%, rgba(229, 9, 20, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
+.newsletterContent {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.newsletterIconBadge {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ff2442 0%, #e50914 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 8px 24px rgba(229, 9, 20, 0.45);
+  flex-shrink: 0;
+}
+
+.newsletterHeading {
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+  word-break: break-word;
+}
+
+.newsletterSubtext {
+  font-size: 0.86rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.newsletterForm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  min-width: 360px;
+  box-sizing: border-box;
+}
+
+.inputWrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.newsletterInput {
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: rgba(10, 15, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 0.88rem;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.newsletterInput::placeholder {
+  color: #64748b;
+}
+
+.newsletterInput:focus {
+  border-color: #e50914;
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.25);
+}
+
+.btnSubscribe {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff2442 0%, #e50914 100%);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px rgba(229, 9, 20, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.btnSubscribe:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(229, 9, 20, 0.6);
+  background: linear-gradient(135deg, #ff3b53 0%, #f40612 100%);
+}
+
+.btnSubscribe:active {
+  transform: translateY(0);
+}
+
+.newsletterToast {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-size: 0.85rem;
+  font-weight: 700;
+  animation: fadeIn 0.3s ease;
+  word-break: break-word;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   2. BALANCED 2-PILLAR CORE GRID (BRAND/COMMUNITY & HELP/DEVICES)
+   ========================================================================== */
+.footerGrid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 48px;
+  align-items: flex-start;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Pillar 1: Brand & Community */
+.brandColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.brandLink {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.brandLogo {
+  height: 48px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 10px rgba(229, 9, 20, 0.35));
+}
+
+.brandDescription {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 620px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.techBadgePills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cinemaPill {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.cinemaPillRed {
+  background: rgba(229, 9, 20, 0.14);
+  border: 1px solid rgba(229, 9, 20, 0.35);
+  color: #ff4d5a;
+}
+
+.cinemaPillGold {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+.cinemaPillBlue {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+.cinemaPillGreen {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.communityBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.communityTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.socialRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.socialBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.socialBtn:hover {
+  background: #e50914;
+  border-color: #e50914;
+  color: #ffffff;
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.45);
+}
+
+/* Pillar 2: Help, Utilities & Multi-device */
+.supportColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.columnHeader::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 32px;
+  height: 2.5px;
+  background: linear-gradient(90deg, #e50914 0%, #ff4d5a 100%);
+  border-radius: 2px;
+}
+
+.columnHeaderIcon {
+  color: #e50914;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Quick User Utility Chips */
+.quickLinksGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quickChip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.quickChip:hover {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.quickChipIcon {
+  color: #e50914;
+  font-size: 0.88rem;
+  flex-shrink: 0;
+}
+
+/* Multi-Device Support Card */
+.deviceCard {
+  background: linear-gradient(135deg, rgba(22, 27, 34, 0.6) 0%, rgba(13, 17, 23, 0.8) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.deviceTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.deviceTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.deviceStatusDot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #34d399;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.deviceStatusDot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.deviceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.deviceItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.deviceItem span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deviceItem i,
+.deviceItem svg {
+  color: #e50914;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Contact Box */
+.contactBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 12px 18px;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contactLabel {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.contactEmailLink {
+  color: #f1f5f9;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  min-width: 0;
+  transition: color 0.2s ease;
+}
+
+.contactEmailLink span {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.contactEmailLink:hover {
+  color: #e50914;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   3. BOTTOM ROW & COPYRIGHT
+   ========================================================================== */
+.footerDivider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0.08) 70%, transparent 100%);
+  width: 100%;
+}
+
+.footerBottomSection {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.disclaimerText {
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+  max-width: 980px;
+  margin: 0 auto;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+}
+
+.bottomBarRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.copyrightWrap {
+  display: block;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.copyrightWrap strong {
+  color: #94a3b8;
+}
+
+.pulsingHeart {
+  color: #e50914;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 4px;
+  animation: heartPulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(229, 9, 20, 0.4)); }
+  100% { transform: scale(1.28); filter: drop-shadow(0 0 8px rgba(229, 9, 20, 0.9)); }
+}
+
+.legalLinksGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legalLink {
+  color: #64748b;
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.legalLink:hover {
+  color: #cbd5e1;
+}
+
+.dotSep {
+  color: #334155;
+  font-size: 0.75rem;
+}
+
+.btnBackToTop {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+.btnBackToTop:hover {
+  background: rgba(229, 9, 20, 0.2);
+  border-color: rgba(229, 9, 20, 0.4);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   4. FULL RESPONSIVE BREAKPOINTS (LAPTOP, TABLET, MOBILE, NARROW SCREEN <=412px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .footerGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+
+  .newsletterCard {
+    padding: 22px 26px;
+  }
+}
+
+@media (max-width: 900px) {
+  .newsletterCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  .newsletterForm {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .footerGrid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+@media (max-width: 640px) {
+  .footerContainer {
+    padding: 36px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    gap: 32px;
+  }
+
+  .newsletterCard {
+    padding: 20px 18px;
+    border-radius: 16px;
+  }
+
+  .newsletterContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .newsletterHeading {
+    font-size: 1.08rem;
+  }
+
+  .newsletterSubtext {
+    font-size: 0.82rem;
+  }
+
+  .newsletterForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btnSubscribe {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .techBadgePills {
+    gap: 6px;
+  }
+
+  .cinemaPill {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  .quickLinksGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .deviceGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .contactBox {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .bottomBarRow {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .legalLinksGroup {
+    justify-content: center;
+  }
+
+  .btnBackToTop {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   5. ULTRA-OPTIMIZED MOBILE BREAKPOINT (<= 412px, e.g. S20, iPhone 14/15, SE)
+   ========================================================================== */
+@media (max-width: 412px) {
+  .footerContainer {
+    padding: 28px 12px calc(20px + env(safe-area-inset-bottom, 0px));
+    gap: 24px;
+  }
+
+  .newsletterCard {
+    padding: 16px 12px;
+    border-radius: 14px;
+    gap: 14px;
+  }
+
+  .newsletterContent {
+    gap: 10px;
+  }
+
+  .newsletterIconBadge {
+    width: 42px;
+    height: 42px;
+    font-size: 1.15rem;
+    border-radius: 12px;
+  }
+
+  .newsletterHeading {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .newsletterSubtext {
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .newsletterInput {
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+
+  .btnSubscribe {
+    padding: 10px 16px;
+    font-size: 0.82rem;
+  }
+
+  .footerGrid {
+    gap: 24px;
+  }
+
+  .brandColumn {
+    gap: 14px;
+  }
+
+  .brandLogo {
+    height: 38px;
+  }
+
+  .brandDescription {
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+
+  .techBadgePills {
+    gap: 5px;
+  }
+
+  .cinemaPill {
+    font-size: 0.68rem;
+    padding: 3px 8px;
+    gap: 4px;
+  }
+
+  .communityBox {
+    gap: 8px;
+  }
+
+  .communityTitle {
+    font-size: 0.74rem;
+  }
+
+  .socialRow {
+    gap: 8px;
+  }
+
+  .socialBtn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.88rem;
+  }
+
+  .supportColumn {
+    gap: 14px;
+  }
+
+  .columnHeader {
+    font-size: 0.88rem;
+    padding-bottom: 8px;
+  }
+
+  .quickChip {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+    gap: 6px;
+  }
+
+  .quickChipIcon {
+    font-size: 0.8rem;
+  }
+
+  .deviceCard {
+    padding: 12px 10px;
+    gap: 8px;
+  }
+
+  .deviceTitle {
+    font-size: 0.76rem;
+  }
+
+  .deviceStatusDot {
+    font-size: 0.68rem;
+  }
+
+  .deviceItem {
+    padding: 6px 8px;
+    font-size: 0.74rem;
+  }
+
+  .contactBox {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .contactLabel {
+    font-size: 0.74rem;
+  }
+
+  .contactEmailLink {
+    font-size: 0.78rem;
+    gap: 6px;
+  }
+
+  .disclaimerText {
+    font-size: 0.72rem;
+    line-height: 1.5;
+    padding: 0 2px;
+  }
+
+  .bottomBarRow {
+    gap: 12px;
+    padding-top: 10px;
+  }
+
+  .copyrightWrap {
+    font-size: 0.74rem;
+    line-height: 1.5;
+  }
+
+  .legalLinksGroup {
+    gap: 6px 10px;
+    justify-content: center;
+  }
+
+  .dotSep {
+    display: none;
+  }
+
+  .legalLink {
+    font-size: 0.74rem;
+  }
+
+  .btnBackToTop {
+    padding: 8px 14px;
+    font-size: 0.76rem;
+    width: 100%;
+  }
+}

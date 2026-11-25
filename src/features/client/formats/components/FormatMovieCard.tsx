@@ -24,9 +24,7 @@ import watchLaterService from '@/API/services/watchLaterService';
 import {
   formatDuration,
   getQualityTier,
-  getLanguageType,
-  type QualityTier,
-  type LanguageType
+  type QualityTier
 } from '../utils/formatHelpers';
 import type { FormatMovieItem } from '../types/format.types';
 import styles from '@/styles/FormatPage.module.css';
@@ -57,18 +55,15 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
     }
   };
 
-  // 1. Duration badge (Priority for feature movies)
-  const formattedDuration = formatDuration(
-    movie.duration || (movie.time as string) || (movie.runtime as string),
-    movie.episodeCurrent || yearText
-  );
+  // 1. Duration badge (Priority for feature movies - NEVER display "...")
+  const rawDuration = movie.duration || (movie.time as string) || (movie.runtime as string);
+  const formattedDuration = formatDuration(rawDuration, 'Full');
 
   // 2. Quality tier & badge styling
   const qualityTier: QualityTier = getQualityTier(movie.quality);
-  const rawQuality = movie.quality ? String(movie.quality).toUpperCase() : 'HD';
+  const rawQuality = movie.quality ? String(movie.quality).toUpperCase() : 'FHD';
 
   // 3. Language badge
-  const langType: LanguageType = getLanguageType(movie.lang);
   const langLabel = movie.lang ? String(movie.lang) : 'Vietsub';
 
   // 4. Rating
@@ -76,6 +71,11 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
     movie.vote_average || movie.rating || (movie.tmdb as { vote_average?: number })?.vote_average || 0
   );
   const ratingText = rawRating > 0 ? rawRating.toFixed(1) : null;
+
+  // 5. Genre / Primary Category name for clean footer
+  const primaryGenre = Array.isArray(movie.category) && movie.category[0]?.name
+    ? movie.category[0].name
+    : (Array.isArray(movie.country) && movie.country[0]?.name ? movie.country[0].name : 'Phim Lẻ');
 
   // 5. Watch Later bookmark state
   const [isBookmarked, setIsBookmarked] = useState<boolean>(() => {
@@ -167,20 +167,6 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
     }
   };
 
-  // Language badge CSS class selection
-  const getLangClass = (): string => {
-    switch (langType) {
-      case 'vietsub':
-        return styles.badgeLangVietsub;
-      case 'thuyet-minh':
-        return styles.badgeLangThuyetMinh;
-      case 'long-tieng':
-        return styles.badgeLangLongTieng;
-      default:
-        return styles.badgeLangRaw;
-    }
-  };
-
   return (
     <Link
       href={`/movie/${slug}`}
@@ -210,7 +196,7 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
         <div className={styles.topFade} aria-hidden="true" />
         <div className={styles.bottomFade} aria-hidden="true" />
 
-        {/* Top-left Badges: Quality & Translation */}
+        {/* Top-left Badge: Quality Tier */}
         <div className={styles.badgesTopLeft}>
           <span className={`${styles.badgeQuality} ${getQualityClass()}`}>
             {(qualityTier === 'cam' || qualityTier === 'trailer') && (
@@ -218,11 +204,6 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
             )}
             {rawQuality}
           </span>
-          {langLabel && (
-            <span className={`${styles.badgeLang} ${getLangClass()}`}>
-              {langLabel}
-            </span>
-          )}
         </div>
 
         {/* Top-right Badge: Duration for Feature Movie */}
@@ -286,23 +267,10 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
           </p>
         )}
 
-        {/* Category Pills (up to 3 tags) */}
-        {Array.isArray(movie.category) && movie.category.length > 0 && (
-          <div className={styles.categoryPills}>
-            {movie.category.slice(0, 3).map((cat) => (
-              <span key={cat.slug || cat.name || cat.id} className={styles.categoryPill}>
-                {cat.name}
-              </span>
-            ))}
-          </div>
-        )}
-
         <div className={styles.cardFooterMeta}>
           <div className={styles.metaLeft}>
             <span className={styles.metaYear}>{yearText || '2026'}</span>
-            {Array.isArray(movie.country) && movie.country[0]?.name && (
-              <span className={styles.metaCountry}> • {movie.country[0].name}</span>
-            )}
+            <span className={styles.metaCategory}> • {primaryGenre}</span>
           </div>
           {ratingText && (
             <span className={styles.metaRating} title={`Điểm đánh giá: ${ratingText}/10`}>

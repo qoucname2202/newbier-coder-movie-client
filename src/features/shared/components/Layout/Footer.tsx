@@ -1,315 +1,305 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaHeart } from 'react-icons/fa';
+import Image from 'next/image';
+import {
+  FaEnvelope,
+  FaHeart,
+  FaFacebookF,
+  FaYoutube,
+  FaTiktok,
+  FaTelegramPlane,
+  FaDiscord,
+  FaArrowUp,
+  FaTv,
+  FaMobileAlt,
+  FaCrown,
+  FaFilm,
+  FaPaperPlane,
+  FaCheckCircle,
+  FaDesktop,
+  FaQuestionCircle,
+  FaBookmark,
+  FaSearch
+} from 'react-icons/fa';
+import styles from './Footer.module.css';
 
 /**
  * @file Footer.tsx
- * @description Application footer with brand, navigation links, and contact info.
+ * @description Master Cinema Application Footer.
+ * Refined 2-pillar architecture (Brand/Community & Help/Multi-Device),
+ * VIP newsletter subscription, high-contrast dark theme, and fully responsive across PC, tablet and mobile.
  */
 
 const Footer: React.FC = () => {
   const currentYear: number = new Date().getFullYear();
+  const [emailInput, setEmailInput] = useState<string>('');
+  const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+
+  const handleSubscribe = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    if (!emailInput.trim() || !emailInput.includes('@')) return;
+    setIsSubscribed(true);
+    setEmailInput('');
+    setTimeout(() => {
+      setIsSubscribed(false);
+    }, 5000);
+  };
+
+  const scrollToTop = (): void => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <footer className="footer">
-      <div className="container">
-        <div className="row">
-          <div className="col-lg-4 col-md-6 mb-4 mb-md-0">
-            <div className="footer-brand mb-3">
-              <img
+    <footer className={styles.footerWrapper} aria-label="Chân trang điện ảnh Phim Cinema">
+      {/* Ambient Crimson Top Lighting Beam */}
+      <div className={styles.topLightBeam} />
+
+      <div className={styles.footerContainer}>
+        {/* ==========================================================================
+            1. VIP CINEMA NEWSLETTER ROW
+            ========================================================================== */}
+        <div className={styles.newsletterCard}>
+          <div className={styles.newsletterContent}>
+            <div className={styles.newsletterIconBadge}>
+              <FaCrown />
+            </div>
+            <div>
+              <h3 className={styles.newsletterHeading}>Newbie Coder Movie</h3>
+              <p className={styles.newsletterSubtext}>
+                Nhận thông báo sớm nhất về các suất chiếu bom tấn 4K, phim bộ độc quyền & tập mới mỗi ngày.
+              </p>
+            </div>
+          </div>
+
+          {isSubscribed ? (
+            <div className={styles.newsletterToast}>
+              <FaCheckCircle />
+              <span>Cảm ơn bạn! Đã đăng ký nhận tin điện ảnh thành công.</span>
+            </div>
+          ) : (
+            <form className={styles.newsletterForm} onSubmit={handleSubscribe}>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="email"
+                  className={styles.newsletterInput}
+                  placeholder="Nhập địa chỉ email của bạn..."
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  required
+                  aria-label="Địa chỉ email nhận bản tin"
+                />
+              </div>
+              <button type="submit" className={styles.btnSubscribe}>
+                <span>Đăng Ký</span>
+                <FaPaperPlane />
+              </button>
+            </form>
+          )}
+        </div>
+
+        {/* ==========================================================================
+            2. BALANCED 2-PILLAR CORE GRID (BRAND & HELP/DEVICES)
+            ========================================================================== */}
+        <div className={styles.footerGrid}>
+          {/* Pillar 1: Brand & Cinema Experience */}
+          <div className={styles.brandColumn}>
+            <Link href="/" className={styles.brandLink} aria-label="Trang chủ Phim Cinema">
+              <Image
                 src="/img/phimlogo-removebg-preview.png"
-                alt="Logo"
-                className="footer-logo"
+                alt="Phim Cinema Logo"
+                className={styles.brandLogo}
+                width={150}
+                height={48}
+                unoptimized
               />
-            </div>
-            <p className="footer-description">
-              Phát triển bởi <strong>NewbieCoder Team</strong>. Nền tảng xem phim trực tuyến với hàng ngàn bộ phim mới và phổ biến từ nhiều quốc gia và nhiều thể loại khác nhau.
-              Trải nghiệm xem phim tuyệt vời với chất lượng cao.
+            </Link>
+
+            <p className={styles.brandDescription}>
+              Phát triển bởi <strong>NewbieCoder Team</strong>. Nền tảng xem phim trực tuyến hàng đầu
+              với hàng chục ngàn tựa phim bom tấn chiếu rạp, anime và series truyền hình chất lượng 4K Ultra HD.
+              Trải nghiệm rạp chiếu phim tại gia với âm thanh sống động và hình ảnh sắc nét.
             </p>
-            {/* <div className="social-links">
-              <a href="#" className="social-link"><FaFacebook /></a>
-              <a href="#" className="social-link"><FaTwitter /></a>
-              <a href="#" className="social-link"><FaInstagram /></a>
-              <a href="#" className="social-link"><FaYoutube /></a>
+
+            {/* Technology Badges */}
+            <div className={styles.techBadgePills}>
+              <span className={`${styles.cinemaPill} ${styles.cinemaPillRed}`}>
+                <FaFilm /> 4K Ultra HD
+              </span>
+              <span className={`${styles.cinemaPill} ${styles.cinemaPillGold}`}>
+                <FaCrown /> Dolby Atmos 7.1
+              </span>
+              <span className={`${styles.cinemaPill} ${styles.cinemaPillBlue}`}>
+                <FaTv /> Vietsub + Thuyết Minh
+              </span>
+              <span className={`${styles.cinemaPill} ${styles.cinemaPillGreen}`}>
+                <FaCheckCircle /> 100% Miễn Phí
+              </span>
             </div>
-            */}
+
+            {/* Social Channels */}
+            <div className={styles.communityBox}>
+              <p className={styles.communityTitle}>Cộng Đồng Điện Ảnh</p>
+              <div className={styles.socialRow} aria-label="Mạng xã hội">
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.socialBtn}
+                  title="Theo dõi chúng tôi trên Facebook"
+                  aria-label="Facebook"
+                >
+                  <FaFacebookF />
+                </a>
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.socialBtn}
+                  title="Kênh YouTube Phim Cinema"
+                  aria-label="YouTube"
+                >
+                  <FaYoutube />
+                </a>
+                <a
+                  href="https://tiktok.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.socialBtn}
+                  title="TikTok Official"
+                  aria-label="TikTok"
+                >
+                  <FaTiktok />
+                </a>
+                <a
+                  href="https://telegram.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.socialBtn}
+                  title="Cộng đồng Telegram"
+                  aria-label="Telegram"
+                >
+                  <FaTelegramPlane />
+                </a>
+                <a
+                  href="https://discord.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.socialBtn}
+                  title="Máy chủ Discord"
+                  aria-label="Discord"
+                >
+                  <FaDiscord />
+                </a>
+              </div>
+            </div>
           </div>
 
-          <div className="col-lg-2 col-md-6 mb-4 mb-md-0">
-            <h5 className="footer-heading">Liên kết</h5>
-            <ul className="footer-links">
-              <li><Link href="/">Trang chủ</Link></li>
-              <li><Link href="/movies">Phim lẻ</Link></li>
-              <li><Link href="/series">Phim bộ</Link></li>
-              <li><Link href="/search">Tìm kiếm</Link></li>
-              <li><Link href="/user/favorites">Yêu thích</Link></li>
-              <li><Link href="/user/watch-later">Xem sau</Link></li>
-            </ul>
-          </div>
+          {/* Pillar 2: Help, Utilities & Multi-Device */}
+          <div className={styles.supportColumn}>
+            <h4 className={styles.columnHeader}>
+              <span className={styles.columnHeaderIcon}>💡</span>
+              <span>Trợ Giúp & Tiện Ích</span>
+            </h4>
 
-          <div className="col-lg-2 col-md-6 mb-4 mb-md-0">
-            <h5 className="footer-heading">Thể loại</h5>
-            <ul className="footer-links">
-              <li><Link href="/search?category=Hành Động">Hành Động</Link></li>
-              <li><Link href="/search?category=Tình Cảm">Tình Cảm</Link></li>
-              <li><Link href="/search?category=Hài Hước">Hài Hước</Link></li>
-              <li><Link href="/search?category=Kinh Dị">Kinh Dị</Link></li>
-              <li><Link href="/search?category=Viễn Tưởng">Viễn Tưởng</Link></li>
-              <li><Link href="/search?category=Hoạt Hình">Hoạt Hình</Link></li>
-            </ul>
-          </div>
+            {/* Quick Navigation Chips */}
+            <div className={styles.quickLinksGrid}>
+              <Link href="/faq" className={styles.quickChip}>
+                <FaQuestionCircle className={styles.quickChipIcon} />
+                <span>Trung Tâm Trợ Giúp & FAQ</span>
+              </Link>
+              <Link href="/user/favorites" className={styles.quickChip}>
+                <FaHeart className={styles.quickChipIcon} />
+                <span>Danh Sách Phim Yêu Thích</span>
+              </Link>
+              <Link href="/user/watch-later" className={styles.quickChip}>
+                <FaBookmark className={styles.quickChipIcon} />
+                <span>Danh Sách Xem Sau</span>
+              </Link>
+              <Link href="/search" className={styles.quickChip}>
+                <FaSearch className={styles.quickChipIcon} />
+                <span>Tìm Kiếm Phim Nâng Cao</span>
+              </Link>
+            </div>
 
-          <div className="col-lg-4 col-md-6">
-            <h5 className="footer-heading">Liên hệ</h5>
-            <ul className="contact-info">
-              <li>
-                <FaMapMarkerAlt className="contact-icon" />
-                <span>Hồ Chí Minh</span>
-              </li>
-              <li>
-                <FaEnvelope className="contact-icon" />
-                <span>Support: <a href="mailto:duongquocnam224400@gmail.com" className="support-email">duongquocnam224400@gmail.com</a></span>
-              </li>
-            </ul>
-            {/* newsletter removed */}
+            {/* Multi-Device Support Card */}
+            <div className={styles.deviceCard}>
+              <div className={styles.deviceTitleRow}>
+                <p className={styles.deviceTitle}>Tối Ưu Cho Mọi Thiết Bị</p>
+                <span className={styles.deviceStatusDot}>Sẵn Sàng</span>
+              </div>
+              <div className={styles.deviceGrid}>
+                <div className={styles.deviceItem}>
+                  <FaTv />
+                  <span>Smart TV & Android Box</span>
+                </div>
+                <div className={styles.deviceItem}>
+                  <FaMobileAlt />
+                  <span>Điện Thoại & Tablet</span>
+                </div>
+                <div className={styles.deviceItem}>
+                  <FaDesktop />
+                  <span>Máy Tính & Laptop 4K</span>
+                </div>
+                <div className={styles.deviceItem}>
+                  <FaFilm />
+                  <span>Chromecast & AirPlay</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Direct Support Contact */}
+            <div className={styles.contactBox}>
+              <span className={styles.contactLabel}>Hỗ trợ kỹ thuật 24/7:</span>
+              <a href="mailto:duongquocnam224400@gmail.com" className={styles.contactEmailLink}>
+                <FaEnvelope className="text-danger" />
+                <span>duongquocnam224400@gmail.com</span>
+              </a>
+            </div>
           </div>
         </div>
 
-        <hr className="footer-divider" />
+        {/* Divider */}
+        <div className={styles.footerDivider} />
 
-        <div className="footer-bottom">
-          <p className="copyright">
-            &copy; {currentYear} <strong>NewbieCoder Team</strong>. All rights reserved. Made with <FaHeart className="heart-icon" /> in Vietnam
+        {/* ==========================================================================
+            3. BOTTOM SECTION: LEGAL, DISCLAIMER & COPYRIGHT
+            ========================================================================== */}
+        <div className={styles.footerBottomSection}>
+          <p className={styles.disclaimerText}>
+            <strong>Tuyên bố miễn trừ trách nhiệm:</strong> NewbieCoder Cinema là nền tảng chia sẻ và
+            trải nghiệm phim trực tuyến phi thương mại phục vụ học tập và nghiên cứu công nghệ. Toàn bộ
+            nội dung video được thu thập và tổng hợp tự động từ các nguồn công khai trên mạng internet.
           </p>
-          <div className="footer-bottom-links">
-            <Link href="/privacy-policy">Chính sách bảo mật</Link>
-            <Link href="/terms-of-service">Điều khoản sử dụng</Link>
-            <Link href="/faq">FAQ</Link>
+
+          <div className={styles.bottomBarRow}>
+            <p className={styles.copyrightWrap}>
+              &copy; {currentYear} <strong>NewbieCoder Team</strong>. All rights reserved.
+              Thực hiện với <FaHeart className={styles.pulsingHeart} /> tại Việt Nam.
+            </p>
+
+            <div className={styles.legalLinksGroup}>
+              <Link href="/privacy-policy" className={styles.legalLink}>Chính sách bảo mật</Link>
+              <span className={styles.dotSep}>•</span>
+              <Link href="/terms-of-service" className={styles.legalLink}>Điều khoản dịch vụ</Link>
+              <span className={styles.dotSep}>•</span>
+              <Link href="/faq" className={styles.legalLink}>Bản quyền DMCA</Link>
+            </div>
+
+            <button
+              type="button"
+              className={styles.btnBackToTop}
+              onClick={scrollToTop}
+              title="Cuộn lên đầu trang"
+              aria-label="Cuộn lên đầu trang"
+            >
+              <span>Lên đầu trang</span>
+              <FaArrowUp />
+            </button>
           </div>
         </div>
       </div>
-
-      <style jsx global>{`
-        .footer {
-          background-color: #141414;
-          color: #FFFFFF;
-          padding: 50px 0 calc(20px + env(safe-area-inset-bottom, 0px));
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-          width: 100%;
-          position: relative;
-          z-index: 10;
-        }
-
-        .footer-brand {
-          display: flex;
-          align-items: center;
-        }
-
-        .footer-logo {
-          width: 150px;
-          height: auto;
-        }
-
-        .footer-description {
-          color: #AAAAAA;
-          margin-bottom: 20px;
-          font-size: 14px;
-          line-height: 1.6;
-        }
-
-        .social-links {
-          display: flex;
-          gap: 15px;
-          margin-bottom: 20px;
-        }
-
-        .social-link {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 36px;
-          height: 36px;
-          background-color: rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
-          color: white;
-          transition: all 0.3s ease;
-        }
-
-        .social-link:hover {
-          background-color: #e50914;
-          transform: translateY(-3px);
-        }
-
-        .footer-heading {
-          color: white;
-          font-weight: 700;
-          margin-bottom: 20px;
-          font-size: 18px;
-          position: relative;
-          padding-bottom: 10px;
-        }
-
-        .footer-heading:after {
-          content: '';
-          position: absolute;
-          left: 0;
-          bottom: 0;
-          width: 40px;
-          height: 2px;
-          background-color: #e50914;
-        }
-
-        .footer-links {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-        }
-
-        .footer-links li {
-          margin-bottom: 10px;
-        }
-
-        .footer-links a {
-          color: #AAAAAA;
-          text-decoration: none;
-          transition: color 0.3s ease;
-          font-size: 14px;
-        }
-
-        .footer-links a:hover {
-          color: #e50914;
-        }
-
-        .contact-info {
-          list-style: none;
-          padding: 0;
-          margin: 0 0 20px 0;
-        }
-
-        .contact-info li {
-          display: flex;
-          align-items: center;
-          margin-bottom: 15px;
-          color: #AAAAAA;
-          font-size: 14px;
-        }
-
-        .contact-icon {
-          color: #e50914;
-          margin-right: 10px;
-          font-size: 16px;
-        }
-
-        .newsletter h6 {
-          font-size: 16px;
-          margin-bottom: 15px;
-          color: white;
-        }
-
-        .newsletter-form {
-          display: flex;
-        }
-
-        .newsletter-form input {
-          flex: 1;
-          padding: 10px 15px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background-color: rgba(255, 255, 255, 0.05);
-          border-radius: 4px 0 0 4px;
-          color: white;
-        }
-
-        .newsletter-form button {
-          padding: 10px 20px;
-          background-color: #e50914;
-          border: none;
-          color: white;
-          border-radius: 0 4px 4px 0;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-        }
-
-        .newsletter-form button:hover {
-          background-color: #b20710;
-        }
-
-        .footer-divider {
-          margin: 30px 0;
-          border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .footer-bottom {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-        }
-
-        .copyright {
-          color: #AAAAAA;
-          font-size: 14px;
-          margin: 0;
-        }
-
-        .heart-icon {
-          color: #e50914;
-          margin: 0 4px;
-          animation: beat 1s infinite alternate;
-          display: inline-block;
-        }
-
-        @keyframes beat {
-          to {
-            transform: scale(1.3);
-          }
-        }
-
-        .support-email {
-          color: #e6edf3;
-          text-decoration: none;
-          word-break: break-all;
-          transition: color 0.2s ease;
-        }
-
-        .support-email:hover {
-          color: #e50914;
-          text-decoration: underline;
-        }
-
-        .footer-bottom-links {
-          display: flex;
-          gap: 20px;
-        }
-
-        .footer-bottom-links a {
-          color: #AAAAAA;
-          font-size: 14px;
-          text-decoration: none;
-          transition: color 0.3s ease;
-        }
-
-        .footer-bottom-links a:hover {
-          color: #e50914;
-        }
-
-        @media (max-width: 768px) {
-          .footer-bottom {
-            flex-direction: column;
-            text-align: center;
-            gap: 15px;
-          }
-
-          .footer-bottom-links {
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-          }
-
-          .contact-info li {
-            word-break: break-word;
-          }
-        }
-      `}</style>
     </footer>
   );
 };
