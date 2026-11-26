@@ -106,8 +106,8 @@ export const MAIN_NAV_ITEMS: NavbarNavItem[] = [
     id: 'phim-bo',
     label: 'Phim Bộ',
     type: 'link',
-    href: ROUTES.SERIES,
-    matchPrefix: '/series'
+    href: '/formats/phim-bo/movies?page=1&limit=20',
+    matchPrefix: '/formats/phim-bo'
   },
   {
     id: 'country',
@@ -190,8 +190,10 @@ export const NAVBAR_SEARCH_CONFIG = {
   placeholder: 'Tìm phim, diễn viên...'
 } as const;
 
-export default {
+const navigationConfig = {
   MAIN_NAV_ITEMS,
   USER_NAV_ITEMS,
   NAVBAR_SEARCH_CONFIG
 };
+
+export default navigationConfig;

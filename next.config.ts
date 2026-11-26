@@ -71,8 +71,10 @@ const nextConfig: NextConfig = {
       { source: "/", destination: "/client" },
       // Formats
       { source: "/formats/:slug/movies", destination: "/client/formats/:slug" },
+      { source: "/formats/:slug", destination: "/client/formats/:slug" },
       { source: "/dinh-dang/:slug/movies", destination: "/client/formats/:slug" },
       { source: "/browse/movies", destination: "/client/formats/phim-le" },
+      { source: "/browse/series", destination: "/client/formats/phim-bo" },
       // Browse
       { source: "/browse/:path*", destination: "/client/browse/:path*" },
       // Country / Genre (dynamic slug)
