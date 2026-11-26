@@ -24,7 +24,9 @@ import watchLaterService from '@/API/services/watchLaterService';
 import {
   formatDuration,
   getQualityTier,
-  type QualityTier
+  getLanguageType,
+  type QualityTier,
+  type LanguageType
 } from '../utils/formatHelpers';
 import type { FormatMovieItem } from '../types/format.types';
 import styles from '@/styles/FormatPage.module.css';
@@ -55,7 +57,20 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
     }
   };
 
-  // 1. Duration badge (Priority for feature movies - NEVER display "...")
+  // 1. Episode badge (Primary for series / Phim Bộ)
+  const rawEpisode = movie.episodeCurrent || movie.episode_current;
+  const episodeBadgeText =
+    rawEpisode &&
+    typeof rawEpisode === 'string' &&
+    rawEpisode.trim() &&
+    rawEpisode.trim() !== '...' &&
+    rawEpisode.trim() !== '..' &&
+    rawEpisode.trim() !== '.' &&
+    rawEpisode.toLowerCase() !== 'null'
+      ? rawEpisode.trim()
+      : null;
+
+  // Duration badge (Priority for feature movies - NEVER display "...")
   const rawDuration = movie.duration || (movie.time as string) || (movie.runtime as string);
   const formattedDuration = formatDuration(rawDuration, 'Full');
 
@@ -65,6 +80,7 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
 
   // 3. Language badge
   const langLabel = movie.lang ? String(movie.lang) : 'Vietsub';
+  const langType: LanguageType = getLanguageType(movie.lang);
 
   // 4. Rating
   const rawRating = Number(
@@ -73,9 +89,10 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
   const ratingText = rawRating > 0 ? rawRating.toFixed(1) : null;
 
   // 5. Genre / Primary Category name for clean footer
+  const defaultFormatName = episodeBadgeText ? 'Phim Bộ' : 'Phim Lẻ';
   const primaryGenre = Array.isArray(movie.category) && movie.category[0]?.name
     ? movie.category[0].name
-    : (Array.isArray(movie.country) && movie.country[0]?.name ? movie.country[0].name : 'Phim Lẻ');
+    : (Array.isArray(movie.country) && movie.country[0]?.name ? movie.country[0].name : defaultFormatName);
 
   // 5. Watch Later bookmark state
   const [isBookmarked, setIsBookmarked] = useState<boolean>(() => {
@@ -167,6 +184,22 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
     }
   };
 
+  // Language badge CSS class selection
+  const getLanguageClass = (): string => {
+    switch (langType) {
+      case 'vietsub':
+        return styles.badgeLangVietsub;
+      case 'thuyet-minh':
+        return styles.badgeLangThuyetMinh;
+      case 'long-tieng':
+        return styles.badgeLangLongTieng;
+      case 'raw':
+        return styles.badgeLangRaw;
+      default:
+        return styles.badgeLangVietsub;
+    }
+  };
+
   return (
     <Link
       href={`/movie/${slug}`}
@@ -196,7 +229,7 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
         <div className={styles.topFade} aria-hidden="true" />
         <div className={styles.bottomFade} aria-hidden="true" />
 
-        {/* Top-left Badge: Quality Tier */}
+        {/* Top-left Badges: Quality Tier & Language */}
         <div className={styles.badgesTopLeft}>
           <span className={`${styles.badgeQuality} ${getQualityClass()}`}>
             {(qualityTier === 'cam' || qualityTier === 'trailer') && (
@@ -204,15 +237,24 @@ export const FormatMovieCard: React.FC<FormatMovieCardProps> = ({ movie, onPlayT
             )}
             {rawQuality}
           </span>
+          {langLabel && (
+            <span className={`${styles.badgeLang} ${getLanguageClass()}`}>
+              {langLabel}
+            </span>
+          )}
         </div>
 
-        {/* Top-right Badge: Duration for Feature Movie */}
-        {formattedDuration && (
+        {/* Top-right Badge: Episode for Series, or Duration for Feature Movie */}
+        {episodeBadgeText ? (
+          <span className={styles.badgeEpisodeTopRight} title={`Tập: ${episodeBadgeText}`}>
+            {episodeBadgeText}
+          </span>
+        ) : formattedDuration ? (
           <span className={styles.badgeDurationTopRight} title={`Thời lượng: ${formattedDuration}`}>
             <FaClock className={styles.clockIcon} aria-hidden="true" />
             <span>{formattedDuration}</span>
           </span>
-        )}
+        ) : null}
 
         {/* Bookmark (Watch Later) Button */}
         <button

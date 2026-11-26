@@ -1,8 +1,9 @@
 /**
  * @file SimilarMoviesSection.module.css
- * @description Cinema Dark styling for the 4-item carousel with smooth GPU animation,
+ * @description Cinema Dark styling for the movie carousel with smooth GPU animation,
  * full-perimeter animated neon border, unclipped card hover elevation,
- * left-aligned filter tabs, right-pinned navigation, and dead-center play icon.
+ * mobile-first responsive architecture, sleek iOS-compatible indicator dots,
+ * and horizontal touch-scroll filter tabs.
  */
 
 .sectionContainer {
@@ -17,104 +18,30 @@
   overflow: hidden;
 }
 
-@media (max-width: 576px) {
-  .sectionContainer {
-    padding: 16px 12px;
-    overflow: hidden;
-  }
-
-  .sectionHeading {
-    font-size: 1.05rem;
-  }
-
-  .headerRow {
-    gap: 12px;
-  }
-
-  .filterTabs {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 2px;
-    width: 100%;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .filterBtn {
-    flex-shrink: 0;
-    min-height: 32px;
-  }
-
-  .navArrows {
-    margin-left: 0;
-  }
-
-  .navBtn {
-    width: 38px;
-    height: 38px;
-  }
-
-  .metaContainer {
-    min-height: 60px;
-  }
-}
-
-@media (max-width: 412px) {
-  .sectionContainer {
-    padding: 14px 10px;
-  }
-
-  .headerRow {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .headerLeftCol {
-    width: 100%;
-  }
-
-  .sectionHeading {
-    font-size: 0.98rem;
-  }
-
-  .navBtn {
-    width: 32px;
-    height: 32px;
-  }
-
-  .metaContainer {
-    min-height: 52px;
-  }
-
-  .movieTitle {
-    font-size: 0.8rem;
-  }
-}
-
-/* Header: Left Side (Title + Filter Tabs) & Far Right (Nav Arrows) */
+/* Header Row: Title Area + Nav Arrows + Filter Tabs */
 .headerRow {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: column;
+  gap: 14px;
   margin-bottom: 22px;
   padding-bottom: 14px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.headerLeftCol {
+.headerTopBar {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
 }
 
 .titleArea {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .badgeRow {
@@ -154,26 +81,38 @@
   line-height: 1.4;
 }
 
-/* Filter Tabs: Pinned to Left */
+/* Filter Tabs: Horizontally scrollable chips with hidden scrollbar */
 .filterTabs {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
   justify-content: flex-start;
+  width: 100%;
+  padding-bottom: 2px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.filterTabs::-webkit-scrollbar {
+  display: none;
 }
 
 .filterBtn {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #8b949e;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .filterBtn:hover {
@@ -188,13 +127,12 @@
   font-weight: 700;
 }
 
-/* Carousel Navigation Arrows: Pinned Flush on Far Right */
+/* Carousel Navigation Arrows */
 .navArrows {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
-  align-self: flex-end;
+  flex-shrink: 0;
 }
 
 .navBtn {
@@ -210,6 +148,7 @@
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
 }
 
 .navBtn:hover:not(:disabled) {
@@ -226,7 +165,7 @@
   transform: none;
 }
 
-/* Carousel Viewport: Ample vertical padding prevents clipping of hover border and corners */
+/* Carousel Viewport */
 .carouselViewport {
   width: 100%;
   overflow: hidden;
@@ -244,39 +183,13 @@
   width: 100%;
 }
 
-@media (max-width: 991px) {
-  .carouselTrack {
-    gap: 14px;
-  }
-}
-
-@media (max-width: 576px) {
-  .carouselTrack {
-    gap: 10px;
-  }
-}
-
-/* Exactly 4 Items Per Row on Desktop, 3 on Tablet, 2 on Mobile */
+/* Responsive Items Per Row: 4 desktop, 3 tablet, 2 mobile */
 .carouselItem {
   flex: 0 0 calc((100% - 3 * 16px) / 4);
   width: calc((100% - 3 * 16px) / 4);
   min-width: 0;
   box-sizing: border-box;
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-@media (max-width: 991px) {
-  .carouselItem {
-    flex: 0 0 calc((100% - 2 * 14px) / 3);
-    width: calc((100% - 2 * 14px) / 3);
-  }
-}
-
-@media (max-width: 576px) {
-  .carouselItem {
-    flex: 0 0 calc((100% - 10px) / 2);
-    width: calc((100% - 10px) / 2);
-  }
 }
 
 .cardLink {
@@ -287,7 +200,7 @@
   height: 100%;
 }
 
-/* Poster Container with Locked 2:3 Aspect Ratio and True Radial Mask Clipping */
+/* Poster Container with Locked 2:3 Aspect Ratio */
 .posterContainer {
   position: relative;
   width: 100%;
@@ -322,12 +235,6 @@
   }
 }
 
-/* Card Hover Elevation: Retains all 4 borders and all 4 rounded corners completely */
-.carouselItem:hover .posterContainer {
-  animation: neonBorderPulse 2.2s infinite ease-in-out;
-  transform: translateY(-6px);
-}
-
 /* Ambient Blur Layer for Landscape Fallbacks */
 .posterBlurBg {
   position: absolute;
@@ -341,7 +248,7 @@
   z-index: 0;
 }
 
-/* Sharp Top-Centered Foreground Image (Always fills 100% of 2:3 frame with rounded corners) */
+/* Sharp Top-Centered Foreground Image */
 .posterImage {
   position: absolute;
   inset: 0;
@@ -356,10 +263,6 @@
   display: block;
 }
 
-.carouselItem:hover .posterImage {
-  transform: scale(1.08);
-}
-
 .posterOverlay {
   position: absolute;
   inset: 0;
@@ -370,7 +273,7 @@
   z-index: 2;
 }
 
-/* Floating Quality Badge */
+/* Quality Badge */
 .topBadgesRow {
   position: absolute;
   top: 8px;
@@ -383,14 +286,17 @@
 }
 
 .qualityBadge {
-  background: rgba(0, 0, 0, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 215, 0, 0.35);
   color: #ffd700;
   font-size: 0.62rem;
   font-weight: 800;
   padding: 2px 6px;
   border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.04em;
 }
 
 .bottomBadgeWrap {
@@ -402,14 +308,17 @@
 }
 
 .epBadge {
-  background: rgba(229, 9, 20, 0.9);
+  background: rgba(229, 9, 20, 0.92);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   color: #ffffff;
-  font-size: 0.65rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  padding: 2.5px 7px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.45);
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
 /* Hover Action Overlay */
@@ -428,11 +337,7 @@
   z-index: 4;
 }
 
-.carouselItem:hover .hoverOverlay {
-  opacity: 1;
-}
-
-/* Play Trailer Full Area Button */
+/* Play Trailer Button */
 .playTrailerBtn {
   background: none;
   border: none;
@@ -452,7 +357,6 @@
   pointer-events: none;
 }
 
-/* Play Icon Circle: Perfectly centered play icon with optical centroid compensation */
 .playIconCircle {
   width: 48px;
   height: 48px;
@@ -480,100 +384,186 @@
   line-height: 1;
 }
 
-.playTrailerBtn:hover .playIconCircle {
-  transform: scale(1.1);
-  box-shadow: 0 0 30px rgba(229, 9, 20, 1);
-}
-
 .hoverPlayText {
   color: #ffffff;
   font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-/* Uniform Metadata Block (Locked Min-Height) */
+/* Metadata Block: Streamlined 2-tier architecture (Title + Balanced Left/Right Meta) */
 .metaContainer {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 0 2px;
-  min-height: 68px;
+  gap: 4px;
+  padding: 4px 2px 0;
+  min-height: 44px;
 }
 
 .movieTitle {
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #f3f4f6;
   margin: 0;
+  line-height: 1.35;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: color 0.2s ease;
 }
 
-.carouselItem:hover .movieTitle {
-  color: #ff4d5a;
-}
-
 .metaRow {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: 0.7rem;
-  color: #8b949e;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: nowrap !important;
+  font-size: 0.72rem;
+  line-height: 1;
 }
 
 .ratingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
   color: #f5c518;
   font-weight: 700;
+  white-space: nowrap !important;
+  flex-shrink: 0;
 }
 
+.starIcon {
+  color: #f5c518;
+  font-size: 0.74rem;
+  line-height: 1;
+}
+
+.yearBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+/* Backward compatibility aliases */
 .yearText {
-  color: #8b949e;
+  color: #9ca3af;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap !important;
 }
 
 .durationText {
-  color: #6e7681;
+  display: none !important;
 }
 
 .originTitle {
-  font-size: 0.68rem;
-  color: #6e7681;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: none !important;
 }
 
-/* Page Dots Navigation */
+/* Page Dots Navigation: Accessible touch button with inner circular dot / animated pill */
 .pageDotsRow {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   margin-top: 18px;
+  padding: 4px 0;
+  width: 100%;
 }
 
+.pageDotBtn,
 .pageDot {
-  width: 20px;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.18);
-  border: none;
+  all: unset;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 3px !important;
+  margin: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
+  line-height: 0 !important;
+  font-size: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.pageDot:hover {
-  background: rgba(255, 255, 255, 0.4);
+.pageDotBtn:focus,
+.pageDotBtn:active,
+.pageDot:focus,
+.pageDot:active {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
+.pageDotCircle,
+.pageDotBar {
+  display: block !important;
+  width: 5px;
+  height: 5px;
+  min-width: 5px;
+  min-height: 5px;
+  max-height: 5px;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.28) !important;
+  pointer-events: none;
+  transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-radius 0.35s ease,
+              background 0.3s ease,
+              box-shadow 0.3s ease,
+              transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: width, transform, background, box-shadow;
+}
+
+.pageDotBtn:hover .pageDotCircle,
+.pageDotBtn:hover .pageDotBar,
+.pageDot:hover .pageDotCircle,
+.pageDot:hover .pageDotBar {
+  background: rgba(255, 255, 255, 0.55) !important;
+  transform: scale(1.25);
+}
+
+.pageDotBtnActive .pageDotCircle,
+.pageDotBtnActive .pageDotBar,
+.pageDotActive .pageDotCircle,
+.pageDotActive .pageDotBar {
+  width: 16px !important;
+  height: 5px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(90deg, #ff2442, #e50914) !important;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.85),
+              0 0 2px rgba(255, 255, 255, 0.4) !important;
+  transform: scale(1);
+}
+
+/* Fallback direct reset styles for legacy classes */
 .pageDotActive {
-  width: 32px;
-  background: #e50914;
-  box-shadow: 0 0 8px rgba(229, 9, 20, 0.6);
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Skeleton Loading Grid */
@@ -592,21 +582,182 @@
   animation: shimmer 1.5s infinite;
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* =========================================================================
+   DESKTOP ONLY HOVER EFFECTS (Prevents sticky hover bug on touch/iOS)
+   ========================================================================= */
+@media (hover: hover) and (pointer: fine) {
+  .carouselItem:hover .posterContainer {
+    animation: neonBorderPulse 2.2s infinite ease-in-out;
+    transform: translateY(-6px);
+  }
+
+  .carouselItem:hover .posterImage {
+    transform: scale(1.08);
+  }
+
+  .carouselItem:hover .hoverOverlay {
+    opacity: 1;
+  }
+
+  .carouselItem:hover .movieTitle {
+    color: #ff4d5a;
+  }
+
+  .playTrailerBtn:hover .playIconCircle {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(229, 9, 20, 1);
+  }
+}
+
+/* =========================================================================
+   RESPONSIVE MEDIA QUERIES (Applied in correct CSS cascade order)
+   ========================================================================= */
+
+/* Tablet (max-width: 991px) */
 @media (max-width: 991px) {
+  .carouselTrack {
+    gap: 14px;
+  }
+
+  .carouselItem {
+    flex: 0 0 calc((100% - 2 * 14px) / 3);
+    width: calc((100% - 2 * 14px) / 3);
+  }
+
   .skeletonCard {
     flex: 0 0 calc((100% - 2 * 14px) / 3);
   }
 }
 
+/* Mobile & Phablet (max-width: 576px) - includes iPhone 12 Pro Max (428px) */
 @media (max-width: 576px) {
+  .sectionContainer {
+    padding: 16px 12px;
+  }
+
+  .headerRow {
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+  }
+
+  .headerTopBar {
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sectionHeading {
+    font-size: 1.05rem;
+  }
+
+  .sectionSubheading {
+    font-size: 0.72rem;
+  }
+
+  .filterTabs {
+    gap: 6px;
+    padding-bottom: 2px;
+  }
+
+  .filterBtn {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    min-height: 28px;
+  }
+
+  .navBtn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  .carouselTrack {
+    gap: 10px;
+  }
+
+  .carouselItem {
+    flex: 0 0 calc((100% - 10px) / 2);
+    width: calc((100% - 10px) / 2);
+  }
+
   .skeletonCard {
     flex: 0 0 calc((100% - 10px) / 2);
   }
+
+  .metaContainer {
+    min-height: 40px;
+    gap: 3px;
+    padding-top: 2px;
+  }
+
+  .movieTitle {
+    font-size: 0.8rem;
+  }
+
+  .metaRow {
+    font-size: 0.68rem;
+  }
+
+  .ratingBadge {
+    font-size: 0.68rem;
+    gap: 3px;
+  }
+
+  .starIcon {
+    font-size: 0.68rem;
+  }
+
+  .yearBadge {
+    font-size: 0.62rem;
+    padding: 1px 4.5px;
+  }
+
+  .pageDotsRow {
+    gap: 3px;
+    margin-top: 14px;
+    padding: 2px 0;
+  }
+
+  .pageDotBtn,
+  .pageDot {
+    padding: 7px 2px !important;
+  }
+
+  .pageDotCircle,
+  .pageDotBar {
+    width: 4px;
+    height: 4px;
+    min-width: 4px;
+    min-height: 4px;
+    max-height: 4px;
+  }
+
+  .pageDotBtnActive .pageDotCircle,
+  .pageDotBtnActive .pageDotBar,
+  .pageDotActive .pageDotCircle,
+  .pageDotActive .pageDotBar {
+    width: 14px !important;
+    height: 4px !important;
+  }
 }
 
+/* Small Mobile (max-width: 374px) */
 @media (max-width: 374px) {
   .sectionContainer {
     padding: 12px 8px;
+  }
+
+  .sectionHeading {
+    font-size: 0.95rem;
   }
 
   .carouselTrack {
@@ -622,23 +773,7 @@
     flex: 0 0 calc((100% - 8px) / 2);
   }
 
-  .filterTab {
-    font-size: 0.72rem;
-    padding: 4px 8px;
-  }
-
-  .navBtn {
-    width: 32px;
-    height: 32px;
-    font-size: 0.82rem;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
+  .metaContainer {
+    min-height: 38px;
   }
 }

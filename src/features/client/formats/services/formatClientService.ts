@@ -7,6 +7,7 @@
 import { apiPath } from '@/config/apiPaths';
 import { getApiBaseUrl } from '@/config/apiBase';
 import { isSessionTerminated, getAccessToken, ensureFreshToken, handleSessionHardFailure } from '@/auth/authToken';
+import { AppError, parseApiError } from '@/utils/errors/appError';
 import {
   formatQueryParamsSchema,
   formatMoviesApiResponseSchema,
@@ -103,7 +104,11 @@ export class FormatClientService {
       }
 
       if (!response.ok) {
-        return emptyFallback;
+        throw new AppError(
+          `Không thể tải danh sách phim (${response.status})`,
+          response.status,
+          'FETCH_FORMAT_ERROR'
+        );
       }
 
       const json: unknown = await response.json();
@@ -128,8 +133,14 @@ export class FormatClientService {
       }
 
       return emptyFallback;
-    } catch {
-      return emptyFallback;
+    } catch (err: unknown) {
+      if (signal?.aborted) {
+        return emptyFallback;
+      }
+      if (err instanceof AppError) {
+        throw err;
+      }
+      throw parseApiError(err, 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
     }
   }
 }

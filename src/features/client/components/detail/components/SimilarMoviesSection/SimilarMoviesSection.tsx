@@ -209,9 +209,9 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* 1. Header with Title on Left, Filter Tabs on Left, and Navigation Arrows Flush on Right */}
+      {/* 1. Header with Title on Left, Navigation Arrows on Right, and Filter Tabs Below */}
       <div className={styles.headerRow}>
-        <div className={styles.headerLeftCol}>
+        <div className={styles.headerTopBar}>
           <div className={styles.titleArea}>
             <div className={styles.badgeRow}>
               <span className={styles.glowDot} />
@@ -223,62 +223,62 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
             </p>
           </div>
 
-          {/* Filter Tabs: Pinned to the Left side per user requirement */}
-          <div className={styles.filterTabs}>
-            <button
-              type="button"
-              className={`${styles.filterBtn} ${activeTab === 'all' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveTab('all')}
-            >
-              Tất cả ({internalMovies.length})
-            </button>
-            <button
-              type="button"
-              className={`${styles.filterBtn} ${activeTab === 'topRated' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveTab('topRated')}
-            >
-              Đánh giá cao
-            </button>
-            <button
-              type="button"
-              className={`${styles.filterBtn} ${activeTab === 'series' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveTab('series')}
-            >
-              Phim bộ
-            </button>
-            <button
-              type="button"
-              className={`${styles.filterBtn} ${activeTab === 'single' ? styles.filterBtnActive : ''}`}
-              onClick={() => setActiveTab('single')}
-            >
-              Phim lẻ
-            </button>
-          </div>
+          {/* Carousel Arrow Navigation: Pinned on Far Right */}
+          {totalPages > 1 && (
+            <div className={styles.navArrows}>
+              <button
+                type="button"
+                className={styles.navBtn}
+                onClick={handlePrev}
+                title="Xem trang trước"
+                aria-label="Xem trang trước"
+              >
+                <i className="fas fa-chevron-left" />
+              </button>
+              <button
+                type="button"
+                className={styles.navBtn}
+                onClick={handleNext}
+                title="Xem trang tiếp theo"
+                aria-label="Xem trang tiếp theo"
+              >
+                <i className="fas fa-chevron-right" />
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Carousel Arrow Navigation: Pinned on Far Right */}
-        {totalPages > 1 && (
-          <div className={styles.navArrows}>
-            <button
-              type="button"
-              className={styles.navBtn}
-              onClick={handlePrev}
-              title="Xem trang trước"
-              aria-label="Xem trang trước"
-            >
-              <i className="fas fa-chevron-left" />
-            </button>
-            <button
-              type="button"
-              className={styles.navBtn}
-              onClick={handleNext}
-              title="Xem trang tiếp theo"
-              aria-label="Xem trang tiếp theo"
-            >
-              <i className="fas fa-chevron-right" />
-            </button>
-          </div>
-        )}
+        {/* Filter Tabs: Horizontally scrollable chips */}
+        <div className={styles.filterTabs}>
+          <button
+            type="button"
+            className={`${styles.filterBtn} ${activeTab === 'all' ? styles.filterBtnActive : ''}`}
+            onClick={() => setActiveTab('all')}
+          >
+            Tất cả ({internalMovies.length})
+          </button>
+          <button
+            type="button"
+            className={`${styles.filterBtn} ${activeTab === 'topRated' ? styles.filterBtnActive : ''}`}
+            onClick={() => setActiveTab('topRated')}
+          >
+            Đánh giá cao
+          </button>
+          <button
+            type="button"
+            className={`${styles.filterBtn} ${activeTab === 'series' ? styles.filterBtnActive : ''}`}
+            onClick={() => setActiveTab('series')}
+          >
+            Phim bộ
+          </button>
+          <button
+            type="button"
+            className={`${styles.filterBtn} ${activeTab === 'single' ? styles.filterBtnActive : ''}`}
+            onClick={() => setActiveTab('single')}
+          >
+            Phim lẻ
+          </button>
+        </div>
       </div>
 
       {/* 2. Loading State */}
@@ -309,14 +309,14 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
               );
               const episodeText = formatEpisodeProgress(movie as unknown as RecommendedMovie);
 
-              // Safe rating parsing
-              const safeRating = (() => {
-                if (typeof movie.rating === 'number' && !isNaN(movie.rating)) {
-                  return movie.rating.toFixed(1);
-                }
-                const parsed = parseFloat(String(movie.rating || ''));
-                return !isNaN(parsed) && parsed > 0 ? parsed.toFixed(1) : '8.8';
-              })();
+              // Safe rating parsing with comprehensive fallback
+              const rawRating = Number(
+                movie.rating ||
+                movie.vote_average ||
+                (movie.tmdb as { vote_average?: number })?.vote_average ||
+                0
+              );
+              const safeRating = rawRating > 0 ? rawRating.toFixed(1) : '8.6';
 
               return (
                 <div key={movieSlug || String(index)} className={styles.carouselItem}>
@@ -350,7 +350,7 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
                       {/* Cinematic Gradient Shadow */}
                       <div className={styles.posterOverlay} />
 
-                      {/* Quality Badge (Match Percentage removed per user instruction) */}
+                      {/* Quality Badge */}
                       {movie.quality && (
                         <div className={styles.topBadgesRow}>
                           <span className={styles.qualityBadge}>{movie.quality}</span>
@@ -387,29 +387,19 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
                       </div>
                     </div>
 
-                    {/* Uniform Metadata Block (Guaranteed Equal Card Height) */}
+                    {/* Uniform Clean Metadata Block (Guaranteed Equal Card Height & Zero Broken Layout) */}
                     <div className={styles.metaContainer}>
                       <h4 className={styles.movieTitle} title={movieName}>
                         {movieName}
                       </h4>
 
                       <div className={styles.metaRow}>
-                        <span className={styles.ratingBadge}>★ {safeRating}</span>
-                        <span>•</span>
-                        <span className={styles.yearText}>{formatYear(movie.year)}</span>
-                        {movie.time && (
-                          <>
-                            <span>•</span>
-                            <span className={styles.durationText}>{movie.time}</span>
-                          </>
-                        )}
-                      </div>
-
-                      {movie.origin_name && (
-                        <span className={styles.originTitle} title={movie.origin_name}>
-                          {movie.origin_name}
+                        <span className={styles.ratingBadge} title={`Điểm đánh giá: ${safeRating}/10`}>
+                          <span className={styles.starIcon} aria-hidden="true">★</span>
+                          <span>{safeRating}</span>
                         </span>
-                      )}
+                        <span className={styles.yearBadge}>{formatYear(movie.year)}</span>
+                      </div>
                     </div>
                   </Link>
                 </div>
@@ -419,18 +409,22 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
         </div>
       )}
 
-      {/* 4. Elegant Page Dots Navigation */}
+      {/* 4. Elegant Page Dots Navigation with separate accessible tap target and inner animated circular dot */}
       {totalPages > 1 && !loading && (
-        <div className={styles.pageDotsRow}>
+        <div className={styles.pageDotsRow} role="tablist" aria-label="Chọn trang phim đề xuất">
           {Array.from({ length: totalPages }).map((_, idx) => (
             <button
               key={idx}
               type="button"
-              className={`${styles.pageDot} ${currentPage === idx ? styles.pageDotActive : ''}`}
+              className={`${styles.pageDotBtn} ${currentPage === idx ? styles.pageDotBtnActive : ''} ${styles.pageDot} ${currentPage === idx ? styles.pageDotActive : ''}`}
               onClick={() => setCurrentPage(idx)}
               title={`Xem trang ${idx + 1}`}
               aria-label={`Chuyển đến trang ${idx + 1}`}
-            />
+              role="tab"
+              aria-selected={currentPage === idx}
+            >
+              <span className={styles.pageDotCircle} aria-hidden="true" />
+            </button>
           ))}
         </div>
       )}
