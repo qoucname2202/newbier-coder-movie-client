@@ -120,7 +120,21 @@ const REMEMBER_ME_KEY = 'remember_me';
  *
  * @returns The token, or null when there is no session.
  */
-const readAccessToken = (): string | null => getMemoryAccessToken();
+const readAccessToken = (): string | null => {
+  const memory = getMemoryAccessToken();
+  if (memory) return memory;
+  if (typeof window !== 'undefined') {
+    return (
+      localStorage.getItem('auth_token') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('access_token') ||
+      sessionStorage.getItem('auth_token') ||
+      sessionStorage.getItem('token') ||
+      null
+    );
+  }
+  return null;
+};
 
 /**
  * Reads the access token from the LEGACY storage locations.

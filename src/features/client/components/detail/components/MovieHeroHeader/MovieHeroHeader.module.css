@@ -598,9 +598,17 @@
 }
 
 .toolBtnActive {
-  background: rgba(229, 9, 20, 0.15);
-  border-color: rgba(229, 9, 20, 0.4);
+  background: rgba(229, 9, 20, 0.18);
+  border-color: rgba(229, 9, 20, 0.5);
   color: #ff4d5a;
+}
+
+.toolBtnActive i,
+.heartActive {
+  color: #ff2442 !important;
+  filter: drop-shadow(0 0 8px rgba(255, 36, 66, 0.8));
+  transform: scale(1.12);
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 /* Right Column */

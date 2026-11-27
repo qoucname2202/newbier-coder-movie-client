@@ -51,6 +51,7 @@ export const AP = {
   moviesByCountry: '/countries/{0}/movies',
   moviesByFormat: '/formats/{0}/movies',
   categoriesBySlugMovies: '/categories/{0}/movies',
+  actorsDetail: '/actors/{0}',
   authLogin: '/auth/login',
   authRegister: '/auth/register',
   authLogout: '/auth/logout',

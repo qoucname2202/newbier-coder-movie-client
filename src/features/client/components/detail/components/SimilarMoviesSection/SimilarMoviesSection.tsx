@@ -416,7 +416,7 @@ export const SimilarMoviesSection: React.FC<SimilarMoviesSectionProps> = ({
             <button
               key={idx}
               type="button"
-              className={`${styles.pageDotBtn} ${currentPage === idx ? styles.pageDotBtnActive : ''} ${styles.pageDot} ${currentPage === idx ? styles.pageDotActive : ''}`}
+              className={`${styles.pageDotBtn} ${currentPage === idx ? styles.pageDotBtnActive : ''}`}
               onClick={() => setCurrentPage(idx)}
               title={`Xem trang ${idx + 1}`}
               aria-label={`Chuyển đến trang ${idx + 1}`}

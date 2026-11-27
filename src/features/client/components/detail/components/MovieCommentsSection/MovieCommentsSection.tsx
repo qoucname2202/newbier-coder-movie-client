@@ -305,15 +305,14 @@ export const MovieCommentsSection: React.FC<MovieCommentsSectionProps> = ({
         {/* Left: Overall Audience Score */}
         <div className={styles.scoreSummaryCol}>
           <div className={styles.scoreBadgeBox}>
+            <i className={`fas fa-star ${styles.scoreBadgeStar}`} aria-hidden="true" />
             <span className={styles.scoreBadgeNumber}>{numericRating.toFixed(1)}</span>
             <span className={styles.scoreBadgeScale}>/10</span>
           </div>
           <div className={styles.scoreMetaInfo}>
-            <div className={styles.recommendPill}>
-              <i className="fas fa-fire me-1" />
-              <span>{Math.min(98, Math.max(78, Math.round(numericRating * 10)))}% Khán giả khuyên xem</span>
-            </div>
+            <span className={styles.scoreTitleLabel}>Điểm Đánh Giá Khán Giả</span>
             <div className={styles.voteCountRow}>
+              <i className="fas fa-users me-1" style={{ fontSize: '0.75rem', opacity: 0.7 }} />
               <span className={styles.voteCountText}>
                 Dựa trên <strong>{Number(ratingCount || 1420).toLocaleString('vi-VN')}</strong> lượt đánh giá
               </span>
@@ -337,7 +336,7 @@ export const MovieCommentsSection: React.FC<MovieCommentsSectionProps> = ({
             </span>
           </div>
 
-          <div className={styles.starsTierRow}>
+          <div className={styles.starsTierRow} role="group" aria-label="Đánh giá sao cho phim">
             {RATING_LEVELS.map((level) => {
               const activeLevel = hoverTier || (hasRated ? selectedTier : 0);
               const isFilled = activeLevel >= level.star;

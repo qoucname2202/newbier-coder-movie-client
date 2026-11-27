@@ -83,9 +83,11 @@ const nextConfig: NextConfig = {
       { source: "/genre/:slug", destination: "/client/genre/:slug" },
       // Movie: detail + nested watch
       { source: "/movie/:path*", destination: "/client/movie/:path*" },
-      // Performer
+      // Performer & Actor
       { source: "/performer", destination: "/client/performer" },
       { source: "/performer/:id", destination: "/client/performer/:id" },
+      { source: "/actors/:id", destination: "/client/performer/:id" },
+      { source: "/actor/:id", destination: "/client/performer/:id" },
       // Profile / Rankings
       { source: "/profile", destination: "/client/profile" },
       { source: "/rankings", destination: "/client/rankings" },

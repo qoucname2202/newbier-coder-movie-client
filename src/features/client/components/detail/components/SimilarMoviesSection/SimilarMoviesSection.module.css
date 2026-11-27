@@ -481,8 +481,7 @@
   width: 100%;
 }
 
-.pageDotBtn,
-.pageDot {
+.pageDotBtn {
   all: unset;
   -webkit-appearance: none !important;
   appearance: none !important;
@@ -490,7 +489,7 @@
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 8px 3px !important;
+  padding: 6px 3px !important;
   margin: 0 !important;
   border: none !important;
   outline: none !important;
@@ -510,17 +509,14 @@
 }
 
 .pageDotBtn:focus,
-.pageDotBtn:active,
-.pageDot:focus,
-.pageDot:active {
+.pageDotBtn:active {
   background: transparent !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
 }
 
-.pageDotCircle,
-.pageDotBar {
+.pageDotCircle {
   display: block !important;
   width: 5px;
   height: 5px;
@@ -528,7 +524,7 @@
   min-height: 5px;
   max-height: 5px;
   border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.28) !important;
+  background: #4b5563 !important;
   pointer-events: none;
   transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
               height 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -539,18 +535,12 @@
   will-change: width, transform, background, box-shadow;
 }
 
-.pageDotBtn:hover .pageDotCircle,
-.pageDotBtn:hover .pageDotBar,
-.pageDot:hover .pageDotCircle,
-.pageDot:hover .pageDotBar {
-  background: rgba(255, 255, 255, 0.55) !important;
+.pageDotBtn:hover .pageDotCircle {
+  background: #9ca3af !important;
   transform: scale(1.25);
 }
 
-.pageDotBtnActive .pageDotCircle,
-.pageDotBtnActive .pageDotBar,
-.pageDotActive .pageDotCircle,
-.pageDotActive .pageDotBar {
+.pageDotBtnActive .pageDotCircle {
   width: 16px !important;
   height: 5px !important;
   border-radius: 9999px !important;
@@ -558,12 +548,6 @@
   box-shadow: 0 0 10px rgba(229, 9, 20, 0.85),
               0 0 2px rgba(255, 255, 255, 0.4) !important;
   transform: scale(1);
-}
-
-/* Fallback direct reset styles for legacy classes */
-.pageDotActive {
-  background: transparent !important;
-  box-shadow: none !important;
 }
 
 /* Skeleton Loading Grid */
@@ -727,26 +711,24 @@
     padding: 2px 0;
   }
 
-  .pageDotBtn,
-  .pageDot {
-    padding: 7px 2px !important;
+  .pageDotBtn {
+    padding: 6px 2px !important;
   }
 
-  .pageDotCircle,
-  .pageDotBar {
-    width: 4px;
-    height: 4px;
-    min-width: 4px;
-    min-height: 4px;
-    max-height: 4px;
+  .pageDotCircle {
+    width: 4px !important;
+    height: 4px !important;
+    min-width: 4px !important;
+    min-height: 4px !important;
+    max-height: 4px !important;
+    border-radius: 50% !important;
+    background: #4b5563 !important;
   }
 
-  .pageDotBtnActive .pageDotCircle,
-  .pageDotBtnActive .pageDotBar,
-  .pageDotActive .pageDotCircle,
-  .pageDotActive .pageDotBar {
+  .pageDotBtnActive .pageDotCircle {
     width: 14px !important;
     height: 4px !important;
+    border-radius: 9999px !important;
   }
 }
 

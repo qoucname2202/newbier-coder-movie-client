@@ -748,7 +748,15 @@ const favoritesService = {
     rememberMovie(movieData as Record<string, unknown>);
     try {
       const response = await axiosInstance.post(endpoints.favorites.add(slug));
-      return readToggleResult(response.status, response.data);
+      const result = readToggleResult(response.status, response.data);
+      if (result.success || result.alreadyExists) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('favorites_changed', { detail: { slug, isFavorite: true } })
+          );
+        }
+      }
+      return result;
     } catch (error) {
       const serviceError = toServiceError(error);
       return {
@@ -782,7 +790,14 @@ const favoritesService = {
       const result = readToggleResult(response.status, response.data);
       // The removal worked, so the snapshot is cleared. This keeps the cache
       // from keeping a movie that is no longer a favorite.
-      if (result.success) forgetMovie(target, movieIdOrSlug);
+      if (result.success) {
+        forgetMovie(target, movieIdOrSlug);
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(
+            new CustomEvent('favorites_changed', { detail: { slug: target, isFavorite: false } })
+          );
+        }
+      }
       return result;
     } catch (error) {
       const serviceError = toServiceError(error);

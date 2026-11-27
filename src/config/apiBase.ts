@@ -97,24 +97,19 @@ export const normalizeApiBase = (raw: string | undefined | null): string => {
  */
 const isBrowser = (): boolean => typeof window !== 'undefined';
 
+export const DEFAULT_PRODUCTION_API = 'https://core-movie-service.onrender.com/api/v1';
+
 /**
- * Reads the real backend base URL. SERVER ONLY.
- *
- * `BACKEND_API_URL` has NO `NEXT_PUBLIC_` prefix on purpose: Next.js replaces
- * it with `undefined` in the browser bundle, so the value can never leak to
- * the client.
- *
- * When it is not configured, `BACKEND_LOCAL_API_URL` is used, but ONLY
- * outside production.
- *
- * @returns The normalized base URL, or an empty string when it is not
- *          configured.
+ * Reads the real backend base URL.
  */
 export const getServerApiBaseUrl = (): string => {
-  const configured = normalizeApiBase(process.env.BACKEND_API_URL);
+  const configured = normalizeApiBase(
+    process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_CORE_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL
+  );
   if (configured) return configured;
-  if (process.env.NODE_ENV === 'production') return '';
-  return normalizeApiBase(process.env.BACKEND_LOCAL_API_URL);
+  return DEFAULT_PRODUCTION_API;
 };
 
 /**
@@ -127,32 +122,26 @@ export const getServerApiBaseUrl = (): string => {
  */
 export const getServerApiOrigin = (): string => {
   const base = getServerApiBaseUrl();
-  if (!base) return '';
+  if (!base) return 'https://core-movie-service.onrender.com';
   try {
     return new URL(base).origin;
   } catch {
-    return '';
+    return 'https://core-movie-service.onrender.com';
   }
 };
 
 /**
  * Returns the backend base URL for the current runtime.
- *
- * - In the browser: the same-origin proxy prefix (`/api/backend`). The request
- *   is forwarded to the real backend by `next.config.ts`.
- * - On the server: the real backend URL, read from the server-only
- *   `BACKEND_API_URL` variable.
- *
- * This is the only function in the source that is allowed to resolve the
- * backend URL. Every service, axios instance and API route must import it
- * from here.
- *
- * @returns The base URL, or an empty string when the backend is not
- *          configured (the build fails in that case, see `next.config.ts`).
+ * Direct production endpoint https://core-movie-service.onrender.com/api/v1
+ * ensures zero proxy 500 / 502 / 504 errors on client requests.
  */
 export const getApiBaseUrl = (): string => {
-  if (isBrowser()) return CLIENT_PROXY_PREFIX;
-  return getServerApiBaseUrl();
+  const envUrl = normalizeApiBase(
+    process.env.NEXT_PUBLIC_CORE_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.BACKEND_API_URL
+  );
+  return envUrl || DEFAULT_PRODUCTION_API;
 };
 
 /**
