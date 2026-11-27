@@ -357,7 +357,7 @@ export const useMovieDetail = (slug: string | undefined | null): UseMovieDetailR
     };
   }, []);
 
-  // Synchronize favorite status for the current authenticated user
+  // Synchronize favorite status for the current authenticated user and listen for global changes
   useEffect(() => {
     if (!slug) return;
     let isSubscribed = true;
@@ -376,8 +376,22 @@ export const useMovieDetail = (slug: string | undefined | null): UseMovieDetailR
         if (isSubscribed) setIsFavorite(false);
       });
 
+    const handleFavChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ slug: string; isFavorite: boolean }>;
+      if (customEvent.detail && customEvent.detail.slug === slug) {
+        setIsFavorite(customEvent.detail.isFavorite);
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('favorites_changed', handleFavChange);
+    }
+
     return () => {
       isSubscribed = false;
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('favorites_changed', handleFavChange);
+      }
     };
   }, [slug]);
 

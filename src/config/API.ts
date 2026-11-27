@@ -101,6 +101,9 @@ export const endpoints = {
     // Backend v1 has no `/search` route, the real one is `/movies/search`.
     find: () => route('moviesSearch')
   },
+  actors: {
+    getDetail: (slug: string) => route('actorsDetail', slug)
+  },
   admin: {
     movies: {
       getAll: (page = 1, limit = 10) => buildUrl(route('adminMoviesList'), { page, limit }),

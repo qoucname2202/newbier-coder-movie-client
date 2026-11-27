@@ -15,7 +15,7 @@ import {
 import { getTaxonomyName } from '@/utils/taxonomy';
 import { cleanMovieTitle } from '@/utils/movieNormalizer';
 import { getWatchProgress } from '@/utils/watchProgress';
-import watchLaterService from '@/API/services/watchLaterService';
+import { useFavoritesStore } from '@/stores/useFavoritesStore';
 import styles from '@/styles/MovieCards.module.css';
 
 /**
@@ -407,20 +407,9 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
   );
   const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
 
-  // Watch Later favorite / bookmark state
-  const [isBookmarked, setIsBookmarked] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || !slug) return false;
-    try {
-      const saved = localStorage.getItem(LOCAL_WATCH_LATER_KEY);
-      if (saved) {
-        const set: string[] = JSON.parse(saved);
-        return Array.isArray(set) && set.includes(slug);
-      }
-    } catch {
-      // ignore
-    }
-    return false;
-  });
+  // Reactive Favorite state synchronized with backend API
+  const isBookmarked = useFavoritesStore((state) => state.isFavorite(slug));
+  const toggleFavoriteStore = useFavoritesStore((state) => state.toggleFavorite);
   const [bookmarkLoading, setBookmarkLoading] = useState<boolean>(false);
 
   // Watch progress bar detection
@@ -452,42 +441,26 @@ const MovieCardVertical: React.FC<MovieCardVerticalProps> = ({
   const handleToggleBookmark = async (e: MouseEvent<HTMLButtonElement>): Promise<void> => {
     e.preventDefault();
     e.stopPropagation();
-    if (bookmarkLoading) return;
+    if (bookmarkLoading || !slug) return;
 
     setBookmarkLoading(true);
-    const nextState = !isBookmarked;
-    setIsBookmarked(nextState);
-
     try {
-      const saved = localStorage.getItem(LOCAL_WATCH_LATER_KEY);
-      let set: string[] = saved ? JSON.parse(saved) : [];
-      if (!Array.isArray(set)) set = [];
-
-      if (nextState) {
-        if (!set.includes(slug)) set.push(slug);
-      } else {
-        set = set.filter((s) => s !== slug);
-      }
-      localStorage.setItem(LOCAL_WATCH_LATER_KEY, JSON.stringify(set));
-
-      if (nextState) {
-        const parsedYear = typeof movie.year === 'number' ? movie.year : Number(movie.year);
-        await watchLaterService.addToWatchLater({
-          id: String(movie._id || ''),
-          slug,
-          title: movieName,
-          name: movieName,
-          origin_name: movieOriginName,
-          poster_url: imgSrc,
-          quality: rawQuality,
-          lang: String(movie.lang || 'Vietsub'),
-          year: Number.isFinite(parsedYear) && parsedYear > 0 ? parsedYear : undefined
-        });
-      } else {
-        await watchLaterService.removeFromWatchLater(String(movie._id || slug));
-      }
+      const parsedYear = typeof movie.year === 'number' ? movie.year : Number(movie.year);
+      await toggleFavoriteStore({
+        id: String(movie._id || movie.id || ''),
+        slug,
+        title: movieName,
+        name: movieName,
+        origin_name: movieOriginName,
+        poster_url: imgSrc,
+        posterUrl: imgSrc,
+        thumb_url: imgSrc,
+        thumbUrl: imgSrc,
+        quality: rawQuality,
+        year: Number.isFinite(parsedYear) && parsedYear > 0 ? parsedYear : undefined
+      });
     } catch {
-      // Graceful offline fallback
+      // Graceful error fallback
     } finally {
       setBookmarkLoading(false);
     }

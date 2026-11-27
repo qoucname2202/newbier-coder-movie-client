@@ -251,6 +251,11 @@ export const getAccessToken = (): string | null => {
 };
 
 /**
+ * Backward compatibility alias for modules expecting getStoredAccessToken from authToken.
+ */
+export const getStoredAccessToken = getAccessToken;
+
+/**
  * Updates the access token in memory, schedules proactive refresh, and optionally broadcasts to peer tabs.
  *
  * @param token - The fresh access token string or null on logout.

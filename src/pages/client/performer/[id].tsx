@@ -1,526 +1,525 @@
 /**
- * @file pages/performer/[id].tsx
- * @description Performer (cast/crew) detail page: bio, filmography, and
- * filterable / paginated movie grid powered by the TMDB API.
+ * @file pages/client/performer/[id].tsx
+ * @description Actor / Performer profile page: calls GET /api/v1/actors/:slug,
+ * renders high-impact cinema dark hero header, biography, statistics, awards,
+ * and responsive filmography grid with direct movie playback links.
  */
-import { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import axios from 'axios';
-import { Container, Row, Col, Card, Spinner, Alert, Badge } from 'react-bootstrap';
+import {
+  FaStar,
+  FaCalendarAlt,
+  FaMapMarkerAlt,
+  FaFilm,
+  FaEye,
+  FaFire,
+  FaAward,
+  FaPlay,
+  FaVenusMars,
+  FaRulerVertical,
+  FaCheck,
+  FaChevronDown,
+  FaChevronUp,
+  FaFacebook,
+  FaInstagram,
+  FaTwitter,
+  FaWeibo
+} from 'react-icons/fa';
+import actorService, {
+  type ActorDetailData,
+  type ActorMovieCredit
+} from '@/API/services/actorService';
+import { formatYear } from '@/utils/taxonomy';
 import styles from '@/styles/Performer.module.css';
-import { TMDB_CONFIG } from '@/config/systemConfig';
 
-type FilterValue = 'all' | 'movies' | 'tv' | 'cast' | 'crew';
-type MediaType = 'movie' | 'tv';
-type CreditType = 'cast' | 'crew';
+const DEFAULT_AVATAR = '/img/user-avatar.png';
+const DEFAULT_POSTER = '/img/placeholder-poster.svg';
 
-interface Performer {
-  id: number;
-  name: string;
-  profile_path?: string | null;
-  known_for_department?: string;
-  also_known_as?: string[];
-  birthday?: string | null;
-  place_of_birth?: string | null;
-  popularity?: number;
-  biography?: string;
-  [key: string]: unknown;
-}
-
-interface PerformerCredit {
-  id: number;
-  media_type?: MediaType;
-  credit_type?: CreditType;
-  display_media_type?: string;
-  title?: string;
-  name?: string;
-  release_date?: string;
-  first_air_date?: string;
-  character?: string;
-  job?: string;
-  poster_path?: string | null;
-  vote_average?: number;
-  vote_count?: number;
-  popularity?: number;
-  credit_id?: string;
-  role?: string;
-  [key: string]: unknown;
-}
-
-const stripTones = (str: string): string => {
-  return str
-    .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a')
-    .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e')
-    .replace(/ì|í|ị|ỉ|ĩ/g, 'i')
-    .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o')
-    .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u')
-    .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y')
-    .replace(/đ/g, 'd')
-    .replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, 'A')
-    .replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, 'E')
-    .replace(/Ì|Í|Ị|Ỉ|Ĩ/g, 'I')
-    .replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, 'O')
-    .replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, 'U')
-    .replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, 'Y')
-    .replace(/Đ/g, 'D');
-};
-
-const createSlug = (text: string, fallback: string | number): string => {
-  if (!text) return `movie-${fallback}`;
-  return stripTones(text)
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .trim();
-};
-
-const PerformerDetail: React.FC = () => {
+export default function ActorDetailPage() {
   const router = useRouter();
-  const { id } = router.query;
-  const [performer, setPerformer] = useState<Performer | null>(null);
-  const [movies, setMovies] = useState<PerformerCredit[]>([]);
+  const slug = String(router.query.id || router.query.slug || '');
+
+  const [actor, setActor] = useState<ActorDetailData | null>(null);
+  const [movies, setMovies] = useState<ActorMovieCredit[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [moviesPerPage] = useState<number>(8);
-  const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
-
-  const imageBaseUrl = `${TMDB_CONFIG.imageBaseUrl}/w500`;
-  const placeholderImage = '/placeholder.jpg';
-  const profilePlaceholder = '/img/user-avatar.png';
+  const [activeFilter, setActiveFilter] = useState<'all' | 'movie' | 'series'>('all');
+  const [bioExpanded, setBioExpanded] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!id) return;
-    const fetchPerformerDetails = async () => {
+    if (!slug) return;
+
+    let isMounted = true;
+    const fetchActor = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const baseUrl = TMDB_CONFIG.baseUrl;
-        const apiKey = TMDB_CONFIG.apiKey;
-        const authToken = TMDB_CONFIG.authToken;
+        // 1. Fetch from Microservice API: GET /api/v1/actors/:slug
+        const actorData = await actorService.getActorDetail(slug);
 
-        const personResponse = await axios.get(`${baseUrl}/person/${id}`, {
-          params: { api_key: apiKey, language: 'vi-VN,en-US', append_to_response: 'images,external_ids' },
-          headers: { Authorization: `Bearer ${authToken}`, accept: 'application/json' }
-        });
-        setPerformer(personResponse.data as Performer);
+        if (actorData) {
+          if (!isMounted) return;
+          setActor(actorData);
 
-        const creditsResponse = await axios.get(`${baseUrl}/person/${id}/combined_credits`, {
-          params: { api_key: apiKey, language: 'vi-VN,en-US' },
-          headers: { Authorization: `Bearer ${authToken}`, accept: 'application/json' }
-        });
-        const creditsData = creditsResponse.data as { cast?: PerformerCredit[]; crew?: PerformerCredit[] };
-
-        const castCredits: PerformerCredit[] = Array.isArray(creditsData.cast)
-          ? creditsData.cast
-            .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
-            .map((item) => ({
-              ...item,
-              credit_type: 'cast' as CreditType,
-              display_media_type: item.media_type === 'movie' ? 'Movie' : 'TV',
-              title: item.media_type === 'movie' ? item.title : item.name,
-              release_date: item.media_type === 'movie' ? item.release_date : item.first_air_date
-            }))
-            .sort((a, b) => (b.popularity || 0) - (a.popularity || 0) || (b.vote_count || 0) - (a.vote_count || 0))
-          : [];
-
-        const crewCredits: PerformerCredit[] = Array.isArray(creditsData.crew)
-          ? creditsData.crew
-            .filter((item) => item.media_type === 'movie' || item.media_type === 'tv')
-            .map((item) => ({
-              ...item,
-              credit_type: 'crew' as CreditType,
-              display_media_type: item.media_type === 'movie' ? 'Movie' : 'TV',
-              title: item.media_type === 'movie' ? item.title : item.name,
-              release_date: item.media_type === 'movie' ? item.release_date : item.first_air_date
-            }))
-            .sort((a, b) => (b.popularity || 0) - (a.popularity || 0) || (b.vote_count || 0) - (a.vote_count || 0))
-          : [];
-
-        let allMovies: PerformerCredit[] = [...castCredits, ...crewCredits];
-        const uniqueIds = new Set<string>();
-        allMovies = allMovies.filter((movie) => {
-          const key = `${movie.id}-${movie.media_type}`;
-          if (!uniqueIds.has(key)) {
-            uniqueIds.add(key);
-            return true;
+          // 2. Fetch filmography of this actor
+          const filmography = await actorService.getActorFilmography(actorData.name || slug);
+          if (isMounted) {
+            setMovies(filmography);
+            setLoading(false);
           }
-          return false;
+          return;
+        }
+
+        // 3. Fallback: If not found in actors API, try numeric TMDB or create baseline
+        if (!isMounted) return;
+        setActor({
+          id: slug,
+          name: slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          slug,
+          gender: 'unknown',
+          movieCount: 0,
+          popularity: 1,
+          viewCount: 1,
+          biography: 'Thông tin về diễn viên đang được cập nhật.'
         });
-        allMovies = allMovies.map((movie) => ({
-          ...movie,
-          role: movie.character || movie.job || 'N/A'
-        }));
 
-        setMovies(allMovies);
-        setLoading(false);
-      } catch (err) {
-        const e = err as Error;
-
-        setError('Could not load performer data. Please try again later.');
-        setLoading(false);
+        const filmography = await actorService.getActorFilmography(slug.replace(/-/g, ' '));
+        if (isMounted) {
+          setMovies(filmography);
+          setLoading(false);
+        }
+      } catch {
+        if (isMounted) {
+          setError('Không thể tải thông tin diễn viên. Vui lòng thử lại sau.');
+          setLoading(false);
+        }
       }
     };
 
-    fetchPerformerDetails();
-  }, [id]);
+    fetchActor();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [slug]);
+
+  const filteredMovies = useMemo(() => {
+    if (activeFilter === 'movie') {
+      return movies.filter((m) => m.type === 'single' || m.type === 'movie');
+    }
+    if (activeFilter === 'series') {
+      return movies.filter((m) => m.type === 'series' || m.type === 'tv');
+    }
+    return movies;
+  }, [movies, activeFilter]);
 
   const formatDate = (dateStr?: string | null): string => {
-    if (!dateStr) return 'No information';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    if (!dateStr) return '';
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch {
+      return String(dateStr);
+    }
   };
 
-  const calculateAge = (birthday?: string | null): number | null => {
-    if (!birthday) return null;
-    const birthDate = new Date(birthday);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
-    return age;
+  const calculateAge = (dateStr?: string | null): number | null => {
+    if (!dateStr) return null;
+    try {
+      const birth = new Date(dateStr);
+      const now = new Date();
+      let age = now.getFullYear() - birth.getFullYear();
+      const m = now.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+      return age > 0 ? age : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const formatGender = (gender?: string): string => {
+    if (gender === 'male') return 'Nam';
+    if (gender === 'female') return 'Nữ';
+    if (gender === 'other') return 'Khác';
+    return 'Chưa rõ';
   };
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <Spinner animation="border" variant="danger" />
-        <p>Loading performer info...</p>
+      <div className={styles.actorPage}>
+        <div className={styles.loadingContainer}>
+          <div className="spinner-border text-danger" role="status" style={{ width: '3rem', height: '3rem' }}>
+            <span className="visually-hidden">Đang tải...</span>
+          </div>
+          <p>Đang tải hồ sơ diễn viên...</p>
+        </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !actor) {
     return (
-      <Container className="py-5">
-        <Alert variant="danger">{error}</Alert>
-        <div className="text-center mt-4">
-          <button className="btn btn-primary me-3" onClick={() => router.back()}>Go back</button>
-          <button className="btn btn-outline-light" onClick={() => router.reload()}>Retry</button>
+      <div className={styles.actorPage}>
+        <div className={styles.errorContainer}>
+          <h2 className={styles.errorTitle}>Không tìm thấy diễn viên</h2>
+          <p className={styles.errorText}>{error || 'Hồ sơ diễn viên này hiện chưa có trong cơ sở dữ liệu.'}</p>
+          <div className="d-flex gap-2">
+            <button type="button" className="btn btn-danger" onClick={() => router.back()}>
+              Quay lại
+            </button>
+            <Link href="/" className="btn btn-outline-light">
+              Về trang chủ
+            </Link>
+          </div>
         </div>
-      </Container>
+      </div>
     );
   }
-  if (!performer) return null;
 
-  const indexOfLastMovie = currentPage * moviesPerPage;
-  const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
-
-  const filteredMovies = movies.filter((movie) => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'movies') return movie.media_type === 'movie';
-    if (activeFilter === 'tv') return movie.media_type === 'tv';
-    if (activeFilter === 'cast') return movie.credit_type === 'cast';
-    if (activeFilter === 'crew') return movie.credit_type === 'crew';
-    return true;
-  });
-
-  const currentMovies = filteredMovies.slice(indexOfFirstMovie, indexOfLastMovie);
-  const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
-  const pageNumbers: number[] = [];
-  for (let i = 1; i <= totalPages; i++) pageNumbers.push(i);
-
-  const paginate = (pageNumber: number): void => setCurrentPage(pageNumber);
-  const goToPreviousPage = (): void => { if (currentPage > 1) setCurrentPage(currentPage - 1); };
-  const goToNextPage = (): void => { if (currentPage < totalPages) setCurrentPage(currentPage + 1); };
+  const age = calculateAge(actor.dateOfBirth);
+  const birthFormatted = formatDate(actor.dateOfBirth);
+  const avatarUrl = actor.profileImage || DEFAULT_AVATAR;
+  const backdropUrl = actor.coverImage || actor.profileImage || '';
 
   return (
-    <>
+    <div className={styles.actorPage}>
       <Head>
-        <title>{String(performer.name || 'Performer')} - Performer info | MovieStreaming</title>
-        <meta name="description" content={`Detailed information about ${performer.name} and the movies they have been in.`} />
+        <title>{actor.name} - Thông Tin Diễn Viên | Movie Stream</title>
+        <meta
+          name="description"
+          content={`Xem thông tin tiểu sử, sự nghiệp và danh sách các phim nổi bật của diễn viên ${actor.name} trên Movie Stream.`}
+        />
       </Head>
 
-      <div
-        className={styles.performerBanner}
-        style={{
-          backgroundImage: `url(${performer.profile_path ? `${TMDB_CONFIG.imageBaseUrl}/original${performer.profile_path}` : profilePlaceholder})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-          backgroundRepeat: 'no-repeat',
-          position: 'relative'
-        }}
-      >
-        <div className={styles.backdropOverlay}></div>
-        <Container className={styles.containerRelative}>
-          <div className={styles.performerHeader}>
-            <div className={styles.profileImageWrapper}>
-              <div className={styles.profileImageContainer}>
+      {/* 1. Hero Header */}
+      <section className={styles.heroBanner}>
+        {backdropUrl && (
+          <div
+            className={styles.bannerBackdrop}
+            style={{ backgroundImage: `url(${backdropUrl})` }}
+            aria-hidden="true"
+          />
+        )}
+        <div className={styles.bannerOverlay} aria-hidden="true" />
+
+        <div className={styles.container}>
+          <div className={styles.heroContent}>
+            {/* Avatar Frame */}
+            <div className={styles.avatarWrapper}>
+              <div className={styles.avatarContainer}>
                 <img
-                  src={performer.profile_path ? `${imageBaseUrl}${performer.profile_path}` : profilePlaceholder}
-                  alt={performer.name}
-                  className={styles.profileImage}
+                  src={avatarUrl}
+                  alt={actor.name}
+                  className={styles.avatarImg}
                   onError={(e) => {
-                    const target = e.target as HTMLImageElement;
+                    const target = e.currentTarget as HTMLImageElement;
                     target.onerror = null;
-                    target.src = profilePlaceholder;
+                    target.src = DEFAULT_AVATAR;
                   }}
                 />
-                {performer.known_for_department && (
-                  <div className={styles.departmentBadge}>
-                    {performer.known_for_department === 'Acting' ? 'Actor' : performer.known_for_department}
-                  </div>
-                )}
+              </div>
+              <div className={styles.verifiedBadge} title="Nghệ sĩ xác thực">
+                <FaCheck />
               </div>
             </div>
 
-            <div className={styles.performerDetails}>
-              <h1 className={styles.performerName}>{performer.name}</h1>
+            {/* Profile Details */}
+            <div className={styles.profileDetails}>
+              <div className={styles.badgeRow}>
+                <span className={styles.roleBadge}>
+                  {actor.knownFor || 'Diễn viên'}
+                </span>
+                {actor.nationality && (
+                  <span className={styles.nationalityBadge}>{actor.nationality}</span>
+                )}
+                {actor.debutYear && (
+                  <span className={styles.nationalityBadge}>Khởi nghiệp {actor.debutYear}</span>
+                )}
+              </div>
 
-              {performer.also_known_as && performer.also_known_as.length > 0 && (
-                <div className={styles.alsoKnownAs}>
-                  <span className={styles.infoLabel}>Also known as:</span>
-                  <span className={styles.infoValue}>{performer.also_known_as.join(', ')}</span>
-                </div>
+              <h1 className={styles.actorName}>{actor.name}</h1>
+              {actor.birthName && actor.birthName !== actor.name && (
+                <p className={styles.birthName}>Tên khai sinh: {actor.birthName}</p>
               )}
 
-              <div className={styles.bioStats}>
-                {performer.birthday && (
-                  <div className={styles.bioStat}>
-                    <i className="bi bi-calendar"></i>
-                    <span className={styles.infoLabel}>Born:</span>
-                    <span className={styles.infoValue}>
-                      {formatDate(performer.birthday)}
-                      {calculateAge(performer.birthday) !== null && ` (${calculateAge(performer.birthday)} years old)`}
-                    </span>
-                  </div>
-                )}
-
-                {performer.place_of_birth && (
-                  <div className={styles.bioStat}>
-                    <i className="bi bi-geo-alt"></i>
-                    <span className={styles.infoLabel}>Place of birth:</span>
-                    <span className={styles.infoValue}>{performer.place_of_birth}</span>
-                  </div>
-                )}
-
-                {performer.known_for_department && (
-                  <div className={styles.bioStat}>
-                    <i className="bi bi-film"></i>
-                    <span className={styles.infoLabel}>Known for:</span>
-                    <span className={styles.infoValue}>
-                      {performer.known_for_department === 'Acting' ? 'Acting' : performer.known_for_department}
-                    </span>
-                  </div>
-                )}
-
-                <div className={styles.bioStat}>
-                  <i className="bi bi-camera-reels"></i>
-                  <span className={styles.infoLabel}>Credits:</span>
-                  <span className={styles.infoValue}>{movies.length}</span>
+              {/* Statistics Counters */}
+              <div className={styles.statsRow}>
+                <div className={styles.statItem}>
+                  <span className={`${styles.statVal} ${styles.statValCinema}`}>
+                    {actor.movieCount || movies.length}
+                  </span>
+                  <span className={styles.statLbl}>Phim tham gia</span>
                 </div>
-
-                {performer.popularity && (
-                  <div className={styles.bioStat}>
-                    <i className="bi bi-graph-up"></i>
-                    <span className={styles.infoLabel}>Popularity:</span>
-                    <span className={styles.infoValue}>
-                      {Number(performer.popularity).toFixed(1)}
+                <div className={styles.statItem}>
+                  <span className={`${styles.statVal} ${styles.statValHighlight}`}>
+                    <FaStar style={{ fontSize: '0.9rem', marginRight: '3px' }} />
+                    {Number(actor.popularity || 8.8).toFixed(1)}
+                  </span>
+                  <span className={styles.statLbl}>Độ phổ biến</span>
+                </div>
+                {Boolean(actor.viewCount) && (
+                  <div className={styles.statItem}>
+                    <span className={styles.statVal}>
+                      {Number(actor.viewCount).toLocaleString('vi-VN')}
                     </span>
+                    <span className={styles.statLbl}>Lượt xem hồ sơ</span>
                   </div>
                 )}
-                <div className={styles.biography}>
-                  <h3 className={styles.sectionTitle}>
-                    <i className="bi bi-file-person me-2"></i>
-                    Biography
-                  </h3>
-                  <div className={styles.biographyText}>
-                    {performer.biography ? (
-                      <div className={styles.biographyContent}>
-                        {performer.biography.split('\n').map((paragraph, idx) => (
-                          <p key={idx}>{paragraph}</p>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className={styles.noBiography}>
-                        <i className="bi bi-exclamation-circle me-2"></i>
-                        <p className="text-muted">No biography available for this performer.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
+
+              {/* Quick Facts */}
+              <div className={styles.factsList}>
+                {birthFormatted && (
+                  <div className={styles.factItem}>
+                    <FaCalendarAlt className={styles.factIcon} />
+                    <span className={styles.factLabel}>Ngày sinh:</span>
+                    <span className={styles.factValue}>
+                      {birthFormatted} {age ? `(${age} tuổi)` : ''}
+                    </span>
+                  </div>
+                )}
+                {actor.placeOfBirth && (
+                  <div className={styles.factItem}>
+                    <FaMapMarkerAlt className={styles.factIcon} />
+                    <span className={styles.factLabel}>Nơi sinh:</span>
+                    <span className={styles.factValue}>{actor.placeOfBirth}</span>
+                  </div>
+                )}
+                {actor.gender && actor.gender !== 'unknown' && (
+                  <div className={styles.factItem}>
+                    <FaVenusMars className={styles.factIcon} />
+                    <span className={styles.factLabel}>Giới tính:</span>
+                    <span className={styles.factValue}>{formatGender(actor.gender)}</span>
+                  </div>
+                )}
+                {actor.height && (
+                  <div className={styles.factItem}>
+                    <FaRulerVertical className={styles.factIcon} />
+                    <span className={styles.factLabel}>Chiều cao:</span>
+                    <span className={styles.factValue}>{actor.height} cm</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Social Media Links if any */}
+              {actor.socialMedia && Object.keys(actor.socialMedia).length > 0 && (
+                <div className={styles.socialLinks}>
+                  {actor.socialMedia.facebook && (
+                    <a
+                      href={actor.socialMedia.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialBtn}
+                      title="Facebook"
+                      aria-label="Facebook"
+                    >
+                      <FaFacebook />
+                    </a>
+                  )}
+                  {actor.socialMedia.instagram && (
+                    <a
+                      href={actor.socialMedia.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialBtn}
+                      title="Instagram"
+                      aria-label="Instagram"
+                    >
+                      <FaInstagram />
+                    </a>
+                  )}
+                  {actor.socialMedia.twitter && (
+                    <a
+                      href={actor.socialMedia.twitter}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialBtn}
+                      title="Twitter"
+                      aria-label="Twitter"
+                    >
+                      <FaTwitter />
+                    </a>
+                  )}
+                  {actor.socialMedia.weibo && (
+                    <a
+                      href={actor.socialMedia.weibo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.socialBtn}
+                      title="Weibo"
+                      aria-label="Weibo"
+                    >
+                      <FaWeibo />
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-        </Container>
-      </div>
+        </div>
+      </section>
 
-      <div className={styles.sectionBackground}>
-        <Container className={styles.movieListContainer}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.filmographyTitle}>
-              <i className="bi bi-film me-2"></i>
-              Filmography
+      <div className={styles.container}>
+        {/* 2. Biography Card */}
+        {actor.biography && (
+          <section className={styles.bioSection}>
+            <h2 className={styles.sectionHeading}>
+              <span className={styles.headingDot} />
+              Tiểu Sử & Sự Nghiệp
             </h2>
-            {movies.length > 0 && (
-              <div className={styles.movieCounter}>
-                <Badge bg="danger" className={styles.countBadge}>{movies.length} movies</Badge>
-              </div>
+            <div className={styles.bioParagraph}>
+              {bioExpanded || actor.biography.length < 350 ? (
+                actor.biography.split('\n').map((p, i) => (
+                  <p key={i} style={{ marginBottom: '8px' }}>
+                    {p}
+                  </p>
+                ))
+              ) : (
+                <p>{actor.biography.slice(0, 350)}...</p>
+              )}
+            </div>
+            {actor.biography.length >= 350 && (
+              <button
+                type="button"
+                className={styles.bioReadMoreBtn}
+                onClick={() => setBioExpanded((prev) => !prev)}
+              >
+                {bioExpanded ? (
+                  <>
+                    <span>Thu gọn</span>
+                    <FaChevronUp />
+                  </>
+                ) : (
+                  <>
+                    <span>Xem toàn bộ tiểu sử</span>
+                    <FaChevronDown />
+                  </>
+                )}
+              </button>
             )}
+          </section>
+        )}
+
+        {/* 3. Awards if any */}
+        {actor.awards && actor.awards.length > 0 && (
+          <section className={styles.bioSection} style={{ marginTop: '20px' }}>
+            <h2 className={styles.sectionHeading}>
+              <FaAward className="text-warning me-2" />
+              Giải Thưởng & Danh Hiệu
+            </h2>
+            <div className="d-flex flex-wrap gap-2">
+              {actor.awards.map((award, idx) => (
+                <span key={idx} className="badge bg-dark border border-secondary p-2">
+                  🏆 {award}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 4. Filmography Movies Grid */}
+        <section className={styles.filmographySection}>
+          <div className={styles.filmographyHeader}>
+            <h2 className={styles.sectionHeading} style={{ margin: 0 }}>
+              <FaFilm className="text-danger me-2" />
+              Tuyển Tập Phim Đã Tham Gia ({filteredMovies.length})
+            </h2>
+
+            {/* Filter Tabs */}
+            <div className={styles.filterTabs}>
+              <button
+                type="button"
+                className={`${styles.filterTabBtn} ${activeFilter === 'all' ? styles.filterTabBtnActive : ''}`}
+                onClick={() => setActiveFilter('all')}
+              >
+                Tất cả ({movies.length})
+              </button>
+              <button
+                type="button"
+                className={`${styles.filterTabBtn} ${activeFilter === 'series' ? styles.filterTabBtnActive : ''}`}
+                onClick={() => setActiveFilter('series')}
+              >
+                Phim bộ (
+                {movies.filter((m) => m.type === 'series' || m.type === 'tv').length}
+                )
+              </button>
+              <button
+                type="button"
+                className={`${styles.filterTabBtn} ${activeFilter === 'movie' ? styles.filterTabBtnActive : ''}`}
+                onClick={() => setActiveFilter('movie')}
+              >
+                Phim lẻ (
+                {movies.filter((m) => m.type === 'single' || m.type === 'movie').length}
+                )
+              </button>
+            </div>
           </div>
 
-          {movies.length > 0 && (
-            <div className={styles.filterControls}>
-              <div className={styles.filterButtons}>
-                <button
-                  onClick={() => { setActiveFilter('all'); setCurrentPage(1); }}
-                  className={`${styles.filterBtn} ${activeFilter === 'all' ? styles.active : ''}`}
-                >
-                  <i className="bi bi-grid me-2"></i>
-                  All ({movies.length})
-                </button>
-                <button
-                  onClick={() => { setActiveFilter('movies'); setCurrentPage(1); }}
-                  className={`${styles.filterBtn} ${activeFilter === 'movies' ? styles.active : ''}`}
-                >
-                  <i className="bi bi-film me-2"></i>
-                  Movies ({movies.filter((m) => m.media_type === 'movie').length})
-                </button>
-                <button
-                  onClick={() => { setActiveFilter('tv'); setCurrentPage(1); }}
-                  className={`${styles.filterBtn} ${activeFilter === 'tv' ? styles.active : ''}`}
-                >
-                  <i className="bi bi-tv me-2"></i>
-                  TV ({movies.filter((m) => m.media_type === 'tv').length})
-                </button>
-                <button
-                  onClick={() => { setActiveFilter('cast'); setCurrentPage(1); }}
-                  className={`${styles.filterBtn} ${activeFilter === 'cast' ? styles.active : ''}`}
-                >
-                  <i className="bi bi-person-badge me-2"></i>
-                  Acting ({movies.filter((m) => m.credit_type === 'cast').length})
-                </button>
-                <button
-                  onClick={() => { setActiveFilter('crew'); setCurrentPage(1); }}
-                  className={`${styles.filterBtn} ${activeFilter === 'crew' ? styles.active : ''}`}
-                >
-                  <i className="bi bi-camera-reels me-2"></i>
-                  Crew ({movies.filter((m) => m.credit_type === 'crew').length})
-                </button>
-              </div>
+          {filteredMovies.length === 0 ? (
+            <div className="text-center py-5 text-muted">
+              <FaFilm style={{ fontSize: '2.5rem', marginBottom: '12px' }} />
+              <p>Chưa có danh sách phim cho danh mục này.</p>
             </div>
-          )}
-
-          {filteredMovies.length > 0 ? (
-            <>
-              <Row className={styles.movieGrid}>
-                {currentMovies.map((movie) => {
-                  const movieTitle = movie.title || movie.name || `Movie-${movie.id}`;
-                  const movieSlug = createSlug(movieTitle, movie.id);
-                  return (
-                    <Col key={`${movie.id}-${movie.credit_id || Math.random()}`} xs={6} sm={6} md={4} lg={3} xl={3} className={styles.movieCol}>
-                      <Link href={`/movie/${movieSlug}`} className={styles.movieLink}>
-                        <Card className={styles.movieCard}>
-                          <div className={styles.posterContainer}>
-                            <Card.Img
-                              variant="top"
-                              src={movie.poster_path ? `${imageBaseUrl}${movie.poster_path}` : placeholderImage}
-                              alt={movieTitle}
-                              className={styles.posterImage}
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.onerror = null;
-                                target.src = placeholderImage;
-                              }}
-                            />
-                            <div className={styles.movieOverlay}>
-                              <div className={styles.characterBadge}>{movie.role || 'N/A'}</div>
-                              <div className={styles.playButton}>
-                                <i className="bi bi-play-circle-fill"></i>
-                              </div>
-                            </div>
-                            <div className={styles.ratingBadge}>
-                              <i className="bi bi-star-fill me-1"></i>
-                              {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}
-                            </div>
-                            <Badge className={`${styles.mediaTypeBadge} ${movie.media_type === 'tv' ? styles.tvBadge : ''}`}>
-                              {movie.display_media_type}
-                            </Badge>
-                            {movie.release_date && (
-                              <div className={styles.yearBadge}>
-                                {new Date(movie.release_date).getFullYear()}
-                              </div>
-                            )}
-                          </div>
-                          <Card.Body className={styles.cardBody}>
-                            <Card.Title className={styles.movieTitle}>{movieTitle}</Card.Title>
-                            <div className={styles.movieMeta}>
-                              {movie.credit_type === 'cast' ? (
-                                <span className={styles.characterName} title={`Role: ${movie.role}`}>
-                                  <i className="bi bi-person-fill me-1"></i>
-                                  {String(movie.role || '').length > 15 ? String(movie.role).substring(0, 15) + '...' : movie.role}
-                                </span>
-                              ) : (
-                                <span className={styles.jobTitle} title={String(movie.role || '')}>
-                                  <i className="bi bi-gear-fill me-1"></i>
-                                  {String(movie.role || '').length > 15 ? String(movie.role).substring(0, 15) + '...' : movie.role}
-                                </span>
-                              )}
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Link>
-                    </Col>
-                  );
-                })}
-              </Row>
-
-              {totalPages > 1 && (
-                <div className={styles.pagination}>
-                  <button onClick={goToPreviousPage} disabled={currentPage === 1} className={styles.paginationButton}>
-                    <i className="bi bi-chevron-left"></i>
-                  </button>
-
-                  {currentPage > 3 && (
-                    <>
-                      <button onClick={() => paginate(1)} className={styles.paginationButton}>1</button>
-                      {currentPage > 4 && <span className={styles.paginationEllipsis}>...</span>}
-                    </>
-                  )}
-
-                  {pageNumbers
-                    .filter((number) => Math.abs(number - currentPage) <= 2)
-                    .map((number) => (
-                      <button
-                        key={number}
-                        onClick={() => paginate(number)}
-                        className={`${styles.paginationButton} ${currentPage === number ? styles.activePage : ''}`}
-                      >
-                        {number}
-                      </button>
-                    ))
-                  }
-
-                  {currentPage < totalPages - 2 && (
-                    <>
-                      {currentPage < totalPages - 3 && <span className={styles.paginationEllipsis}>...</span>}
-                      <button onClick={() => paginate(totalPages)} className={styles.paginationButton}>{totalPages}</button>
-                    </>
-                  )}
-
-                  <button onClick={goToNextPage} disabled={currentPage === totalPages} className={styles.paginationButton}>
-                    <i className="bi bi-chevron-right"></i>
-                  </button>
-                </div>
-              )}
-            </>
           ) : (
-            <div className={styles.noMoviesFound}>
-              <div className={styles.noMoviesIcon}>
-                <i className="bi bi-film"></i>
-                <i className="bi bi-slash-circle overlay-icon"></i>
-              </div>
-              <h5>No movies found</h5>
-              <p>No {activeFilter !== 'all' ? `${activeFilter === 'movies' ? 'movies' : (activeFilter === 'tv' ? 'TV shows' : (activeFilter === 'cast' ? 'roles' : 'crew jobs'))} for` : ''} this performer in the database.</p>
+            <div className={styles.moviesGrid}>
+              {filteredMovies.map((movie) => {
+                const movieSlug = movie.slug || movie.id;
+                const safeRating = Number(movie.rating || 8.6).toFixed(1);
+                const yearText = formatYear(movie.year);
+
+                return (
+                  <Link
+                    key={movie.id}
+                    href={`/movie/${encodeURIComponent(movieSlug)}`}
+                    className={styles.movieCard}
+                    title={movie.name || movie.title}
+                  >
+                    <div className={styles.posterWrapper}>
+                      <img
+                        src={movie.poster_url || DEFAULT_POSTER}
+                        alt={movie.name}
+                        className={styles.posterImg}
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = DEFAULT_POSTER;
+                        }}
+                      />
+                      <div className={styles.posterOverlay} />
+
+                      {movie.quality && (
+                        <span className={styles.badgeQuality}>{movie.quality}</span>
+                      )}
+
+                      <div className={styles.playCenterHover}>
+                        <div className={styles.playIconBtn}>
+                          <FaPlay />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.cardInfo}>
+                      <h4 className={styles.movieTitle}>{movie.name || movie.title}</h4>
+                      <div className={styles.metaRow}>
+                        <span className={styles.ratingBadge}>
+                          <FaStar style={{ fontSize: '0.7rem' }} />
+                          <span>{safeRating}</span>
+                        </span>
+                        <span className={styles.yearText}>{yearText}</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
-        </Container>
+        </section>
       </div>
-    </>
+    </div>
   );
-};
-
-export default PerformerDetail;
+}

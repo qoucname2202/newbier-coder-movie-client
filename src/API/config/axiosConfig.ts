@@ -59,6 +59,14 @@ const readAuthToken = (): string | null => {
   const memoryToken = getMemoryAccessToken();
   if (isUsable(memoryToken)) return memoryToken;
 
+  const storageToken =
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('access_token') ||
+    sessionStorage.getItem('auth_token') ||
+    sessionStorage.getItem('token');
+  if (isUsable(storageToken)) return storageToken;
+
   return null;
 };
 

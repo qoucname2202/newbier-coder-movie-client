@@ -456,7 +456,7 @@ export const MovieHeroHeader: React.FC<MovieHeroHeaderProps> = ({
                   onClick={onToggleFavorite}
                   title={isFavorite ? 'Bỏ theo dõi bộ phim' : 'Thêm phim vào danh sách theo dõi'}
                 >
-                  <i className={isFavorite ? 'fas fa-heart text-danger' : 'far fa-heart'} />
+                  <i className={`${isFavorite ? 'fas fa-heart text-danger' : 'far fa-heart'} ${isFavorite ? styles.heartActive : ''}`} />
                   <span>{isFavorite ? 'Đã Lưu' : 'Theo Dõi'}</span>
                 </button>
 
